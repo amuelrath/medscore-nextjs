@@ -1,0 +1,1 @@
+ALTER TABLE "milestones_on_questions" DROP CONSTRAINT "id";
