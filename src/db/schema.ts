@@ -90,6 +90,7 @@ export const program = pgTable("programs", {
   specialtyId: uuid("specialty_id").references(() => specialty.id),
 });
 export type Program = typeof program.$inferSelect;
+export type NewProgram = typeof program.$inferInsert;
 export const programRelations = relations(program, ({ one, many }) => ({
   specialty: one(specialty, {
     fields: [program.specialtyId],
@@ -110,6 +111,7 @@ export const user = pgTable("users", {
   programId: uuid("program_id").references(() => program.id),
 });
 export type User = typeof user.$inferSelect;
+export type NewUser = typeof user.$inferInsert;
 export const userRelations = relations(user, ({ one, many }) => ({
   // we change this later to allow one user to belong to multiple programsa
   program: one(program, {
@@ -152,6 +154,7 @@ export const question = pgTable("questions", {
   evaluationId: uuid("evaluation_id").references(() => evaluation.id),
 });
 export type Question = typeof question.$inferSelect;
+export type NewQuestion = typeof question.$inferInsert;
 export const questionRelations = relations(question, ({ one, many }) => ({
   evaluation: one(evaluation, {
     fields: [question.evaluationId],
@@ -170,6 +173,7 @@ export const option = pgTable("options", {
   questionId: uuid("question_id").references(() => question.id),
 });
 export type Option = typeof option.$inferSelect;
+export type NewOption = typeof option.$inferInsert;
 export const optionRelations = relations(option, ({ one, many }) => ({
   question: one(question, {
     fields: [option.questionId],
@@ -194,6 +198,7 @@ export const milestonesOnQuestions = pgTable(
   }
 );
 export type MilestonesOnQuestion = typeof milestonesOnQuestions.$inferSelect;
+export type NewMilestoneOnQuestion = typeof milestonesOnQuestions.$inferInsert;
 export const milestonesOnQuestionsRelations = relations(
   milestonesOnQuestions,
   ({ one }) => ({
