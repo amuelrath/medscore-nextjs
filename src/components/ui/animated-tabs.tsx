@@ -53,7 +53,7 @@ export default function AnimatedTabs({
               {activeTab === tab.id && (
                 <motion.span
                   layoutId="bubble"
-                  className="absolute inset-0 z-10 bg-yellow-400 mix-blend-exclusion"
+                  className="absolute inset-0 z-10 bg-background mix-blend-exclusion"
                   style={{ borderRadius: 5 }}
                   transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                 />
