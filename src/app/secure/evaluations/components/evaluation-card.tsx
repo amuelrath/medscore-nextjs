@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardDescription } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -12,12 +6,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Image from "next/image";
-import pc from "public/pc.png";
-import mk from "public/mk.png";
-import sbp from "public/sbp.png";
-import ics from "public/ics.png";
-import p from "public/p.png";
-import pbli from "public/pbli.png";
+import pc from "public/pc-bw.png";
+import mk from "public/mk-bw.png";
+import sbp from "public/sbp-bw.png";
+import ics from "public/ics-bw.png";
+import p from "public/p-bw.png";
+import pbli from "public/pbli-bw.png";
+import { EvaluationMenu } from "./evaluation-card-dropdown";
 
 // there is surely a better way of getting this type
 type EvaluationWithProgram = {
@@ -54,26 +49,53 @@ export default function EvaluationCard({
         {evaluation.description || "no description provided"}
       </CardDescription>
       <div>
-        <hr />
-        <div className="flex flex-row justify-start mt-2">
-          <IconTooltip label="Patient Care">
-            <Image src={pc} alt={""} className="w-7" />
-          </IconTooltip>
-          <IconTooltip label="Medical Knowledge">
-            <Image src={mk} alt={""} className="w-7" />
-          </IconTooltip>
-          <IconTooltip label="Systems-Based Practice">
-            <Image src={sbp} alt={""} className="w-7" />
-          </IconTooltip>
-          <IconTooltip label="Interpersonal Communication Skills">
-            <Image src={ics} alt={""} className="w-7" />
-          </IconTooltip>
-          <IconTooltip label="Professionalism">
-            <Image src={p} alt={""} className="w-7" />
-          </IconTooltip>
-          <IconTooltip label="Practice-Based Learning and Improvement">
-            <Image src={pbli} alt={""} className="w-7" />
-          </IconTooltip>
+        <hr className="mb-2" />
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex flex-row items-center">
+            <IconTooltip label="Patient Care">
+              <Image
+                src={pc}
+                alt={""}
+                className="w-7 rounded-full  hover:scale-150 hover:bg-white transition-all"
+              />
+            </IconTooltip>
+            <IconTooltip label="Medical Knowledge">
+              <Image
+                src={mk}
+                alt={""}
+                className="w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
+              />
+            </IconTooltip>
+            <IconTooltip label="Systems-Based Practice">
+              <Image
+                src={sbp}
+                alt={""}
+                className="w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
+              />
+            </IconTooltip>
+            <IconTooltip label="Interpersonal Communication Skills">
+              <Image
+                src={ics}
+                alt={""}
+                className="w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
+              />
+            </IconTooltip>
+            <IconTooltip label="Professionalism">
+              <Image
+                src={p}
+                alt={""}
+                className="w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
+              />
+            </IconTooltip>
+            <IconTooltip label="Practice-Based Learning and Improvement">
+              <Image
+                src={pbli}
+                alt={""}
+                className="w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
+              />
+            </IconTooltip>
+          </div>
+          <EvaluationMenu evaluationId={evaluation.id} />
         </div>
       </div>
     </Card>
@@ -91,7 +113,7 @@ function IconTooltip({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger>{children}</TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
+        <TooltipContent className="z-20">{label}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
