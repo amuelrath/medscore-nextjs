@@ -6,6 +6,7 @@ import {
   FlaskConicalIcon,
   BookCheckIcon,
 } from "lucide-react";
+import { Toaster } from "@/components/ui/sonner";
 
 const tabs = [
   {
@@ -52,6 +53,7 @@ export default function SecureRootLayout({
       </div>
       <div className="w-full h-full ml-[4rem] mt-16 bg-gray-100 rounded-[15px] fixed">
         <div className="mr-16">{children}</div>
+        <Toaster />
       </div>
     </main>
   );
