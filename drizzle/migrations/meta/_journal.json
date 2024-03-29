@@ -22,6 +22,34 @@
       "when": 1711061597259,
       "tag": "0002_nostalgic_blob",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1711653052073,
+      "tag": "0003_burly_kinsey_walden",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1711687160170,
+      "tag": "0004_complete_norrin_radd",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1711687249441,
+      "tag": "0005_supreme_mesmero",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1711689704234,
+      "tag": "0006_unusual_blink",
+      "breakpoints": true
     }
   ]
 }
