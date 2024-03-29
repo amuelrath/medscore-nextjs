@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations, sql, InferSelectModel } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -13,18 +13,18 @@ import {
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
 
-export const competency = pgTable("competencies", {
+export const competencies = pgTable("competencies", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
 });
-export type Competency = typeof competency.$inferSelect;
-export const competencyRelations = relations(competency, ({ many }) => ({
-  subcompetencies: many(subcompetency),
+export type Competency = typeof competencies.$inferSelect;
+export const competencyRelations = relations(competencies, ({ many }) => ({
+  subcompetencies: many(subcompetencies),
 }));
 
-export const subcompetency = pgTable("subcompetencies", {
+export const subcompetencies = pgTable("subcompetencies", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
@@ -32,24 +32,24 @@ export const subcompetency = pgTable("subcompetencies", {
   level: smallint("level").notNull(),
   competencyId: uuid("competency_id")
     .notNull()
-    .references(() => competency.id),
+    .references(() => competencies.id),
   specialtyId: uuid("specialty_id")
     .notNull()
-    .references(() => specialty.id),
+    .references(() => specialties.id),
 });
-export type Subcompetency = typeof subcompetency.$inferSelect;
-export const subcompetencyRelations = relations(subcompetency, ({ one }) => ({
-  competency: one(competency, {
-    fields: [subcompetency.competencyId],
-    references: [competency.id],
+export type Subcompetency = typeof subcompetencies.$inferSelect;
+export const subcompetencyRelations = relations(subcompetencies, ({ one }) => ({
+  competencies: one(competencies, {
+    fields: [subcompetencies.competencyId],
+    references: [competencies.id],
   }),
-  specialty: one(specialty, {
-    fields: [subcompetency.specialtyId],
-    references: [specialty.id],
+  specialties: one(specialties, {
+    fields: [subcompetencies.specialtyId],
+    references: [specialties.id],
   }),
 }));
 
-export const milestone = pgTable("milestones", {
+export const milestones = pgTable("milestones", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
@@ -59,47 +59,47 @@ export const milestone = pgTable("milestones", {
   sublevel: smallint("sublevel").notNull(), // eg 3
   subcompetencyId: uuid("subcompetency_id")
     .notNull()
-    .references(() => subcompetency.id),
+    .references(() => subcompetencies.id),
 });
-export type Milestone = typeof milestone.$inferSelect;
-export const milestoneRelations = relations(milestone, ({ one, many }) => ({
-  subcompetency: one(subcompetency, {
-    fields: [milestone.subcompetencyId],
-    references: [subcompetency.id],
+export type Milestone = typeof milestones.$inferSelect;
+export const milestoneRelations = relations(milestones, ({ one, many }) => ({
+  subcompetencies: one(subcompetencies, {
+    fields: [milestones.subcompetencyId],
+    references: [subcompetencies.id],
   }),
   questions: many(milestonesOnQuestions),
 }));
 
-export const specialty = pgTable("specialties", {
+export const specialties = pgTable("specialties", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
 });
-export type Specialty = typeof specialty.$inferSelect;
-export const specialtyRelations = relations(specialty, ({ many }) => ({
-  subcompetency: many(subcompetency),
+export type Specialty = typeof specialties.$inferSelect;
+export const specialtyRelations = relations(specialties, ({ many }) => ({
+  subcompetencies: many(subcompetencies),
 }));
 
-export const program = pgTable("programs", {
+export const programs = pgTable("programs", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   name: text("name").notNull().unique(),
   description: text("description"),
-  specialtyId: uuid("specialty_id").references(() => specialty.id),
+  specialtyId: uuid("specialty_id").references(() => specialties.id),
 });
-export type Program = typeof program.$inferSelect;
-export type NewProgram = typeof program.$inferInsert;
-export const programRelations = relations(program, ({ one, many }) => ({
-  specialty: one(specialty, {
-    fields: [program.specialtyId],
-    references: [specialty.id],
+export type Program = typeof programs.$inferSelect;
+export type NewProgram = typeof programs.$inferInsert;
+export const programRelations = relations(programs, ({ one, many }) => ({
+  specialties: one(specialties, {
+    fields: [programs.specialtyId],
+    references: [specialties.id],
   }),
-  users: many(user),
+  users: many(users),
 }));
 
-export const user = pgTable("users", {
+export const users = pgTable("users", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
@@ -108,76 +108,84 @@ export const user = pgTable("users", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   role: roleEnum("role").notNull().default("NONE"),
-  programId: uuid("program_id").references(() => program.id),
+  programId: uuid("program_id").references(() => programs.id),
 });
-export type User = typeof user.$inferSelect;
-export type NewUser = typeof user.$inferInsert;
-export const userRelations = relations(user, ({ one, many }) => ({
-  // we change this later to allow one user to belong to multiple programsa
-  program: one(program, {
-    fields: [user.programId],
-    references: [program.id],
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export const userRelations = relations(users, ({ one, many }) => ({
+  // we change this later to allow one users to belong to multiple programsa
+  programs: one(programs, {
+    fields: [users.programId],
+    references: [programs.id],
   }),
-  evaluations: many(evaluation),
+  evaluations: many(evaluations),
 }));
 
-export const evaluation = pgTable("evaluations", {
+export const evaluations = pgTable("evaluations", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  programId: uuid("program_id").references(() => program.id),
-  creatorId: uuid("creator_id").references(() => user.id),
+  programId: uuid("program_id").references(() => programs.id, {
+    onDelete: "cascade",
+  }),
+  creatorId: uuid("creator_id").references(() => users.id),
 });
-export type Evaluation = typeof evaluation.$inferSelect;
-export type NewEvaluation = typeof evaluation.$inferInsert;
-export const evaluationRelations = relations(evaluation, ({ one, many }) => ({
-  program: one(program, {
-    fields: [evaluation.programId],
-    references: [program.id],
+export type Evaluation = InferSelectModel<typeof evaluations>;
+export type NewEvaluation = typeof evaluations.$inferInsert;
+export const evaluationRelations = relations(evaluations, ({ one, many }) => ({
+  programs: one(programs, {
+    fields: [evaluations.programId],
+    references: [programs.id],
   }),
-  creator: one(user, {
-    fields: [evaluation.creatorId],
-    references: [user.id],
+  creator: one(users, {
+    fields: [evaluations.creatorId],
+    references: [users.id],
   }),
-  questions: many(question),
+  questions: many(questions),
 }));
 
-// we change this later to allow multiple question types (open feedback)
-export const question = pgTable("questions", {
+// we change this later to allow multiple questions types (open feedback)
+export const questions = pgTable("questions", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   text: text("text"),
-  evaluationId: uuid("evaluation_id").references(() => evaluation.id),
-});
-export type Question = typeof question.$inferSelect;
-export type NewQuestion = typeof question.$inferInsert;
-export const questionRelations = relations(question, ({ one, many }) => ({
-  evaluation: one(evaluation, {
-    fields: [question.evaluationId],
-    references: [evaluation.id],
+  position: integer("position"),
+  evaluationId: uuid("evaluation_id").references(() => evaluations.id, {
+    onDelete: "cascade",
   }),
-  options: many(option),
+});
+export type Question = typeof questions.$inferSelect;
+export type NewQuestion = typeof questions.$inferInsert;
+export const questionRelations = relations(questions, ({ one, many }) => ({
+  evaluations: one(evaluations, {
+    fields: [questions.evaluationId],
+    references: [evaluations.id],
+  }),
+  options: many(options),
   milestones: many(milestonesOnQuestions),
 }));
 
-export const option = pgTable("options", {
+export const options = pgTable("options", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   text: text("text"),
+  position: integer("position"),
   pointValue: decimal("point_value"),
-  questionId: uuid("question_id").references(() => question.id),
+  questionId: uuid("question_id").references(() => questions.id, {
+    onDelete: "cascade",
+  }),
 });
-export type Option = typeof option.$inferSelect;
-export type NewOption = typeof option.$inferInsert;
-export const optionRelations = relations(option, ({ one, many }) => ({
-  question: one(question, {
-    fields: [option.questionId],
-    references: [question.id],
+export type Option = typeof options.$inferSelect;
+export type NewOption = typeof options.$inferInsert;
+export const optionRelations = relations(options, ({ one }) => ({
+  questions: one(questions, {
+    fields: [options.questionId],
+    references: [questions.id],
   }),
 }));
 
@@ -186,10 +194,10 @@ export const milestonesOnQuestions = pgTable(
   {
     questionId: uuid("question_id")
       .notNull()
-      .references(() => question.id),
+      .references(() => questions.id),
     milestoneId: uuid("milestone_id")
       .notNull()
-      .references(() => milestone.id),
+      .references(() => milestones.id),
   },
   (table) => {
     return {
@@ -202,13 +210,13 @@ export type NewMilestoneOnQuestion = typeof milestonesOnQuestions.$inferInsert;
 export const milestonesOnQuestionsRelations = relations(
   milestonesOnQuestions,
   ({ one }) => ({
-    milestone: one(milestone, {
+    milestones: one(milestones, {
       fields: [milestonesOnQuestions.milestoneId],
-      references: [milestone.id],
+      references: [milestones.id],
     }),
-    question: one(question, {
+    questions: one(questions, {
       fields: [milestonesOnQuestions.questionId],
-      references: [question.id],
+      references: [questions.id],
     }),
   })
 );
