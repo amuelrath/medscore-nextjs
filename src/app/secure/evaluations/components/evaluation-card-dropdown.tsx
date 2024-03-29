@@ -1,4 +1,6 @@
 "use client";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +20,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -31,19 +31,36 @@ export function EvaluationMenu({ evaluationId }: { evaluationId: string }) {
     <>
       <AlertDialog>
         <DropdownMenu>
-          <DropdownMenuTrigger className="data-[state=open]:bg-slate-900 data-[state=open]:text-white w-6 rounded-full py-1 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
+          <DropdownMenuTrigger
+            className={cn(
+              "data-[state=open]:bg-slate-900 data-[state=open]:text-white w-6 rounded-full py-1 hover:bg-slate-900 hover:text-white transition-all cursor-pointer"
+            )}
+          >
             <EllipsisVerticalIcon />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>
-              <div className="w-full flex flex-row justify-between items-center">
-                Edit
-                <PencilIcon className="w-4" />
-              </div>
+              <Link
+                href={`/secure/evaluations/edit/${evaluationId}`}
+                className={cn("w-full")}
+              >
+                <div
+                  className={cn(
+                    "w-full flex flex-row justify-between items-center"
+                  )}
+                >
+                  Edit
+                  <PencilIcon className="w-4" />
+                </div>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <div className="w-full flex flex-row justify-between items-center">
+              <div
+                className={cn(
+                  "w-full flex flex-row justify-between items-center"
+                )}
+              >
                 Publish
                 <ArrowsUpFromLineIcon className="w-4" />
               </div>
@@ -51,15 +68,19 @@ export function EvaluationMenu({ evaluationId }: { evaluationId: string }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <AlertDialogTrigger className="w-full">
-                <div className="w-full flex flex-row justify-between items-center">
+                <div
+                  className={cn(
+                    "w-full flex flex-row justify-between items-center"
+                  )}
+                >
                   Delete
-                  <Trash2Icon className="w-4" />
+                  <Trash2Icon className={cn("w-4")} />
                 </div>
               </AlertDialogTrigger>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <AlertDialogContent className="rounded-md">
+        <AlertDialogContent className={cn("rounded-md")}>
           <AlertDialogHeader>
             <AlertDialogTitle>
               are you sure you want to delete this evaluation? this action is
@@ -68,7 +89,7 @@ export function EvaluationMenu({ evaluationId }: { evaluationId: string }) {
           </AlertDialogHeader>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            className="bg-slate-900 text-white"
+            className={cn("bg-slate-900 text-white")}
             onClick={() =>
               deleteEvaluation(evaluationId).then(() =>
                 toast.success("Evaluation deleted.")
