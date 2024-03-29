@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Tooltip,
@@ -8,12 +8,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./tooltip";
+import { usePathname } from "next/navigation";
 
 type Tab = {
   id: string;
   label: string;
   icon: React.ReactNode;
-  href?: string;
+  href: string;
 };
 
 type Props = {
@@ -23,13 +24,16 @@ type Props = {
   icons?: boolean;
 };
 
-export default function AnimatedTabs({
-  tabs,
-  defaultValue,
-  vertical,
-  icons,
-}: Props) {
-  let [activeTab, setActiveTab] = useState(defaultValue || tabs[0].id);
+export default function AnimatedTabs({ tabs, vertical, icons }: Props) {
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = useState(pathname);
+
+  useEffect(() => {
+    const activeTab = tabs.find((tab) => pathname.startsWith(tab.href));
+    if (activeTab) {
+      setActiveTab(activeTab.id);
+    }
+  }, [pathname, tabs]);
 
   return (
     <div
@@ -46,9 +50,7 @@ export default function AnimatedTabs({
               className={`${
                 activeTab === tab.id ? "" : "hover:text-black/60"
               } relative rounded-full px-3 py-1.5 text-sm font-medium text-black outline-sky-400 transition focus-visible:outline-2`}
-              style={{
-                WebkitTapHighlightColor: "transparent",
-              }}
+              style={{ WebkitTapHighlightColor: "transparent" }}
             >
               {activeTab === tab.id && (
                 <motion.span
