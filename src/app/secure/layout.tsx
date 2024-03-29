@@ -47,13 +47,13 @@ export default function SecureRootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex flex-row h-full w-full">
+    <main className="flex flex-row h-screen w-full">
       <div>
         <AnimatedTabs tabs={tabs} vertical icons />
       </div>
-      <div className="w-full h-full ml-[4rem] mt-16 bg-gray-100 rounded-[15px] fixed">
-        <div className="mr-16">{children}</div>
+      <div className="flex-1 ml-[4rem] mt-16 bg-gray-100 rounded-[15px] border pb-32 overflow-y-auto">
         <Toaster />
+        <div>{children}</div>
       </div>
     </main>
   );
