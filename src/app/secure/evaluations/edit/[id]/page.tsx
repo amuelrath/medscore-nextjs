@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { db } from "@/db";
-import QuestionList from "./components/questions";
+import EvaluationEditor from "./components/EvaluationEditor";
 
 export default async function EditorPage({
   params,
@@ -22,6 +22,7 @@ export default async function EditorPage({
       questions: {
         with: {
           options: true,
+          milestones: true,
         },
       },
     },
@@ -43,7 +44,7 @@ export default async function EditorPage({
           <Breadcrumbs />
         </div>
       </PageHeader>
-      <QuestionList evaluation={evaluation} />
+      <EvaluationEditor evaluation={evaluation} />
     </main>
   );
 }

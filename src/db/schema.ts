@@ -128,9 +128,12 @@ export const evaluations = pgTable("evaluations", {
   title: text("title").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  programId: uuid("program_id").references(() => programs.id, {
-    onDelete: "cascade",
-  }),
+  programId: uuid("program_id")
+    .references(() => programs.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+
   creatorId: uuid("creator_id").references(() => users.id),
 });
 export type Evaluation = InferSelectModel<typeof evaluations>;
@@ -154,9 +157,11 @@ export const questions = pgTable("questions", {
     .default(sql`gen_random_uuid()`),
   text: text("text"),
   position: integer("position"),
-  evaluationId: uuid("evaluation_id").references(() => evaluations.id, {
-    onDelete: "cascade",
-  }),
+  evaluationId: uuid("evaluation_id")
+    .references(() => evaluations.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
 });
 export type Question = typeof questions.$inferSelect;
 export type NewQuestion = typeof questions.$inferInsert;
@@ -176,9 +181,11 @@ export const options = pgTable("options", {
   text: text("text"),
   position: integer("position"),
   pointValue: decimal("point_value"),
-  questionId: uuid("question_id").references(() => questions.id, {
-    onDelete: "cascade",
-  }),
+  questionId: uuid("question_id")
+    .references(() => questions.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
 });
 export type Option = typeof options.$inferSelect;
 export type NewOption = typeof options.$inferInsert;
