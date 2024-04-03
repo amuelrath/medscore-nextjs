@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { db } from "@/db";
 import EvaluationEditor from "./components/EvaluationEditor";
+import { competencies, specialties } from "@/db/schema";
 
 export default async function EditorPage({
   params,
@@ -19,10 +20,21 @@ export default async function EditorPage({
   const evaluation = await db.query.evaluations.findFirst({
     where: (evaluation, { eq }) => eq(evaluation.id, params.id),
     with: {
+      programs: {
+        with: {
+          specialties: {
+            with: {
+              subcompetencies: {
+                with: { milestones: true, competencies: true },
+              },
+            },
+          },
+        },
+      },
       questions: {
         with: {
-          options: true,
           milestones: true,
+          options: true,
         },
       },
     },

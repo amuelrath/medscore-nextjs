@@ -6,6 +6,12 @@ import {
   milestones,
   options,
   NewOption,
+  competencies,
+  subcompetencies,
+  specialties,
+  programs,
+  milestoneRelations,
+  Milestone,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -16,6 +22,7 @@ export async function getEvaluation(id: string) {
   const evaluation = await db.query.evaluations.findFirst({
     where: (evaluation, { eq }) => eq(evaluation.id, id),
     with: {
+      programs: { with: { specialties: { with: { subcompetencies: true } } } },
       questions: {
         with: {
           options: true,
@@ -94,15 +101,18 @@ export async function createOption(questionId: string) {
 export async function deleteOption(optionId: string) {
   const option = await db.query.options.findFirst({
     where: (option, { eq }) => eq(option.id, optionId),
-    with: {
-      questions: { with: { evaluations: true } },
-    },
   });
 
   if (!option) throw new Error("Option not found");
 
-  if (option.questions.evaluations.creatorId !== process.env.DEV_USER_ID)
+  const question = await db.query.questions.findFirst({
+    where: (question, { eq }) => eq(question.id, option.questionId),
+    with: { evaluations: true },
+  });
+
+  if (question?.evaluations.creatorId !== process.env.DEV_USER_ID!) {
     throw new Error("Unauthorized");
+  }
 
   await db.delete(options).where(eq(options.id, optionId));
   revalidatePath("#");
@@ -140,4 +150,36 @@ export async function updateOption(
     throw new Error("Unauthorized");
 
   await db.update(options).set(updates).where(eq(options.id, optionId));
+}
+
+export async function getMilestones() {
+  const milestones = await db.query.milestones.findMany({
+    with: {
+      subcompetencies: {
+        with: {
+          competencies: true,
+          specialties: true,
+        },
+      },
+    },
+  });
+  return milestones;
+}
+
+export async function getMilestonesByProgramId(programId: string) {
+  const data = await db
+    .select()
+    .from(milestones)
+    .innerJoin(
+      subcompetencies,
+      eq(milestones.subcompetencyId, subcompetencies.id)
+    )
+    .innerJoin(specialties, eq(subcompetencies.specialtyId, specialties.id))
+    .innerJoin(programs, eq(specialties.id, programs.specialtyId))
+    .where(eq(programs.id, programId))
+    .execute();
+
+  const result = data.map((m) => m.milestones as Milestone);
+
+  return result;
 }

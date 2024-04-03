@@ -38,16 +38,20 @@ export const subcompetencies = pgTable("subcompetencies", {
     .references(() => specialties.id),
 });
 export type Subcompetency = typeof subcompetencies.$inferSelect;
-export const subcompetencyRelations = relations(subcompetencies, ({ one }) => ({
-  competencies: one(competencies, {
-    fields: [subcompetencies.competencyId],
-    references: [competencies.id],
-  }),
-  specialties: one(specialties, {
-    fields: [subcompetencies.specialtyId],
-    references: [specialties.id],
-  }),
-}));
+export const subcompetencyRelations = relations(
+  subcompetencies,
+  ({ one, many }) => ({
+    competencies: one(competencies, {
+      fields: [subcompetencies.competencyId],
+      references: [competencies.id],
+    }),
+    specialties: one(specialties, {
+      fields: [subcompetencies.specialtyId],
+      references: [specialties.id],
+    }),
+    milestones: many(milestones),
+  })
+);
 
 export const milestones = pgTable("milestones", {
   id: uuid("id")

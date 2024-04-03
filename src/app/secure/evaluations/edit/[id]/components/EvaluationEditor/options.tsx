@@ -1,11 +1,13 @@
+// options.tsx
+
 "use client";
 import { cn } from "@/lib/utils";
 import { Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Option } from "@/db/schema";
 import { deleteOption, updateOption } from "../../actions";
+import { motion, AnimatePresence } from "framer-motion";
 
-// tood: debounce this stuff
 export function Option({ option }: { option: Option }) {
   const handleRemoveOption = async () => {
     await deleteOption(option.id);
@@ -20,8 +22,17 @@ export function Option({ option }: { option: Option }) {
   ) => {
     await updateOption(option.id, { pointValue: e.target.value });
   };
+
   return (
-    <div className={cn("flex items-center space-x-2 group w-full")}>
+    <motion.div
+      layout="position"
+      layoutId={`option-${option.id}`}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
+      className={cn("flex items-center space-x-2 group w-full")}
+    >
       <Input
         defaultValue={option.text || ""}
         onChange={handleTextChange}
@@ -33,9 +44,7 @@ export function Option({ option }: { option: Option }) {
         defaultValue={Number(option.pointValue).toFixed(1)}
         onChange={handlePointValueChange}
         type="number"
-        className={cn(
-          "w-12 text-center border rounded-md p-1 appearance-none [-moz-appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        )}
+        className={cn("w-12 text-center border rounded-md p-1")}
       />
       <div
         className={cn(
@@ -44,18 +53,20 @@ export function Option({ option }: { option: Option }) {
       >
         <Trash2Icon className={cn("size-4")} onClick={handleRemoveOption} />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 export default function OptionList({ options }: { options: Option[] }) {
   return (
-    <div className={cn("space-y-2")}>
-      {options.map((option) => (
-        <div>
-          <Option key={option.id} option={option} />
-        </div>
-      ))}
-    </div>
+    <AnimatePresence>
+      <div className={cn("space-y-2")}>
+        {options
+          .sort((a, b) => a.position! - b.position!)
+          .map((option) => (
+            <Option key={option.id} option={option} />
+          ))}
+      </div>
+    </AnimatePresence>
   );
 }
