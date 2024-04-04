@@ -183,3 +183,14 @@ export async function getMilestonesByProgramId(programId: string) {
 
   return result;
 }
+
+export const changeEvaluationTitle = async (
+  evaluationId: string,
+  data: string
+) => {
+  await db
+    .update(evaluations)
+    .set({ title: data })
+    .where(eq(evaluations.id, evaluationId));
+  revalidatePath("#");
+};
