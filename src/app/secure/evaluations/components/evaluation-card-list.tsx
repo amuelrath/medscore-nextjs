@@ -4,6 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import EvaluationCard from "./evaluation-card";
 import { cn } from "@/lib/utils";
 import { Evaluation } from "@/db/schema";
+// TODO ADD 'last
 export default function EvaluationCards({
   evaluations,
 }: {
@@ -16,13 +17,18 @@ export default function EvaluationCards({
           "w-full grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 gap-2 px-2"
         )}
       >
-        {evaluations.map((evaluation, index) => (
-          <EvaluationCard
-            key={evaluation.id}
-            evaluation={evaluation}
-            index={index}
-          />
-        ))}
+        {evaluations
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+          .map((evaluation, index) => (
+            <EvaluationCard
+              key={evaluation.id}
+              evaluation={evaluation}
+              index={index}
+            />
+          ))}
       </div>
     </AnimatePresence>
   );

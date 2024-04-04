@@ -17,13 +17,18 @@ export async function createEvaluation(data: FormData) {
     },
   });
 
+  if (!programIdQuery) throw new Error("Program not found");
+  const programId = programIdQuery?.programs?.id;
+  if (!programId) throw new Error("Program not found");
+
   const insertEvaluation = async (data: NewEvaluation) => {
     return db.insert(evaluations).values(data);
   };
+
   const newEvaluation: NewEvaluation = {
     title: title as string,
     description: description as string,
-    programId: programIdQuery?.programs?.id,
+    programId: programId,
     creatorId: process.env.DEV_USER_ID!,
   };
 
