@@ -1,12 +1,7 @@
 "use client";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { getMilestones } from "../../actions";
 import {
-  ArrowUpNarrowWide,
   BrainIcon,
-  ChevronDownCircleIcon,
-  ChevronUpCircleIcon,
   CogIcon,
   HandshakeIcon,
   MilestoneIcon,
@@ -14,14 +9,7 @@ import {
   SpeechIcon,
   StethoscopeIcon,
 } from "lucide-react";
-import Select, {
-  ClassNamesConfig,
-  DropdownIndicatorProps,
-  InputProps,
-  components,
-} from "react-select";
-import { db } from "@/db";
-import { Milestone } from "@/db/schema";
+
 import {
   Drawer,
   DrawerClose,
@@ -32,20 +20,10 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { ClientMilestone, ClientQuestion } from "@/db/client-types";
+// TODO FORMAT FOR MOBILE BROWSER
 
 type CoreCompetency = "MK" | "ICS" | "SBP" | "PBLI" | "PC" | "P";
 const CoreCompetencies = ["MK", "ICS", "SBP", "PBLI", "PC", "P"] as const;
-
-const styles = {
-  container: (state) => "font-forma",
-  menu: (state) => "bg-black",
-  control: (state) => "font-forma",
-  input: (state) => "font-forma  py-1.5",
-  placeholder: (state) => "hidden",
-  dropdownIndicator: (state) =>
-    "absolute text-sm p-1 hover:bg-primary hover:text-white transition-all rounded-full",
-  menuList: (state) => "bg-white border space-y-4",
-} as ClassNamesConfig;
 
 export default function MilestoneSelector({
   milestones,
@@ -72,8 +50,8 @@ export default function MilestoneSelector({
       </DrawerTrigger>
       <DrawerContent className={cn("h-[80%]")}>
         <DrawerHeader>
-          <DrawerTitle>Milestones</DrawerTitle>
-          <DrawerDescription>
+          <DrawerTitle className={cn("text-xl")}>Milestones</DrawerTitle>
+          <DrawerDescription className={cn("text-md")}>
             Adding Milestones to Question #{question.position}
           </DrawerDescription>
         </DrawerHeader>

@@ -27,9 +27,11 @@ export default function CreateEvaluation() {
       </DrawerTrigger>
       <DrawerContent className={cn("h-[75%]")}>
         <DrawerHeader>
-          <DrawerTitle className="text-2xl">new evaluation</DrawerTitle>
-          <p className={cn("text-sm")}>
-            enter evaluation details. you can always change them later.
+          <DrawerTitle className="text-xl font-forma">
+            New Evaluation
+          </DrawerTitle>
+          <p className={cn("text-md font-forma")}>
+            Enter evaluation details. You can always change them later.
           </p>
           <hr />
         </DrawerHeader>
