@@ -46,7 +46,7 @@ export default function QuestionCard({
             <Trash2Icon size={"1rem"} />
           </div>
         </div>
-        <div className={cn("mr-8")}>
+        <div className={cn("flex flex-row items-center space-x-2")}>
           <Input
             type="text"
             onChange={handleEditText}
@@ -54,10 +54,10 @@ export default function QuestionCard({
             placeholder="Question"
             className={cn("p-2")}
           />
+
+          <MilestoneSelector milestones={milestones} question={question} />
         </div>
-        <div>
-          <MilestoneSelector milestones={milestones} />
-        </div>
+        <div></div>
         <div>
           <OptionList options={question?.options || []} />
           <PlusCircleIcon

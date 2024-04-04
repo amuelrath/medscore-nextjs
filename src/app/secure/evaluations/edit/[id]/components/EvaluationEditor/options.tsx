@@ -48,7 +48,7 @@ export function Option({ option }: { option: Option }) {
       />
       <div
         className={cn(
-          "group-hover:opacity-100 opacity-0 hover:bg-primary hover:text-white rounded-full transition-all p-1"
+          "group-hover:opacity-100 hover:cursor-pointer opacity-0 hover:bg-primary hover:text-white rounded-full transition-all p-1"
         )}
       >
         <Trash2Icon className={cn("size-4")} onClick={handleRemoveOption} />
