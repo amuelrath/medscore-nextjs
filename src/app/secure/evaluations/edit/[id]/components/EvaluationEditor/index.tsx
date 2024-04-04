@@ -5,6 +5,15 @@ import QuestionCard from "./questions";
 import { cn } from "@/lib/utils";
 import { PlusCircleIcon } from "lucide-react";
 import { createQuestion } from "../../actions";
+import PageHeader from "@/components/ui/page-header";
+import { changeEvaluationTitle } from "../../actions";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export default function EvaluationEditor({
   evaluation,
@@ -15,8 +24,27 @@ export default function EvaluationEditor({
     await createQuestion(evaluation.id);
   };
 
+  // TOTO DEBOUNCE
+  const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    changeEvaluationTitle(evaluation.id, e.target.value);
+  };
+
   return (
     <AnimatePresence>
+      <PageHeader>
+        <div className={cn("flex flex-col")}>
+          <h2 className={cn("text-2xl font-bold")}>
+            <input
+              defaultValue={evaluation.title}
+              onChange={handleTitleChange}
+              className={cn(
+                "appearance-none outline-none focus-visible:outline-none focus:outline-none w-full hover:text-primary/80 transition-all"
+              )}
+            />
+          </h2>
+          <Breadcrumbs />
+        </div>
+      </PageHeader>
       <motion.div layout className={cn("p-2 space-y-2")}>
         {[...evaluation.questions]
           .sort((a, b) => a.position! - b.position!)
@@ -56,5 +84,23 @@ export default function EvaluationEditor({
         </motion.div>
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+function Breadcrumbs() {
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/secure/evaluations">
+            evaluations
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink href="#">editor</BreadcrumbLink>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }
