@@ -1,15 +1,5 @@
-import PageHeader from "@/components/ui/page-header";
-import { cn } from "@/lib/utils";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { db } from "@/db";
 import EvaluationEditor from "./components/EvaluationEditor";
-import { competencies, specialties } from "@/db/schema";
 
 export default async function EditorPage({
   params,
@@ -50,31 +40,7 @@ export default async function EditorPage({
 
   return (
     <main>
-      <PageHeader>
-        <div className={cn("flex flex-col")}>
-          <h2 className={cn("text-2xl font-bold")}>Untitled Evaluation</h2>
-          <Breadcrumbs />
-        </div>
-      </PageHeader>
       <EvaluationEditor evaluation={evaluation} />
     </main>
-  );
-}
-
-function Breadcrumbs() {
-  return (
-    <Breadcrumb>
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/secure/evaluations">
-            evaluations
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink href="#">editor</BreadcrumbLink>
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
   );
 }
