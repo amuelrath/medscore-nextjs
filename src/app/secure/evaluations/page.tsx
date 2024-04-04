@@ -1,13 +1,14 @@
-import EvaluationCard from "./components/evaluation-card";
 import { db } from "@/db";
 import PageHeader from "@/components/ui/page-header";
 import CreateEvaluation from "./components/create-evaluation";
 import { cn } from "@/lib/utils";
+import EvaluationCards from "./components/evaluation-card-list";
 
 export default async function SecureHomePage() {
   const evaluations = await db.query.evaluations.findMany({
     with: {
-      programs: true,
+      programs: { with: { specialties: { with: { subcompetencies: true } } } },
+      questions: { with: { milestones: true, options: true } },
     },
   });
 
@@ -20,15 +21,7 @@ export default async function SecureHomePage() {
         </div>
         <CreateEvaluation />
       </PageHeader>
-      <div
-        className={cn(
-          "w-full grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 gap-2 px-2"
-        )}
-      >
-        {evaluations.map((evaluation) => (
-          <EvaluationCard key={evaluation.id} evaluation={evaluation} />
-        ))}
-      </div>
+      <EvaluationCards evaluations={evaluations} />
     </main>
   );
 }

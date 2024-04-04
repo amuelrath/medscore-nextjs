@@ -103,7 +103,7 @@ export async function deleteOption(optionId: string) {
     where: (option, { eq }) => eq(option.id, optionId),
   });
 
-  if (!option) throw new Error("Option not found");
+  if (!option) return console.log("Option not found");
 
   const question = await db.query.questions.findFirst({
     where: (question, { eq }) => eq(question.id, option.questionId),
