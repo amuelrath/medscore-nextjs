@@ -12,6 +12,7 @@ import {
   programs,
   milestoneRelations,
   Milestone,
+  milestonesOnQuestions,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -192,5 +193,29 @@ export const changeEvaluationTitle = async (
     .update(evaluations)
     .set({ title: data })
     .where(eq(evaluations.id, evaluationId));
+  revalidatePath("#");
+};
+
+export const createMilestone = async (
+  milestoneId: string,
+  questionId: string
+) => {
+  await db.insert(milestonesOnQuestions).values({
+    questionId,
+    milestoneId,
+  });
+  revalidatePath("#");
+};
+
+export const deleteMilestone = async (
+  questionId: string,
+  milestoneId: string
+) => {
+  await db
+    .delete(milestonesOnQuestions)
+    .where(
+      eq(milestonesOnQuestions.milestoneId, milestoneId) &&
+        eq(milestonesOnQuestions.questionId, questionId)
+    );
   revalidatePath("#");
 };
