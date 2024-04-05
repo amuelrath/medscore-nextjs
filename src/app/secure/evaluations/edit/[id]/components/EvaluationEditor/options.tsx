@@ -4,11 +4,11 @@
 import { cn } from "@/lib/utils";
 import { Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Option } from "@/db/schema";
+import { Option as OptionType } from "@/db/schema";
 import { deleteOption, updateOption } from "../../actions";
 import { motion, AnimatePresence } from "framer-motion";
 
-export function Option({ option }: { option: Option }) {
+export function Option({ option }: { option: OptionType }) {
   const handleRemoveOption = async () => {
     await deleteOption(option.id);
   };
@@ -57,7 +57,7 @@ export function Option({ option }: { option: Option }) {
   );
 }
 
-export default function OptionList({ options }: { options: Option[] }) {
+export default function OptionList({ options }: { options: OptionType[] }) {
   return (
     <AnimatePresence key={"options"}>
       <div className={cn("space-y-2")}>
