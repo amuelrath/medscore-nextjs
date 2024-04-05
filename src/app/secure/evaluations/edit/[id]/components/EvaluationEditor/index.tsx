@@ -29,8 +29,12 @@ export default function EvaluationEditor({
     changeEvaluationTitle(evaluation.id, e.target.value);
   };
 
+  const subcompetencies = evaluation.programs.specialties?.subcompetencies;
+
+  console.log(subcompetencies);
+
   return (
-    <AnimatePresence>
+    <AnimatePresence key={"evaluation-editor"}>
       <PageHeader>
         <div className={cn("flex flex-col")}>
           <h2 className={cn("text-2xl font-bold")}>
@@ -53,7 +57,7 @@ export default function EvaluationEditor({
               <motion.div
                 layout="position"
                 layoutId={`question-${q.id}`}
-                key={`question-${q.id}`}
+                key={`question-card-${q.id}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
@@ -62,11 +66,7 @@ export default function EvaluationEditor({
                 <QuestionCard
                   question={q}
                   index={index}
-                  milestones={
-                    evaluation.programs.specialties?.subcompetencies.flatMap(
-                      (s) => s.milestones.map((m) => m)
-                    ) || []
-                  }
+                  subcompetencies={subcompetencies || []}
                 />
               </motion.div>
             );

@@ -59,7 +59,7 @@ export function Option({ option }: { option: Option }) {
 
 export default function OptionList({ options }: { options: Option[] }) {
   return (
-    <AnimatePresence>
+    <AnimatePresence key={"options"}>
       <div className={cn("space-y-2")}>
         {options
           .sort((a, b) => a.position! - b.position!)

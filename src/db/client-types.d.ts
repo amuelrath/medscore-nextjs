@@ -41,6 +41,11 @@ export type ClientQuestion = InferResultType<
   { options: true; milestones: true }
 >;
 
+export type ClientSubcompetency = InferResultType<
+  "subcompetencies",
+  { competencies: true; milestones: true }
+>;
+
 export type ClientMilestone = InferResultType<
   "milestones",
   { subcompetencies: { with: { competencies: true } } }

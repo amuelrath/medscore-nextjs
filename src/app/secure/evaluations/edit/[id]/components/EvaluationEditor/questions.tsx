@@ -1,5 +1,5 @@
 "use client";
-import { ClientQuestion } from "@/db/client-types";
+import { ClientQuestion, ClientSubcompetency } from "@/db/client-types";
 import { Card } from "@/components/ui/card";
 import OptionList from "./options";
 import { cn } from "@/lib/utils";
@@ -11,13 +11,13 @@ import React from "react";
 import MilestoneSelector from "./milestone-selector";
 import { ClientMilestone } from "@/db/client-types";
 export default function QuestionCard({
-  milestones,
+  subcompetencies,
   question,
   index,
 }: {
   question: ClientQuestion;
   index: number;
-  milestones: ClientMilestone[];
+  subcompetencies: ClientSubcompetency[];
 }) {
   const handleDeleteQuestion = async () => {
     await deleteQuestion(question.id);
@@ -55,7 +55,10 @@ export default function QuestionCard({
             className={cn("p-2")}
           />
 
-          <MilestoneSelector milestones={milestones} question={question} />
+          <MilestoneSelector
+            subcompetencies={subcompetencies}
+            question={question}
+          />
         </div>
         <div></div>
         <div>
