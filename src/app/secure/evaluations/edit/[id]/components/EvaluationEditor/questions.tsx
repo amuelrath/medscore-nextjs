@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Trash2Icon, PlusCircleIcon } from "lucide-react";
 import { createOption, deleteQuestion, updateQuestion } from "../../actions";
 import React from "react";
-import MilestoneSelector from "./milestone-selector";
+import MilestoneSelector from "../MilestoneSelector/index";
 import { ClientMilestone } from "@/db/client-types";
 export default function QuestionCard({
   subcompetencies,
