@@ -1,0 +1,2 @@
+ALTER TABLE "milestones_on_questions" DROP CONSTRAINT "milestones_on_questions_milestone_id_question_id_pk";--> statement-breakpoint
+ALTER TABLE "milestones_on_questions" ADD COLUMN "id" uuid DEFAULT gen_random_uuid() NOT NULL;

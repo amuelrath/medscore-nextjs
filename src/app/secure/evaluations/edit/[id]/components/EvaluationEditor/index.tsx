@@ -31,8 +31,6 @@ export default function EvaluationEditor({
 
   const subcompetencies = evaluation.programs.specialties?.subcompetencies;
 
-  console.log(subcompetencies);
-
   return (
     <AnimatePresence key={"evaluation-editor"}>
       <PageHeader>

@@ -14,7 +14,7 @@ import {
   Milestone,
   milestonesOnQuestions,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { NewQuestion } from "@/db/schema";
 // TODO GET ACTUAL SESSION DATA AND CHECK THIS WAY
@@ -200,6 +200,7 @@ export const createMilestone = async (
   milestoneId: string,
   questionId: string
 ) => {
+  console.log("creating milestone");
   await db.insert(milestonesOnQuestions).values({
     questionId,
     milestoneId,
@@ -208,14 +209,22 @@ export const createMilestone = async (
 };
 
 export const deleteMilestone = async (
-  questionId: string,
-  milestoneId: string
+  milestoneId: string,
+  questionId: string
 ) => {
+  // if you dont do this it all breaks idfk why i spend like 2 hours figuring this shit out
+  // postgres throws an error about violating a foreign key constraint
+  // if you delete the row directly out of the db there is no issue
+  // it must be an issue with the orm?
+  const mId = milestoneId;
+  const qId = questionId;
   await db
     .delete(milestonesOnQuestions)
     .where(
-      eq(milestonesOnQuestions.milestoneId, milestoneId) &&
-        eq(milestonesOnQuestions.questionId, questionId)
+      and(
+        eq(milestonesOnQuestions.milestoneId, mId),
+        eq(milestonesOnQuestions.questionId, qId)
+      )
     );
   revalidatePath("#");
 };

@@ -50,3 +50,8 @@ export type ClientMilestone = InferResultType<
   "milestones",
   { subcompetencies: { with: { competencies: true } } }
 >;
+
+export type Allocation = {
+  milestoneId: string;
+  questionId: string;
+};

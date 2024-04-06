@@ -8,20 +8,15 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import MilestoneCard from "./MilestoneCard";
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  ClientMilestone,
-  ClientQuestion,
-  ClientSubcompetency,
-} from "@/db/client-types";
+import { ClientQuestion, ClientSubcompetency } from "@/db/client-types";
 import { useContext, createContext, useState, useEffect } from "react";
 import { Competency, Milestone } from "@/db/schema";
 import SubcompetencyCard from "./SubcompetencyCard";
 import CompetencyCard from "./CompetencyCard";
 import { cn } from "@/lib/utils";
 import { MilestoneIcon } from "lucide-react";
-
 const competencies: Competency[] = [
   { id: "fc6d031b-19f2-4c83-a483-30518ace85c8", name: "PC" },
   {
@@ -53,11 +48,12 @@ interface MilestoneSelectorContextValue {
     subcompetency: ClientSubcompetency | undefined
   ) => void;
   selectedMilestones: Milestone[] | undefined;
-  setSelectedMilestones: (milestone: Milestone[] | undefined) => void;
+  setSelectedMilestones: (milestone: Milestone[]) => void;
   subcompetencyOptions: ClientSubcompetency[];
   setSubcompetencyOptions: (options: ClientSubcompetency[]) => void;
-  milestoneOptions: Milestone[];
+  milestoneOptions: Milestone[] | undefined;
   setMilestoneOptions: (options: Milestone[]) => void;
+  question: ClientQuestion | undefined;
 }
 
 const MilestoneSelectorContext = createContext<MilestoneSelectorContextValue>({
@@ -71,6 +67,7 @@ const MilestoneSelectorContext = createContext<MilestoneSelectorContextValue>({
   setSubcompetencyOptions: () => {},
   milestoneOptions: [],
   setMilestoneOptions: () => {},
+  question: undefined,
 });
 
 export const useMilestoneSelector = () => useContext(MilestoneSelectorContext);
@@ -82,10 +79,31 @@ export default function MilestoneSelector({
   subcompetencies: ClientSubcompetency[];
   question: ClientQuestion;
 }) {
+  if (!question) {
+    return <></>;
+  }
+  const questionsMilestones = () => {
+    const result: Milestone[] = [];
+
+    for (const s of subcompetencies) {
+      for (const m of s.milestones) {
+        const matchingMilestone = question.milestones.find((allocation) => {
+          return allocation.milestoneId === m.id;
+        });
+        if (matchingMilestone) {
+          result.push(m);
+        }
+      }
+    }
+    return result;
+  };
+
   const [selectedCompetency, setSelectedCompetency] = useState<Competency>();
   const [selectedSubcompetency, setSelectedSubcompetency] =
     useState<ClientSubcompetency>();
-  const [selectedMilestones, setSelectedMilestones] = useState<Milestone[]>();
+  const [selectedMilestones, setSelectedMilestones] = useState<Milestone[]>(
+    questionsMilestones()
+  );
   const [subcompetencyOptions, setSubcompetencyOptions] = useState<
     ClientSubcompetency[]
   >([]);
@@ -101,6 +119,7 @@ export default function MilestoneSelector({
     setSubcompetencyOptions,
     milestoneOptions,
     setMilestoneOptions,
+    question: question,
   };
 
   // reset selected subcompetency (options) and milestone (options) when selected competency changes
