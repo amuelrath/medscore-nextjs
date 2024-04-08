@@ -38,7 +38,7 @@ export default function QuestionCard({
     await updateQuestion(question.id, { text: e.target.value });
   };
 
-  const getMilestoneNames = () => {
+  const getAllocatedMilestones = () => {
     const result: Milestone[] = [];
     const allocations = () => {
       const result: string[] = [];
@@ -67,8 +67,8 @@ export default function QuestionCard({
           <div className={cn("flex space-x-2 items-center")}>
             <p className={cn("font-bold")}>{index + 1}.</p>
             <div className={cn("space-x-2")}>
-              {getMilestoneNames().map((m) => (
-                <TooltipProvider>
+              {getAllocatedMilestones().map((m) => (
+                <TooltipProvider key={`badge-${m.id}`}>
                   <Tooltip>
                     <TooltipTrigger>
                       <Badge>{m.name}</Badge>
