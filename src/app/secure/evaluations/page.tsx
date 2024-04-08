@@ -7,8 +7,23 @@ import EvaluationCards from "./components/evaluation-card-list";
 export default async function SecureHomePage() {
   const evaluations = await db.query.evaluations.findMany({
     with: {
-      programs: { with: { specialties: { with: { subcompetencies: true } } } },
-      questions: { with: { milestones: true, options: true } },
+      programs: {
+        with: {
+          specialties: {
+            with: {
+              subcompetencies: {
+                with: { milestones: true, competencies: true },
+              },
+            },
+          },
+        },
+      },
+      questions: {
+        with: {
+          milestones: true,
+          options: true,
+        },
+      },
     },
   });
 
