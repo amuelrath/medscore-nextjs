@@ -86,6 +86,8 @@ export default function CompetencyCard({
     }
   };
 
+  const numberOfSelectedMilestones = getNumberOfSelectedMilestones() || 0;
+
   return (
     <>
       <div onClick={onSelect}>
@@ -111,9 +113,9 @@ export default function CompetencyCard({
                 <h3 className={cn("text-xl font-bold font-poppins")}>
                   {name[competency.name]}
                 </h3>
-                <Badge className={cn("")}>
-                  {getNumberOfSelectedMilestones() || 0}
-                </Badge>
+                {numberOfSelectedMilestones > 0 && (
+                  <Badge className={cn("")}>{numberOfSelectedMilestones}</Badge>
+                )}
               </div>
               {isSelected ? (
                 <div className={cn("cursor-pointer")}>

@@ -55,6 +55,7 @@ export default function SubcompetencyCard({
     }
     return result;
   };
+  const numberOfSelectedMilestones = getNumberOfSelectedMilestones();
 
   return (
     <>
@@ -77,7 +78,9 @@ export default function SubcompetencyCard({
         >
           <p>{formatTitle()}</p>
           <div className={cn("flex flex-row items-center space-x-2")}>
-            <Badge>{getNumberOfSelectedMilestones()}</Badge>
+            {numberOfSelectedMilestones > 0 && (
+              <Badge>{getNumberOfSelectedMilestones()}</Badge>
+            )}
             <motion.div animate={isSelected ? { rotate: 0 } : { rotate: 45 }}>
               <XIcon onClick={deselectSubcompetency} />
             </motion.div>
