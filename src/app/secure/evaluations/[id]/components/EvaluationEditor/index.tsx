@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { PlusCircleIcon } from "lucide-react";
 import { createQuestion } from "../../actions";
 import PageHeader from "@/components/ui/page-header";
+import EvaluationPublisher from "@/app/secure/evaluations/components/EvaluationPublisher";
 import { changeEvaluationTitle } from "../../actions";
 import {
   Breadcrumb,
@@ -46,6 +47,7 @@ export default function EvaluationEditor({
           </h2>
           <Breadcrumbs />
         </div>
+        <EvaluationPublisher />
       </PageHeader>
       <motion.div layout className={cn("p-2 space-y-2")}>
         {[...evaluation.questions]

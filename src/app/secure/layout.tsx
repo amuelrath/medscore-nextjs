@@ -1,10 +1,13 @@
+"use client";
 import AnimatedTabs from "@/components/ui/animated-tabs";
+import { AnimatePresence } from "framer-motion";
 import {
   BoxesIcon,
   GaugeCircleIcon,
   UserIcon,
   FlaskConicalIcon,
   BookCheckIcon,
+  ActivityIcon,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -23,9 +26,15 @@ const tabs = [
   },
   {
     id: "evaluations",
-    label: "Evaluations",
+    label: "Draft Evaluations",
     icon: <BookCheckIcon />,
     href: "/secure/evaluations",
+  },
+  {
+    id: "published-evaluations",
+    label: "Published Evaluations",
+    icon: <ActivityIcon />,
+    href: "/secure/published",
   },
   {
     id: "program",
@@ -53,7 +62,7 @@ export default function SecureRootLayout({
       </div>
       <div className="flex-1 ml-[4rem] mt-16 bg-gray-100 rounded-[15px] border pb-32 overflow-y-auto">
         <Toaster />
-        <div>{children}</div>
+        <AnimatePresence mode="wait">{children}</AnimatePresence>
       </div>
     </main>
   );

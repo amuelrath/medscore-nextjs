@@ -15,9 +15,18 @@ import p from "public/p-bw.png";
 import pbli from "public/pbli-bw.png";
 import { EvaluationMenu } from "./evaluation-card-dropdown";
 import { cn } from "@/lib/utils";
-import { InferResultType } from "@/db/utils";
-import { motion, AnimatePresence } from "framer-motion";
-import { ClientEvaluation } from "@/db/client-types";
+import { motion } from "framer-motion";
+import { ClientEvaluation, ClientSubcompetency } from "@/db/client-types";
+import {
+  BrainIcon,
+  ShapesIcon,
+  SpeechIcon,
+  StethoscopeIcon,
+  HandshakeIcon,
+  CogIcon,
+} from "lucide-react";
+import { Milestone } from "@/db/schema";
+import React from "react";
 
 export default function EvaluationCard({
   evaluation,
@@ -26,6 +35,34 @@ export default function EvaluationCard({
   evaluation: ClientEvaluation;
   index: number;
 }) {
+  const subcompetencies: ClientSubcompetency[] | undefined =
+    evaluation.programs.specialties?.subcompetencies;
+
+  const getEvaluationCompetencies = () => {
+    let result: string[] = [];
+    let ids: string[] = [];
+    if (!subcompetencies) return [];
+    evaluation.questions.map((q) => {
+      const milestoneIds = q.milestones.map((m) => m.milestoneId);
+      milestoneIds.map((m) => {
+        if (!ids?.includes(m)) {
+          ids.push(m);
+        }
+      });
+    });
+
+    subcompetencies.map((sc) => {
+      sc.milestones.map((m) => {
+        if (ids.includes(m.id) && !result.includes(sc.competencies.name)) {
+          result.push(sc.competencies.name);
+        }
+      });
+    });
+    return result;
+  };
+
+  const competencies = getEvaluationCompetencies();
+
   return (
     <motion.div
       layoutId={`evaluation-card-${evaluation.id}`}
@@ -53,61 +90,15 @@ export default function EvaluationCard({
         <div>
           <hr className={cn("mb-2")} />
           <div className={cn("flex flex-row justify-between items-center")}>
-            <div className={cn("flex flex-row items-center")}>
-              <IconTooltip label="Patient Care">
-                <Image
-                  src={pc}
-                  alt={""}
-                  className={cn(
-                    "w-7 rounded-full  hover:scale-150 hover:bg-white transition-all"
-                  )}
-                />
-              </IconTooltip>
-              <IconTooltip label="Medical Knowledge">
-                <Image
-                  src={mk}
-                  alt={""}
-                  className={cn(
-                    "w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
-                  )}
-                />
-              </IconTooltip>
-              <IconTooltip label="Systems-Based Practice">
-                <Image
-                  src={sbp}
-                  alt={""}
-                  className={cn(
-                    "w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
-                  )}
-                />
-              </IconTooltip>
-              <IconTooltip label="Interpersonal Communication Skills">
-                <Image
-                  src={ics}
-                  alt={""}
-                  className={cn(
-                    "w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
-                  )}
-                />
-              </IconTooltip>
-              <IconTooltip label="Professionalism">
-                <Image
-                  src={p}
-                  alt={""}
-                  className={cn(
-                    "w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
-                  )}
-                />
-              </IconTooltip>
-              <IconTooltip label="Practice-Based Learning and Improvement">
-                <Image
-                  src={pbli}
-                  alt={""}
-                  className={cn(
-                    "w-7 rounded-full hover:scale-150 hover:bg-white transition-all"
-                  )}
-                />
-              </IconTooltip>
+            <div className={cn("flex flex-row items-center space-x-1")}>
+              {competencies?.map((c) => (
+                <div
+                  key={c}
+                  className={cn("rounded-full bg-black text-white p-1")}
+                >
+                  {icons[c]}
+                </div>
+              ))}
             </div>
             <EvaluationMenu evaluationId={evaluation.id} />
           </div>
@@ -133,3 +124,12 @@ function IconTooltip({
     </TooltipProvider>
   );
 }
+
+const icons: { [key: string]: React.ReactNode } = {
+  ICS: <SpeechIcon className={cn("size-4")} />,
+  SBP: <CogIcon className={cn("size-4")} />,
+  PC: <StethoscopeIcon className={cn("size-4")} />,
+  PBLI: <ShapesIcon className={cn("size-4")} />,
+  MK: <BrainIcon className={cn("size-4")} />,
+  P: <HandshakeIcon className={cn("size-4")} />,
+};

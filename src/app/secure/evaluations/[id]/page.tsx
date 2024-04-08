@@ -1,6 +1,5 @@
 import { db } from "@/db";
 import EvaluationEditor from "./components/EvaluationEditor";
-
 export default async function EditorPage({
   params,
 }: {

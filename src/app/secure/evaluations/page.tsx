@@ -32,7 +32,7 @@ export default async function SecureHomePage() {
       <PageHeader>
         <div className={cn("flex flex-col")}>
           <h2 className={cn("text-2xl font-bold")}>Evaluations</h2>
-          <p className={cn("text-sm")}>your drafts will live here</p>
+          <p className={cn("text-xs")}>your drafts will live here</p>
         </div>
         <CreateEvaluation />
       </PageHeader>

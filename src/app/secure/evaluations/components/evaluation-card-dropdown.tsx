@@ -20,6 +20,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -41,7 +42,7 @@ export function EvaluationMenu({ evaluationId }: { evaluationId: string }) {
           <DropdownMenuContent>
             <DropdownMenuItem>
               <Link
-                href={`/secure/evaluations/edit/${evaluationId}`}
+                href={`/secure/evaluations/${evaluationId}`}
                 className={cn("w-full")}
               >
                 <div
@@ -82,10 +83,10 @@ export function EvaluationMenu({ evaluationId }: { evaluationId: string }) {
         </DropdownMenu>
         <AlertDialogContent className={cn("rounded-md")}>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              are you sure you want to delete this evaluation? this action is
-              irreversible.
-            </AlertDialogTitle>
+            <AlertDialogTitle>Delete Evaluation?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action is irrevsible. All data will be lost.
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
