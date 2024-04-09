@@ -15,7 +15,8 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
+import { SettingsIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 export default function EvaluationEditor({
   evaluation,
 }: {
@@ -47,7 +48,16 @@ export default function EvaluationEditor({
           </h2>
           <Breadcrumbs />
         </div>
-        <EvaluationPublisher />
+        <div className={cn("flex flex-row space-x-2")}>
+          <div
+            className={cn(
+              "items-center p-1.5 hover:text-white hover:bg-black rounded-full transition-all"
+            )}
+          >
+            <SettingsIcon />
+          </div>
+          <EvaluationPublisher evaluationId={evaluation.id} />
+        </div>
       </PageHeader>
       <motion.div layout className={cn("p-2 space-y-2")}>
         {[...evaluation.questions]
