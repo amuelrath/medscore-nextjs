@@ -1,7 +1,9 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ArrowsUpFromLineIcon } from "lucide-react";
+import { useState } from "react";
+import { publishEvaluation } from "../../actions";
+import { ArrowsUpFromLineIcon, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -13,13 +15,20 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
+import { redirect } from "next/navigation";
 
 // TODO evaluation publisher component that allows user to produce a PublishedEvaluation
 // TODO put in editor and viewer
 // TODO create a published evaluations section that shows history. Is also sortable by acitve. These will have a little pinging...
 // ...icon to indicate its link is active.
 
-export default function EvaluationPublisher() {
+export default function EvaluationPublisher({
+  evaluationId,
+}: {
+  evaluationId: string;
+}) {
+  const [loading, setLoading] = useState(false);
+
   return (
     <AlertDialog>
       <AlertDialogTrigger>
@@ -35,14 +44,31 @@ export default function EvaluationPublisher() {
         <AlertDialogHeader>
           <AlertDialogTitle>Publish Evaluation</AlertDialogTitle>
           <AlertDialogDescription>
-            <p>
-              Are you sure you are ready to publish? You will not be able to
-              make any more changes, but this draft will still be available.
-            </p>
+            <p>Are you sure you are ready to publish?</p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction>Confirm</AlertDialogAction>
+        <div
+          className={cn(
+            "w-full text-sm bg-primary hover:bg-primary/90 rounded-md text-white flex justify-center items-center p-2.5"
+          )}
+          onClick={() => {
+            if (!loading) {
+              publishEvaluation(evaluationId);
+              setLoading(true);
+            }
+          }}
+        >
+          {loading ? (
+            <Loader2
+              strokeWidth={2}
+              size="1rem"
+              className={cn("animate-spin text-white")}
+            />
+          ) : (
+            "Confirm"
+          )}
+        </div>
       </AlertDialogContent>
     </AlertDialog>
   );
