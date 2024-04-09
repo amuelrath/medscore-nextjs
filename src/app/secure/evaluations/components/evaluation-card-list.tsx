@@ -6,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { Evaluation } from "@/db/schema";
 // TODO ADD 'last
 export default function EvaluationCards({
+  filter,
   evaluations,
 }: {
+  filter: string;
   evaluations: ClientEvaluation[];
 }) {
   return (
@@ -18,6 +20,9 @@ export default function EvaluationCards({
         )}
       >
         {evaluations
+          .filter((e) =>
+            e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
+          )
           .sort(
             (a, b) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

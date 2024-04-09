@@ -13,6 +13,7 @@ import {
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 // TODO GET ACTUAL USER DATA FROM SESSION
 export async function createEvaluation(data: FormData) {
@@ -80,38 +81,42 @@ export const publishEvaluation = async (evaluationId: string) => {
     where: eq(questions.evaluationId, evaluationId),
   });
 
-  // Retrieve the options for the questions
+  // Publish each question and its associated options and allocations
   for (const question of evalQuestions) {
     const publishedQuestion = await db
       .insert(publishedQuestions)
       .values({
         text: question.text,
-        publishedEvaluationId: publishedEvaluation[0].id,
         position: question.position,
+        publishedEvaluationId: publishedEvaluation[0].id,
       })
       .returning()
       .execute();
 
-    // Retrieve the options for the questions
+    // Retrieve the options for the question
     const questionOptions = await db.query.options.findMany({
       where: eq(options.questionId, question.id),
     });
 
+    // Publish each option for the question
     for (const option of questionOptions) {
       await db
         .insert(publishedOptions)
         .values({
           text: option.text,
+          position: option.position,
+          pointValue: option.pointValue,
           publishedQuestionId: publishedQuestion[0].id,
         })
         .execute();
     }
 
-    // Retrieve the milestones for the questions
+    // Retrieve the milestones for the question
     const questionAllocations = await db.query.milestonesOnQuestions.findMany({
       where: eq(milestonesOnQuestions.questionId, question.id),
     });
 
+    // Publish each milestone allocation for the question
     for (const allocation of questionAllocations) {
       await db
         .insert(publishedMilestonesOnQuestions)
@@ -122,4 +127,6 @@ export const publishEvaluation = async (evaluationId: string) => {
         .execute();
     }
   }
+
+  redirect(`/secure/published/${publishedEvaluation[0].id}`);
 };

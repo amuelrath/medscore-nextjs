@@ -6,13 +6,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import Image from "next/image";
-import pc from "public/pc-bw.png";
-import mk from "public/mk-bw.png";
-import sbp from "public/sbp-bw.png";
-import ics from "public/ics-bw.png";
-import p from "public/p-bw.png";
-import pbli from "public/pbli-bw.png";
+
 import { EvaluationMenu } from "./evaluation-card-dropdown";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
