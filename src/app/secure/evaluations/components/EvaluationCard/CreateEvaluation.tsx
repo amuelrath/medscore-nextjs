@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { PlusCircleIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { createEvaluation } from "../actions";
+import { createEvaluation } from "../../actions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ export default function CreateEvaluation() {
     <Drawer>
       <DrawerTrigger
         className={cn(
-          "text-primary bg-white px-2 py-1.5 rounded-full hover:bg-primary hover:text-white transition-all"
+          "text-primary px-2 py-1 rounded-full hover:bg-primary hover:text-white transition-all"
         )}
       >
         <PlusCircleIcon />

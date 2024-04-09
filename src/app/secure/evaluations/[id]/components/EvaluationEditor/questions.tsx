@@ -1,7 +1,7 @@
 "use client";
 import { ClientQuestion, ClientSubcompetency } from "@/db/client-types";
 import { Card } from "@/components/ui/card";
-import OptionList from "./options";
+import OptionList from "./Options";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";

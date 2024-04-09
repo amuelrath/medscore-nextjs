@@ -1,7 +1,7 @@
 "use client";
 import { ClientEvaluation, ClientQuestion } from "@/db/client-types";
 import { motion, AnimatePresence } from "framer-motion";
-import QuestionCard from "./questions";
+import QuestionCard from "./Questions";
 import { cn } from "@/lib/utils";
 import { PlusCircleIcon } from "lucide-react";
 import { createQuestion } from "../../actions";

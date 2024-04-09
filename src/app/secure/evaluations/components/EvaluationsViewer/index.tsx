@@ -1,8 +1,8 @@
 "use client";
 import { ClientEvaluation } from "@/db/client-types";
 import PageHeader from "@/components/ui/page-header";
-import CreateEvaluation from "./create-evaluation";
-import EvaluationCards from "./evaluation-card-list";
+import CreateEvaluation from "../EvaluationCard/CreateEvaluation";
+import EvaluationCards from "../EvaluationCard";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -25,11 +25,12 @@ export default function EvaluationsViewer({
           <h2 className={cn("text-2xl font-bold")}>Evaluations</h2>
           <p className={cn("text-xs")}>your drafts will live here</p>
         </div>
-        <div className={cn("flex space-x-4")}>
+        <div className={cn("flex space-x-8")}>
           <Input
             placeholder="Search..."
             value={filter}
             onChange={handleSearch}
+            className={cn("w-64 bg-gray-200")}
           />
           <CreateEvaluation />
         </div>

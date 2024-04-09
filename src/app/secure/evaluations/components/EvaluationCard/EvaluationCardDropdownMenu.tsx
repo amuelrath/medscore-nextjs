@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteEvaluation } from "../actions";
+import { deleteEvaluation } from "../../actions";
 import {
   ArrowsUpFromLineIcon,
   EllipsisVerticalIcon,

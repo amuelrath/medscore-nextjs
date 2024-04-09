@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { EvaluationMenu } from "./evaluation-card-dropdown";
+import { EvaluationMenu } from "./EvaluationCardDropdownMenu";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ClientEvaluation, ClientSubcompetency } from "@/db/client-types";

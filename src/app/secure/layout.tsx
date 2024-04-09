@@ -60,9 +60,9 @@ export default function SecureRootLayout({
       <div>
         <AnimatedTabs tabs={tabs} vertical icons />
       </div>
-      <div className="flex-1 ml-[4rem] mt-16 bg-gray-100 rounded-[15px] border pb-32 overflow-y-auto">
+      <div className="flex-1 ml-[4rem] mt-16 bg-gray-100 rounded-[15px] border pb-32 overflow-y-auto no-scrollbar">
         <Toaster />
-        <AnimatePresence mode="wait">{children}</AnimatePresence>
+        {children}
       </div>
     </main>
   );

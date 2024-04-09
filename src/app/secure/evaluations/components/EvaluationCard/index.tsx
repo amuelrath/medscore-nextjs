@@ -1,7 +1,7 @@
 "use client";
 import { ClientEvaluation } from "@/db/client-types";
 import { AnimatePresence } from "framer-motion";
-import EvaluationCard from "./evaluation-card";
+import EvaluationCard from "./EvaluationCard";
 import { cn } from "@/lib/utils";
 import { Evaluation } from "@/db/schema";
 // TODO ADD 'last

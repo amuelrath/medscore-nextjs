@@ -25,7 +25,7 @@ export default async function SecureHomePage() {
   });
 
   return (
-    <main className={cn("min-h-screen w-full space-y-2")}>
+    <main className={cn("w-full space-y-2")}>
       <EvaluationsViewer evaluations={evaluations} />
     </main>
   );
