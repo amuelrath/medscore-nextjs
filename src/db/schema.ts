@@ -1,4 +1,9 @@
-import { relations, sql, InferSelectModel } from "drizzle-orm";
+import {
+  relations,
+  sql,
+  InferSelectModel,
+  InferInsertModel,
+} from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -348,3 +353,59 @@ export const publishedMilestonesOnQuestionsRelations = relations(
     }),
   })
 );
+
+export const responses = pgTable("responses", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  publishedEvaluationId: uuid("published_evaluation_id").references(
+    () => publishedEvaluations.id,
+    { onDelete: "cascade" }
+  ),
+  userId: uuid("user_id").references(() => users.id),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export type Response = InferSelectModel<typeof responses>;
+export type NewResponse = InferInsertModel<typeof responses>;
+export const responseRelations = relations(responses, ({ one, many }) => ({
+  publishedEvaluation: one(publishedEvaluations, {
+    fields: [responses.publishedEvaluationId],
+    references: [publishedEvaluations.id],
+  }),
+  user: one(users, {
+    fields: [responses.userId],
+    references: [users.id],
+  }),
+  answers: many(answers),
+}));
+
+export const answers = pgTable(
+  "answers",
+  {
+    publishedOptionId: uuid("published_option_id")
+      .references(() => publishedOptions.id, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    responseId: uuid("response_id").references(() => responses.id),
+  },
+  (table) => {
+    return {
+      id: primaryKey({
+        columns: [table.publishedOptionId, table.responseId],
+      }),
+    };
+  }
+);
+export type Answer = InferSelectModel<typeof answers>;
+export type NewAnswer = InferInsertModel<typeof answers>;
+export const answerRelations = relations(answers, ({ one }) => ({
+  publishedOption: one(publishedOptions, {
+    fields: [answers.publishedOptionId],
+    references: [publishedOptions.id],
+  }),
+  response: one(responses, {
+    fields: [answers.responseId],
+    references: [responses.id],
+  }),
+}));
