@@ -1,6 +1,5 @@
 "use client";
-import AnimatedTabs from "@/components/ui/animated-tabs";
-import { AnimatePresence } from "framer-motion";
+import AnimatedTabs from "@/components/ui/sidebar";
 import {
   BoxesIcon,
   GaugeCircleIcon,
@@ -28,13 +27,7 @@ const tabs = [
     id: "evaluations",
     label: "Draft Evaluations",
     icon: <BookCheckIcon />,
-    href: "/secure/evaluations",
-  },
-  {
-    id: "published-evaluations",
-    label: "Published Evaluations",
-    icon: <ActivityIcon />,
-    href: "/secure/published",
+    href: "/secure/evaluations/home",
   },
   {
     id: "program",
@@ -56,11 +49,9 @@ export default function SecureRootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex flex-row h-screen w-full">
-      <div>
-        <AnimatedTabs tabs={tabs} vertical icons />
-      </div>
-      <div className="flex-1 ml-[4rem] mt-16 bg-gray-100 rounded-[15px] border pb-32 overflow-y-auto no-scrollbar">
+    <main className="flex flex-row h-screen w-full bg-white">
+      <AnimatedTabs tabs={tabs} vertical icons />
+      <div className="flex-1 ml-[4rem] mt-[72px] bg-secondary rounded-[5px] border pb-32 overflow-y-auto no-scrollbar">
         <Toaster />
         {children}
       </div>
