@@ -1,87 +1,85 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./tooltip";
-import { usePathname } from "next/navigation";
+import { useState, useContext, createContext, useEffect } from "react";
 
 type Tab = {
   id: string;
   label: string;
-  icon: React.ReactNode;
-  href: string;
+  icon?: React.ReactNode;
 };
 
-type Props = {
-  tabs: Tab[];
-  defaultValue?: string;
-  vertical?: boolean;
-  icons?: boolean;
+type TabsContextType = {
+  activeTab: string;
+  setActiveTab: (id: string) => void;
 };
 
-export default function AnimatedTabs({ tabs, vertical, icons }: Props) {
-  const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState(pathname);
+const TabsContext = createContext<TabsContextType>({
+  activeTab: "",
+  setActiveTab: () => {},
+});
 
-  useEffect(() => {
-    const activeTab = tabs.find((tab) => pathname.startsWith(tab.href));
-    if (activeTab) {
-      setActiveTab(activeTab.id);
-    }
-  }, [pathname, tabs]);
+export function useTabsContext() {
+  return useContext(TabsContext);
+}
+
+export function TabsProvider({ children }: { children: React.ReactNode }) {
+  const [activeTab, setActiveTab] = useState("");
 
   return (
-    <div
-      className={`flex ${
-        vertical ? "flex-col space-y-2" : "flex-row space-x-2"
-      } items-center fixed bg-white h-full w-14 bg-gray-200 p-2 z-10`}
-    >
-      {tabs.map((tab) => (
-        <TabTooltip label={tab.label} key={tab.id}>
-          <Link href={tab.href || "#"}>
-            <div
-              role="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`${
-                activeTab === tab.id ? "" : "hover:text-black/60"
-              } relative rounded-full px-3 py-1.5 text-sm font-medium text-black outline-sky-400 transition focus-visible:outline-2`}
-              style={{ WebkitTapHighlightColor: "transparent" }}
-            >
-              {activeTab === tab.id && (
-                <motion.span
-                  layoutId="bubble"
-                  className="absolute inset-0 z-10 bg-background mix-blend-exclusion"
-                  style={{ borderRadius: 5 }}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-                />
-              )}
-              {icons ? tab.icon : tab.label}
-            </div>
-          </Link>
-        </TabTooltip>
-      ))}
-    </div>
+    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      {children}
+    </TabsContext.Provider>
   );
 }
 
-function TabTooltip({
-  label,
+export function TabContent({
+  id,
   children,
 }: {
-  label: string;
+  id: string;
   children: React.ReactNode;
 }) {
+  const { activeTab } = useTabsContext();
+  return activeTab === id ? <>{children}</> : null;
+}
+
+type TabsProps = {
+  tabs: Tab[];
+  icons?: boolean;
+};
+
+export function AnimatedTabs({ tabs, icons }: TabsProps) {
+  const { activeTab, setActiveTab } = useTabsContext();
+
+  useEffect(() => {
+    setActiveTab(tabs[0]?.id);
+  }, []);
+
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>{children}</TooltipTrigger>
-        <TooltipContent>{label}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <div
+      className={`relative flex flex-row space-x-2 items-center bg-white bg-gray-200 z-10`}
+    >
+      {tabs.map((tab) => (
+        <div
+          key={tab.id}
+          role="button"
+          onClick={() => setActiveTab(tab.id)}
+          className={`${
+            activeTab === tab.id ? "text-white" : "hover:text-black/60"
+          } relative rounded-full px-2 py-1 text-sm font-medium text-black outline-sky-400 transition focus-visible:outline-2`}
+          style={{ WebkitTapHighlightColor: "transparent" }}
+        >
+          <span className="relative z-20">{icons ? tab.icon : tab.label}</span>
+          {activeTab === tab.id && (
+            <motion.span
+              layoutId="module-select"
+              className="absolute inset-0 z-10 bg-yellow-500 mix-blend-difference"
+              style={{ borderRadius: 5 }}
+              transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+            />
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
