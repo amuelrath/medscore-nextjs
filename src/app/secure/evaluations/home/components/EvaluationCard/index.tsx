@@ -3,7 +3,6 @@ import { ClientEvaluation } from "@/db/client-types";
 import { AnimatePresence } from "framer-motion";
 import EvaluationCard from "./EvaluationCard";
 import { cn } from "@/lib/utils";
-import { Evaluation } from "@/db/schema";
 // TODO ADD 'last
 export default function EvaluationCards({
   filter,
@@ -14,11 +13,7 @@ export default function EvaluationCards({
 }) {
   return (
     <AnimatePresence>
-      <div
-        className={cn(
-          "w-full grid md:grid-cols-3 xl:grid-cols-4 grid-cols-2 gap-2 px-2"
-        )}
-      >
+      <div className={cn("w-full space-y-4")}>
         {evaluations
           .filter((e) =>
             e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())

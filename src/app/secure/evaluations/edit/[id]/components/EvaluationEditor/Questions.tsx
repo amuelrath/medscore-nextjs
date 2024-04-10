@@ -62,7 +62,7 @@ export default function QuestionCard({
 
   return (
     <motion.div layout="position">
-      <Card className={cn(`group p-4 pl-4 space-y-2`)}>
+      <Card className={cn(`group p-4 space-y-2`)}>
         <div className={cn("flex flex-row justify-between")}>
           <div className={cn("flex space-x-2 items-center")}>
             <p className={cn("font-bold")}>{index + 1}.</p>

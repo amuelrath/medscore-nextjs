@@ -128,5 +128,5 @@ export const publishEvaluation = async (evaluationId: string) => {
     }
   }
 
-  redirect(`/secure/published/${publishedEvaluation[0].id}`);
+  redirect(`/secure/evaluations/published/${publishedEvaluation[0].id}`);
 };

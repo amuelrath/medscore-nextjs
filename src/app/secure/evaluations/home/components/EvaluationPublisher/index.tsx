@@ -34,10 +34,10 @@ export default function EvaluationPublisher({
       <AlertDialogTrigger>
         <div
           className={cn(
-            "items-center p-1.5 hover:text-white hover:bg-black rounded-full transition-all"
+            "items-center p-1 hover:text-white hover:bg-blue-600 rounded-md transition-all"
           )}
         >
-          <ArrowsUpFromLineIcon />
+          <ArrowsUpFromLineIcon size={"1rem"} />
         </div>
       </AlertDialogTrigger>
       <AlertDialogContent className={cn("rounded-md w-full")}>

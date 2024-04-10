@@ -1,7 +1,6 @@
 import { db } from "@/db";
-import { cn } from "@/lib/utils";
 import EvaluationsViewer from "./components/EvaluationsViewer";
-export default async function SecureHomePage() {
+export default async function SecureEvaluationsHomePage() {
   const evaluations = await db.query.evaluations.findMany({
     with: {
       programs: {
@@ -24,9 +23,5 @@ export default async function SecureHomePage() {
     },
   });
 
-  return (
-    <main className={cn("w-full space-y-2")}>
-      <EvaluationsViewer evaluations={evaluations} />
-    </main>
-  );
+  return <EvaluationsViewer evaluations={evaluations} />;
 }

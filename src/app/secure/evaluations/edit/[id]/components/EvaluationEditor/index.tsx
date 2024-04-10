@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { PlusCircleIcon } from "lucide-react";
 import { createQuestion } from "../../actions";
 import PageHeader from "@/components/ui/page-header";
-import EvaluationPublisher from "@/app/secure/evaluations/components/EvaluationPublisher";
+import EvaluationPublisher from "@/app/secure/evaluations/home/components/EvaluationPublisher";
 import { changeEvaluationTitle } from "../../actions";
 import {
   Breadcrumb,
@@ -46,20 +46,19 @@ export default function EvaluationEditor({
               )}
             />
           </h2>
-          <Breadcrumbs />
-        </div>
-        <div className={cn("flex flex-row space-x-2")}>
-          <div
-            className={cn(
-              "items-center p-1.5 hover:text-white hover:bg-black rounded-full transition-all"
-            )}
-          >
-            <SettingsIcon />
+          <div className={cn("flex flex-row space-x-2 items-center")}>
+            <div
+              className={cn(
+                "items-center p-1 hover:text-white hover:bg-blue-600 rounded-md transition-all"
+              )}
+            >
+              <SettingsIcon size={"1rem"} />
+            </div>
+            <EvaluationPublisher evaluationId={evaluation.id} />
           </div>
-          <EvaluationPublisher evaluationId={evaluation.id} />
         </div>
       </PageHeader>
-      <motion.div layout className={cn("p-2 space-y-2")}>
+      <motion.div layout className={cn("p-4 space-y-4")}>
         {[...evaluation.questions]
           .sort((a, b) => a.position! - b.position!)
           .map((q: ClientQuestion, index) => {
@@ -102,7 +101,7 @@ function Breadcrumbs() {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem>
-          <BreadcrumbLink href="/secure/evaluations">
+          <BreadcrumbLink href="/secure/evaluations/home">
             evaluations
           </BreadcrumbLink>
         </BreadcrumbItem>

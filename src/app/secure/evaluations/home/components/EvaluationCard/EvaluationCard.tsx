@@ -1,5 +1,5 @@
 "use client";
-import { Card, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -19,7 +19,6 @@ import {
   HandshakeIcon,
   CogIcon,
 } from "lucide-react";
-import { Milestone } from "@/db/schema";
 import React from "react";
 
 export default function EvaluationCard({
@@ -55,6 +54,27 @@ export default function EvaluationCard({
     return result;
   };
 
+  function formatDate(date: Date): string {
+    const now = new Date();
+    const diff = (now.getTime() - date.getTime()) / 1000; // Get the difference in seconds
+
+    if (diff < 300) {
+      return "Just Now";
+    } else if (diff < 86400) {
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else if (diff < 172800) {
+      return "Yesterday";
+    } else if (diff < 604800) {
+      const days = Math.floor(diff / 86400);
+      return `${days} days ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  }
+
   const competencies = getEvaluationCompetencies();
 
   return (
@@ -67,32 +87,39 @@ export default function EvaluationCard({
     >
       <Card
         className={cn(
-          "col-span-1 h-52 hover:shadow-md transition-all flex flex-col justify-between p-2 select-none"
+          "col-span-1 hover:shadow-md transition-all flex flex-col justify-between p-2 select-none"
         )}
       >
-        <div>
-          <h5 className={cn("text-md font-semibold")}>{evaluation.title}</h5>
-          <p className={cn("text-sm text-gray-500 italic hover:underline")}>
-            {/* todo turn this into a link that allows the user to view that program */}
-            {evaluation.programs?.name}
+        <div className={cn("flex justify-between")}>
+          <div>
+            <h5 className={cn("text-md font-semibold m-0 p-0")}>
+              {evaluation.title}
+            </h5>
+            <p className={cn("text-sm text-gray-500 italic hover:underline")}>
+              {/* todo turn this into a link that allows the user to view that program */}
+              {evaluation.programs?.name}
+            </p>
+          </div>
+          <p className={cn("text-xs")}>
+            Last Mofified: {formatDate(evaluation.updatedAt)}
           </p>
-          <hr className={cn("mt-2")} />
         </div>
-        <CardDescription>
-          {evaluation.description || "no description provided"}
-        </CardDescription>
         <div>
-          <hr className={cn("mb-2")} />
+          <hr className={cn("mb-2 flex justify between")} />
           <div className={cn("flex flex-row justify-between items-center")}>
-            <div className={cn("flex flex-row items-center space-x-1")}>
-              {competencies?.map((c) => (
-                <div
-                  key={c}
-                  className={cn("rounded-full bg-black text-white p-1")}
-                >
-                  {icons[c]}
-                </div>
-              ))}
+            <div className={cn("flex flex-row items-center  space-x-1")}>
+              {competencies.length > 0 ? (
+                competencies.map((c) => (
+                  <div
+                    key={c}
+                    className={cn("rounded-full bg-black text-white p-1")}
+                  >
+                    {icons[c]}
+                  </div>
+                ))
+              ) : (
+                <p className={cn("text-xs")}>No Competencies Evaluated</p>
+              )}
             </div>
             <EvaluationMenu evaluationId={evaluation.id} />
           </div>

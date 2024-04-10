@@ -42,7 +42,7 @@ export function EvaluationMenu({ evaluationId }: { evaluationId: string }) {
           <DropdownMenuContent>
             <DropdownMenuItem>
               <Link
-                href={`/secure/evaluations/${evaluationId}`}
+                href={`/secure/evaluations/edit/${evaluationId}`}
                 className={cn("w-full")}
               >
                 <div

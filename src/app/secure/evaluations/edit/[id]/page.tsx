@@ -37,9 +37,5 @@ export default async function EditorPage({
     return new Error("Evaluation not found");
   }
 
-  return (
-    <main>
-      <EvaluationEditor evaluation={evaluation} />
-    </main>
-  );
+  return <EvaluationEditor evaluation={evaluation} />;
 }
