@@ -36,6 +36,34 @@ export type ClientEvaluation = InferResultType<
   }
 >;
 
+export type ClientPublishedEvaluation = InferResultType<
+  "publishedEvaluations",
+  {
+    programs: {
+      with: {
+        specialties: {
+          with: {
+            subcompetencies: {
+              with: {
+                competencies: true;
+                milestones: {
+                  with: { subcompetencies: { with: { competencies: true } } };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+    questions: {
+      with: {
+        milestones: true;
+        options: true;
+      };
+    };
+  }
+>;
+
 export type ClientQuestion = InferResultType<
   "questions",
   { options: true; milestones: true }

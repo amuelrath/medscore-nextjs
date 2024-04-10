@@ -113,6 +113,48 @@
       "when": 1712638833288,
       "tag": "0015_shallow_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1712710463048,
+      "tag": "0016_thick_puppet_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1712710825696,
+      "tag": "0017_tearful_the_anarchist",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1712710988700,
+      "tag": "0018_fresh_wilson_fisk",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1712711645312,
+      "tag": "0019_furry_red_wolf",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1712715981233,
+      "tag": "0020_famous_star_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1712716018105,
+      "tag": "0021_puzzling_butterfly",
+      "breakpoints": true
     }
   ]
 }

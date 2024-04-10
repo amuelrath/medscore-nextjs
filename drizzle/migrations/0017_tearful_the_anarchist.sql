@@ -1,0 +1,1 @@
+ALTER TABLE "answers" ADD CONSTRAINT "answers_response_id_unique" UNIQUE("response_id");

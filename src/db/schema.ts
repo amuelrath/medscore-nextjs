@@ -137,6 +137,7 @@ export const evaluations = pgTable("evaluations", {
   title: text("title").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   programId: uuid("program_id")
     .references(() => programs.id, {
       onDelete: "cascade",

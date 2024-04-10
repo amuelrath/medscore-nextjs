@@ -1,0 +1,1 @@
+ALTER TABLE "evaluations" ADD COLUMN "updated_at" timestamp NOT NULL;
