@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Trash2Icon, PlusCircleIcon } from "lucide-react";
-import { createOption, deleteQuestion, updateQuestion } from "../../actions";
+import { createOption, deleteQuestion, updateQuestion } from "../actions";
 import React from "react";
 import MilestoneSelector from "../MilestoneSelect/index";
 import { Badge } from "@/components/ui/badge";
