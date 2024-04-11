@@ -155,6 +155,13 @@
       "when": 1712716018105,
       "tag": "0021_puzzling_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1712796917249,
+      "tag": "0022_round_jack_power",
+      "breakpoints": true
     }
   ]
 }

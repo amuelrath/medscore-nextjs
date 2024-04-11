@@ -14,6 +14,7 @@ import {
   pgEnum,
   timestamp,
   primaryKey,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
@@ -138,6 +139,7 @@ export const evaluations = pgTable("evaluations", {
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  published: boolean("published").notNull().default(false),
   programId: uuid("program_id")
     .references(() => programs.id, {
       onDelete: "cascade",
@@ -238,172 +240,49 @@ export const milestonesOnQuestionsRelations = relations(
   })
 );
 
-export const publishedEvaluations = pgTable("published_evaluations", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  title: text("title").notNull(),
-  description: text("description"),
-  createdAt: timestamp("published_at").notNull().defaultNow(),
-  programId: uuid("program_id")
-    .references(() => programs.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  creatorId: uuid("creator_id").references(() => users.id),
-});
-export type PublishedEvaluation = InferSelectModel<typeof publishedEvaluations>;
-export type NewPublishedEvaluation = typeof publishedEvaluations.$inferInsert;
-export const publishedEvaluationRelations = relations(
-  publishedEvaluations,
-  ({ one, many }) => ({
-    programs: one(programs, {
-      fields: [publishedEvaluations.programId],
-      references: [programs.id],
-    }),
-    creator: one(users, {
-      fields: [publishedEvaluations.creatorId],
-      references: [users.id],
-    }),
-    questions: many(publishedQuestions),
-  })
-);
-
-export const publishedQuestions = pgTable("published_questions", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  position: integer("position"),
-  publishedEvaluationId: uuid("published_evaluation_id").references(
-    () => publishedEvaluations.id,
-    { onDelete: "cascade" }
-  ),
-});
-export type PublishedQuestion = typeof publishedQuestions.$inferSelect;
-export type NewPublishedQuestion = typeof publishedQuestions.$inferInsert;
-export const publishedQuestionRelations = relations(
-  publishedQuestions,
-  ({ one, many }) => ({
-    evaluations: one(publishedEvaluations, {
-      fields: [publishedQuestions.publishedEvaluationId],
-      references: [publishedEvaluations.id],
-    }),
-    options: many(publishedOptions),
-    milestones: many(publishedMilestonesOnQuestions),
-  })
-);
-
-export const publishedOptions = pgTable("published_options", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  position: integer("position"),
-  pointValue: decimal("point_value"),
-  publishedQuestionId: uuid("published_question_id")
-    .references(() => publishedQuestions.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-});
-export type PublishedOption = typeof publishedOptions.$inferSelect;
-export type NewPublishedOption = typeof publishedOptions.$inferInsert;
-export const publishedOptionRelations = relations(
-  publishedOptions,
-  ({ one }) => ({
-    questions: one(publishedQuestions, {
-      fields: [publishedOptions.publishedQuestionId],
-      references: [publishedQuestions.id],
-    }),
-  })
-);
-
-export const publishedMilestonesOnQuestions = pgTable(
-  "published_milestones_on_questions",
-  {
-    publishedQuestionId: uuid("published_question_id")
-      .notNull()
-      .references(() => publishedQuestions.id),
-    milestoneId: uuid("milestone_id")
-      .notNull()
-      .references(() => milestones.id),
-  },
-  (table) => {
-    return {
-      id: primaryKey({
-        columns: [table.milestoneId, table.publishedQuestionId],
-      }),
-    };
-  }
-);
-export type PublishedMilestonesOnQuestion =
-  typeof publishedMilestonesOnQuestions.$inferSelect;
-export type NewPublishedMilestoneOnQuestion =
-  typeof publishedMilestonesOnQuestions.$inferInsert;
-export const publishedMilestonesOnQuestionsRelations = relations(
-  publishedMilestonesOnQuestions,
-  ({ one }) => ({
-    milestones: one(milestones, {
-      fields: [publishedMilestonesOnQuestions.milestoneId],
-      references: [milestones.id],
-    }),
-    published_questions: one(publishedQuestions, {
-      fields: [publishedMilestonesOnQuestions.publishedQuestionId],
-      references: [publishedQuestions.id],
-    }),
-  })
-);
-
 export const responses = pgTable("responses", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  publishedEvaluationId: uuid("published_evaluation_id").references(
-    () => publishedEvaluations.id,
-    { onDelete: "cascade" }
-  ),
-  userId: uuid("user_id").references(() => users.id),
+  creatorId: uuid("creator_id")
+    .references(() => users.id)
+    .notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  evaluationId: uuid("evaluation_id").references(() => evaluations.id),
 });
-export type Response = InferSelectModel<typeof responses>;
-export type NewResponse = InferInsertModel<typeof responses>;
+export type Response = typeof responses.$inferSelect;
+export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
-  publishedEvaluation: one(publishedEvaluations, {
-    fields: [responses.publishedEvaluationId],
-    references: [publishedEvaluations.id],
-  }),
-  user: one(users, {
-    fields: [responses.userId],
+  creator: one(users, {
+    fields: [responses.creatorId],
     references: [users.id],
   }),
-  answers: many(answers),
+  evaluation: one(evaluations, {
+    fields: [responses.evaluationId],
+    references: [evaluations.id],
+  }),
 }));
 
 export const answers = pgTable(
   "answers",
   {
-    publishedOptionId: uuid("published_option_id")
-      .references(() => publishedOptions.id, {
-        onDelete: "cascade",
-      })
-      .notNull(),
-    responseId: uuid("response_id").references(() => responses.id),
+    optionId: uuid("option_id").references(() => options.id),
+    responseId: uuid("response_id")
+      .notNull()
+      .references(() => responses.id),
   },
   (table) => {
     return {
-      id: primaryKey({
-        columns: [table.publishedOptionId, table.responseId],
-      }),
+      id: primaryKey({ columns: [table.responseId, table.optionId] }),
     };
   }
 );
-export type Answer = InferSelectModel<typeof answers>;
-export type NewAnswer = InferInsertModel<typeof answers>;
+export type Answer = typeof answers.$inferSelect;
+export type NewAnswer = typeof answers.$inferInsert;
 export const answerRelations = relations(answers, ({ one }) => ({
-  publishedOption: one(publishedOptions, {
-    fields: [answers.publishedOptionId],
-    references: [publishedOptions.id],
+  option: one(options, {
+    fields: [answers.optionId],
+    references: [options.id],
   }),
   response: one(responses, {
     fields: [answers.responseId],
