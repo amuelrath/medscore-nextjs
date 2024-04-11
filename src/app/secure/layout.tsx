@@ -1,4 +1,5 @@
 "use client";
+import { cn } from "@/lib/utils";
 import AnimatedTabs from "@/components/ui/sidebar";
 import {
   BoxesIcon,
@@ -14,31 +15,31 @@ const tabs = [
   {
     id: "dashboard",
     label: "Dashboard",
-    icon: <GaugeCircleIcon />,
+    icon: <GaugeCircleIcon className={cn("text-notepad")} />,
     href: "/secure/dashboard",
   },
   {
     id: "reports",
     label: "Reports",
-    icon: <FlaskConicalIcon />,
+    icon: <FlaskConicalIcon className={cn("text-notepad")} />,
     href: "/secure/reports",
   },
   {
     id: "evaluations",
     label: "Draft Evaluations",
-    icon: <BookCheckIcon />,
+    icon: <BookCheckIcon className={cn("text-notepad")} />,
     href: "/secure/evaluations/home",
   },
   {
     id: "program",
     label: "Program",
-    icon: <BoxesIcon />,
+    icon: <BoxesIcon className={cn("text-notepad")} />,
     href: "/secure/program",
   },
   {
     id: "profile",
     label: "Profile",
-    icon: <UserIcon />,
+    icon: <UserIcon className={cn("text-notepad")} />,
     href: "/secure/profile",
   },
 ];
@@ -49,9 +50,11 @@ export default function SecureRootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex flex-row h-screen w-full bg-white">
+    <main className="flex flex-row h-full w-full">
       <AnimatedTabs tabs={tabs} vertical icons />
-      <div className="flex-1 ml-[4rem] mt-[72px] bg-secondary rounded-[5px] border pb-32 overflow-y-auto no-scrollbar">
+      <div
+        className={cn("rounded-[10px] w-full h-screen bg-primary no-scrollbar")}
+      >
         <Toaster />
         {children}
       </div>

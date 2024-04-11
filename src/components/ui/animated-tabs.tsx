@@ -57,7 +57,7 @@ export function AnimatedTabs({ tabs, icons }: TabsProps) {
 
   return (
     <div
-      className={`relative flex flex-row space-x-2 items-center bg-white bg-gray-200 z-10`}
+      className={`relative flex flex-row space-x-2 items-center bg-primary z-10`}
     >
       {tabs.map((tab) => (
         <div
@@ -65,15 +65,15 @@ export function AnimatedTabs({ tabs, icons }: TabsProps) {
           role="button"
           onClick={() => setActiveTab(tab.id)}
           className={`${
-            activeTab === tab.id ? "text-white" : "hover:text-black/60"
-          } relative rounded-full px-2 py-1 text-sm font-medium text-black outline-sky-400 transition focus-visible:outline-2`}
+            activeTab === tab.id ? "" : "hover:text-notepad/60"
+          } relative rounded-full px-2 py-1 text-sm font-medium text-notepad transition focus-visible:outline-2`}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <span className="relative z-20">{icons ? tab.icon : tab.label}</span>
           {activeTab === tab.id && (
             <motion.span
               layoutId="module-select"
-              className="absolute inset-0 z-10 bg-yellow-500 mix-blend-difference"
+              className="absolute inset-0 z-10 bg-accent mix-blend-exclusion"
               style={{ borderRadius: 5 }}
               transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
             />

@@ -38,7 +38,7 @@ export default function RootLayout({
         />
       </head>
       <html lang="en">
-        <body className={"font-forma"}>{children}</body>
+        <body className={"font-forma no-scrollbar"}>{children}</body>
       </html>
     </>
   );
