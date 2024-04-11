@@ -5,10 +5,6 @@ import {
   evaluations,
   milestonesOnQuestions,
   options,
-  publishedEvaluations,
-  publishedMilestonesOnQuestions,
-  publishedOptions,
-  publishedQuestions,
   questions,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -50,83 +46,4 @@ export async function createEvaluation(data: FormData) {
 export const deleteEvaluation = async (evaluationId: string) => {
   await db.delete(evaluations).where(eq(evaluations.id, evaluationId));
   revalidatePath("#");
-};
-
-export const publishEvaluation = async (evaluationId: string) => {
-  // Retrieve the evaluation by id
-  const evaluation = await db.query.evaluations.findFirst({
-    where: (evaluation, { eq }) => eq(evaluation.id, evaluationId),
-  });
-
-  if (!evaluation) {
-    throw new Error("Evaluation not found");
-  }
-
-  // Insert the evaluation into the publishedEvaluations table
-  const publishedEvaluation = await db
-    .insert(publishedEvaluations)
-    .values({
-      title: evaluation.title,
-      description: evaluation.description,
-      programId: evaluation.programId,
-      creatorId: evaluation.creatorId,
-    })
-    .returning()
-    .execute();
-
-  if (!publishedEvaluation) throw new Error("Evaluation publish failed");
-
-  // Retrieve the questions for the evaluation
-  const evalQuestions = await db.query.questions.findMany({
-    where: eq(questions.evaluationId, evaluationId),
-  });
-
-  // Publish each question and its associated options and allocations
-  for (const question of evalQuestions) {
-    const publishedQuestion = await db
-      .insert(publishedQuestions)
-      .values({
-        text: question.text,
-        position: question.position,
-        publishedEvaluationId: publishedEvaluation[0].id,
-      })
-      .returning()
-      .execute();
-
-    // Retrieve the options for the question
-    const questionOptions = await db.query.options.findMany({
-      where: eq(options.questionId, question.id),
-    });
-
-    // Publish each option for the question
-    for (const option of questionOptions) {
-      await db
-        .insert(publishedOptions)
-        .values({
-          text: option.text,
-          position: option.position,
-          pointValue: option.pointValue,
-          publishedQuestionId: publishedQuestion[0].id,
-        })
-        .execute();
-    }
-
-    // Retrieve the milestones for the question
-    const questionAllocations = await db.query.milestonesOnQuestions.findMany({
-      where: eq(milestonesOnQuestions.questionId, question.id),
-    });
-
-    // Publish each milestone allocation for the question
-    for (const allocation of questionAllocations) {
-      await db
-        .insert(publishedMilestonesOnQuestions)
-        .values({
-          milestoneId: allocation.milestoneId,
-          publishedQuestionId: publishedQuestion[0].id,
-        })
-        .execute();
-    }
-  }
-
-  redirect(`/secure/evaluations/published/${publishedEvaluation[0].id}`);
 };
