@@ -1,12 +1,14 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
+import Section from "@/components/ui/section";
 import {
   TabsProvider,
   AnimatedTabs,
   TabContent,
 } from "@/components/ui/animated-tabs";
-import PageHeader from "@/components/ui/page-header";
+import NavBar from "@/components/ui/top-navbar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 const tabs = [
   {
     id: "drafts",
@@ -16,34 +18,29 @@ const tabs = [
     id: "published",
     label: "Published",
   },
-  {
-    id: "active",
-    label: "Active",
-  },
 ];
 
 export default function EvaluationsRootLayout({
-  active,
   drafts,
   published,
 }: {
-  active: ReactNode;
   drafts: ReactNode;
   published: ReactNode;
 }) {
   return (
     <TabsProvider>
-      <PageHeader>
-        <div className={cn("flex flex-col")}>
-          <h2 className={cn("text-2xl font-bold")}>Evaluations</h2>
-          <AnimatedTabs tabs={tabs} />
-        </div>
-      </PageHeader>
-      <main className={cn("w-full px-4 pb-4")}>
+      <NavBar>
+        <NavBar.Heading>
+          <NavBar.Title>Evaluations</NavBar.Title>
+          <NavBar.Subtitle>
+            <AnimatedTabs tabs={tabs} />
+          </NavBar.Subtitle>
+        </NavBar.Heading>
+      </NavBar>
+      <Section>
         <TabContent id="drafts">{drafts}</TabContent>
         <TabContent id="published">{published}</TabContent>
-        <TabContent id="active">{active}</TabContent>
-      </main>
+      </Section>
     </TabsProvider>
   );
 }
