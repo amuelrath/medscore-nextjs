@@ -1,5 +1,10 @@
 import { db } from "@/db";
 import EvaluationEditor from "./components/EvaluationEditor";
+import NavBar from "@/components/ui/top-navbar";
+import Section from "@/components/ui/section";
+import { cn } from "@/lib/utils";
+import { SettingsIcon, SaveAllIcon, ArrowsUpFromLineIcon } from "lucide-react";
+import EditorToolbar from "./components/EditorToolbar";
 export default async function EditorPage({
   params,
 }: {
@@ -37,5 +42,23 @@ export default async function EditorPage({
     return new Error("Evaluation not found");
   }
 
-  return <EvaluationEditor evaluation={evaluation} />;
+  return (
+    <>
+      <NavBar>
+        <NavBar.Heading>
+          <NavBar.Title>
+            <div className={cn("w-[50rem] cursor-default")}>
+              {evaluation.title}
+            </div>
+          </NavBar.Title>
+          <NavBar.Subtitle>
+            <EditorToolbar evaluation={evaluation} />
+          </NavBar.Subtitle>
+        </NavBar.Heading>
+      </NavBar>
+      <Section>
+        <EvaluationEditor evaluation={evaluation} />
+      </Section>
+    </>
+  );
 }
