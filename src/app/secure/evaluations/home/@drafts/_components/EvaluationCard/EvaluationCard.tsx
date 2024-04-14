@@ -114,7 +114,7 @@ function EditButton({ evaluationId }: { evaluationId: string }) {
       href={`/secure/evaluations/edit/${evaluationId}`}
       className={cn("w-full")}
     >
-      <Button variant={"accent-secondary"} size={"sm"}>
+      <Button variant={"accent-secondary"} size={"sm"} className={cn("w-24")}>
         <EditIcon />
       </Button>
     </Link>

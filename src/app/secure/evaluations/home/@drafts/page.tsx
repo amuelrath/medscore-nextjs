@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import EvaluationsViewer from "./components/EvaluationsViewer";
+import EvaluationsViewer from "./_components/EvaluationsViewer";
 export default async function SecureEvaluationsHomePage() {
   const evaluations = await db.query.evaluations.findMany({
     with: {

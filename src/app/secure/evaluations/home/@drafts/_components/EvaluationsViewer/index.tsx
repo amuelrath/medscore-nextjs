@@ -1,6 +1,6 @@
 "use client";
 import { ClientEvaluation } from "@/db/client-types";
-import CreateEvaluation from "../../../components/EvaluationCard/CreateEvaluation";
+import CreateEvaluation from "../../../_components/EvaluationCard/CreateEvaluation";
 import EvaluationCards from "../EvaluationCard";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
