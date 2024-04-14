@@ -1,5 +1,3 @@
-// options.tsx
-
 "use client";
 import { cn } from "@/lib/utils";
 import { Trash2Icon } from "lucide-react";

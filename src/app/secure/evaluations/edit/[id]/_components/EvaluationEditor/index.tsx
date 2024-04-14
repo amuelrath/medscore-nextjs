@@ -5,7 +5,6 @@ import QuestionCard from "./Questions";
 import { cn } from "@/lib/utils";
 import { PlusCircleIcon } from "lucide-react";
 import { createQuestion } from "../_actions";
-import { changeEvaluationTitle } from "../_actions";
 
 export default function EvaluationEditor({
   evaluation,
@@ -14,11 +13,6 @@ export default function EvaluationEditor({
 }) {
   const handleAddQuestion = async () => {
     await createQuestion(evaluation.id);
-  };
-
-  // TOTO DEBOUNCE
-  const handleTitleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    changeEvaluationTitle(evaluation.id, e.target.value);
   };
 
   const subcompetencies = evaluation.programs.specialties?.subcompetencies;

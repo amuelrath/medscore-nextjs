@@ -19,7 +19,7 @@ export default function EvaluationsViewer({
 
   return (
     <>
-      <div className={cn("flex items-center justify-between py-2 ")}>
+      <div className={cn("flex items-center justify-between py-2")}>
         <Input
           className={cn("w-64")}
           placeholder="Search Drafts..."

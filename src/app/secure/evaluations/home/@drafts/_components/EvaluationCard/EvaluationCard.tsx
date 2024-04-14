@@ -1,6 +1,5 @@
 "use client";
 import { Card } from "@/components/ui/card";
-import { EvaluationMenu } from "./EvaluationCardMenu";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ClientEvaluation } from "@/db/client-types";
@@ -50,8 +49,8 @@ export default function EvaluationCard({
   }
 
   function parseTitle(title: string) {
-    if (title.length > 25) {
-      return title.slice(0, 25) + "...";
+    if (title.length > 43) {
+      return title.slice(0, 43) + "...";
     } else {
       return title;
     }
@@ -80,9 +79,6 @@ export default function EvaluationCard({
               {evaluation.programs?.name}
             </p>
           </div>
-          <p className={cn("text-xs")}>
-            Last Opened: {formatDate(evaluation.updatedAt)}
-          </p>
         </div>
         <div>
           <hr className={cn("mb-2")} />
@@ -92,7 +88,9 @@ export default function EvaluationCard({
               <PublishButton evaluation={evaluation} />
               <DeleteButton evaluation={evaluation} />
             </div>
-            <EvaluationMenu evaluationId={evaluation.id} />
+            <p className={cn("text-xs")}>
+              Last Opened: {formatDate(evaluation.updatedAt)}
+            </p>
           </div>
         </div>
       </Card>
