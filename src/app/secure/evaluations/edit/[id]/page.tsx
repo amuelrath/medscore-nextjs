@@ -1,10 +1,10 @@
 import { db } from "@/db";
-import EvaluationEditor from "./components/EvaluationEditor";
+import EvaluationEditor from "./_components/EvaluationEditor";
 import NavBar from "@/components/ui/top-navbar";
 import Section from "@/components/ui/section";
 import { cn } from "@/lib/utils";
 import { SettingsIcon, SaveAllIcon, ArrowsUpFromLineIcon } from "lucide-react";
-import EditorToolbar from "./components/EditorToolbar";
+import EditorToolbar from "./_components/EditorToolbar";
 export default async function EditorPage({
   params,
 }: {

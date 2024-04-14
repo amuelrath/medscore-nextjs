@@ -4,7 +4,7 @@ import { useMilestoneSelector } from ".";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 import { Milestone } from "@/db/schema";
-import { createMilestone, deleteMilestone } from "../actions";
+import { createMilestone, deleteMilestone } from "../_actions";
 export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
   const { question, setSelectedMilestoneIds, selectedMilestoneIds } =
     useMilestoneSelector();

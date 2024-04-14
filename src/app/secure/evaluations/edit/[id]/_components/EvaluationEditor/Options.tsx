@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Option as OptionType } from "@/db/schema";
-import { deleteOption, updateOption } from "../actions";
+import { deleteOption, updateOption } from "../_actions";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Option({ option }: { option: OptionType }) {

@@ -6,7 +6,7 @@ import {
   ArrowsUpFromLineIcon,
   Loader2,
 } from "lucide-react";
-import { changeEvaluationTitle } from "../actions";
+import { changeEvaluationTitle } from "../_actions";
 import {
   Dialog,
   DialogClose,

@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import QuestionCard from "./Questions";
 import { cn } from "@/lib/utils";
 import { PlusCircleIcon } from "lucide-react";
-import { createQuestion } from "../actions";
-import { changeEvaluationTitle } from "../actions";
+import { createQuestion } from "../_actions";
+import { changeEvaluationTitle } from "../_actions";
 
 export default function EvaluationEditor({
   evaluation,

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { ClientEvaluation } from "@/db/client-types";
 import { EditIcon, ArrowsUpFromLineIcon, Trash2 } from "lucide-react";
-import { deleteEvaluation } from "../actions";
+import { deleteEvaluation } from "../_actions";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,7 +81,7 @@ export default function EvaluationCard({
             </p>
           </div>
           <p className={cn("text-xs")}>
-            Last Mofified: {formatDate(evaluation.updatedAt)}
+            Last Opened: {formatDate(evaluation.updatedAt)}
           </p>
         </div>
         <div>
