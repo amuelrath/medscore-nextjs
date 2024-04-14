@@ -162,6 +162,39 @@ export const evaluationRelations = relations(evaluations, ({ one, many }) => ({
   questions: many(questions),
 }));
 
+/* 
+export const multiChoiceQuestions = pgTable("multi_choice_questions", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  text: text("text"),
+  position: integer("position"),
+  evaluationId: uuid("evaluation_id")
+    .references(() => evaluations.id, {
+      onDelete: "cascade",
+    })
+    .notNull(),
+});
+export type MultiChoiceQuestion = typeof multiChoiceQuestions.$inferSelect;
+export type NewMultiChoiceQuestion = typeof multiChoiceQuestions.$inferInsert;
+export const multiChoiceQuestionRelations = relations(
+  multiChoiceQuestions,
+  ({ one, many }) => ({
+    evaluations: one(evaluations, {
+      fields: [multiChoiceQuestions.evaluationId],
+      references: [evaluations.id],
+    }),
+    options: many(options),
+  })
+);
+
+export const feedbackQuestions = pgTable("feedback_questions", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  
+})
+
+*/
+
 // we change this later to allow multiple questions types (open feedback)
 export const questions = pgTable("questions", {
   id: uuid("id")
