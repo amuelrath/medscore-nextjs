@@ -1,0 +1,1 @@
+ALTER TABLE "evaluations" RENAME COLUMN "updated_at" TO "last_opened_at";

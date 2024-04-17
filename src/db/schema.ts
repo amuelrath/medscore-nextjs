@@ -138,7 +138,7 @@ export const evaluations = pgTable("evaluations", {
   title: text("title").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
   published: boolean("published").notNull().default(false),
   programId: uuid("program_id")
     .references(() => programs.id, {

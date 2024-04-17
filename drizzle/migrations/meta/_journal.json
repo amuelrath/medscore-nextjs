@@ -169,6 +169,13 @@
       "when": 1713146759735,
       "tag": "0023_rare_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1713374628687,
+      "tag": "0024_tan_silver_centurion",
+      "breakpoints": true
     }
   ]
 }
