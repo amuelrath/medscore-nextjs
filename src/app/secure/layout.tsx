@@ -7,7 +7,6 @@ import {
   UserIcon,
   FlaskConicalIcon,
   BookCheckIcon,
-  ActivityIcon,
 } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 

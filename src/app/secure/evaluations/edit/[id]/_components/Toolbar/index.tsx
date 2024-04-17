@@ -6,7 +6,7 @@ import {
   ArrowsUpFromLineIcon,
   Loader2,
 } from "lucide-react";
-import { changeEvaluationTitle, saveEvaluation } from "../_actions";
+import { saveEvaluation } from "../_actions";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { EvaluationFormData } from "@/db/client-types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { Control, UseFormGetValues } from "react-hook-form";
+import { UseFormGetValues } from "react-hook-form";
+import { toast } from "sonner";
 export default function EditorToolbar({
   getValues,
 }: {
@@ -51,7 +50,10 @@ function SaveButton({
   const handleSave = async () => {
     try {
       setLoading(true);
-      saveEvaluation(getValues()).then(() => setLoading(false));
+      saveEvaluation(getValues()).finally(() => {
+        toast.success("Evaluation saved successfully");
+        setLoading(false);
+      });
     } catch (error) {
       console.error(error);
     }
