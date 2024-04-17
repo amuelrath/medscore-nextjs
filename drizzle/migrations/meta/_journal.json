@@ -162,6 +162,13 @@
       "when": 1712796917249,
       "tag": "0022_round_jack_power",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1713146759735,
+      "tag": "0023_rare_eternals",
+      "breakpoints": true
     }
   ]
 }

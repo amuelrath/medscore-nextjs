@@ -162,45 +162,12 @@ export const evaluationRelations = relations(evaluations, ({ one, many }) => ({
   questions: many(questions),
 }));
 
-/* 
-export const multiChoiceQuestions = pgTable("multi_choice_questions", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  position: integer("position"),
-  evaluationId: uuid("evaluation_id")
-    .references(() => evaluations.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-});
-export type MultiChoiceQuestion = typeof multiChoiceQuestions.$inferSelect;
-export type NewMultiChoiceQuestion = typeof multiChoiceQuestions.$inferInsert;
-export const multiChoiceQuestionRelations = relations(
-  multiChoiceQuestions,
-  ({ one, many }) => ({
-    evaluations: one(evaluations, {
-      fields: [multiChoiceQuestions.evaluationId],
-      references: [evaluations.id],
-    }),
-    options: many(options),
-  })
-);
-
-export const feedbackQuestions = pgTable("feedback_questions", {
-  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
-  
-})
-
-*/
-
-// we change this later to allow multiple questions types (open feedback)
 export const questions = pgTable("questions", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   text: text("text"),
+  feedback: boolean("feedback").notNull().default(false),
   position: integer("position"),
   evaluationId: uuid("evaluation_id")
     .references(() => evaluations.id, {
@@ -217,6 +184,24 @@ export const questionRelations = relations(questions, ({ one, many }) => ({
   }),
   options: many(options),
   milestones: many(milestonesOnQuestions),
+}));
+
+export const feedback = pgTable("feedback", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  text: text("text").notNull(),
+  questionId: uuid("question_id")
+    .notNull()
+    .references(() => questions.id),
+});
+export type Feedback = typeof feedback.$inferSelect;
+export type NewFeedback = typeof feedback.$inferInsert;
+export const feedbackResponseRelations = relations(feedback, ({ one }) => ({
+  question: one(questions, {
+    fields: [feedback.questionId],
+    references: [questions.id],
+  }),
 }));
 
 export const options = pgTable("options", {
