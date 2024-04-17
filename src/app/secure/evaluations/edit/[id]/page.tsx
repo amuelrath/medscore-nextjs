@@ -1,6 +1,10 @@
 import { db } from "@/db";
 import EvaluationEditor from "./_components/Editor";
 import { EvaluationFormData, ClientEvaluation } from "@/db/client-types";
+import { and, eq, not } from "drizzle-orm";
+import { evaluations } from "@/db/schema";
+import { revalidatePath } from "next/cache";
+import { ROUTES } from "@/lib/routes.generated";
 export default async function EditorPage({
   params,
 }: {
@@ -8,7 +12,8 @@ export default async function EditorPage({
 }) {
   // TODO CHECK AGAINST SESSION.USER.ID
   const evaluation = await db.query.evaluations.findFirst({
-    where: (evaluation, { eq }) => eq(evaluation.id, params.id),
+    where: (evaluation, { eq }) =>
+      and(not(eq(evaluation.published, true)), eq(evaluation.id, params.id)),
     with: {
       programs: {
         with: {
@@ -29,6 +34,14 @@ export default async function EditorPage({
       },
     },
   });
+
+  // update last opened
+  db.update(evaluations)
+    .set({
+      lastOpenedAt: new Date(),
+    })
+    .where(eq(evaluations.id, params.id))
+    .finally(() => revalidatePath("layout"));
 
   if (evaluation?.creatorId !== process.env.DEV_USER_ID) {
     return new Error("Unauthorized");
