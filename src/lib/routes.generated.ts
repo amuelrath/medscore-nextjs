@@ -13,9 +13,7 @@ export const ROUTES = {
           ID: `secure/evaluations/edit/[id]/${value}`,
         }),
       },
-      HOME: {
-        HOME: "secure/evaluations/home",
-      },
+      HOME: "secure/evaluations/home",
     },
     PROFILE: {
       PROFILE: "secure/profile",
