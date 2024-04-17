@@ -12,6 +12,7 @@ const buttonVariants = cva(
         default: "bg-primary text-notepad hover:bg-primary/90",
         "accent-secondary":
           "bg-accent-secondary text-notepad hover:bg-accent-secondary/90",
+        accent: "bg-accent text-notepad hover:bg-accent/90",
         icon: "items-center p-1 hover:text-white hover:bg-accent-secondary rounded-md transition-all",
         destructive: "bg-destructive text-notepad hover:bg-destructive/90",
         outline:
@@ -19,6 +20,7 @@ const buttonVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
+        notepad: "bg-notepad text-black hover:bg-notepad/90",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
