@@ -31,7 +31,7 @@ export default function EvaluationCard({
     const now = new Date();
     const diff = (now.getTime() - date.getTime()) / 1000; // Get the difference in seconds
 
-    if (diff < 300) {
+    if (diff < 60) {
       return "Just Now";
     } else if (diff < 86400) {
       return date.toLocaleTimeString([], {
@@ -79,13 +79,13 @@ export default function EvaluationCard({
               {evaluation.programs?.name}
             </p>
           </div>
+          <p className={cn("text-xs")}>
+            Last Opened: {formatDate(evaluation.lastOpenedAt)}
+          </p>
         </div>
         <div>
           <hr className={cn("mb-2")} />
-          <div className={cn("flex flex-row justify-between items-center")}>
-            <p className={cn("text-xs")}>
-              Last Opened: {formatDate(evaluation.updatedAt)}
-            </p>
+          <div className={cn("flex flex-row justify-end items-center")}>
             <div className={cn("space-x-2 ")}>
               <EditButton evaluationId={evaluation.id} />
               <PublishButton evaluation={evaluation} />

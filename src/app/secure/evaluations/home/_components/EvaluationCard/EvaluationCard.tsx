@@ -101,7 +101,7 @@ export default function EvaluationCard({
             </p>
           </div>
           <p className={cn("text-xs")}>
-            Last Mofified: {formatDate(evaluation.updatedAt)}
+            Last Mofified: {formatDate(evaluation.lastOpenedAt)}
           </p>
         </div>
         <div>
