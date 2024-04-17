@@ -11,17 +11,6 @@ import {
 import { and, eq, not, inArray } from "drizzle-orm";
 import { EvaluationFormData } from "@/db/client-types";
 import { ROUTES } from "@/lib/routes.generated";
-export const changeEvaluationTitle = async (
-  evaluationId: string,
-  data: FormData
-) => {
-  const title = data.get("title");
-  await db
-    .update(evaluations)
-    .set({ title: title as string })
-    .where(eq(evaluations.id, evaluationId));
-  revalidatePath("#");
-};
 
 export const saveEvaluation = async (data: EvaluationFormData) => {
   const formEvaluation = data;
