@@ -51,7 +51,21 @@ export type ClientMilestone = InferResultType<
   { subcompetencies: { with: { competencies: true } } }
 >;
 
-export type Allocation = {
-  milestoneId: string;
-  questionId: string;
+export type EvaluationFormData = {
+  id: string;
+  title: string;
+  programId: string;
+  questions: {
+    id: string;
+    position: number;
+    text: string;
+    feedback: boolean;
+    milestoneIds: string[];
+    options: {
+      id: string;
+      position: number;
+      text: string;
+      pointValue: number;
+    }[];
+  }[];
 };
