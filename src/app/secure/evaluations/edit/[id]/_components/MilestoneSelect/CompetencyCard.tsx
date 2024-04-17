@@ -104,7 +104,7 @@ export default function CompetencyCard({
             boxShadow: "0 6px 12px 6px rgba(0,0,0,0.2)",
             opacity: 85,
           }}
-          className={cn("h-32 rounded-2xl border cursor-pointer bg-notepad")}
+          className={cn("rounded-2xl border cursor-pointer bg-notepad")}
           onClick={isSelected ? () => deselectCompetency() : () => onSelect()}
         >
           <div className={cn("p-4 text-black")}>
@@ -160,6 +160,6 @@ const variants = {
     height: "60px",
   },
   deselected: {
-    height: "128px",
+    height: "95px",
   },
 };

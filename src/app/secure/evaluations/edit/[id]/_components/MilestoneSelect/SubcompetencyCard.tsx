@@ -111,9 +111,9 @@ const colors: { [key: string]: string } = {
 const variants = {
   selected: {
     opacity: 1,
-    height: "44px",
+    height: "45px",
   },
   deselected: {
-    height: "72px",
+    height: "60px",
   },
 };
