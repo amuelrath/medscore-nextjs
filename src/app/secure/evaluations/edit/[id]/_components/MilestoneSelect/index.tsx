@@ -8,8 +8,8 @@ import {
   DrawerHeader,
 } from "@/components/ui/drawer";
 import { Competency } from "@/db/schema";
-import { ClientQuestion, ClientSubcompetency } from "@/db/client-types";
-import { useState, createContext, useContext } from "react";
+import { ClientSubcompetency } from "@/db/client-types";
+import { useState, createContext, useContext, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MilestoneIcon } from "lucide-react";
@@ -40,16 +40,16 @@ const competencies: Competency[] = [
 ];
 
 const MilestoneSelectorContext = createContext<{
-  question: ClientQuestion | undefined;
+  value: string[];
   subcompetencies: ClientSubcompetency[] | undefined;
   selectedCompetencyId: string | undefined;
   selectedSubcompetencyId: string | undefined;
   selectedMilestoneIds: string[] | undefined;
   setSelectedCompetencyId: (id: string | undefined) => void;
   setSelectedSubcompetencyId: (id: string | undefined) => void;
-  setSelectedMilestoneIds: (ids: string[] | undefined) => void;
+  setSelectedMilestoneIds: (ids: string[]) => void;
 }>({
-  question: undefined,
+  value: [],
   subcompetencies: undefined,
   selectedCompetencyId: undefined,
   selectedSubcompetencyId: undefined,
@@ -62,31 +62,26 @@ const MilestoneSelectorContext = createContext<{
 export const useMilestoneSelector = () => useContext(MilestoneSelectorContext);
 
 export default function MilestoneSelector({
+  values,
   subcompetencies,
-  question,
+  onChange,
 }: {
+  values: string[];
   subcompetencies: ClientSubcompetency[];
-  question: ClientQuestion;
+  onChange: (milestonesIds: string[]) => void;
 }) {
-  const allocations = () => {
-    const result: string[] = [];
-    question.milestones.map((m) => {
-      result.push(m.milestoneId);
-    });
-    return result;
-  };
   const [selectedCompetencyId, setSelectedCompetencyId] = useState<
     string | undefined
   >(undefined);
   const [selectedSubcompetencyId, setSelectedSubcompetencyId] = useState<
     string | undefined
   >(undefined);
-  const [selectedMilestoneIds, setSelectedMilestoneIds] = useState<
-    string[] | undefined
-  >(allocations || undefined);
+  const [selectedMilestoneIds, setSelectedMilestoneIds] = useState<string[]>(
+    values || []
+  );
 
   const contextValue = {
-    question: question,
+    value: values,
     subcompetencies: subcompetencies,
     setSelectedCompetencyId,
     setSelectedSubcompetencyId,
@@ -95,6 +90,14 @@ export default function MilestoneSelector({
     selectedMilestoneIds,
     selectedSubcompetencyId,
   };
+
+  const handleChange = (selectedMilestoneIds: string[]) => {
+    onChange(selectedMilestoneIds);
+  };
+
+  useEffect(() => {
+    handleChange(selectedMilestoneIds);
+  }, [selectedMilestoneIds]);
 
   return (
     <Drawer>
@@ -108,9 +111,7 @@ export default function MilestoneSelector({
       <DrawerContent className={cn("h-[90%]")}>
         <DrawerHeader>
           <DrawerTitle className={cn("text-xl")}>Milestones</DrawerTitle>
-          <DrawerDescription>
-            Add Milestones to Question #{question.position}
-          </DrawerDescription>
+          <DrawerDescription>Select Milestones</DrawerDescription>
         </DrawerHeader>
         <ScrollArea className={cn("h-full")}>
           <div className={cn("w-full h-full p-4 space-y-4")}>

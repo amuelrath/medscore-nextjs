@@ -1,10 +1,10 @@
 "use server";
 
-import { registerSchema } from "@/app/auth/components/RegisterForm";
+import { registerSchema } from "@/app/auth/_components/RegisterForm";
 import { z } from "zod";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { user } from "@/db/schema";
+import { users } from "@/db/schema";
 
 export type FormState = {
   message: string;
@@ -19,7 +19,7 @@ export async function registerUser(data: FormData) {
   }
 
   const userExists = await db.query.user.findFirst({
-    where: (user, { eq }) => eq(user.email, parsed.data.email),
+    where: (users, { eq }) => eq(user.email, parsed.data.email),
   });
 
   if (userExists) {

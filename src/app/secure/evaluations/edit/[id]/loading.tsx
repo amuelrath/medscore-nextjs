@@ -1,17 +1,13 @@
-import Section from "@/components/ui/section";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-
-export default function EvaluationLoading() {
+import { Loader2Icon } from "lucide-react";
+export default function LoadingEditorV2() {
   return (
-    <Section>
-      <div className={cn("w-full flex justify-center")}>
-        <Loader2
-          strokeWidth={2}
-          size="4rem"
-          className={cn("animate-spin text-primary")}
-        />
-      </div>
-    </Section>
+    <div className={cn("h-full flex flex-col justify-center items-center")}>
+      <Loader2Icon
+        strokeWidth={2}
+        size="4rem"
+        className={cn("animate-spin text-primary")}
+      />
+    </div>
   );
 }

@@ -83,14 +83,14 @@ export default function EvaluationCard({
         <div>
           <hr className={cn("mb-2")} />
           <div className={cn("flex flex-row justify-between items-center")}>
+            <p className={cn("text-xs")}>
+              Last Opened: {formatDate(evaluation.updatedAt)}
+            </p>
             <div className={cn("space-x-2 ")}>
               <EditButton evaluationId={evaluation.id} />
               <PublishButton evaluation={evaluation} />
               <DeleteButton evaluation={evaluation} />
             </div>
-            <p className={cn("text-xs")}>
-              Last Opened: {formatDate(evaluation.updatedAt)}
-            </p>
           </div>
         </div>
       </Card>
@@ -100,7 +100,7 @@ export default function EvaluationCard({
 
 function PublishButton({ evaluation }: { evaluation: ClientEvaluation }) {
   return (
-    <Button size={"sm"}>
+    <Button size={"sm"} variant={"notepad"}>
       <ArrowsUpFromLineIcon />
     </Button>
   );
@@ -112,7 +112,7 @@ function EditButton({ evaluationId }: { evaluationId: string }) {
       href={`/secure/evaluations/edit/${evaluationId}`}
       className={cn("w-full")}
     >
-      <Button variant={"accent-secondary"} size={"sm"} className={cn("w-24")}>
+      <Button variant={"default"} size={"sm"} className={cn("w-28")}>
         <EditIcon />
       </Button>
     </Link>

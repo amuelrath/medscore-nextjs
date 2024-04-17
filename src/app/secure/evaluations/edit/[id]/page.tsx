@@ -1,10 +1,6 @@
 import { db } from "@/db";
-import EvaluationEditor from "./_components/EvaluationEditor";
-import NavBar from "@/components/ui/top-navbar";
-import Section from "@/components/ui/section";
-import { cn } from "@/lib/utils";
-import { SettingsIcon, SaveAllIcon, ArrowsUpFromLineIcon } from "lucide-react";
-import EditorToolbar from "./_components/EditorToolbar";
+import EvaluationEditor from "./_components/Editor";
+import { EvaluationFormData, ClientEvaluation } from "@/db/client-types";
 export default async function EditorPage({
   params,
 }: {
@@ -42,23 +38,38 @@ export default async function EditorPage({
     return new Error("Evaluation not found");
   }
 
+  const morphedEvaluation = morphClientEvaluationToFormData(evaluation);
+  const subcompetencies = evaluation.programs.specialties?.subcompetencies;
+
   return (
-    <>
-      <NavBar>
-        <NavBar.Heading>
-          <NavBar.Title>
-            <div className={cn("w-[50rem] cursor-default")}>
-              {evaluation.title}
-            </div>
-          </NavBar.Title>
-          <NavBar.Subtitle>
-            <EditorToolbar evaluation={evaluation} />
-          </NavBar.Subtitle>
-        </NavBar.Heading>
-      </NavBar>
-      <Section>
-        <EvaluationEditor evaluation={evaluation} />
-      </Section>
-    </>
+    <EvaluationEditor
+      defaultValues={morphedEvaluation}
+      subcompetencies={subcompetencies || []}
+    />
   );
+}
+
+function morphClientEvaluationToFormData(
+  clientEvaluation: ClientEvaluation
+): EvaluationFormData {
+  const evaluation: EvaluationFormData = {
+    id: clientEvaluation.id as string,
+    title: clientEvaluation.title as string,
+    programId: clientEvaluation.programId as string,
+    questions: clientEvaluation.questions.map((question) => ({
+      id: question.id as string,
+      position: question.position as number,
+      text: question.text as string,
+      feedback: question.feedback as boolean,
+      milestoneIds: question.milestones.map((m) => m.milestoneId) as string[],
+      options: question.options.map((option) => ({
+        id: option.id as string,
+        position: option.position as number,
+        text: option.text as string,
+        pointValue: Number(option.pointValue),
+      })),
+    })),
+  };
+
+  return evaluation;
 }

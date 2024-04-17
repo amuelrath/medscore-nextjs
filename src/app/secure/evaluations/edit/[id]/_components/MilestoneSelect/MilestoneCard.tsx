@@ -4,9 +4,8 @@ import { useMilestoneSelector } from ".";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 import { Milestone } from "@/db/schema";
-import { createMilestone, deleteMilestone } from "../_actions";
 export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
-  const { question, setSelectedMilestoneIds, selectedMilestoneIds } =
+  const { value, setSelectedMilestoneIds, selectedMilestoneIds } =
     useMilestoneSelector();
 
   const onSelect = async () => {
@@ -17,7 +16,6 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
     } else {
       setSelectedMilestoneIds([milestone.id]);
     }
-    await createMilestone(milestone.id, question!.id);
   };
 
   const deselectMilestone = async () => {
@@ -30,7 +28,6 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
     } else {
       setSelectedMilestoneIds([]);
     }
-    await deleteMilestone(milestone.id, question!.id);
   };
 
   function getCompetencyName(input: string): string {
