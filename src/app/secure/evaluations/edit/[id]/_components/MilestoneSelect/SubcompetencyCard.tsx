@@ -59,7 +59,10 @@ export default function SubcompetencyCard({
 
   return (
     <>
-      <div className={cn("px-2")} onClick={onSelect}>
+      <div
+        className={cn("px-2")}
+        onClick={isSelected ? () => deselectSubcompetency() : () => onSelect()}
+      >
         <motion.div
           layout="position"
           layoutId={subcompetency.id}
@@ -82,7 +85,7 @@ export default function SubcompetencyCard({
               <Badge>{getNumberOfSelectedMilestones()}</Badge>
             )}
             <motion.div animate={isSelected ? { rotate: 0 } : { rotate: 45 }}>
-              <XIcon onClick={deselectSubcompetency} />
+              <XIcon />
             </motion.div>
           </div>
         </motion.div>
@@ -97,11 +100,11 @@ export default function SubcompetencyCard({
 }
 
 const colors: { [key: string]: string } = {
-  ICS: "bg-emerald-300",
-  PC: "bg-violet-500",
-  SBP: "bg-orange-400",
-  PBLI: "bg-cyan-600",
-  P: "bg-sky-400",
+  ICS: "bg-emerald-800",
+  PC: "bg-violet-700",
+  SBP: "bg-orange-700",
+  PBLI: "bg-cyan-700",
+  P: "bg-sky-700",
   MK: "bg-rose-500",
 };
 

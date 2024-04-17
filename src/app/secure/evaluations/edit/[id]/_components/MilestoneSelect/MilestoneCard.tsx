@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 import { Milestone } from "@/db/schema";
 export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
-  const { value, setSelectedMilestoneIds, selectedMilestoneIds } =
+  const { setSelectedMilestoneIds, selectedMilestoneIds } =
     useMilestoneSelector();
 
   const onSelect = async () => {
@@ -57,7 +57,14 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
   };
 
   return (
-    <div className={cn("px-8")}>
+    <div
+      className={cn("px-8")}
+      onClick={
+        selectedMilestoneIds?.includes(milestone.id)
+          ? deselectMilestone
+          : onSelect
+      }
+    >
       <motion.div
         layout="position"
         layoutId={milestone.id}
@@ -89,11 +96,6 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
               ? { rotate: 0 }
               : { rotate: 45 }
           }
-          onClick={
-            selectedMilestoneIds?.includes(milestone.id)
-              ? deselectMilestone
-              : onSelect
-          }
         >
           <XIcon className={cn("size-5 cursor-pointer")} />
         </motion.div>
@@ -114,10 +116,10 @@ const variants = {
 };
 
 const colors: { [key: string]: string } = {
-  ICS: "bg-green-600",
-  PC: "bg-purple-500",
-  SBP: "bg-orange-300",
-  PBLI: "bg-cyan-500",
+  ICS: "bg-emerald-600",
+  PC: "bg-purple-600",
+  SBP: "bg-orange-600",
+  PBLI: "bg-cyan-600",
   P: "bg-sky-600",
   MK: "bg-rose-400",
 };

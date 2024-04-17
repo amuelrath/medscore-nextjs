@@ -104,10 +104,10 @@ export default function CompetencyCard({
             boxShadow: "0 6px 12px 6px rgba(0,0,0,0.2)",
             opacity: 85,
           }}
-          className={cn("h-32 rounded-2xl border", color())}
-          onSelect={onSelect}
+          className={cn("h-32 rounded-2xl border cursor-pointer bg-notepad")}
+          onClick={isSelected ? () => deselectCompetency() : () => onSelect()}
         >
-          <div className={cn("p-4 text-white")}>
+          <div className={cn("p-4 text-black")}>
             <div className={cn("flex flex-row justify-between items-center")}>
               <div className={cn("flex flex-row items-center space-x-2")}>
                 <h3 className={cn("text-xl font-bold font-poppins")}>
@@ -119,7 +119,7 @@ export default function CompetencyCard({
               </div>
               {isSelected ? (
                 <div className={cn("cursor-pointer")}>
-                  <XIcon onClick={deselectCompetency} />
+                  <XIcon />
                 </div>
               ) : (
                 icon[competency.name]
