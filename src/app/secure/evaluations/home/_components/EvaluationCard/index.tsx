@@ -15,13 +15,15 @@ export default function EvaluationCards({
     <AnimatePresence>
       <div className={cn("w-full space-y-4")}>
         {evaluations
+          .sort((a, b) => {
+            const dateA = new Date(a.lastOpenedAt);
+            const dateB = new Date(b.lastOpenedAt);
+            return dateB.getTime() - dateA.getTime();
+          })
           .filter((e) =>
             e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
           )
-          .sort(
-            (a, b) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
+
           .map((evaluation, index) => (
             <EvaluationCard
               key={evaluation.id}
