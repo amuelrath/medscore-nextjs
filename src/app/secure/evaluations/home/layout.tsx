@@ -1,5 +1,4 @@
 "use client";
-import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 import Section from "@/components/ui/section";
 import {
@@ -8,7 +7,6 @@ import {
   TabContent,
 } from "@/components/ui/animated-tabs";
 import NavBar from "@/components/ui/top-navbar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 const tabs = [
   {
     id: "drafts",
