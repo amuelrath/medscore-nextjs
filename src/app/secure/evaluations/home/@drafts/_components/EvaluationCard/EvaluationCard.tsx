@@ -2,10 +2,10 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ClientEvaluation } from "@/db/client-types";
-import { EditIcon, ArrowsUpFromLineIcon, Trash2 } from "lucide-react";
+import { ClientEvaluation, EvaluationFormData } from "@/db/client-types";
+import { EditIcon, ArrowsUpFromLineIcon, Trash2, Loader2 } from "lucide-react";
 import { deleteEvaluation } from "../_actions";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import Link from "next/link";
+import { publishEvaluation } from "@/app/secure/evaluations/edit/[id]/_components/_actions";
+import { boolean } from "drizzle-orm/mysql-core";
 
 export default function EvaluationCard({
   evaluation,
@@ -98,11 +100,59 @@ export default function EvaluationCard({
   );
 }
 
+// this is essentially a duplicate PublishButton but it gets data differently.
+// i feel gross having this here but i don't know how to refactor it in a way that won't take forever
 function PublishButton({ evaluation }: { evaluation: ClientEvaluation }) {
+  const asFormData = morphClientEvaluationToFormData(evaluation);
+  const [loading, setLoading] = useState<boolean>(false);
+  const handlePublish = () => {
+    if (!evaluation.published) {
+      setLoading(true);
+      publishEvaluation(asFormData)
+        .then(() => {
+          setLoading(false);
+          toast.success(`Successfully published '${evaluation.title}'`);
+        })
+        .catch((error) => {
+          setLoading(false);
+        });
+    } else {
+      toast.error(
+        "You cannot publish an evaluation that has already been published."
+      );
+    }
+  };
   return (
-    <Button size={"sm"} variant={"notepad"}>
-      <ArrowsUpFromLineIcon />
-    </Button>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button size={"sm"} variant={"notepad"}>
+          <ArrowsUpFromLineIcon />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className={cn("rounded-md")}>
+        <AlertDialogHeader>
+          <AlertDialogTitle className={cn("text-xl")}>
+            Publishing '{evaluation.title}'
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            You will no longer be able to make changes to this evaluation. Are
+            you sure you wish to proceed?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogAction onClick={handlePublish}>
+          {loading ? (
+            <Loader2
+              strokeWidth={2}
+              size="1rem"
+              className={cn("animate-spin text-notepad")}
+            />
+          ) : (
+            "Publish"
+          )}
+        </AlertDialogAction>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -147,4 +197,30 @@ function DeleteButton({ evaluation }: { evaluation: ClientEvaluation }) {
       </AlertDialogContent>
     </AlertDialog>
   );
+}
+
+function morphClientEvaluationToFormData(
+  clientEvaluation: ClientEvaluation
+): EvaluationFormData {
+  const evaluation: EvaluationFormData = {
+    id: clientEvaluation.id as string,
+    title: clientEvaluation.title as string,
+    published: clientEvaluation.published as boolean,
+    programId: clientEvaluation.programId as string,
+    questions: clientEvaluation.questions.map((question) => ({
+      id: question.id as string,
+      position: question.position as number,
+      text: question.text as string,
+      feedback: question.feedback as boolean,
+      milestoneIds: question.milestones.map((m) => m.milestoneId) as string[],
+      options: question.options.map((option) => ({
+        id: option.id as string,
+        position: option.position as number,
+        text: option.text as string,
+        pointValue: Number(option.pointValue),
+      })),
+    })),
+  };
+
+  return evaluation;
 }
