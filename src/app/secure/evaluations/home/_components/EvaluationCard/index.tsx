@@ -3,7 +3,6 @@ import { ClientEvaluation } from "@/db/client-types";
 import { AnimatePresence } from "framer-motion";
 import EvaluationCard from "./EvaluationCard";
 import { cn } from "@/lib/utils";
-// TODO ADD 'last
 export default function EvaluationCards({
   filter,
   evaluations,

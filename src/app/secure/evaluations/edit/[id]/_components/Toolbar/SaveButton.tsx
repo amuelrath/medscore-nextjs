@@ -1,31 +1,47 @@
 "use client";
+import debounce from "debounce";
+import useDeepCompareEffect from "use-deep-compare-effect";
 import { cn } from "@/lib/utils";
 import { SaveAllIcon, Loader2 } from "lucide-react";
 import { saveEvaluation } from "../_actions";
 import { EvaluationFormData } from "@/db/client-types";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { UseFormGetValues } from "react-hook-form";
-import { toast } from "sonner";
+import { useCallback, useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+// TODO bug when deleting a question/option not triggering autosave!
 
-export function SaveButton({
-  getValues,
-}: {
-  getValues: UseFormGetValues<EvaluationFormData>;
-}) {
+export function SaveButton() {
+  const methods = useFormContext();
   const [loading, setLoading] = useState<boolean>(false);
-
   const handleSave = async () => {
     try {
       setLoading(true);
-      saveEvaluation(getValues()).finally(() => {
-        toast.success("Evaluation saved successfully");
-        setLoading(false);
-      });
+      const formData = methods.getValues() as EvaluationFormData;
+      await saveEvaluation(formData);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const debouncedSave = useCallback(
+    debounce(() => {
+      handleSave();
+    }, 500),
+    []
+  );
+
+  const watchedData = useWatch({
+    control: methods.control,
+    defaultValue: methods.formState.defaultValues,
+  });
+
+  useDeepCompareEffect(() => {
+    if (methods.formState.isDirty) {
+      debouncedSave();
+    }
+  }, [watchedData]);
 
   return (
     <Button

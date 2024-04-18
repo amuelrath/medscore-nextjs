@@ -2,7 +2,7 @@
 import { EvaluationFormData } from "@/db/client-types";
 import { v4 } from "uuid";
 import { cn } from "@/lib/utils";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { ClientSubcompetency } from "@/db/client-types";
 import QuestionCards from "./Questions";
 import { saveEvaluation } from "../_actions";
@@ -17,14 +17,7 @@ export default function Editor({
   subcompetencies: ClientSubcompetency[];
   defaultValues: EvaluationFormData;
 }) {
-  const {
-    control,
-    register,
-    handleSubmit,
-    getValues,
-    setValue,
-    formState: { errors },
-  } = useForm<EvaluationFormData>({
+  const methods = useForm<EvaluationFormData>({
     defaultValues: defaultValues || {
       evaluation: {
         id: v4(),
@@ -40,14 +33,14 @@ export default function Editor({
   };
 
   return (
-    <>
+    <FormProvider {...methods}>
       <NavBar>
         <NavBar.Heading>
           <NavBar.Title>
             <div className={cn("w-[50rem] cursor-default")}>
               <Controller
                 name={`title`}
-                control={control}
+                control={methods.control}
                 render={({ field }) => (
                   <input
                     {...field}
@@ -60,18 +53,15 @@ export default function Editor({
             </div>
           </NavBar.Title>
           <NavBar.Subtitle>
-            <EditorToolbar evaluation={defaultValues} getValues={getValues} />
+            <EditorToolbar />
           </NavBar.Subtitle>
         </NavBar.Heading>
       </NavBar>
       <Section>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <QuestionCards
-            {...{ register, setValue, getValues, control }}
-            subcompetencies={subcompetencies || []}
-          />
+        <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <QuestionCards subcompetencies={subcompetencies || []} />
         </form>
       </Section>
-    </>
+    </FormProvider>
   );
 }

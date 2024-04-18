@@ -12,6 +12,7 @@ import {
   Controller,
   UseFormRegister,
   useFieldArray,
+  useFormContext,
   useWatch,
 } from "react-hook-form";
 import {
@@ -28,14 +29,11 @@ import MilestoneSelector from "../MilestoneSelect";
 import { DevTool } from "@hookform/devtools";
 
 export default function QuestionCards({
-  control,
-  register,
   subcompetencies,
 }: {
-  control: Control<EvaluationFormData>;
-  register: UseFormRegister<EvaluationFormData>;
   subcompetencies: ClientSubcompetency[];
 }) {
+  const { control, register } = useFormContext<EvaluationFormData>();
   const { fields, remove, append } = useFieldArray({
     control,
     name: "questions",
