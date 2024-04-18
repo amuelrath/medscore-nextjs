@@ -54,7 +54,6 @@ export type ClientMilestone = InferResultType<
 export type EvaluationFormData = {
   id: string;
   title: string;
-  published: boolean;
   programId: string;
   questions: {
     id: string;
@@ -70,3 +69,11 @@ export type EvaluationFormData = {
     }[];
   }[];
 };
+
+export type EvaluationWithProgram = InferResultType<
+  "evaluations",
+  {
+    programs: true;
+    publications: true;
+  }
+>;

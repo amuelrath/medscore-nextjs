@@ -136,10 +136,8 @@ export const evaluations = pgTable("evaluations", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
-  description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
-  published: boolean("published").notNull().default(false),
   programId: uuid("program_id")
     .references(() => programs.id, {
       onDelete: "cascade",
@@ -160,6 +158,7 @@ export const evaluationRelations = relations(evaluations, ({ one, many }) => ({
     references: [users.id],
   }),
   questions: many(questions),
+  publications: many(publications),
 }));
 
 export const questions = pgTable("questions", {
@@ -257,6 +256,24 @@ export const milestonesOnQuestionsRelations = relations(
     }),
   })
 );
+
+export const publications = pgTable("publications", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  evaluationId: uuid("evaluation_id")
+    .notNull()
+    .references(() => evaluations.id),
+  publishedAt: timestamp("published_at").defaultNow(),
+});
+export type Publication = typeof publications.$inferSelect;
+export type NewPublication = typeof publications.$inferInsert;
+export const publicationRelations = relations(publications, ({ one }) => ({
+  evaluation: one(evaluations, {
+    fields: [publications.evaluationId],
+    references: [evaluations.id],
+  }),
+}));
 
 export const responses = pgTable("responses", {
   id: uuid("id")
