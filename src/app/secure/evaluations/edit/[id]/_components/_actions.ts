@@ -12,6 +12,17 @@ import { and, eq, not, inArray } from "drizzle-orm";
 import { EvaluationFormData } from "@/db/client-types";
 import { ROUTES } from "@/lib/routes.generated";
 
+export const publishEvaluation = async (data: EvaluationFormData) => {
+  await saveEvaluation(data);
+  await db
+    .update(evaluations)
+    .set({
+      published: true,
+    })
+    .where(eq(evaluations.id, data.id));
+  revalidatePath(ROUTES.SECURE.EVALUATIONS.HOME);
+};
+
 export const saveEvaluation = async (data: EvaluationFormData) => {
   const formEvaluation = data;
 
@@ -35,15 +46,16 @@ export const saveEvaluation = async (data: EvaluationFormData) => {
 
     // Delete stale questions
     const questionIds = formEvaluation.questions.map((q) => q.id);
-    await tx
-      .delete(questions)
-      .where(
-        and(
-          eq(questions.evaluationId, formEvaluation.id),
-          not(inArray(questions.id, questionIds))
-        )
-      );
-
+    if (questionIds.length > 0) {
+      await tx
+        .delete(questions)
+        .where(
+          and(
+            eq(questions.evaluationId, formEvaluation.id),
+            not(inArray(questions.id, questionIds))
+          )
+        );
+    }
     // Upsert questions
     for (const q of formEvaluation.questions) {
       await tx
@@ -109,5 +121,5 @@ export const saveEvaluation = async (data: EvaluationFormData) => {
     }
   });
 
-  revalidatePath(ROUTES.SECURE.EVALUATIONS.HOME.toString());
+  revalidatePath(ROUTES.SECURE.EVALUATIONS.HOME);
 };
