@@ -4,7 +4,6 @@ import { EvaluationFormData, ClientEvaluation } from "@/db/client-types";
 import { and, eq, not } from "drizzle-orm";
 import { evaluations } from "@/db/schema";
 import { revalidatePath } from "next/cache";
-import { ROUTES } from "@/lib/routes.generated";
 export default async function EditorPage({
   params,
 }: {
@@ -68,6 +67,7 @@ function morphClientEvaluationToFormData(
   const evaluation: EvaluationFormData = {
     id: clientEvaluation.id as string,
     title: clientEvaluation.title as string,
+    published: clientEvaluation.published as boolean,
     programId: clientEvaluation.programId as string,
     questions: clientEvaluation.questions.map((question) => ({
       id: question.id as string,
