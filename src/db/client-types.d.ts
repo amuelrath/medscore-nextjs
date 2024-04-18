@@ -54,6 +54,7 @@ export type ClientMilestone = InferResultType<
 export type EvaluationFormData = {
   id: string;
   title: string;
+  published: boolean;
   programId: string;
   questions: {
     id: string;
