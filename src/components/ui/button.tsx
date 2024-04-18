@@ -22,6 +22,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         notepad: "bg-notepad text-black hover:bg-notepad/90",
         link: "text-primary underline-offset-4 hover:underline",
+        emerald: "bg-emerald-500 text-primary hover:bg-emerald/90",
       },
       size: {
         default: "h-10 px-4 py-2",
