@@ -21,6 +21,7 @@ export default async function SecureEvaluationsHomePage() {
         },
       },
     },
+    where: (evaluation, { eq }) => eq(evaluation.published, false),
   });
 
   return <EvaluationsViewer evaluations={evaluations} />;
