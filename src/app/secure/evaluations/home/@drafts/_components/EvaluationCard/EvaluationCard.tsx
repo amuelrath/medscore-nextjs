@@ -20,7 +20,6 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { publishEvaluation } from "@/app/secure/evaluations/edit/[id]/_components/_actions";
-import { boolean } from "drizzle-orm/mysql-core";
 
 export default function EvaluationCard({
   evaluation,
