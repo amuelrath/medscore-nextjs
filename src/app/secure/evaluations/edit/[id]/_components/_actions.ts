@@ -6,6 +6,7 @@ import {
   feedback,
   milestonesOnQuestions,
   options,
+  publications,
   questions,
 } from "@/db/schema";
 import { and, eq, not, inArray } from "drizzle-orm";
@@ -14,12 +15,13 @@ import { ROUTES } from "@/lib/routes.generated";
 
 export const publishEvaluation = async (data: EvaluationFormData) => {
   await saveEvaluation(data);
-  await db
-    .update(evaluations)
-    .set({
-      published: true,
-    })
-    .where(eq(evaluations.id, data.id));
+  const alreadyPublished = await db.query.publications.findFirst({
+    where: eq(publications.evaluationId, data.id),
+  });
+  if (alreadyPublished) throw new Error("Evaluation already published!");
+  await db.insert(publications).values({
+    evaluationId: data.id,
+  });
   revalidatePath(ROUTES.SECURE.EVALUATIONS.HOME);
 };
 

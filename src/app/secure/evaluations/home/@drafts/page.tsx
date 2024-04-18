@@ -1,28 +1,7 @@
-import { db } from "@/db";
 import EvaluationsViewer from "./_components/EvaluationsViewer";
+import { fetchDraftEvaluations } from "@/components/_actions";
 export default async function SecureEvaluationsHomePage() {
-  const evaluations = await db.query.evaluations.findMany({
-    with: {
-      programs: {
-        with: {
-          specialties: {
-            with: {
-              subcompetencies: {
-                with: { milestones: true, competencies: true },
-              },
-            },
-          },
-        },
-      },
-      questions: {
-        with: {
-          milestones: true,
-          options: true,
-        },
-      },
-    },
-    where: (evaluation, { eq }) => eq(evaluation.published, false),
-  });
+  const unpublishedEvaluations = await fetchDraftEvaluations();
 
-  return <EvaluationsViewer evaluations={evaluations} />;
+  return <EvaluationsViewer evaluations={unpublishedEvaluations} />;
 }
