@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import SubcompetencyCard from "./SubcompetencyCard";
 import { Badge } from "@/components/ui/badge";
+import { ClientSubcompetency } from "@/db/client-types";
 export default function CompetencyCard({
   competency,
 }: {
@@ -31,24 +32,8 @@ export default function CompetencyCard({
     setSelectedCompetencyId(undefined);
   };
 
-  const color = () => {
-    switch (competency.name) {
-      case "ICS":
-        return "bg-emerald-500";
-      case "PC":
-        return "bg-violet-700";
-      case "SBP":
-        return "bg-orange-600";
-      case "PBLI":
-        return "bg-cyan-800";
-      case "P":
-        return "bg-sky-600";
-      case "MK":
-        return "bg-rose-700";
-    }
-  };
   const [isSelected, setIsSelected] = useState<boolean>(false);
-
+  const [noSelectedMilestones, setNoSelectedMilestones] = useState<number>(0);
   useEffect(() => {
     if (selectedCompetencyId === competency.id) {
       setIsSelected(true);
@@ -57,14 +42,29 @@ export default function CompetencyCard({
     }
   }, [selectedCompetencyId]);
 
-  const mySubcompetencies = () => {
-    const result = [];
-    if (subcompetencies) {
-      for (const s of subcompetencies) {
-        if (s.competencyId === competency.id) {
-          result.push(s);
-        }
+  useEffect(() => {
+    setNoSelectedMilestones(getNumberOfSelectedMilestones());
+  }, [selectedMilestoneIds]);
+
+  const getNumberOfSelectedMilestones = () => {
+    let result = 0;
+    let myMilestones = mySubcompetencies()
+      .flatMap((sc) => sc.milestones)
+      .flatMap((m) => m.id);
+    selectedMilestoneIds?.forEach((id) => {
+      if (myMilestones.includes(id)) {
+        result++;
       }
+    });
+    return result;
+  };
+
+  const mySubcompetencies = () => {
+    const result: ClientSubcompetency[] = [];
+    if (subcompetencies) {
+      subcompetencies.forEach((sc) => {
+        if (sc.competencies.id === competency.id) result.push(sc);
+      });
     }
     return result;
   };
@@ -75,19 +75,6 @@ export default function CompetencyCard({
     }
   };
 
-  const getNumberOfSelectedMilestones = () => {
-    let result = 0;
-    for (const s of mySubcompetencies()) {
-      const milestones = s.milestones;
-      for (const m of milestones) {
-        if (selectedMilestoneIds?.includes(m.id)) result++;
-      }
-      return result;
-    }
-  };
-
-  const numberOfSelectedMilestones = getNumberOfSelectedMilestones() || 0;
-
   return (
     <>
       <div onClick={onSelect}>
@@ -97,11 +84,11 @@ export default function CompetencyCard({
           variants={variants}
           initial={isSelected ? "selected" : "deselected"}
           animate={isSelected ? "selected" : "deselected"}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
           exit={{ opacity: 0, transition: { duration: 0.1 } }}
           whileHover={{
-            y: -5,
-            boxShadow: "0 6px 12px 6px rgba(0,0,0,0.2)",
+            y: 0,
+            boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)",
             opacity: 85,
           }}
           className={cn("rounded-2xl border cursor-pointer bg-notepad")}
@@ -113,17 +100,13 @@ export default function CompetencyCard({
                 <h3 className={cn("text-xl font-bold font-poppins")}>
                   {name[competency.name]}
                 </h3>
-                {numberOfSelectedMilestones > 0 && (
-                  <Badge className={cn("")}>{numberOfSelectedMilestones}</Badge>
+                {noSelectedMilestones > 0 && (
+                  <Badge className={cn("")}>{noSelectedMilestones}</Badge>
                 )}
               </div>
-              {isSelected ? (
-                <div className={cn("cursor-pointer")}>
-                  <XIcon />
-                </div>
-              ) : (
-                icon[competency.name]
-              )}
+              <motion.div layout transition={{ duration: 0.2 }}>
+                {isSelected ? <XIcon /> : icon[competency.name]}
+              </motion.div>
             </div>
           </div>
         </motion.div>
