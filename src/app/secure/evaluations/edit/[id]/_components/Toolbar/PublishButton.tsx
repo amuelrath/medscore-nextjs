@@ -18,7 +18,7 @@ import { publishEvaluation } from "../_actions";
 import { EvaluationFormData } from "@/db/client-types";
 import { toast } from "sonner";
 
-export function PublishButton() {
+export function PublishButton({ button }: { button: boolean }) {
   const [loading, setLoading] = useState<boolean>(false);
   const methods = useFormContext();
 
@@ -28,7 +28,9 @@ export function PublishButton() {
       publishEvaluation(methods.getValues() as EvaluationFormData)
         .then(() => {
           setLoading(false);
-          toast.success("Successfully published evaluation.");
+          toast.success(
+            `Successfully published '${methods.getValues("title")}'`
+          );
         })
         .catch((error) => {
           setLoading(false);
@@ -42,8 +44,11 @@ export function PublishButton() {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={"icon"} size={"icon"}>
-          <ArrowsUpFromLineIcon size={"1rem"} />
+        <Button
+          variant={button ? "default" : "icon"}
+          size={button ? "default" : "icon"}
+        >
+          <ArrowsUpFromLineIcon size={button ? "" : "1rem"} />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className={cn("rounded-md")}>
