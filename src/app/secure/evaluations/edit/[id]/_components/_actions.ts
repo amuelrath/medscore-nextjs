@@ -77,11 +77,16 @@ export const saveEvaluation = async (data: EvaluationFormData) => {
 
       // Delete stale options
       const optionIds = q.options.map((o) => o.id);
-      await tx
-        .delete(options)
-        .where(
-          and(eq(options.questionId, q.id), not(inArray(options.id, optionIds)))
-        );
+      if (optionIds.length > 0) {
+        await tx
+          .delete(options)
+          .where(
+            and(
+              eq(options.questionId, q.id),
+              not(inArray(options.id, optionIds))
+            )
+          );
+      }
 
       // Upsert options
       for (const o of q.options) {
