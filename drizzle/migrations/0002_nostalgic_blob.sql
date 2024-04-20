@@ -1,1 +1,0 @@
-ALTER TABLE "evaluations" ADD COLUMN "title" text NOT NULL;

@@ -1,2 +1,0 @@
-ALTER TABLE "milestones_on_questions" ADD CONSTRAINT "milestones_on_questions_milestone_id_question_id_pk" PRIMARY KEY("milestone_id","question_id");--> statement-breakpoint
-ALTER TABLE "milestones_on_questions" DROP COLUMN IF EXISTS "id";

@@ -1,1 +1,0 @@
-ALTER TABLE "options" ADD COLUMN "position" integer NOT NULL;

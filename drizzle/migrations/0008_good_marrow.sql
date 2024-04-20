@@ -1,1 +1,0 @@
-ALTER TABLE "evaluations" ALTER COLUMN "program_id" SET NOT NULL;
