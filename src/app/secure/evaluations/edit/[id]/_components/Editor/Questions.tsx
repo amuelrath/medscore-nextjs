@@ -6,11 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Trash2Icon, PlusCircleIcon } from "lucide-react";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { ClientEvaluation, EvaluationFormData } from "@/db/client-types";
+import { VersionedEvaluation } from "@/db/client-types";
 import {
-  Control,
   Controller,
-  UseFormRegister,
   useFieldArray,
   useFormContext,
   useWatch,
@@ -26,14 +24,15 @@ import { ClientSubcompetency } from "@/db/client-types";
 import { v4 } from "uuid";
 import { useEffect, useRef } from "react";
 import MilestoneSelector from "../MilestoneSelect";
-import { DevTool } from "@hookform/devtools";
+import { MilestonesOnQuestion, Option } from "@/db/schema";
 
 export default function QuestionCards({
   subcompetencies,
 }: {
   subcompetencies: ClientSubcompetency[];
 }) {
-  const { control, register } = useFormContext<EvaluationFormData>();
+  const { control, register, getValues } =
+    useFormContext<VersionedEvaluation>();
   const { fields, remove, append } = useFieldArray({
     control,
     name: "questions",
@@ -77,12 +76,14 @@ export default function QuestionCards({
                     <p className={cn("font-bold")}>{index + 1}.</p>
                     <div className={cn("space-x-2")}>
                       <Controller
-                        name={`questions.${index}.milestoneIds`}
+                        name={`questions.${index}.milestones`}
                         control={control}
                         render={({ field }) => (
                           <MilestoneBadges
                             subcompetencies={subcompetencies || []}
-                            milestoneIds={field.value}
+                            milestoneIds={field.value.flatMap(
+                              (m) => m.milestoneId
+                            )}
                           />
                         )}
                       />
@@ -104,13 +105,13 @@ export default function QuestionCards({
                     className={cn("p-2")}
                   />
                   <Controller
-                    name={`questions.${index}.milestoneIds`}
+                    name={`questions.${index}.milestones`}
                     control={control}
                     render={({ field }) => (
                       <MilestoneSelector
                         onChange={field.onChange}
                         subcompetencies={subcompetencies}
-                        values={item.milestoneIds}
+                        values={item.milestones.flatMap((m) => m.milestoneId)}
                       />
                     )}
                   />
@@ -134,8 +135,10 @@ export default function QuestionCards({
               text: "",
               feedback: false,
               position: fields.length + 1,
-              milestoneIds: [],
-              options: [],
+              milestones: [] as MilestonesOnQuestion[],
+              options: [] as Option[],
+              versionNumber: getValues("versions").length,
+              formId: getValues(`id`),
             });
           }}
         >

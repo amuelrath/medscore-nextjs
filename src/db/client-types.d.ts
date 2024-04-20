@@ -6,10 +6,11 @@ import {
   competencies,
   subcompetencies,
   milestones,
+  evaluationVersions,
 } from "./schema";
 
-export type ClientEvaluation = InferResultType<
-  "evaluations",
+export type VersionedEvaluation = InferResultType<
+  "forms",
   {
     programs: {
       with: {
@@ -17,20 +18,19 @@ export type ClientEvaluation = InferResultType<
           with: {
             subcompetencies: {
               with: {
-                competencies: true;
-                milestones: {
-                  with: { subcompetencies: { with: { competencies: true } } };
-                };
+                milestones: true;
+                competencies?: true;
               };
             };
           };
         };
       };
     };
+    versions: true;
     questions: {
       with: {
-        milestones: true;
         options: true;
+        milestones: true;
       };
     };
   }

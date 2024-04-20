@@ -2,17 +2,17 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { ClientEvaluation, EvaluationFormData } from "@/db/client-types";
+import { VersionedEvaluation } from "@/db/client-types";
 import React from "react";
 import { PublishButton } from "./PublishButton";
 import { EditButton } from "./EditButton";
 import { DeleteButton } from "./DeleteButton";
 
 export default function EvaluationCard({
-  evaluation,
+  data,
   index,
 }: {
-  evaluation: ClientEvaluation;
+  data: VersionedEvaluation;
   index: number;
 }) {
   function formatDate(date: Date): string {
@@ -46,7 +46,7 @@ export default function EvaluationCard({
 
   return (
     <motion.div
-      layoutId={`evaluation-card-${evaluation.id}`}
+      layoutId={`evaluation-card-${data.id}`}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
@@ -60,53 +60,27 @@ export default function EvaluationCard({
         <div className={cn("flex justify-between")}>
           <div>
             <h5 className={cn("text-md font-semibold m-0 p-0")}>
-              {parseTitle(evaluation.title)}
+              {parseTitle(data.title)}
             </h5>
             <p className={cn("text-sm text-gray-500 italic hover:underline")}>
               {/* todo turn this into a link that allows the user to view that program */}
-              {evaluation.programs?.name}
+              {data.programs?.name}
             </p>
           </div>
           <p className={cn("text-xs")}>
-            Last Opened: {formatDate(evaluation.lastOpenedAt)}
+            Last Opened: {formatDate(data.lastOpenedAt)}
           </p>
         </div>
         <div>
           <hr className={cn("mb-2")} />
           <div className={cn("flex flex-row justify-end items-center")}>
             <div className={cn("space-x-2 ")}>
-              <EditButton evaluationId={evaluation.id} />
-              <PublishButton evaluation={evaluation} />
-              <DeleteButton evaluation={evaluation} />
+              <EditButton evaluationId={data.id} />
+              <DeleteButton data={data} />
             </div>
           </div>
         </div>
       </Card>
     </motion.div>
   );
-}
-
-export function morphClientEvaluationToFormData(
-  clientEvaluation: ClientEvaluation
-): EvaluationFormData {
-  const evaluation: EvaluationFormData = {
-    id: clientEvaluation.id as string,
-    title: clientEvaluation.title as string,
-    programId: clientEvaluation.programId as string,
-    questions: clientEvaluation.questions.map((question) => ({
-      id: question.id as string,
-      position: question.position as number,
-      text: question.text as string,
-      feedback: question.feedback as boolean,
-      milestoneIds: question.milestones.map((m) => m.milestoneId) as string[],
-      options: question.options.map((option) => ({
-        id: option.id as string,
-        position: option.position as number,
-        text: option.text as string,
-        pointValue: Number(option.pointValue),
-      })),
-    })),
-  };
-
-  return evaluation;
 }

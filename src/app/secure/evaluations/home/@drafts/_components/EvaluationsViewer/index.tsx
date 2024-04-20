@@ -1,5 +1,5 @@
 "use client";
-import { ClientEvaluation } from "@/db/client-types";
+import { VersionedEvaluation } from "@/db/client-types";
 import CreateEvaluation from "../../../_components/EvaluationCard/CreateEvaluation";
 import EvaluationCards from "../EvaluationCard";
 import { Input } from "@/components/ui/input";
@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export default function EvaluationsViewer({
-  evaluations,
+  data,
 }: {
-  evaluations: ClientEvaluation[];
+  data: VersionedEvaluation[];
 }) {
   const [filter, setFilter] = useState<string>("");
 
@@ -32,7 +32,7 @@ export default function EvaluationsViewer({
         <EvaluationCards
           key="evaluation-card-list"
           filter={filter}
-          evaluations={evaluations}
+          data={data}
         />
       </div>
     </>

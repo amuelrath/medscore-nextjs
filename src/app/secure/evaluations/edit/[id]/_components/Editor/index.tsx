@@ -1,9 +1,8 @@
 "use client";
-import { EvaluationFormData } from "@/db/client-types";
+import { VersionedEvaluation } from "@/db/client-types";
 import { v4 } from "uuid";
 import { cn } from "@/lib/utils";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { ClientSubcompetency } from "@/db/client-types";
 import QuestionCards from "./Questions";
 import { saveEvaluation } from "../_actions";
 import NavBar from "@/components/ui/top-navbar";
@@ -12,25 +11,40 @@ import Section from "@/components/ui/section";
 
 export default function Editor({
   defaultValues,
-  subcompetencies,
 }: {
-  subcompetencies: ClientSubcompetency[];
-  defaultValues: EvaluationFormData;
+  defaultValues: VersionedEvaluation;
 }) {
-  const methods = useForm<EvaluationFormData>({
+  const methods = useForm<VersionedEvaluation>({
     defaultValues: defaultValues || {
       evaluation: {
         id: v4(),
-        title: "",
+        title: "Untitled Evaluation",
         programId: "",
-        questions: [],
+        questions: [
+          {
+            id: v4(),
+            text: "",
+            options: [
+              {
+                id: v4(),
+                text: "",
+              },
+              {
+                id: v4(),
+                text: "",
+              },
+            ],
+          },
+        ],
       },
     },
   });
 
-  const onSubmit = (data: EvaluationFormData) => {
+  const onSubmit = (data: VersionedEvaluation) => {
     saveEvaluation(data);
   };
+
+  const subcompetencies = defaultValues?.programs.specialties?.subcompetencies;
 
   return (
     <FormProvider {...methods}>
@@ -39,7 +53,7 @@ export default function Editor({
           <NavBar.Title>
             <div className={cn("w-[50rem] cursor-default")}>
               <Controller
-                name={`title`}
+                name={"title"}
                 control={methods.control}
                 render={({ field }) => (
                   <input

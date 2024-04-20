@@ -3,20 +3,14 @@ import { cn } from "@/lib/utils";
 import { PlusCircleIcon, Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { ClientEvaluation, EvaluationFormData } from "@/db/client-types";
-import { Control, UseFormRegister, useFieldArray } from "react-hook-form";
+import { VersionedEvaluation } from "@/db/client-types";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { v4 } from "uuid";
 import { useRef, useEffect } from "react";
 
-export default function Option({
-  nestIndex,
-  control,
-  register,
-}: {
-  nestIndex: number;
-  control: Control<EvaluationFormData>;
-  register: UseFormRegister<EvaluationFormData>;
-}) {
+export default function Option({ nestIndex }: { nestIndex: number }) {
+  const { control, register, getValues } =
+    useFormContext<VersionedEvaluation>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `questions.${nestIndex}.options`,
@@ -81,9 +75,11 @@ export default function Option({
         onClick={() =>
           append({
             id: v4(),
+            questionId: getValues(`questions.${nestIndex}.id`),
             text: "",
             position: fields.length + 1,
-            pointValue: 0,
+            pointValue: "0",
+            versionNumber: getValues(`questions.${nestIndex}.versionNumber`), // MARK:FIX FIX FIX FIX FIX
           })
         }
         className={cn(

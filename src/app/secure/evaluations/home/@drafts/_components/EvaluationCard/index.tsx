@@ -1,17 +1,17 @@
 "use client";
-import { ClientEvaluation } from "@/db/client-types";
+import { VersionedEvaluation } from "@/db/client-types";
 import { AnimatePresence } from "framer-motion";
 import EvaluationCard from "./EvaluationCard";
 export default function EvaluationCards({
   filter,
-  evaluations,
+  data,
 }: {
   filter: string;
-  evaluations: ClientEvaluation[];
+  data: VersionedEvaluation[];
 }) {
   return (
     <AnimatePresence>
-      {evaluations
+      {data
         .filter((e) =>
           e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
         )
@@ -21,11 +21,7 @@ export default function EvaluationCards({
           return dateB.getTime() - dateA.getTime();
         })
         .map((evaluation, index) => (
-          <EvaluationCard
-            key={evaluation.id}
-            evaluation={evaluation}
-            index={index}
-          />
+          <EvaluationCard key={evaluation.id} data={evaluation} index={index} />
         ))}
     </AnimatePresence>
   );
