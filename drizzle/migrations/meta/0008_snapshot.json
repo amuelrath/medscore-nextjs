@@ -1,9 +1,73 @@
 {
-  "id": "d7b04fbc-0639-4a22-a577-349fb1b72028",
-  "prevId": "acb9df81-c974-4c41-b090-04e0a890257f",
+  "id": "73545493-3cfd-45d6-b93b-3a694829270c",
+  "prevId": "3f9fa460-faf8-4bd2-8704-b0c4653b6156",
   "version": "5",
   "dialect": "pg",
   "tables": {
+    "answers": {
+      "name": "answers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "option_id": {
+          "name": "option_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "response_id": {
+          "name": "response_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "answers_response_id_responses_id_fk": {
+          "name": "answers_response_id_responses_id_fk",
+          "tableFrom": "answers",
+          "tableTo": "responses",
+          "columnsFrom": [
+            "response_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "answers_option_id_version_number_options_id_version_number_fk": {
+          "name": "answers_option_id_version_number_options_id_version_number_fk",
+          "tableFrom": "answers",
+          "tableTo": "options",
+          "columnsFrom": [
+            "option_id",
+            "version_number"
+          ],
+          "columnsTo": [
+            "id",
+            "version_number"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "competencies": {
       "name": "competencies",
       "schema": "",
@@ -35,6 +99,58 @@
         }
       }
     },
+    "evaluation_versions": {
+      "name": "evaluation_versions",
+      "schema": "",
+      "columns": {
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "evaluation_id": {
+          "name": "evaluation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "evaluation_versions_evaluation_id_evaluations_id_fk": {
+          "name": "evaluation_versions_evaluation_id_evaluations_id_fk",
+          "tableFrom": "evaluation_versions",
+          "tableTo": "evaluations",
+          "columnsFrom": [
+            "evaluation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "evaluation_versions_version_number_evaluation_id_pk": {
+          "name": "evaluation_versions_version_number_evaluation_id_pk",
+          "columns": [
+            "version_number",
+            "evaluation_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
     "evaluations": {
       "name": "evaluations",
       "schema": "",
@@ -52,18 +168,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
+        "last_opened_at": {
+          "name": "last_opened_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "program_id": {
           "name": "program_id",
@@ -102,6 +218,57 @@
           ],
           "columnsTo": [
             "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "feedback": {
+      "name": "feedback",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "feedback_question_id_version_number_questions_id_version_number_fk": {
+          "name": "feedback_question_id_version_number_questions_id_version_number_fk",
+          "tableFrom": "feedback",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id",
+            "version_number"
+          ],
+          "columnsTo": [
+            "id",
+            "version_number"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -186,23 +353,16 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "milestones_on_questions_question_id_questions_id_fk": {
-          "name": "milestones_on_questions_question_id_questions_id_fk",
-          "tableFrom": "milestones_on_questions",
-          "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "milestones_on_questions_milestone_id_milestones_id_fk": {
           "name": "milestones_on_questions_milestone_id_milestones_id_fk",
           "tableFrom": "milestones_on_questions",
@@ -218,11 +378,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "milestones_on_questions_milestone_id_question_id_pk": {
-          "name": "milestones_on_questions_milestone_id_question_id_pk",
+        "milestones_on_questions_question_id_milestone_id_version_number_pk": {
+          "name": "milestones_on_questions_question_id_milestone_id_version_number_pk",
           "columns": [
+            "question_id",
             "milestone_id",
-            "question_id"
+            "version_number"
           ]
         }
       },
@@ -235,9 +396,15 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "text": {
           "name": "text",
@@ -265,22 +432,16 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "options_question_id_questions_id_fk": {
-          "name": "options_question_id_questions_id_fk",
-          "tableFrom": "options",
-          "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "options_id_version_number_pk": {
+          "name": "options_id_version_number_pk",
+          "columns": [
+            "id",
+            "version_number"
+          ]
         }
       },
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "programs": {
@@ -347,15 +508,28 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "default": "gen_random_uuid()"
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         },
         "text": {
           "name": "text",
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "feedback": {
+          "name": "feedback",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "position": {
           "name": "position",
@@ -382,7 +556,84 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "questions_id_version_number_pk": {
+          "name": "questions_id_version_number_pk",
+          "columns": [
+            "id",
+            "version_number"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "responses": {
+      "name": "responses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "evaluation_id": {
+          "name": "evaluation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "responses_creator_id_users_id_fk": {
+          "name": "responses_creator_id_users_id_fk",
+          "tableFrom": "responses",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "responses_evaluation_id_evaluations_id_fk": {
+          "name": "responses_evaluation_id_evaluations_id_fk",
+          "tableFrom": "responses",
+          "tableTo": "evaluations",
+          "columnsFrom": [
+            "evaluation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },

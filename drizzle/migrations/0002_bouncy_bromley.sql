@@ -1,0 +1,1 @@
+ALTER TABLE "evaluation_versions" ALTER COLUMN "version_number" SET DATA TYPE integer;

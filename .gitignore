@@ -10,9 +10,7 @@
 /coverage
 
 # migrations
-/drizzle/
-/drizzle/migrations
-/drizzle/meta
+
 
 
 # next.js

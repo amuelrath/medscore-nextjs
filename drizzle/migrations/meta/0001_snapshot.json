@@ -1,9 +1,66 @@
 {
-  "id": "33b33705-2a31-4607-827f-44a0a62f967d",
-  "prevId": "41c4a7cc-6d04-47b4-a581-3bd0c5e32b7f",
+  "id": "f78d91da-1014-4074-89dd-f561c869b275",
+  "prevId": "307a7995-a1bd-4703-bc24-8b3bb8852860",
   "version": "5",
   "dialect": "pg",
   "tables": {
+    "answers": {
+      "name": "answers",
+      "schema": "",
+      "columns": {
+        "option_id": {
+          "name": "option_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "response_id": {
+          "name": "response_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "answers_option_id_options_id_fk": {
+          "name": "answers_option_id_options_id_fk",
+          "tableFrom": "answers",
+          "tableTo": "options",
+          "columnsFrom": [
+            "option_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "answers_response_id_responses_id_fk": {
+          "name": "answers_response_id_responses_id_fk",
+          "tableFrom": "answers",
+          "tableTo": "responses",
+          "columnsFrom": [
+            "response_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "answers_response_id_option_id_pk": {
+          "name": "answers_response_id_option_id_pk",
+          "columns": [
+            "response_id",
+            "option_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
     "competencies": {
       "name": "competencies",
       "schema": "",
@@ -35,6 +92,58 @@
         }
       }
     },
+    "evaluation_versions": {
+      "name": "evaluation_versions",
+      "schema": "",
+      "columns": {
+        "version_number": {
+          "name": "version_number",
+          "type": "serial",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "evaluation_id": {
+          "name": "evaluation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "evaluation_versions_evaluation_id_evaluations_id_fk": {
+          "name": "evaluation_versions_evaluation_id_evaluations_id_fk",
+          "tableFrom": "evaluation_versions",
+          "tableTo": "evaluations",
+          "columnsFrom": [
+            "evaluation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "evaluation_versions_version_number_evaluation_id_pk": {
+          "name": "evaluation_versions_version_number_evaluation_id_pk",
+          "columns": [
+            "version_number",
+            "evaluation_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
     "evaluations": {
       "name": "evaluations",
       "schema": "",
@@ -46,14 +155,14 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "description": {
-          "name": "description",
+        "title": {
+          "name": "title",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
+        "last_opened_at": {
+          "name": "last_opened_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -63,7 +172,7 @@
           "name": "program_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "creator_id": {
           "name": "creator_id",
@@ -84,7 +193,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "evaluations_creator_id_users_id_fk": {
@@ -93,6 +202,56 @@
           "tableTo": "users",
           "columnsFrom": [
             "creator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "feedback": {
+      "name": "feedback",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "feedback_question_id_questions_id_fk": {
+          "name": "feedback_question_id_questions_id_fk",
+          "tableFrom": "feedback",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id"
           ],
           "columnsTo": [
             "id"
@@ -180,23 +339,16 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "milestones_on_questions_question_id_questions_id_fk": {
-          "name": "milestones_on_questions_question_id_questions_id_fk",
-          "tableFrom": "milestones_on_questions",
-          "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "milestones_on_questions_milestone_id_milestones_id_fk": {
           "name": "milestones_on_questions_milestone_id_milestones_id_fk",
           "tableFrom": "milestones_on_questions",
@@ -212,11 +364,12 @@
         }
       },
       "compositePrimaryKeys": {
-        "milestones_on_questions_milestone_id_question_id_pk": {
-          "name": "milestones_on_questions_milestone_id_question_id_pk",
+        "milestones_on_questions_question_id_milestone_id_version_number_pk": {
+          "name": "milestones_on_questions_question_id_milestone_id_version_number_pk",
           "columns": [
+            "question_id",
             "milestone_id",
-            "question_id"
+            "version_number"
           ]
         }
       },
@@ -239,6 +392,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "point_value": {
           "name": "point_value",
           "type": "numeric",
@@ -249,7 +408,14 @@
           "name": "question_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         }
       },
       "indexes": {},
@@ -345,11 +511,31 @@
           "primaryKey": false,
           "notNull": false
         },
+        "feedback": {
+          "name": "feedback",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "evaluation_id": {
           "name": "evaluation_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         }
       },
       "indexes": {},
@@ -357,6 +543,75 @@
         "questions_evaluation_id_evaluations_id_fk": {
           "name": "questions_evaluation_id_evaluations_id_fk",
           "tableFrom": "questions",
+          "tableTo": "evaluations",
+          "columnsFrom": [
+            "evaluation_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "responses": {
+      "name": "responses",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "evaluation_id": {
+          "name": "evaluation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "version_number": {
+          "name": "version_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "responses_creator_id_users_id_fk": {
+          "name": "responses_creator_id_users_id_fk",
+          "tableFrom": "responses",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "responses_evaluation_id_evaluations_id_fk": {
+          "name": "responses_evaluation_id_evaluations_id_fk",
+          "tableFrom": "responses",
           "tableTo": "evaluations",
           "columnsFrom": [
             "evaluation_id"
