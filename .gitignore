@@ -9,6 +9,10 @@
 # testing
 /coverage
 
+# migrations
+/drizzle
+
+
 # next.js
 /.next/
 /out/
