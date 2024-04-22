@@ -10,19 +10,22 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
 
   const onSelect = async () => {
     if (selectedMilestoneIds) {
-      if (!selectedMilestoneIds.includes(milestone.id)) {
-        setSelectedMilestoneIds([...selectedMilestoneIds, milestone.id]);
+      if (!selectedMilestoneIds.some((a) => a.milestoneId === milestone.id)) {
+        setSelectedMilestoneIds([
+          ...selectedMilestoneIds,
+          { milestoneId: milestone.id },
+        ]);
       }
     } else {
-      setSelectedMilestoneIds([milestone.id]);
+      setSelectedMilestoneIds([{ milestoneId: milestone.id }]);
     }
   };
 
   const deselectMilestone = async () => {
     if (selectedMilestoneIds) {
-      if (selectedMilestoneIds.includes(milestone.id)) {
+      if (selectedMilestoneIds.some((a) => a.milestoneId === milestone.id)) {
         setSelectedMilestoneIds([
-          ...selectedMilestoneIds.filter((m) => m !== milestone.id),
+          ...selectedMilestoneIds.filter((a) => a.milestoneId !== milestone.id),
         ]);
       }
     } else {
@@ -60,7 +63,7 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
     <div
       className={cn("px-8")}
       onClick={
-        selectedMilestoneIds?.includes(milestone.id)
+        selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id)
           ? deselectMilestone
           : onSelect
       }
@@ -71,12 +74,14 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
         variants={variants}
         initial={{
           opacity: 0,
-          height: selectedMilestoneIds?.includes(milestone.id)
+          height: selectedMilestoneIds?.some(
+            (a) => a.milestoneId === milestone.id
+          )
             ? "22px"
             : "44px",
         }}
         animate={
-          selectedMilestoneIds?.includes(milestone.id)
+          selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id)
             ? "selected"
             : "deselected"
         }
@@ -92,7 +97,7 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
         <motion.div
           layoutId={`${milestone.id}-select`}
           animate={
-            selectedMilestoneIds?.includes(milestone.id)
+            selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id)
               ? { rotate: 0 }
               : { rotate: 45 }
           }
