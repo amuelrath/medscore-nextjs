@@ -1,66 +1,75 @@
 import { db } from "@/db";
 import EvaluationsViewer from "./_components/EvaluationsViewer";
+import { ClientForm } from "@/db/client-types";
+import { and, eq, isNull } from "drizzle-orm";
+import { forms } from "@/db/schema";
 
 export default async function SecureEvaluationsHomePage() {
-  const data = await db.transaction(async (tx) => {
-    const allUndeletedEvaluationsOwnedByCurrentUser =
-      await tx.query.forms.findMany({
-        where: (form, { eq, isNull, and }) =>
-          and(
-            eq(form.creatorId, process.env.DEV_USER_ID!),
-            isNull(form.deletedAt)
-          ),
-        with: {
-          versions: true,
-        },
-      });
+  const formQuery = await db.transaction(async (tx) => {
+    const result: ClientForm[] = [];
+    const allForms = await tx.query.forms.findMany({
+      where: (f, { and, eq, isNull }) => and(isNull(f.deletedAt)),
+    });
 
-    const result = await Promise.all(
-      allUndeletedEvaluationsOwnedByCurrentUser.map(async (e) => {
-        const newestVersionNumber = e.versions.length;
-        const versionedEvaluation = await tx.query.forms.findFirst({
-          where: (form, { eq }) => eq(form.id, e.id),
-          with: {
-            programs: {
-              with: {
-                specialties: {
-                  with: {
-                    subcompetencies: {
-                      with: {
-                        milestones: true,
-                      },
-                    },
-                  },
+    let highestVersions = getHighestVersionForms(allForms);
+    highestVersions.forEach(async (v) => {
+      const form = await tx.query.forms.findFirst({
+        where: (f, { eq, and }) =>
+          and(eq(f.id, v.id), eq(f.version, v.version)),
+        with: {
+          programs: {
+            with: {
+              specialties: true,
+            },
+          },
+          questions: {
+            where: (q, { eq, isNull, and }) =>
+              and(isNull(q.deletedAt), eq(q.version, v.version)),
+            with: {
+              milestones: {
+                where: (m, { eq, isNull, and }) =>
+                  and(eq(m.version, v.version), isNull(m.deletedAt)),
+                with: {
+                  milestone: true,
                 },
               },
-            },
-            versions: {
-              where: (version, { eq }) =>
-                eq(version.versionNumber, newestVersionNumber),
-            },
-            questions: {
-              where: (question, { eq }) =>
-                eq(question.versionNumber, newestVersionNumber),
-
-              with: {
-                options: {
-                  where: (option, { eq }) =>
-                    eq(option.versionNumber, newestVersionNumber),
-                },
-                milestones: {
-                  where: (milestone, { eq }) =>
-                    eq(milestone.versionNumber, newestVersionNumber),
-                },
+              options: {
+                where: (o, { eq, isNull, and }) =>
+                  and(eq(o.version, v.version), isNull(o.deletedAt)),
               },
             },
           },
-        });
-        return versionedEvaluation!;
-      })
-    );
-
+        },
+      });
+      if (form) {
+        result.push(form);
+      }
+    });
     return result;
   });
+  return <EvaluationsViewer data={formQuery} />;
+}
 
-  return <EvaluationsViewer data={data} />;
+function getHighestVersionForms(
+  allForms: {
+    id: string;
+    version: number;
+    deletedAt: Date | null;
+    title: string;
+    lastOpenedAt: Date;
+    programId: string;
+    creatorId: string | null;
+  }[]
+): { id: string; version: number }[] {
+  const highestVersions: { [key: string]: { id: string; version: number } } =
+    {};
+
+  allForms.forEach((form) => {
+    const { id, version } = form;
+    if (!highestVersions[id] || version > highestVersions[id].version) {
+      highestVersions[id] = { id, version };
+    }
+  });
+
+  return Object.values(highestVersions);
 }
