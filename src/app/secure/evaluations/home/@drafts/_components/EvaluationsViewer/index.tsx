@@ -1,16 +1,11 @@
 "use client";
-import { VersionedEvaluation } from "@/db/client-types";
-import CreateEvaluation from "../../../_components/EvaluationCard/CreateEvaluation";
+import { ClientForm } from "@/db/client-types";
 import EvaluationCards from "../EvaluationCard";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-export default function EvaluationsViewer({
-  data,
-}: {
-  data: VersionedEvaluation[];
-}) {
+export default function EvaluationsViewer({ data }: { data: ClientForm[] }) {
   const [filter, setFilter] = useState<string>("");
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +21,6 @@ export default function EvaluationsViewer({
           value={filter}
           onChange={(e) => handleSearch(e)}
         />
-        <CreateEvaluation />
       </div>
       <div className={cn("grid grid-cols-1 xl:grid-cols-2 gap-4")}>
         <EvaluationCards
