@@ -2,17 +2,16 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { VersionedEvaluation } from "@/db/client-types";
+import { ClientForm } from "@/db/client-types";
 import React from "react";
-import { PublishButton } from "./PublishButton";
 import { EditButton } from "./EditButton";
 import { DeleteButton } from "./DeleteButton";
 
 export default function EvaluationCard({
-  data,
+  form,
   index,
 }: {
-  data: VersionedEvaluation;
+  form: ClientForm;
   index: number;
 }) {
   function formatDate(date: Date): string {
@@ -46,7 +45,7 @@ export default function EvaluationCard({
 
   return (
     <motion.div
-      layoutId={`evaluation-card-${data.id}`}
+      layoutId={`evaluation-card-${form.id}`}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
@@ -60,24 +59,24 @@ export default function EvaluationCard({
         <div className={cn("flex justify-between")}>
           <div>
             <h5 className={cn("text-md font-semibold m-0 p-0")}>
-              {parseTitle(data.title)}
+              {parseTitle(form.title)}
             </h5>
-            <p className={cn("text-sm text-gray-500 italic hover:underline")}>
+            <p className={cn("text-sm text-gray-500 hover:underline")}>
               {/* todo turn this into a link that allows the user to view that program */}
-              {data.programs?.name}
+              {form.programs?.name}
             </p>
           </div>
-          <p className={cn("text-xs")}>
-            Last Opened: {formatDate(data.lastOpenedAt)}
-          </p>
+          <div className={cn("space-x-2 ")}>
+            <EditButton evaluationId={form.id} />
+            <DeleteButton form={form} />
+          </div>
         </div>
         <div>
           <hr className={cn("mb-2")} />
           <div className={cn("flex flex-row justify-end items-center")}>
-            <div className={cn("space-x-2 ")}>
-              <EditButton evaluationId={data.id} />
-              <DeleteButton data={data} />
-            </div>
+            <p className={cn("text-xs")}>
+              Last Opened: {formatDate(form.lastOpenedAt)}
+            </p>
           </div>
         </div>
       </Card>
