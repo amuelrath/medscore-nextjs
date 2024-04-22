@@ -11,6 +11,8 @@ import {
   primaryKey,
   boolean,
   alias,
+  foreignKey,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
@@ -127,47 +129,31 @@ export const userRelations = relations(users, ({ one, many }) => ({
   forms: many(forms),
 }));
 
-export const formVersions = pgTable(
-  "form_versions",
+export const forms = pgTable(
+  "forms",
   {
-    versionNumber: integer("version_number").notNull().default(0),
-    formId: uuid("form_id")
-      .references(() => forms.id, {
+    id: uuid("id")
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    version: integer("version").notNull().default(1),
+    title: text("title").notNull(),
+    lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+    programId: uuid("program_id")
+      .references(() => programs.id, {
         onDelete: "cascade",
       })
       .notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    creatorId: uuid("creator_id").references(() => users.id),
   },
   (table) => {
     return {
-      id: primaryKey({ columns: [table.versionNumber, table.formId] }),
+      versionedId: primaryKey({
+        columns: [table.id, table.version],
+      }),
     };
   }
 );
-export type formVersion = typeof formVersions.$inferSelect;
-export type NewformVersion = typeof formVersions.$inferInsert;
-export const formVersionRelations = relations(formVersions, ({ one }) => ({
-  forms: one(forms, {
-    fields: [formVersions.formId],
-    references: [forms.id],
-  }),
-}));
-
-export const forms = pgTable("forms", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  title: text("title").notNull(),
-  lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
-  deletedAt: timestamp("deleted_at"),
-  programId: uuid("program_id")
-    .references(() => programs.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-
-  creatorId: uuid("creator_id").references(() => users.id),
-});
 export type form = typeof forms.$inferSelect;
 export type Newform = typeof forms.$inferInsert;
 export const formRelations = relations(forms, ({ one, many }) => ({
@@ -180,21 +166,31 @@ export const formRelations = relations(forms, ({ one, many }) => ({
     references: [users.id],
   }),
   questions: many(questions),
-  versions: many(formVersions),
 }));
 
-export const questions = pgTable("questions", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  feedback: boolean("feedback").notNull().default(false),
-  position: integer("position"),
-  formId: uuid("form_id")
-    .notNull()
-    .references(() => forms.id),
-  versionNumber: integer("version_number").notNull().default(0),
-});
+export const questions = pgTable(
+  "questions",
+  {
+    id: uuid("id").default(sql`gen_random_uuid()`),
+    version: integer("version").notNull().default(1),
+    deletedAt: timestamp("deleted_at"),
+    text: text("text"),
+    feedback: boolean("feedback").notNull().default(false),
+    position: integer("position"),
+    formId: uuid("form_id").notNull(),
+  },
+  (table) => {
+    return {
+      versionedId: primaryKey({
+        columns: [table.id, table.version],
+      }),
+      form: foreignKey({
+        columns: [table.formId, table.version],
+        foreignColumns: [forms.id, forms.version],
+      }),
+    };
+  }
+);
 export type Question = typeof questions.$inferSelect;
 export type NewQuestion = typeof questions.$inferInsert;
 export const questionRelations = relations(questions, ({ one, many }) => ({
@@ -206,59 +202,95 @@ export const questionRelations = relations(questions, ({ one, many }) => ({
   milestones: many(milestonesOnQuestions),
 }));
 
-export const feedback = pgTable("feedback", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  text: text("text").notNull(),
-  questionId: uuid("question_id")
-    .notNull()
-    .references(() => questions.id),
-  versionNumber: integer("version_number").notNull().default(0),
-});
+export const feedback = pgTable(
+  "feedback",
+  {
+    id: uuid("id").default(sql`gen_random_uuid()`),
+    text: text("text").notNull(),
+    deletedAt: timestamp("deleted_at"),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id),
+    version: integer("version").notNull(),
+  },
+  (table) => {
+    return {
+      versionedId: primaryKey({
+        columns: [table.id, table.version],
+      }),
+      question: foreignKey({
+        columns: [table.questionId, table.version],
+        foreignColumns: [questions.id, questions.version],
+      }),
+    };
+  }
+);
 export type Feedback = typeof feedback.$inferSelect;
 export type NewFeedback = typeof feedback.$inferInsert;
 export const feedbackResponseRelations = relations(feedback, ({ one }) => ({
   question: one(questions, {
-    fields: [feedback.questionId, feedback.versionNumber],
-    references: [questions.id, questions.versionNumber],
+    fields: [feedback.questionId],
+    references: [questions.id],
   }),
 }));
 
-export const options = pgTable("options", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  position: integer("position"),
-  pointValue: decimal("point_value"),
-  questionId: uuid("question_id")
-    .notNull()
-    .references(() => questions.id),
-  versionNumber: integer("version_number").notNull().default(0),
-});
+export const options = pgTable(
+  "options",
+  {
+    id: uuid("id")
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    text: text("text"),
+    deletedAt: timestamp("deleted_at"),
+    position: integer("position"),
+    pointValue: decimal("point_value"),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id),
+    version: integer("version").notNull().default(1),
+  },
+  (table) => {
+    return {
+      versionedId: primaryKey({
+        columns: [table.id, table.version],
+      }),
+      question: foreignKey({
+        columns: [table.questionId, table.version],
+        foreignColumns: [questions.id, questions.version],
+      }),
+    };
+  }
+);
 export type Option = typeof options.$inferSelect;
 export type NewOption = typeof options.$inferInsert;
 export const optionRelations = relations(options, ({ one }) => ({
   question: one(questions, {
-    fields: [options.questionId, options.versionNumber],
-    references: [questions.id, questions.versionNumber],
+    fields: [options.questionId],
+    references: [questions.id],
   }),
 }));
 
 export const milestonesOnQuestions = pgTable(
   "milestones_on_questions",
   {
-    questionId: uuid("question_id").notNull(),
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id),
     milestoneId: uuid("milestone_id")
       .notNull()
       .references(() => milestones.id),
-    versionNumber: integer("version_number").notNull(),
+    version: integer("version").notNull(),
+    deletedAt: timestamp("deleted_at"),
   },
   (table) => {
     return {
       id: primaryKey({
-        columns: [table.questionId, table.milestoneId, table.versionNumber],
+        columns: [table.questionId, table.milestoneId, table.version],
+      }),
+      questionReference: foreignKey({
+        columns: [table.questionId, table.version],
+        foreignColumns: [questions.id, questions.version],
+        name: "milestone_question_reference",
       }),
     };
   }
@@ -273,26 +305,39 @@ export const milestonesOnQuestionsRelations = relations(
       references: [milestones.id],
     }),
     question: one(questions, {
-      fields: [
-        milestonesOnQuestions.questionId,
-        milestonesOnQuestions.versionNumber,
-      ],
-      references: [questions.id, questions.versionNumber],
+      fields: [milestonesOnQuestions.questionId],
+      references: [questions.id],
     }),
   })
 );
 
-export const responses = pgTable("responses", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  creatorId: uuid("creator_id")
-    .references(() => users.id)
-    .notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  formId: uuid("form_id").references(() => forms.id),
-  versionNumber: integer("version_number").notNull(),
-});
+export const responses = pgTable(
+  "responses",
+  {
+    id: uuid("id")
+      .notNull()
+      .default(sql`gen_random_uuid()`),
+    creatorId: uuid("creator_id")
+      .references(() => users.id)
+      .notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    formId: uuid("form_id")
+      .notNull()
+      .references(() => forms.id),
+    version: integer("version").notNull(),
+  },
+  (table) => {
+    return {
+      versionedId: primaryKey({
+        columns: [table.id, table.version],
+      }),
+      form: foreignKey({
+        columns: [table.formId, table.version],
+        foreignColumns: [forms.id, forms.version],
+      }),
+    };
+  }
+);
 export type Response = typeof responses.$inferSelect;
 export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
@@ -300,32 +345,46 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
     fields: [responses.creatorId],
     references: [users.id],
   }),
-  form: one(formVersions, {
-    fields: [responses.formId, responses.versionNumber],
-    references: [formVersions.formId, formVersions.versionNumber],
+  form: one(forms, {
+    fields: [responses.formId, responses.version],
+    references: [forms.id, forms.version],
   }),
 }));
 
-export const answers = pgTable("answers", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  optionId: uuid("option_id")
-    .notNull()
-    .references(() => options.id),
-  responseId: uuid("response_id")
-    .notNull()
-    .references(() => responses.id),
-});
+export const answers = pgTable(
+  "answers",
+  {
+    id: uuid("id").default(sql`gen_random_uuid()`),
+    optionId: uuid("option_id").notNull(),
+    responseId: uuid("response_id").notNull(),
+    version: integer("version").notNull(),
+  },
+  (table) => {
+    return {
+      id: primaryKey({
+        columns: [table.responseId, table.optionId, table.version],
+      }),
+      responseReference: foreignKey({
+        columns: [table.responseId, table.version],
+        foreignColumns: [responses.id, responses.version],
+        name: "answer_response_reference",
+      }),
+      optionReference: foreignKey({
+        columns: [table.optionId, table.version],
+        foreignColumns: [options.id, options.version],
+      }),
+    };
+  }
+);
 export type Answer = typeof answers.$inferSelect;
 export type NewAnswer = typeof answers.$inferInsert;
 export const answerRelations = relations(answers, ({ one }) => ({
   option: one(options, {
-    fields: [answers.optionId],
-    references: [options.id],
+    fields: [answers.optionId, answers.version],
+    references: [options.id, options.version],
   }),
   response: one(responses, {
-    fields: [answers.responseId],
-    references: [responses.id],
+    fields: [answers.responseId, answers.version],
+    references: [responses.id, responses.version],
   }),
 }));

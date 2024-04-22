@@ -1,5 +1,5 @@
 {
-  "id": "307a7995-a1bd-4703-bc24-8b3bb8852860",
+  "id": "9e7b494f-4a66-48cf-9980-901498bf43a7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -8,54 +8,72 @@
       "name": "answers",
       "schema": "",
       "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "gen_random_uuid()"
+        },
         "option_id": {
           "name": "option_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "response_id": {
           "name": "response_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "answers_option_id_options_id_fk": {
-          "name": "answers_option_id_options_id_fk",
+        "answer_response_reference": {
+          "name": "answer_response_reference",
           "tableFrom": "answers",
-          "tableTo": "options",
+          "tableTo": "responses",
           "columnsFrom": [
-            "option_id"
+            "response_id",
+            "version"
           ],
           "columnsTo": [
-            "id"
+            "id",
+            "version"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "answers_response_id_responses_id_fk": {
-          "name": "answers_response_id_responses_id_fk",
+        "answers_option_id_version_options_id_version_fk": {
+          "name": "answers_option_id_version_options_id_version_fk",
           "tableFrom": "answers",
-          "tableTo": "responses",
+          "tableTo": "options",
           "columnsFrom": [
-            "response_id"
+            "option_id",
+            "version"
           ],
           "columnsTo": [
-            "id"
+            "id",
+            "version"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "answers_response_id_option_id_pk": {
-          "name": "answers_response_id_option_id_pk",
+        "answers_response_id_option_id_version_pk": {
+          "name": "answers_response_id_option_id_version_pk",
           "columns": [
             "response_id",
-            "option_id"
+            "option_id",
+            "version"
           ]
         }
       },
@@ -92,125 +110,6 @@
         }
       }
     },
-    "evaluation_versions": {
-      "name": "evaluation_versions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "evaluation_id": {
-          "name": "evaluation_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "version_number": {
-          "name": "version_number",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "evaluation_versions_evaluation_id_evaluations_id_fk": {
-          "name": "evaluation_versions_evaluation_id_evaluations_id_fk",
-          "tableFrom": "evaluation_versions",
-          "tableTo": "evaluations",
-          "columnsFrom": [
-            "evaluation_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "evaluations": {
-      "name": "evaluations",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "last_opened_at": {
-          "name": "last_opened_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "program_id": {
-          "name": "program_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "creator_id": {
-          "name": "creator_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "evaluations_program_id_programs_id_fk": {
-          "name": "evaluations_program_id_programs_id_fk",
-          "tableFrom": "evaluations",
-          "tableTo": "programs",
-          "columnsFrom": [
-            "program_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "evaluations_creator_id_users_id_fk": {
-          "name": "evaluations_creator_id_users_id_fk",
-          "tableFrom": "evaluations",
-          "tableTo": "users",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "feedback": {
       "name": "feedback",
       "schema": "",
@@ -218,8 +117,8 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
+          "primaryKey": false,
+          "notNull": false,
           "default": "gen_random_uuid()"
         },
         "text": {
@@ -228,9 +127,21 @@
           "primaryKey": false,
           "notNull": true
         },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
         "question_id": {
           "name": "question_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }
@@ -249,9 +160,122 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "feedback_question_id_version_questions_id_version_fk": {
+          "name": "feedback_question_id_version_questions_id_version_fk",
+          "tableFrom": "feedback",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id",
+            "version"
+          ],
+          "columnsTo": [
+            "id",
+            "version"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "feedback_id_version_pk": {
+          "name": "feedback_id_version_pk",
+          "columns": [
+            "id",
+            "version"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "forms": {
+      "name": "forms",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_opened_at": {
+          "name": "last_opened_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "program_id": {
+          "name": "program_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creator_id": {
+          "name": "creator_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "forms_program_id_programs_id_fk": {
+          "name": "forms_program_id_programs_id_fk",
+          "tableFrom": "forms",
+          "tableTo": "programs",
+          "columnsFrom": [
+            "program_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "forms_creator_id_users_id_fk": {
+          "name": "forms_creator_id_users_id_fk",
+          "tableFrom": "forms",
+          "tableTo": "users",
+          "columnsFrom": [
+            "creator_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "forms_id_version_pk": {
+          "name": "forms_id_version_pk",
+          "columns": [
+            "id",
+            "version"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "milestones": {
@@ -331,15 +355,34 @@
           "primaryKey": false,
           "notNull": true
         },
-        "version_number": {
-          "name": "version_number",
+        "version": {
+          "name": "version",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
+        "milestones_on_questions_question_id_questions_id_fk": {
+          "name": "milestones_on_questions_question_id_questions_id_fk",
+          "tableFrom": "milestones_on_questions",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "milestones_on_questions_milestone_id_milestones_id_fk": {
           "name": "milestones_on_questions_milestone_id_milestones_id_fk",
           "tableFrom": "milestones_on_questions",
@@ -352,15 +395,30 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "milestone_question_reference": {
+          "name": "milestone_question_reference",
+          "tableFrom": "milestones_on_questions",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id",
+            "version"
+          ],
+          "columnsTo": [
+            "id",
+            "version"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "milestones_on_questions_question_id_milestone_id_version_number_pk": {
-          "name": "milestones_on_questions_question_id_milestone_id_version_number_pk",
+        "milestones_on_questions_question_id_milestone_id_version_pk": {
+          "name": "milestones_on_questions_question_id_milestone_id_version_pk",
           "columns": [
             "question_id",
             "milestone_id",
-            "version_number"
+            "version"
           ]
         }
       },
@@ -373,13 +431,19 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "default": "gen_random_uuid()"
         },
         "text": {
           "name": "text",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
@@ -401,21 +465,51 @@
           "primaryKey": false,
           "notNull": true
         },
-        "version_number": {
-          "name": "version_number",
+        "version": {
+          "name": "version",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": 1
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "options_question_id_version_number_pk": {
-          "name": "options_question_id_version_number_pk",
-          "columns": [
+      "foreignKeys": {
+        "options_question_id_questions_id_fk": {
+          "name": "options_question_id_questions_id_fk",
+          "tableFrom": "options",
+          "tableTo": "questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "options_question_id_version_questions_id_version_fk": {
+          "name": "options_question_id_version_questions_id_version_fk",
+          "tableFrom": "options",
+          "tableTo": "questions",
+          "columnsFrom": [
             "question_id",
-            "version_number"
+            "version"
+          ],
+          "columnsTo": [
+            "id",
+            "version"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "options_id_version_pk": {
+          "name": "options_id_version_pk",
+          "columns": [
+            "id",
+            "version"
           ]
         }
       },
@@ -485,9 +579,22 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
+          "primaryKey": false,
+          "notNull": false,
           "default": "gen_random_uuid()"
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "text": {
           "name": "text",
@@ -508,27 +615,37 @@
           "primaryKey": false,
           "notNull": false
         },
-        "evaluation_version_id": {
-          "name": "evaluation_version_id",
+        "form_id": {
+          "name": "form_id",
           "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "version_number": {
-          "name": "version_number",
-          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "questions_form_id_version_forms_id_version_fk": {
+          "name": "questions_form_id_version_forms_id_version_fk",
+          "tableFrom": "questions",
+          "tableTo": "forms",
+          "columnsFrom": [
+            "form_id",
+            "version"
+          ],
+          "columnsTo": [
+            "id",
+            "version"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {
-        "questions_evaluation_version_id_version_number_pk": {
-          "name": "questions_evaluation_version_id_version_number_pk",
+        "questions_id_version_pk": {
+          "name": "questions_id_version_pk",
           "columns": [
-            "evaluation_version_id",
-            "version_number"
+            "id",
+            "version"
           ]
         }
       },
@@ -541,7 +658,7 @@
         "id": {
           "name": "id",
           "type": "uuid",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true,
           "default": "gen_random_uuid()"
         },
@@ -558,11 +675,17 @@
           "notNull": true,
           "default": "now()"
         },
-        "evaluation_id": {
-          "name": "evaluation_id",
+        "form_id": {
+          "name": "form_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
+        },
+        "version": {
+          "name": "version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -580,21 +703,44 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "responses_evaluation_id_evaluations_id_fk": {
-          "name": "responses_evaluation_id_evaluations_id_fk",
+        "responses_form_id_forms_id_fk": {
+          "name": "responses_form_id_forms_id_fk",
           "tableFrom": "responses",
-          "tableTo": "evaluations",
+          "tableTo": "forms",
           "columnsFrom": [
-            "evaluation_id"
+            "form_id"
           ],
           "columnsTo": [
             "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "responses_form_id_version_forms_id_version_fk": {
+          "name": "responses_form_id_version_forms_id_version_fk",
+          "tableFrom": "responses",
+          "tableTo": "forms",
+          "columnsFrom": [
+            "form_id",
+            "version"
+          ],
+          "columnsTo": [
+            "id",
+            "version"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "responses_id_version_pk": {
+          "name": "responses_id_version_pk",
+          "columns": [
+            "id",
+            "version"
+          ]
+        }
+      },
       "uniqueConstraints": {}
     },
     "specialties": {

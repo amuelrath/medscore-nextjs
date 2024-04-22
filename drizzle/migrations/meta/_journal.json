@@ -5,71 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1713561429749,
-      "tag": "0000_amused_cannonball",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1713563217744,
-      "tag": "0001_hard_black_bolt",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1713563245713,
-      "tag": "0002_bouncy_bromley",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1713563323298,
-      "tag": "0003_clear_vindicator",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1713567515919,
-      "tag": "0004_mysterious_mulholland_black",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1713571316355,
-      "tag": "0005_needy_ozymandias",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1713571656628,
-      "tag": "0006_ambiguous_screwball",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "5",
-      "when": 1713571761685,
-      "tag": "0007_magical_sir_ram",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1713571817323,
-      "tag": "0008_pretty_katie_power",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1713572684032,
-      "tag": "0009_wandering_baron_strucker",
+      "when": 1713681465682,
+      "tag": "0000_bizarre_makkari",
       "breakpoints": true
     }
   ]

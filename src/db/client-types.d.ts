@@ -6,31 +6,31 @@ import {
   competencies,
   subcompetencies,
   milestones,
-  evaluationVersions,
 } from "./schema";
 
-export type VersionedEvaluation = InferResultType<
+export type Allocation = {
+  milestoneId: string;
+};
+
+export type ClientForm = InferResultType<
   "forms",
   {
     programs: {
       with: {
-        specialties: {
-          with: {
-            subcompetencies: {
-              with: {
-                milestones: true;
-                competencies?: true;
-              };
-            };
-          };
-        };
+        specialties: true;
       };
     };
-    versions: true;
     questions: {
       with: {
+        milestones: {
+          columns: {
+            milestoneId: true;
+            questionId: false;
+            version: false;
+            deletedAt: false;
+          };
+        };
         options: true;
-        milestones: true;
       };
     };
   }
@@ -47,8 +47,10 @@ export type ClientSubcompetency = InferResultType<
 >;
 
 export type ClientMilestone = InferResultType<
-  "milestones",
-  { subcompetencies: { with: { competencies: true } } }
+  "milestonesOnQuestions",
+  {
+    milestone: true;
+  }
 >;
 
 export type EvaluationFormData = {

@@ -1,1 +1,0 @@
-ALTER TABLE "evaluations" ADD COLUMN "deleted_at" timestamp;
