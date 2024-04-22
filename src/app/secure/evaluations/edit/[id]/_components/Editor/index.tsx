@@ -1,5 +1,5 @@
 "use client";
-import { VersionedEvaluation } from "@/db/client-types";
+import { ClientForm, ClientSubcompetency } from "@/db/client-types";
 import { v4 } from "uuid";
 import { cn } from "@/lib/utils";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -10,13 +10,15 @@ import EditorToolbar from "../Toolbar";
 import Section from "@/components/ui/section";
 
 export default function Editor({
-  defaultValues,
+  form,
+  subcompetencies,
 }: {
-  defaultValues: VersionedEvaluation;
+  form: ClientForm;
+  subcompetencies: ClientSubcompetency[];
 }) {
-  const methods = useForm<VersionedEvaluation>({
-    defaultValues: defaultValues || {
-      evaluation: {
+  const methods = useForm<ClientForm>({
+    defaultValues: form || {
+      form: {
         id: v4(),
         title: "Untitled Evaluation",
         programId: "",
@@ -40,12 +42,9 @@ export default function Editor({
     },
   });
 
-  const onSubmit = (data: VersionedEvaluation) => {
+  const onSubmit = (data: ClientForm) => {
     saveEvaluation(data);
   };
-
-  const subcompetencies = defaultValues?.programs.specialties?.subcompetencies;
-
   return (
     <FormProvider {...methods}>
       <NavBar>
