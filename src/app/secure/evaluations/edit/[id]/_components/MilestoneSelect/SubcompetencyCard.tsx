@@ -51,7 +51,7 @@ export default function SubcompetencyCard({
   const getNumberOfSelectedMilestones = () => {
     let result = 0;
     for (const m of milestones) {
-      if (selectedMilestoneIds?.includes(m.id)) result++;
+      if (selectedMilestoneIds?.some((a) => a.milestoneId === m.id)) result++;
     }
     return result;
   };
