@@ -4,7 +4,7 @@ import useDeepCompareEffect from "use-deep-compare-effect";
 import { cn } from "@/lib/utils";
 import { SaveAllIcon, Loader2 } from "lucide-react";
 import { saveEvaluation } from "../_actions";
-import { EvaluationFormData } from "@/db/client-types";
+import { ClientForm } from "@/db/client-types";
 import { Button } from "@/components/ui/button";
 import { useCallback, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
@@ -16,7 +16,7 @@ export function SaveButton() {
   const handleSave = async () => {
     try {
       setLoading(true);
-      const formData = methods.getValues() as EvaluationFormData;
+      const formData = methods.getValues() as ClientForm;
       await saveEvaluation(formData);
     } catch (error) {
       console.error(error);
