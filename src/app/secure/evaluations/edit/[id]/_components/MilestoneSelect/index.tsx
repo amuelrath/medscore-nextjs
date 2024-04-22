@@ -8,7 +8,7 @@ import {
   DrawerHeader,
 } from "@/components/ui/drawer";
 import { Competency } from "@/db/schema";
-import { ClientSubcompetency } from "@/db/client-types";
+import { Allocation, ClientSubcompetency } from "@/db/client-types";
 import { useState, createContext, useContext, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -40,14 +40,14 @@ const competencies: Competency[] = [
 ];
 
 const MilestoneSelectorContext = createContext<{
-  value: string[];
+  value: Allocation[];
   subcompetencies: ClientSubcompetency[] | undefined;
   selectedCompetencyId: string | undefined;
   selectedSubcompetencyId: string | undefined;
-  selectedMilestoneIds: string[] | undefined;
+  selectedMilestoneIds: Allocation[] | undefined;
   setSelectedCompetencyId: (id: string | undefined) => void;
   setSelectedSubcompetencyId: (id: string | undefined) => void;
-  setSelectedMilestoneIds: (ids: string[]) => void;
+  setSelectedMilestoneIds: (ids: Allocation[]) => void;
 }>({
   value: [],
   subcompetencies: undefined,
@@ -66,9 +66,9 @@ export default function MilestoneSelector({
   subcompetencies,
   onChange,
 }: {
-  values: string[];
+  values: Allocation[];
   subcompetencies: ClientSubcompetency[];
-  onChange: (milestonesIds: string[]) => void;
+  onChange: (milestonesIds: Allocation[]) => void;
 }) {
   const [selectedCompetencyId, setSelectedCompetencyId] = useState<
     string | undefined
@@ -76,9 +76,9 @@ export default function MilestoneSelector({
   const [selectedSubcompetencyId, setSelectedSubcompetencyId] = useState<
     string | undefined
   >(undefined);
-  const [selectedMilestoneIds, setSelectedMilestoneIds] = useState<string[]>(
-    values || []
-  );
+  const [selectedMilestoneIds, setSelectedMilestoneIds] = useState<
+    Allocation[]
+  >(values || []);
 
   const contextValue = {
     value: values,
@@ -91,7 +91,7 @@ export default function MilestoneSelector({
     selectedSubcompetencyId,
   };
 
-  const handleChange = (selectedMilestoneIds: string[]) => {
+  const handleChange = (selectedMilestoneIds: Allocation[]) => {
     onChange(selectedMilestoneIds);
   };
 
