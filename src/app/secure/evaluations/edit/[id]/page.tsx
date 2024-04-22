@@ -1,65 +1,71 @@
 import { db } from "@/db";
 import EvaluationEditor from "./_components/Editor";
-import { VersionedEvaluation } from "@/db/client-types";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { forms } from "@/db/schema";
 import { revalidatePath } from "next/cache";
+import { ClientForm, ClientSubcompetency } from "@/db/client-types";
 export default async function EditorPage({
   params,
 }: {
   params: { id: string };
 }) {
-  const data: VersionedEvaluation = await db.transaction(async (tx) => {
-    const formIsValid = await tx.query.forms.findFirst({
-      where: (form, { eq, isNull, and }) =>
+  const query = await db.transaction(async (tx) => {
+    // first we must find what the newest form version is
+    const currentVersion = (
+      await tx
+        .select()
+        .from(forms)
+        .where(eq(forms.id, params.id))
+        .orderBy(desc(forms.version))
+    ).at(0)?.version;
+    console.log("Current Version: ", currentVersion);
+    if (!currentVersion)
+      throw new Error("Something went wrong fetching the most recent version!");
+    // then we find the form data for that version
+    const formQuery: ClientForm | undefined = await tx.query.forms.findFirst({
+      where: (f, { and, eq, isNull }) =>
         and(
-          eq(form.creatorId, process.env.DEV_USER_ID!),
-          isNull(form.deletedAt),
-          eq(form.id, params.id)
+          eq(f.id, params.id),
+          isNull(f.deletedAt),
+          eq(f.version, currentVersion)
         ),
-      with: {
-        versions: true,
-      },
-    });
-
-    if (!formIsValid) throw new Error("Something went wrong!");
-    const newestVersionNumber = formIsValid.versions.length;
-    const result = await tx.query.forms.findFirst({
-      where: (form, { eq }) => eq(form.id, params.id),
       with: {
         programs: {
           with: {
-            specialties: {
-              with: {
-                subcompetencies: {
-                  with: {
-                    milestones: true,
-                    competencies: true,
-                  },
-                },
+            specialties: true,
+          },
+        },
+        questions: {
+          where: (q, { eq, isNull, and }) =>
+            and(isNull(q.deletedAt), eq(q.version, currentVersion)),
+          with: {
+            options: {
+              where: (o, { eq, isNull, and }) =>
+                and(eq(o.version, currentVersion), isNull(o.deletedAt)),
+            },
+            milestones: {
+              where: (m, { eq, isNull, and }) =>
+                and(eq(m.version, currentVersion), isNull(m.deletedAt)),
+              columns: {
+                milestoneId: true,
               },
             },
           },
         },
-        questions: {
-          where: (question, { eq }) =>
-            eq(question.versionNumber, newestVersionNumber),
-          with: {
-            options: {
-              where: (option, { eq }) =>
-                eq(option.versionNumber, newestVersionNumber),
-            },
-            milestones: {
-              where: (milestone, { eq }) =>
-                eq(milestone.versionNumber, newestVersionNumber),
-            },
-          },
-        },
-        versions: true,
       },
     });
-    if (!result) throw new Error("Something went wrong!");
-    return result;
+    if (!formQuery) throw new Error("Form not found!");
+
+    const subcompetencyQuery: ClientSubcompetency[] =
+      await tx.query.subcompetencies.findMany({
+        where: (sc, { eq }) =>
+          eq(sc.specialtyId, formQuery.programs?.specialtyId || ""),
+        with: {
+          milestones: true,
+          competencies: true,
+        },
+      });
+    return { formQuery, subcompetencyQuery };
   });
 
   // update last opened
@@ -70,9 +76,14 @@ export default async function EditorPage({
     .where(eq(forms.id, params.id))
     .finally(() => revalidatePath("layout"));
 
-  if (data.creatorId !== process.env.DEV_USER_ID!) {
+  if (query.formQuery.creatorId !== process.env.DEV_USER_ID!) {
     return new Error("Unauthorized");
   }
 
-  return <EvaluationEditor defaultValues={data} />;
+  return (
+    <EvaluationEditor
+      form={query.formQuery}
+      subcompetencies={query.subcompetencyQuery}
+    />
+  );
 }
