@@ -1,172 +1,148 @@
 "use server";
 import { db } from "@/db";
-import { revalidatePath } from "next/cache";
-import {
-  milestonesOnQuestions,
-  options,
-  formVersions,
-  questions,
-} from "@/db/schema";
-import { ExtractTablesWithRelations, sql } from "drizzle-orm";
-import { VersionedEvaluation } from "@/db/client-types";
-import { ROUTES } from "@/lib/routes.generated";
-import { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
-import { PgTransaction } from "drizzle-orm/pg-core";
+import { forms, milestonesOnQuestions, options, questions } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
+import { ClientForm } from "@/db/client-types";
 
-const createNewVersion = async (
-  tx: PgTransaction<
-    PostgresJsQueryResultHKT,
-    typeof import("c:/Users/austi/medscore-nextjs/src/db/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/austi/medscore-nextjs/src/db/schema")
-    >
-  >,
-  evaluation: VersionedEvaluation,
-  thisVersion: number
-) => {
-  await tx.insert(formVersions).values({
-    formId: evaluation.id,
-    versionNumber: thisVersion + 1,
-  });
+export async function newFormVersion(formId: string) {}
 
-  for (const q of evaluation.questions) {
-    await tx.insert(questions).values({
-      id: q.id,
-      text: q.text,
-      versionNumber: thisVersion + 1,
-      formId: evaluation.id,
-      position: q.position,
-      feedback: q.feedback,
+// consider not making this a transaction.
+export async function saveEvaluation(form: ClientForm) {
+  await db.transaction(async (tx) => {
+    // first update the form
+    await tx
+      .update(forms)
+      .set({
+        title: form.title,
+      })
+      .where(eq(forms.id, form.id));
+
+    // get the pre-update form questions
+    const oldQuestions = await tx.query.questions.findMany({
+      where: (q, { and, eq, isNull }) =>
+        and(
+          eq(q.formId, form.id),
+          eq(q.version, form.version),
+          isNull(q.deletedAt)
+        ),
+      with: {
+        options: true,
+        milestones: true,
+      },
     });
 
-    for (const o of q.options) {
-      await tx.insert(options).values({
-        id: o.id,
-        text: o.text,
-        questionId: q.id,
-        versionNumber: thisVersion + 1,
-      });
-    }
+    // delete things
+    oldQuestions.forEach(async (oq) => {
+      // if a question IS IN old but NOT IN new, it was deleted
+      const thisQuestionInForm = form.questions.find((q) => q.id === oq.id);
+      if (!form.questions.find((nq) => nq.id === oq.id)) {
+        await tx
+          .delete(questions)
+          .where(
+            and(eq(questions.id, oq.id!), eq(questions.version, form.version))
+          );
+      }
 
-    for (const m of q.milestones) {
-      await tx.insert(milestonesOnQuestions).values({
-        questionId: q.id,
-        milestoneId: m.milestoneId,
-        versionNumber: thisVersion + 1,
-      });
-    }
-  }
-};
-
-const updateExistingVersion = async (
-  tx: PgTransaction<
-    PostgresJsQueryResultHKT,
-    typeof import("c:/Users/austi/medscore-nextjs/src/db/schema"),
-    ExtractTablesWithRelations<
-      typeof import("c:/Users/austi/medscore-nextjs/src/db/schema")
-    >
-  >,
-  evaluation: VersionedEvaluation,
-  thisVersion: number
-) => {
-  for (const q of evaluation.questions) {
-    await tx
-      .insert(questions)
-      .values({
-        id: q.id,
-        text: q.text,
-        versionNumber: thisVersion,
-        formId: evaluation.id,
-        position: q.position,
-        feedback: q.feedback,
-      })
-      .onConflictDoUpdate({
-        target: questions.id,
-        set: {
-          text: q.text,
-          position: q.position,
-          feedback: q.feedback,
-        },
+      // if an option IS IN old but NOT IN new, it was DELETED
+      oq.options.forEach(async (oo) => {
+        if (!thisQuestionInForm?.options.find((o) => o.id === oo.id)) {
+          await tx
+            .delete(options)
+            .where(
+              and(eq(options.id, oo.id!), eq(options.version, form.version))
+            );
+        }
       });
 
-    for (const o of q.options) {
+      // if a milestone IS IN old but NOT IN new, it was DELETED
+      oq.milestones.forEach(async (om) => {
+        if (
+          !thisQuestionInForm?.milestones.find(
+            (m) => m.milestoneId === om.milestoneId
+          )
+        ) {
+          await tx
+            .delete(milestonesOnQuestions)
+            .where(
+              and(
+                eq(milestonesOnQuestions.questionId, oq.id!),
+                eq(milestonesOnQuestions.milestoneId, om.milestoneId),
+                eq(milestonesOnQuestions.version, form.version)
+              )
+            );
+        }
+      });
+    });
+
+    // update questions
+    for (const q of form.questions) {
       await tx
-        .insert(options)
+        .insert(questions)
         .values({
-          id: o.id,
-          text: o.text,
-          questionId: q.id,
-          position: o.position,
-          pointValue: o.pointValue,
+          id: q.id,
+          text: q.text,
+          feedback: q.feedback,
+          formId: form.id,
+          version: form.version,
+          position: q.position,
+          deletedAt: q.deletedAt,
         })
         .onConflictDoUpdate({
-          target: options.id,
+          target: [questions.id, questions.version],
           set: {
+            text: q.text,
+            version: form.version,
+            feedback: q.feedback,
+            position: q.position,
+          },
+        });
+
+      // update options
+      for (const o of q.options) {
+        await tx
+          .insert(options)
+          .values({
+            id: o.id,
             text: o.text,
             position: o.position,
+            version: form.version,
+            questionId: q.id!,
             pointValue: o.pointValue,
-          },
-        });
-    }
+          })
+          .onConflictDoUpdate({
+            target: [options.id, options.version],
+            set: {
+              text: o.text,
+              version: form.version,
+              position: o.position,
+              pointValue: o.pointValue,
+            },
+          });
+      }
 
-    for (const m of q.milestones) {
-      await tx
-        .insert(milestonesOnQuestions)
-        .values({
-          questionId: q.id,
-          milestoneId: m.milestoneId,
-          versionNumber: thisVersion,
-        })
-        .onConflictDoUpdate({
-          target: [
-            milestonesOnQuestions.questionId,
-            milestonesOnQuestions.milestoneId,
-          ],
-          set: {
+      // update milestones
+      // MARK: fix: milestones are actually an array of strings
+      for (const m of q.milestones) {
+        await tx
+          .insert(milestonesOnQuestions)
+          .values({
             milestoneId: m.milestoneId,
-            versionNumber: thisVersion,
-            questionId: q.id,
-          },
-        });
-    }
-  }
-};
-
-export const saveEvaluation = async (data: VersionedEvaluation) => {
-  const evaluation = data;
-  const thisVersion = data.versions.reduce((prev, cur) => {
-    return cur.versionNumber > prev ? cur.versionNumber : prev;
-  }, 0);
-
-  await db.transaction(async (tx) => {
-    const newestVersion = await tx.query.formVersions.findMany({
-      where: (versions, { and, eq }) =>
-        and(
-          eq(versions.formId, evaluation.id),
-          sql`${versions.versionNumber} < ${thisVersion}`
-        ),
-    });
-
-    if (!newestVersion) {
-      throw new Error(
-        "You are trying to modify an outdated evaluation! Please refresh the page to see the newest version."
-      );
-    }
-
-    const formHasResponses = await tx.query.responses.findFirst({
-      where: (responses, { and, eq }) =>
-        and(
-          eq(responses.versionNumber, thisVersion),
-          eq(responses.formId, evaluation.id)
-        ),
-    });
-
-    if (formHasResponses) {
-      await createNewVersion(tx, evaluation, thisVersion);
-    } else {
-      await updateExistingVersion(tx, evaluation, thisVersion);
+            questionId: q.id!,
+            version: form.version,
+          })
+          .onConflictDoUpdate({
+            target: [
+              milestonesOnQuestions.milestoneId,
+              milestonesOnQuestions.questionId,
+              milestonesOnQuestions.version,
+            ],
+            set: {
+              milestoneId: m.milestoneId,
+              questionId: q.id!,
+              version: form.version,
+            },
+          });
+      }
     }
   });
-
-  revalidatePath(ROUTES.SECURE.EVALUATIONS.HOME);
-};
+}
