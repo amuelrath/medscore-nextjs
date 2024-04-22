@@ -3,14 +3,15 @@ import { cn } from "@/lib/utils";
 import { PlusCircleIcon, Trash2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
-import { VersionedEvaluation } from "@/db/client-types";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { ClientForm } from "@/db/client-types";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { v4 } from "uuid";
 import { useRef, useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function Option({ nestIndex }: { nestIndex: number }) {
-  const { control, register, getValues } =
-    useFormContext<VersionedEvaluation>();
+  const { control, register, getValues } = useFormContext<ClientForm>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: `questions.${nestIndex}.options`,
@@ -70,22 +71,41 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
           ))}
         </div>
       </AnimatePresence>
-      <PlusCircleIcon
-        type="button"
-        onClick={() =>
-          append({
-            id: v4(),
-            questionId: getValues(`questions.${nestIndex}.id`),
-            text: "",
-            position: fields.length + 1,
-            pointValue: "0",
-            versionNumber: getValues(`questions.${nestIndex}.versionNumber`), // MARK:FIX FIX FIX FIX FIX
-          })
-        }
-        className={cn(
-          "mt-2 cursor-pointer group group-hover:opacity-100 opacity-0 hover:bg-primary hover:text-white transition-all p-1 rounded-full"
-        )}
-      />
+      <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all">
+        <PlusCircleIcon
+          type="button"
+          onClick={() =>
+            append({
+              id: v4(),
+              questionId: getValues(`questions.${nestIndex}.id`)!, // MARK: Wtf fix
+              text: "",
+              position: fields.length + 1,
+              pointValue: "0",
+              deletedAt: null,
+              version: getValues(`version`),
+            })
+          }
+          className={cn(
+            "mt-2 cursor-pointer group group-hover:opacity-100 opacity-0 hover:bg-primary hover:text-white transition-all p-1 rounded-full"
+          )}
+        />
+        <div className="space-x-2 mr-8">
+          <Label className="text-xs" htmlFor="feedback">
+            Allow Feedback?
+          </Label>
+          <Controller
+            name={`questions.${nestIndex}.feedback`}
+            control={control}
+            render={({ field }) => (
+              <Switch
+                size={"xs"}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+      </div>
     </>
   );
 }
