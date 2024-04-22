@@ -1,8 +1,8 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { VersionedEvaluation } from "@/db/client-types";
+import { ClientForm } from "@/db/client-types";
 import { Trash2 } from "lucide-react";
-import { deleteEvaluation } from "../_actions";
+import { softDeleteEvaluation } from "../_actions";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-export function DeleteButton({ data }: { data: VersionedEvaluation }) {
+export function DeleteButton({ form }: { form: ClientForm }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -27,7 +27,7 @@ export function DeleteButton({ data }: { data: VersionedEvaluation }) {
       </AlertDialogTrigger>
       <AlertDialogContent className={cn("rounded-md")}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete '{data.title}' ?</AlertDialogTitle>
+          <AlertDialogTitle>Delete '{form.title}' ?</AlertDialogTitle>
           <AlertDialogDescription>
             This action is irrevsible. All data will be lost.
           </AlertDialogDescription>
@@ -35,7 +35,7 @@ export function DeleteButton({ data }: { data: VersionedEvaluation }) {
         <AlertDialogCancel>Cancel</AlertDialogCancel>
         <AlertDialogAction
           onClick={() =>
-            deleteEvaluation(data.id).then(() =>
+            softDeleteEvaluation(form.id).then(() =>
               toast.success("Evaluation deleted.")
             )
           }
