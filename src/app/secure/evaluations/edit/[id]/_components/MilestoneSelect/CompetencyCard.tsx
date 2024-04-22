@@ -51,8 +51,8 @@ export default function CompetencyCard({
     let myMilestones = mySubcompetencies()
       .flatMap((sc) => sc.milestones)
       .flatMap((m) => m.id);
-    selectedMilestoneIds?.forEach((id) => {
-      if (myMilestones.includes(id)) {
+    selectedMilestoneIds?.forEach((a) => {
+      if (myMilestones.some((m) => m === a.milestoneId)) {
         result++;
       }
     });
