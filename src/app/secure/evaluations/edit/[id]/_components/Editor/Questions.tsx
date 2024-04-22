@@ -6,13 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Trash2Icon, PlusCircleIcon } from "lucide-react";
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { VersionedEvaluation } from "@/db/client-types";
-import {
-  Controller,
-  useFieldArray,
-  useFormContext,
-  useWatch,
-} from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import {
   Tooltip,
   TooltipProvider,
@@ -20,19 +14,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import OptionList from "./Options";
-import { ClientSubcompetency } from "@/db/client-types";
+import { ClientForm, ClientSubcompetency } from "@/db/client-types";
 import { v4 } from "uuid";
 import { useEffect, useRef } from "react";
 import MilestoneSelector from "../MilestoneSelect";
-import { MilestonesOnQuestion, Option } from "@/db/schema";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function QuestionCards({
   subcompetencies,
 }: {
   subcompetencies: ClientSubcompetency[];
 }) {
-  const { control, register, getValues } =
-    useFormContext<VersionedEvaluation>();
+  const { control, register, getValues } = useFormContext<ClientForm>();
   const { fields, remove, append } = useFieldArray({
     control,
     name: "questions",
@@ -80,10 +75,12 @@ export default function QuestionCards({
                         control={control}
                         render={({ field }) => (
                           <MilestoneBadges
-                            subcompetencies={subcompetencies || []}
-                            milestoneIds={field.value.flatMap(
-                              (m) => m.milestoneId
-                            )}
+                            milestoneIds={
+                              field.value.flatMap(
+                                (m) => m.milestoneId
+                              ) as string[]
+                            }
+                            subcompetencies={subcompetencies}
                           />
                         )}
                       />
@@ -111,14 +108,12 @@ export default function QuestionCards({
                       <MilestoneSelector
                         onChange={field.onChange}
                         subcompetencies={subcompetencies}
-                        values={item.milestones.flatMap((m) => m.milestoneId)}
+                        values={item.milestones}
                       />
                     )}
                   />
                 </div>
-                <div>
-                  <OptionList {...{ nestIndex: index, control, register }} />
-                </div>
+                <OptionList {...{ nestIndex: index, control, register }} />
               </Card>
             </motion.div>
           ))}
@@ -135,10 +130,11 @@ export default function QuestionCards({
               text: "",
               feedback: false,
               position: fields.length + 1,
-              milestones: [] as MilestonesOnQuestion[],
-              options: [] as Option[],
-              versionNumber: getValues("versions").length,
-              formId: getValues(`id`),
+              milestones: [],
+              options: [],
+              deletedAt: null,
+              version: Number(getValues("version")) || 0,
+              formId: getValues(`id`) || "",
             });
           }}
         >
@@ -156,27 +152,23 @@ function MilestoneBadges({
   milestoneIds: string[];
   subcompetencies: ClientSubcompetency[];
 }) {
-  const milestoneObjects = subcompetencies.map((sc) => sc.milestones).flat();
-
+  const milestones = subcompetencies
+    .flatMap((sc) => sc.milestones)
+    .filter((m) => milestoneIds.includes(m.id));
   return (
     <>
-      {milestoneIds.map((mId) => {
-        const milestone = milestoneObjects.find((m) => m.id === mId);
-        if (milestone) {
-          return (
-            <TooltipProvider key={`badge-${milestone.id}`}>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Badge>{milestone.name}</Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{milestone.description}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          );
-        }
-      })}
+      {milestones.map((m) => (
+        <TooltipProvider key={`badge-${m}`}>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge>{m.name}</Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{m.description}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ))}
     </>
   );
 }
