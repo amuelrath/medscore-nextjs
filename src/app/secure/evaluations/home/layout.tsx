@@ -9,21 +9,21 @@ import {
 import NavBar from "@/components/ui/top-navbar";
 const tabs = [
   {
-    id: "drafts",
-    label: "Drafts",
+    id: "forms",
+    label: "Forms",
   },
   {
-    id: "published",
-    label: "Published",
+    id: "active",
+    label: "Active",
   },
 ];
 
 export default function EvaluationsRootLayout({
-  drafts,
-  published,
+  forms,
+  active,
 }: {
-  drafts: ReactNode;
-  published: ReactNode;
+  forms: ReactNode;
+  active: ReactNode;
 }) {
   return (
     <TabsProvider>
@@ -36,8 +36,8 @@ export default function EvaluationsRootLayout({
         </NavBar.Heading>
       </NavBar>
       <Section>
-        <TabContent id="drafts">{drafts}</TabContent>
-        <TabContent id="published">{published}</TabContent>
+        <TabContent id="forms">{forms}</TabContent>
+        <TabContent id="active">{active}</TabContent>
       </Section>
     </TabsProvider>
   );
