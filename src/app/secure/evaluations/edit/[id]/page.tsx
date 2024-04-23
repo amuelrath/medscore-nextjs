@@ -18,7 +18,6 @@ export default async function EditorPage({
         .where(eq(forms.id, params.id))
         .orderBy(desc(forms.version))
     ).at(0)?.version;
-    console.log("Current Version: ", currentVersion);
     if (!currentVersion)
       throw new Error("Something went wrong fetching the most recent version!");
     // then we find the form data for that version
