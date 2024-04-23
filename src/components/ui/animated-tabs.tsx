@@ -1,8 +1,8 @@
 "use client";
-
 import { motion } from "framer-motion";
 import { useState, useContext, createContext, useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type Tab = {
   id: string;
@@ -26,7 +26,6 @@ export function useTabsContext() {
 
 export function TabsProvider({ children }: { children: React.ReactNode }) {
   const [activeTab, setActiveTab] = useState("");
-
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
       {children}
@@ -71,11 +70,29 @@ type TabsProps = {
 } & VariantProps<typeof tabsStyles>;
 
 export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { activeTab, setActiveTab } = useTabsContext();
 
   useEffect(() => {
-    setActiveTab(tabs[0]?.id);
-  }, []);
+    const activeTabFromQuery = searchParams.get("tab");
+    if (
+      activeTabFromQuery &&
+      tabs.some((tab) => tab.id === activeTabFromQuery)
+    ) {
+      setActiveTab(activeTabFromQuery);
+    } else {
+      setActiveTab(tabs[0]?.id);
+    }
+  }, [searchParams, tabs]);
+
+  const handleTabClick = (tabId: string) => {
+    setActiveTab(tabId);
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("tab", tabId);
+    const newPathname = `${pathname}?${newSearchParams.toString()}`;
+    window.history.pushState({}, "", newPathname);
+  };
 
   return (
     <div className={tabsStyles({ size, color })}>
@@ -83,7 +100,7 @@ export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
         <div
           key={tab.id}
           role="button"
-          onClick={() => setActiveTab(tab.id)}
+          onClick={() => handleTabClick(tab.id)}
           className={`${
             activeTab === tab.id ? "" : "hover:text-notepad/60"
           } relative rounded-full px-2 py-1 font-medium transition focus-visible:outline-2`}
