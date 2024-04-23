@@ -1,9 +1,8 @@
 "use client";
 import debounce from "debounce";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { cn } from "@/lib/utils";
-import { SaveAllIcon, Loader2 } from "lucide-react";
-import { saveEvaluation } from "../_actions";
+import { CloudUploadIcon, CloudIcon } from "lucide-react";
+import { saveEvaluation } from "../_actions/saveEvaluation";
 import { ClientForm } from "@/db/client-types";
 import { Button } from "@/components/ui/button";
 import { useCallback, useState } from "react";
@@ -28,7 +27,7 @@ export function SaveButton() {
   const debouncedSave = useCallback(
     debounce(() => {
       handleSave();
-    }, 500),
+    }, 100),
     []
   );
 
@@ -52,13 +51,9 @@ export function SaveButton() {
       onClick={handleSave}
     >
       {loading ? (
-        <Loader2
-          strokeWidth={2}
-          size="1rem"
-          className={cn("animate-spin text-notepad")}
-        />
+        <CloudUploadIcon size={"1rem"} />
       ) : (
-        <SaveAllIcon size={"1rem"} />
+        <CloudIcon size={"1rem"} />
       )}
     </Button>
   );

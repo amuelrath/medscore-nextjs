@@ -77,7 +77,7 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
           onClick={() =>
             append({
               id: v4(),
-              questionId: getValues(`questions.${nestIndex}.id`)!, // MARK: Wtf fix
+              questionId: getValues(`questions.${nestIndex}.id`)!,
               text: "",
               position: fields.length + 1,
               pointValue: "0",
@@ -90,8 +90,11 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
           )}
         />
         <div className="space-x-2 mr-8">
+          {/* MARK: TODO... */}
+          {/* todo change this to a 'require commments' or smt checkbox. in evaluatee UI... */}
+          {/* ....make any question able to have feedback attached. click notes button & textarea appears */}
           <Label className="text-xs" htmlFor="feedback">
-            Allow Feedback?
+            Require Feedback?
           </Label>
           <Controller
             name={`questions.${nestIndex}.feedback`}

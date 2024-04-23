@@ -164,7 +164,7 @@ function MilestoneBadges({
               <Badge>{m.name}</Badge>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{m.description}</p>
+              <p className={cn("text-lg w-[500px]")}>{m.description}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
