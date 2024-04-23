@@ -5,7 +5,7 @@ export default function NavBar({ children }: { children: ReactNode }) {
   return (
     <nav
       className={cn(
-        "fixed ml-[4rem] flex flex-col justify-start px-6 pt-2 pb-4 w-full grid grid-cols-3 bg-primary"
+        "fixed ml-10 flex flex-col justify-start px-6 pt-1 pb-4 w-full grid grid-cols-3 bg-primary"
       )}
     >
       {children}
@@ -14,7 +14,7 @@ export default function NavBar({ children }: { children: ReactNode }) {
 }
 
 function Title({ children }: { children?: ReactNode }) {
-  return <h1 className={cn("text-2xl font-bold text-white")}>{children}</h1>;
+  return <h1 className={cn("text-lg font-bold text-white")}>{children}</h1>;
 }
 
 function Subtitle({ children }: { children?: ReactNode }) {

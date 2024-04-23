@@ -1,6 +1,8 @@
 "use client";
+
 import { motion } from "framer-motion";
 import { useState, useContext, createContext, useEffect } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 type Tab = {
   id: string;
@@ -43,12 +45,32 @@ export function TabContent({
   return activeTab === id ? <>{children}</> : null;
 }
 
+const tabsStyles = cva("relative flex flex-row space-x-2 items-center z-10", {
+  variants: {
+    size: {
+      xs: "text-xs",
+      sm: "text-sm",
+      md: "text-base",
+      lg: "text-lg",
+    },
+    color: {
+      primary: "bg-primary text-notepad",
+      accent: "bg-accent text-white",
+      "accent-secondary": "bg-accent-secondary text-white",
+    },
+  },
+  defaultVariants: {
+    size: "xs",
+    color: "primary",
+  },
+});
+
 type TabsProps = {
   tabs: Tab[];
   icons?: boolean;
-};
+} & VariantProps<typeof tabsStyles>;
 
-export function AnimatedTabs({ tabs, icons }: TabsProps) {
+export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
   const { activeTab, setActiveTab } = useTabsContext();
 
   useEffect(() => {
@@ -56,9 +78,7 @@ export function AnimatedTabs({ tabs, icons }: TabsProps) {
   }, []);
 
   return (
-    <div
-      className={`relative flex flex-row space-x-2 items-center bg-primary z-10`}
-    >
+    <div className={tabsStyles({ size, color })}>
       {tabs.map((tab) => (
         <div
           key={tab.id}
@@ -66,7 +86,7 @@ export function AnimatedTabs({ tabs, icons }: TabsProps) {
           onClick={() => setActiveTab(tab.id)}
           className={`${
             activeTab === tab.id ? "" : "hover:text-notepad/60"
-          } relative rounded-full px-2 py-1 text-sm font-medium text-notepad transition focus-visible:outline-2`}
+          } relative rounded-full px-2 py-1 font-medium transition focus-visible:outline-2`}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <span className="relative z-20">{icons ? tab.icon : tab.label}</span>
