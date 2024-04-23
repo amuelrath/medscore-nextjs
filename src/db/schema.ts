@@ -13,6 +13,7 @@ import {
   alias,
   foreignKey,
   unique,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
@@ -388,3 +389,61 @@ export const answerRelations = relations(answers, ({ one }) => ({
     references: [responses.id, responses.version],
   }),
 }));
+
+export const formCodes = pgTable("form_codes", {
+  formId: uuid("form_id")
+    .notNull()
+    .references(() => forms.id)
+    .primaryKey(),
+  version: integer("version")
+    .notNull()
+    .references(() => forms.version),
+  code: varchar("code", { length: 6 })
+    .notNull()
+    .default(sql`generate_unique_code()`),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+export type FormCode = typeof formCodes.$inferSelect;
+export type NewFormCode = typeof formCodes.$inferInsert;
+export const formCodeRelations = relations(formCodes, ({ one }) => ({
+  form: one(forms, {
+    fields: [formCodes.formId, formCodes.version],
+    references: [forms.id, forms.version],
+  }),
+}));
+
+export const formCodesOnUsers = pgTable(
+  "form_codes_on_users",
+  {
+    formId: uuid("form_id")
+      .primaryKey()
+      .references(() => forms.id),
+    version: integer("version").references(() => forms.version),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+  },
+  (table) => {
+    return {
+      id: foreignKey({
+        columns: [table.version, table.formId],
+        foreignColumns: [forms.version, forms.id],
+      }),
+    };
+  }
+);
+export type FormCodeOnUser = typeof formCodesOnUsers.$inferSelect;
+export type NewFormCodeOnUser = typeof formCodesOnUsers.$inferSelect;
+export const formCodesOnUsersRelations = relations(
+  formCodesOnUsers,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [formCodesOnUsers.userId],
+      references: [users.id],
+    }),
+    form: one(forms, {
+      fields: [formCodesOnUsers.formId, formCodesOnUsers.version],
+      references: [forms.id, forms.version],
+    }),
+  })
+);
