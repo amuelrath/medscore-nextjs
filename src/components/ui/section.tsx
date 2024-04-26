@@ -7,7 +7,7 @@ export default function Section({ children }: { children: ReactNode }) {
   return (
     <section
       className={cn(
-        " overflow-y-scroll fixed top-[4rem] left-[4rem] w-full h-full p-4 pb-[20rem] pr-[5rem] bg-background rounded-tl-[10px] no-scrollbar"
+        " overflow-y-scroll fixed top-[4rem] left-[4rem] w-full h-full p-4 pr-[5rem] bg-background rounded-tl-[10px] no-scrollbar"
       )}
     >
       {children}

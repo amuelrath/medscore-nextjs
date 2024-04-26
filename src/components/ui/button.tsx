@@ -23,6 +23,7 @@ const buttonVariants = cva(
         notepad: "bg-notepad text-black hover:bg-notepad/90",
         link: "text-primary underline-offset-4 hover:underline",
         emerald: "bg-emerald-500 text-primary hover:bg-emerald/90",
+        hide: "bg-none border-none",
       },
       size: {
         default: "h-10 px-4 py-2",
