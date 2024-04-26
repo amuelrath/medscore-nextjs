@@ -1,9 +1,8 @@
 import { db } from "@/db";
 import FormEditorSection from "@/components/(evaluations)/sections/form-editor";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { forms } from "@/db/schema";
 import { revalidatePath } from "next/cache";
-import { TFormRelate, TSubcompetencyRelate } from "@/db/types";
 export default async function EditorPage({
   params,
 }: {
@@ -44,8 +43,7 @@ export default async function EditorPage({
     .set({
       lastOpenedAt: new Date(),
     })
-    .where(eq(forms.id, params.id))
-    .finally(() => revalidatePath("layout"));
+    .where(eq(forms.id, params.id));
 
   if (formQuery?.creatorId !== process.env.DEV_USER_ID!) {
     return new Error("Unauthorized");
