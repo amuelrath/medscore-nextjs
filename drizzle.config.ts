@@ -5,6 +5,7 @@ export default {
   schema: "./src/db/schema.ts",
   out: "./drizzle/migrations",
   driver: "pg",
+  breakpoints: false,
   dbCredentials: {
     connectionString: process.env.DB_CONNECTION_STRING!,
   },
