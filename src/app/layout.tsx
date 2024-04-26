@@ -1,8 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import {
+  BookCheckIcon,
+  BoxesIcon,
+  FlaskConicalIcon,
+  GaugeCircleIcon,
+  UserIcon,
+} from "lucide-react";
+import AnimatedTabs from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
+import { Toaster } from "sonner";
+import Provider from "@/app/_trpc/provider";
+import ProgramProvider from "@/providers/program";
 
 export const metadata: Metadata = {
   title: "medscore",
@@ -18,28 +27,73 @@ export default function RootLayout({
     <>
       <head>
         <link rel="stylesheet" href="https://use.typekit.net/liq0htw.css" />
-        <link rel="shortcut icon" href="/images/favicon.ico" />
+        <link rel="shortcut icon" href="/image/favicon.ico" />
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/images/apple-touch-icon.png"
+          href="/image/favicon.ico"
         />
         <link
           rel="icon"
-          type="image/png"
+          type="favicon"
           sizes="32x32"
-          href="/images/favicon-32x32.png"
+          href="/image/favicon.ico"
         />
         <link
           rel="icon"
-          type="image/png"
+          type="favicon"
           sizes="16x16"
-          href="/images/favicon-16x16.png"
+          href="/image/favicon.ico"
         />
       </head>
       <html lang="en">
-        <body className={"font-forma no-scrollbar"}>{children}</body>
+        <body className={"font-forma no-scrollbar flex flex-row h-full w-full"}>
+          <AnimatedTabs tabs={tabs} vertical icons />
+          <div
+            className={cn(
+              "rounded-[10px] w-full h-screen bg-primary no-scrollbar"
+            )}
+          >
+            <Provider>
+              <ProgramProvider programs={}>{children}</ProgramProvider>
+            </Provider>
+          </div>
+          <Toaster />
+        </body>
       </html>
     </>
   );
 }
+
+const tabs = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: <GaugeCircleIcon className={cn("text-notepad")} />,
+    href: "/secure/dashboard",
+  },
+  {
+    id: "reports",
+    label: "Reports",
+    icon: <FlaskConicalIcon className={cn("text-notepad")} />,
+    href: "/secure/reports",
+  },
+  {
+    id: "evaluations",
+    label: "Draft Evaluations",
+    icon: <BookCheckIcon className={cn("text-notepad")} />,
+    href: "/secure/evaluations/home",
+  },
+  {
+    id: "program",
+    label: "Program",
+    icon: <BoxesIcon className={cn("text-notepad")} />,
+    href: "/secure/program",
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    icon: <UserIcon className={cn("text-notepad")} />,
+    href: "/secure/profile",
+  },
+];
