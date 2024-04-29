@@ -18,6 +18,8 @@ import { TFormRelate, TSubcompetencyRelate } from "@/db/types";
 import { v4 } from "uuid";
 import { useEffect, useRef } from "react";
 import MilestoneSelector from "@/components/(evaluations)/editor/MilestoneSelect";
+import { trpc } from "@/app/_trpc/client";
+import { saveForm } from "@/server/actions/forms/save-form";
 
 export default function QuestionCards({
   subcompetencies,
@@ -31,14 +33,18 @@ export default function QuestionCards({
     name: "questions",
   });
 
-  const onSubmit = () => {
-    // save the form
+  const onSubmit = async () => {
+    try {
+      await saveForm(getValues());
+    } catch (error) {
+      console.error("Error saving form:", error);
+      // Handle the error appropriately (e.g., show an error message to the user)
+    }
   };
 
   const lastItemRef = useRef<HTMLDivElement>(null);
   const prevFieldsLengthRef = useRef<number>(fields.length);
 
-  // smooth scroll when we add a new milestone
   useEffect(() => {
     if (lastItemRef.current && fields.length > prevFieldsLengthRef.current) {
       lastItemRef.current.scrollIntoView({ behavior: "smooth" });
@@ -61,11 +67,6 @@ export default function QuestionCards({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2, delay: index * 0.01 }}
-                onAnimationComplete={(definition) => {
-                  if (definition === "initial" && index === fields.length - 1) {
-                    remove(index);
-                  }
-                }}
                 ref={index === fields.length - 1 ? lastItemRef : null}
               >
                 <Card className={cn(`group p-4 space-y-2`)}>
@@ -162,13 +163,13 @@ function MilestoneBadges({
   return (
     <>
       {milestones.map((m) => (
-        <TooltipProvider key={`badge-${m}`}>
+        <TooltipProvider key={`badge-${m.id}`}>
           <Tooltip>
             <TooltipTrigger>
               <Badge>{m.name}</Badge>
             </TooltipTrigger>
             <TooltipContent>
-              <p className={cn("text-lg w-[500px]")}>{m.description}</p>
+              <p className={cn("text-lg w-[400px]")}>{m.description}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
