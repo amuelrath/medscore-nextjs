@@ -1,22 +1,17 @@
 "use client";
-// TODO: Wire up form creator
 // TODO: Fix type error on the Form: It thinks that Date is gonna be a string for some weird ass reason
 import { TFormRelate } from "@/db/types";
-import { trpc } from "@/app/_trpc/client";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { FormCardHero } from "@/components/(evaluations)/viewer/form-card-hero";
 import { FormCard } from "@/components/(evaluations)/viewer/form-card";
 import { AnimatePresence } from "framer-motion";
+import { CreateFormDialog } from "../dialogs/create-form-dialog";
+import { Button } from "@/components/ui/button";
 
-export default function EvaluationsViewer() {
+export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
   const [filter, setFilter] = useState<string>("");
-  const formsQuery = trpc.forms.getAllForms.useSuspenseQuery({
-    userId: "cf8b381f-1956-4c56-acf3-cf7517b20b92",
-  });
-
-  const formsData = formsQuery[1].data;
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
@@ -25,10 +20,6 @@ export default function EvaluationsViewer() {
     <div className={cn("flex flex-col space-y-4")}>
       <div className={cn("flex flex-row justify-around")}>
         <div className={cn("flex space-x-8")}>
-          <FormCardHero />
-          <FormCardHero />
-          <FormCardHero />
-          <FormCardHero />
           <FormCardHero />
           <FormCardHero />
           <FormCardHero />
@@ -43,9 +34,12 @@ export default function EvaluationsViewer() {
             value={filter}
             onChange={(e) => handleSearch(e)}
           />
+          <CreateFormDialog>
+            <Button variant={"default"}>Create New Form</Button>
+          </CreateFormDialog>
         </div>
         <AnimatePresence>
-          {formsData
+          {forms
             .filter((e) =>
               e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
             )
