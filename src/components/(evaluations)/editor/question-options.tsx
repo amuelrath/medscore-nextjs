@@ -38,11 +38,6 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              onAnimationComplete={(definition) => {
-                if (definition === "initial" && k === fields.length - 1) {
-                  remove(k);
-                }
-              }}
               className={cn("flex items-center space-x-2 group w-full")}
             >
               <Input
@@ -81,7 +76,6 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
               text: "",
               position: fields.length + 1,
               pointValue: "0",
-              deletedAt: null,
               updatedAt: new Date(),
             })
           }
@@ -90,9 +84,6 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
           )}
         />
         <div className="space-x-2 mr-8">
-          {/* MARK: TODO... */}
-          {/* todo change this to a 'require commments' or smt checkbox. in evaluatee UI... */}
-          {/* ....make any question able to have feedback attached. click notes button & textarea appears */}
           <Label className="text-xs" htmlFor="feedback">
             Require Feedback?
           </Label>
