@@ -8,7 +8,7 @@
       "type": "msedge",
       "request": "launch",
       "name": "Launch Edge against localhost",
-      "url": "http://localhost:3000/secure/evaluations/edit/a94a9c74-6caa-409f-ba4a-d81bab9ff6ff",
+      "url": "http://localhost:3000/forms/497f742a-a2cd-4ae2-a48e-981846127519",
       "webRoot": "${workspaceFolder}"
     }
   ]

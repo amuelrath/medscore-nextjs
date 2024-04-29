@@ -1,11 +1,11 @@
 {
-  "id": "3c10cd2f-3825-4efb-a8ed-c0007808fb27",
+  "id": "ed2f185b-3c77-4ec2-b807-8b45f4df52e5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
   "tables": {
-    "answer_history": {
-      "name": "answer_history",
+    "answers": {
+      "name": "answers",
       "schema": "",
       "columns": {
         "id": {
@@ -15,103 +15,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "answer_id": {
-          "name": "answer_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "option_id": {
-          "name": "option_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "response_id": {
-          "name": "response_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "answer_history_answer_id_answers_id_fk": {
-          "name": "answer_history_answer_id_answers_id_fk",
-          "tableFrom": "answer_history",
-          "tableTo": "answers",
-          "columnsFrom": [
-            "answer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "answer_history_option_id_options_id_fk": {
-          "name": "answer_history_option_id_options_id_fk",
-          "tableFrom": "answer_history",
-          "tableTo": "options",
-          "columnsFrom": [
-            "option_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "answer_history_response_id_responses_id_fk": {
-          "name": "answer_history_response_id_responses_id_fk",
-          "tableFrom": "answer_history",
-          "tableTo": "responses",
-          "columnsFrom": [
-            "response_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "answers": {
-      "name": "answers",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "option_id": {
-          "name": "option_id",
+        "option_version_id": {
+          "name": "option_version_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -138,12 +43,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "answers_option_id_options_id_fk": {
-          "name": "answers_option_id_options_id_fk",
+        "answers_option_version_id_option_versions_id_fk": {
+          "name": "answers_option_version_id_option_versions_id_fk",
           "tableFrom": "answers",
-          "tableTo": "options",
+          "tableTo": "option_versions",
           "columnsFrom": [
-            "option_id"
+            "option_version_id"
           ],
           "columnsTo": [
             "id"
@@ -165,14 +70,7 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "answers_id_pk": {
-          "name": "answers_id_pk",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "competencies": {
@@ -206,94 +104,6 @@
         }
       }
     },
-    "form_code_history": {
-      "name": "form_code_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "form_code_id": {
-          "name": "form_code_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "form_id": {
-          "name": "form_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "code": {
-          "name": "code",
-          "type": "varchar(6)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "form_code_history_form_code_id_form_codes_id_fk": {
-          "name": "form_code_history_form_code_id_form_codes_id_fk",
-          "tableFrom": "form_code_history",
-          "tableTo": "form_codes",
-          "columnsFrom": [
-            "form_code_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "form_code_history_form_id_forms_id_fk": {
-          "name": "form_code_history_form_id_forms_id_fk",
-          "tableFrom": "form_code_history",
-          "tableTo": "forms",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
     "form_codes": {
       "name": "form_codes",
       "schema": "",
@@ -305,8 +115,8 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "form_id": {
-          "name": "form_id",
+        "form_version_id": {
+          "name": "form_version_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -322,34 +132,21 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "form_codes_form_id_forms_id_fk": {
-          "name": "form_codes_form_id_forms_id_fk",
+        "form_codes_form_version_id_form_versions_id_fk": {
+          "name": "form_codes_form_version_id_form_versions_id_fk",
           "tableFrom": "form_codes",
-          "tableTo": "forms",
+          "tableTo": "form_versions",
           "columnsFrom": [
-            "form_id"
+            "form_version_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "cascade",
+          "onDelete": "no action",
           "onUpdate": "no action"
         }
       },
@@ -360,13 +157,6 @@
       "name": "form_codes_on_users",
       "schema": "",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "form_code_id": {
           "name": "form_code_id",
           "type": "uuid",
@@ -378,13 +168,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         },
         "deleted_at": {
           "name": "deleted_at",
@@ -422,87 +205,19 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "form_codes_on_users_history": {
-      "name": "form_codes_on_users_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "form_code_id": {
-          "name": "form_code_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "form_codes_on_users_history_form_code_id_form_codes_id_fk": {
-          "name": "form_codes_on_users_history_form_code_id_form_codes_id_fk",
-          "tableFrom": "form_codes_on_users_history",
-          "tableTo": "form_codes",
-          "columnsFrom": [
-            "form_code_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "form_codes_on_users_history_user_id_users_id_fk": {
-          "name": "form_codes_on_users_history_user_id_users_id_fk",
-          "tableFrom": "form_codes_on_users_history",
-          "tableTo": "users",
-          "columnsFrom": [
+      "compositePrimaryKeys": {
+        "form_codes_on_users_form_code_id_user_id_pk": {
+          "name": "form_codes_on_users_form_code_id_user_id_pk",
+          "columns": [
+            "form_code_id",
             "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
+          ]
         }
       },
-      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "form_history": {
-      "name": "form_history",
+    "form_versions": {
+      "name": "form_versions",
       "schema": "",
       "columns": {
         "id": {
@@ -522,82 +237,24 @@
           "name": "title",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'Untitled Evaluation'"
+          "notNull": true
         },
-        "last_opened_at": {
-          "name": "last_opened_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "program_id": {
-          "name": "program_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "creator_id": {
-          "name": "creator_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "form_history_form_id_forms_id_fk": {
-          "name": "form_history_form_id_forms_id_fk",
-          "tableFrom": "form_history",
+        "form_versions_form_id_forms_id_fk": {
+          "name": "form_versions_form_id_forms_id_fk",
+          "tableFrom": "form_versions",
           "tableTo": "forms",
           "columnsFrom": [
             "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "form_history_program_id_programs_id_fk": {
-          "name": "form_history_program_id_programs_id_fk",
-          "tableFrom": "form_history",
-          "tableTo": "programs",
-          "columnsFrom": [
-            "program_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "form_history_creator_id_users_id_fk": {
-          "name": "form_history_creator_id_users_id_fk",
-          "tableFrom": "form_history",
-          "tableTo": "users",
-          "columnsFrom": [
-            "creator_id"
           ],
           "columnsTo": [
             "id"
@@ -692,6 +349,63 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
+    "milestones_on_questions_versions": {
+      "name": "milestones_on_questions_versions",
+      "schema": "",
+      "columns": {
+        "question_version_id": {
+          "name": "question_version_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "milestone_id": {
+          "name": "milestone_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "milestones_on_questions_versions_question_version_id_question_versions_id_fk": {
+          "name": "milestones_on_questions_versions_question_version_id_question_versions_id_fk",
+          "tableFrom": "milestones_on_questions_versions",
+          "tableTo": "question_versions",
+          "columnsFrom": [
+            "question_version_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "milestones_on_questions_versions_milestone_id_milestones_id_fk": {
+          "name": "milestones_on_questions_versions_milestone_id_milestones_id_fk",
+          "tableFrom": "milestones_on_questions_versions",
+          "tableTo": "milestones",
+          "columnsFrom": [
+            "milestone_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "milestones_on_questions_versions_question_version_id_milestone_id_pk": {
+          "name": "milestones_on_questions_versions_question_version_id_milestone_id_pk",
+          "columns": [
+            "question_version_id",
+            "milestone_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {}
+    },
     "milestones": {
       "name": "milestones",
       "schema": "",
@@ -768,19 +482,6 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
         }
       },
       "indexes": {},
@@ -823,8 +524,8 @@
       },
       "uniqueConstraints": {}
     },
-    "milestones_on_questions_history": {
-      "name": "milestones_on_questions_history",
+    "option_versions": {
+      "name": "option_versions",
       "schema": "",
       "columns": {
         "id": {
@@ -834,106 +535,11 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "question_id": {
-          "name": "question_id",
+        "question_version_id": {
+          "name": "question_version_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "milestone_id": {
-          "name": "milestone_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "milestones_on_questions_history_question_id_questions_id_fk": {
-          "name": "milestones_on_questions_history_question_id_questions_id_fk",
-          "tableFrom": "milestones_on_questions_history",
-          "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "milestones_on_questions_history_milestone_id_milestones_id_fk": {
-          "name": "milestones_on_questions_history_milestone_id_milestones_id_fk",
-          "tableFrom": "milestones_on_questions_history",
-          "tableTo": "milestones",
-          "columnsFrom": [
-            "milestone_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "option_history": {
-      "name": "option_history",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "option_id": {
-          "name": "option_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "question_id": {
-          "name": "question_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         },
         "text": {
           "name": "text",
@@ -951,43 +557,22 @@
           "name": "point_value",
           "type": "numeric",
           "primaryKey": false,
-          "notNull": true,
-          "default": "'0.0'"
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "option_history_option_id_options_id_fk": {
-          "name": "option_history_option_id_options_id_fk",
-          "tableFrom": "option_history",
-          "tableTo": "options",
+        "option_versions_question_version_id_question_versions_id_fk": {
+          "name": "option_versions_question_version_id_question_versions_id_fk",
+          "tableFrom": "option_versions",
+          "tableTo": "question_versions",
           "columnsFrom": [
-            "option_id"
+            "question_version_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "option_history_question_id_questions_id_fk": {
-          "name": "option_history_question_id_questions_id_fk",
-          "tableFrom": "option_history",
-          "tableTo": "questions",
-          "columnsFrom": [
-            "question_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1017,12 +602,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         },
         "position": {
           "name": "position",
@@ -1120,8 +699,8 @@
         }
       }
     },
-    "question_history": {
-      "name": "question_history",
+    "question_versions": {
+      "name": "question_versions",
       "schema": "",
       "columns": {
         "id": {
@@ -1131,30 +710,11 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "question_id": {
-          "name": "question_id",
+        "form_version_id": {
+          "name": "form_version_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
-        },
-        "form_id": {
-          "name": "form_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
         },
         "text": {
           "name": "text",
@@ -1166,49 +726,28 @@
           "name": "feedback",
           "type": "boolean",
           "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "notNull": true
         },
         "position": {
           "name": "position",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "question_history_question_id_questions_id_fk": {
-          "name": "question_history_question_id_questions_id_fk",
-          "tableFrom": "question_history",
-          "tableTo": "questions",
+        "question_versions_form_version_id_form_versions_id_fk": {
+          "name": "question_versions_form_version_id_form_versions_id_fk",
+          "tableFrom": "question_versions",
+          "tableTo": "form_versions",
           "columnsFrom": [
-            "question_id"
+            "form_version_id"
           ],
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "question_history_form_id_forms_id_fk": {
-          "name": "question_history_form_id_forms_id_fk",
-          "tableFrom": "question_history",
-          "tableTo": "forms",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -1284,8 +823,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "response_history": {
-      "name": "response_history",
+    "responses": {
+      "name": "responses",
       "schema": "",
       "columns": {
         "id": {
@@ -1295,107 +834,6 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "response_id": {
-          "name": "response_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "creator_id": {
-          "name": "creator_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "form_id": {
-          "name": "form_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "deleted_at": {
-          "name": "deleted_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "operation": {
-          "name": "operation",
-          "type": "operation",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'INSERT'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "response_history_response_id_responses_id_fk": {
-          "name": "response_history_response_id_responses_id_fk",
-          "tableFrom": "response_history",
-          "tableTo": "responses",
-          "columnsFrom": [
-            "response_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "response_history_creator_id_users_id_fk": {
-          "name": "response_history_creator_id_users_id_fk",
-          "tableFrom": "response_history",
-          "tableTo": "users",
-          "columnsFrom": [
-            "creator_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "response_history_form_id_forms_id_fk": {
-          "name": "response_history_form_id_forms_id_fk",
-          "tableFrom": "response_history",
-          "tableTo": "forms",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "responses": {
-      "name": "responses",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
         "creator_id": {
           "name": "creator_id",
           "type": "uuid",
@@ -1421,12 +859,6 @@
           "type": "timestamp",
           "primaryKey": false,
           "notNull": false
-        },
-        "form_id": {
-          "name": "form_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
@@ -1443,29 +875,9 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "responses_form_id_forms_id_fk": {
-          "name": "responses_form_id_forms_id_fk",
-          "tableFrom": "responses",
-          "tableTo": "forms",
-          "columnsFrom": [
-            "form_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "responses_id_pk": {
-          "name": "responses_id_pk",
-          "columns": [
-            "id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "specialties": {
@@ -1608,30 +1020,10 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'NONE'"
-        },
-        "program_id": {
-          "name": "program_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "users_program_id_programs_id_fk": {
-          "name": "users_program_id_programs_id_fk",
-          "tableFrom": "users",
-          "tableTo": "programs",
-          "columnsFrom": [
-            "program_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_email_unique": {
