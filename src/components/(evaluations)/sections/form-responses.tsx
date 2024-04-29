@@ -3,15 +3,15 @@ import { cn } from "@/lib/utils";
 import { ArrowDown01Icon, ArrowUp01Icon, FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AdministerButton } from "@/components/(evaluations)/responses/administer-button";
 import { AnalysisButton } from "@/components/(evaluations)/responses/analysis-button";
 import { ReportButton } from "@/components/(evaluations)/responses/reports-button";
+import AdministerDialog from "../dialogs/administer-form-dialog";
 export default function Responses() {
   return (
     <div className={cn("")}>
       <div className={cn("flex flex-row space-x-4")}>
         <div className={cn("flex w-max space-x-2 py-6")}>
-          <AdministerButton />
+          <AdministerDialog />
           <AnalysisButton />
           <ReportButton />
         </div>
