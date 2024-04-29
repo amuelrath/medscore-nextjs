@@ -1,24 +1,28 @@
 "use client";
 import debounce from "debounce";
 import useDeepCompareEffect from "use-deep-compare-effect";
-import { CloudUploadIcon, CloudIcon } from "lucide-react";
 import { TFormRelate } from "@/db/types";
 import { Button } from "@/components/ui/button";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { isEqual } from "lodash";
+import { Player } from "@lottiefiles/react-lottie-player";
+import CLOUD_LOADING_LOOP from "public/icons/system-regular-84-cloud.json";
+import CLOUD_DONE from "public/icons/system-regular-128-cloud-done.json";
+import { cn } from "@/lib/utils";
+import { saveForm } from "@/server/actions/forms/save-form";
 
-// TODO: wire up to save action
 export default function SaveFormButton() {
   const methods = useFormContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [changeQueue, setChangeQueue] = useState<TFormRelate[]>([]);
+  const doneAnimationRef = useRef<Player>(null);
 
   const handleSave = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const formData = changeQueue[changeQueue.length - 1];
-      // await saveForm(data)
+      await saveForm(formData);
       setChangeQueue([]);
     } catch (error) {
       console.error(error);
@@ -36,7 +40,7 @@ export default function SaveFormButton() {
         }
         return [...prevQueue, formData];
       });
-    }, 500),
+    }, 1000),
     []
   );
 
@@ -57,18 +61,41 @@ export default function SaveFormButton() {
     }
   }, [loading, changeQueue]);
 
+  useEffect(() => {
+    if (!loading && doneAnimationRef.current) {
+      doneAnimationRef.current.play();
+    }
+  }, [loading]);
+
   return (
     <Button
       type="submit"
       disabled={loading}
       variant={"icon"}
+      className={cn("text-white")}
       size={"icon"}
       onClick={handleSave}
     >
       {loading ? (
-        <CloudUploadIcon size={"1rem"} />
+        <Player
+          src={CLOUD_LOADING_LOOP}
+          loop
+          autoplay
+          style={{ width: 18, height: 18 }}
+        />
       ) : (
-        <CloudIcon size={"1rem"} />
+        <Player
+          ref={doneAnimationRef}
+          src={CLOUD_DONE}
+          loop={false}
+          autoplay
+          style={{ width: 18, height: 18 }}
+          onEvent={(event) => {
+            if (event === "complete") {
+              doneAnimationRef.current?.pause();
+            }
+          }}
+        />
       )}
     </Button>
   );
