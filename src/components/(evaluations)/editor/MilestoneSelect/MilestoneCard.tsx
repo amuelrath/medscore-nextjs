@@ -1,16 +1,22 @@
-"use client";
+import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useMilestoneSelector } from ".";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 import { Milestone } from "@/db/schema";
-export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
+
+const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
   const { setSelectedMilestoneIds, selectedMilestoneIds } =
     useMilestoneSelector();
 
-  const onSelect = async () => {
+  const isSelected = useMemo(
+    () => selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id),
+    [selectedMilestoneIds, milestone.id]
+  );
+
+  const onSelect = useCallback(async () => {
     if (selectedMilestoneIds) {
-      if (!selectedMilestoneIds.some((a) => a.milestoneId === milestone.id)) {
+      if (!isSelected) {
         setSelectedMilestoneIds([
           ...selectedMilestoneIds,
           { milestoneId: milestone.id },
@@ -19,72 +25,47 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
     } else {
       setSelectedMilestoneIds([{ milestoneId: milestone.id }]);
     }
-  };
+  }, [selectedMilestoneIds, isSelected, milestone.id, setSelectedMilestoneIds]);
 
-  const deselectMilestone = async () => {
+  const deselectMilestone = useCallback(async () => {
     if (selectedMilestoneIds) {
-      if (selectedMilestoneIds.some((a) => a.milestoneId === milestone.id)) {
-        setSelectedMilestoneIds([
-          ...selectedMilestoneIds.filter((a) => a.milestoneId !== milestone.id),
-        ]);
+      if (isSelected) {
+        setSelectedMilestoneIds(
+          selectedMilestoneIds.filter((a) => a.milestoneId !== milestone.id)
+        );
       }
     } else {
       setSelectedMilestoneIds([]);
     }
-  };
+  }, [selectedMilestoneIds, isSelected, milestone.id, setSelectedMilestoneIds]);
 
-  function getCompetencyName(input: string): string {
+  const getCompetencyName = useCallback((input: string): string => {
     const spaceIndex = input.indexOf(" ");
+    return spaceIndex !== -1 ? input.slice(0, spaceIndex) : "";
+  }, []);
 
-    if (spaceIndex !== -1) {
-      return input.slice(0, spaceIndex);
-    } else {
-      return "";
-    }
-  }
-
-  function omitBeforePeriod(inputString: string): string {
+  const omitBeforePeriod = useCallback((inputString: string): string => {
     const periodIndex = inputString.indexOf(".");
+    return periodIndex !== -1 ? inputString.slice(periodIndex + 1) : "";
+  }, []);
 
-    if (periodIndex !== -1) {
-      return inputString.slice(periodIndex + 1);
-    } else {
-      return "";
-    }
-  }
-  const formatTitle = () => {
+  const formatTitle = useMemo(() => {
     const name = omitBeforePeriod(milestone.name);
     const description = milestone.description;
-
     return `${name}: ${description}`;
-  };
+  }, [milestone.name, milestone.description, omitBeforePeriod]);
 
   return (
     <div
       className={cn("px-8")}
-      onClick={
-        selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id)
-          ? deselectMilestone
-          : onSelect
-      }
+      onClick={isSelected ? deselectMilestone : onSelect}
     >
       <motion.div
         layout="position"
         layoutId={milestone.id}
         variants={variants}
-        initial={{
-          opacity: 0,
-          height: selectedMilestoneIds?.some(
-            (a) => a.milestoneId === milestone.id
-          )
-            ? "22px"
-            : "44px",
-        }}
-        animate={
-          selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id)
-            ? "selected"
-            : "deselected"
-        }
+        initial={{ opacity: 0, height: isSelected ? "22px" : "44px" }}
+        animate={isSelected ? "selected" : "deselected"}
         exit={{ opacity: 0, transition: { duration: 0.1 } }}
         transition={{ duration: 0.1 }}
         whileHover={{ boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)" }}
@@ -93,31 +74,23 @@ export default function MilestoneCard({ milestone }: { milestone: Milestone }) {
           colors[getCompetencyName(milestone.name)]
         )}
       >
-        <p>{formatTitle()}</p>
+        <p>{formatTitle}</p>
         <motion.div
           layoutId={`${milestone.id}-select`}
-          animate={
-            selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id)
-              ? { rotate: 0 }
-              : { rotate: 45 }
-          }
+          animate={isSelected ? { rotate: 0 } : { rotate: 45 }}
         >
           <XIcon className={cn("size-5 cursor-pointer")} />
         </motion.div>
       </motion.div>
     </div>
   );
-}
+});
+
+export default MilestoneCard;
 
 const variants = {
-  selected: {
-    opacity: 1,
-    height: "60px",
-  },
-  deselected: {
-    opacity: 0.65,
-    height: "60px",
-  },
+  selected: { opacity: 1, height: "60px" },
+  deselected: { opacity: 0.65, height: "60px" },
 };
 
 const colors: { [key: string]: string } = {

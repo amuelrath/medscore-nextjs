@@ -1,139 +1,122 @@
-"use client";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useMilestoneSelector } from "./index";
 import { Competency } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import {
-  BrainIcon,
-  CogIcon,
-  HandshakeIcon,
-  ShapesIcon,
-  SpeechIcon,
-  StethoscopeIcon,
-  XIcon,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import SubcompetencyCard from "./SubcompetencyCard";
+import { XIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { TSubcompetencyRelate } from "@/db/types";
+import { LottieIconButton } from "@/components/ui/lottie-icon-button";
+import SubcompetencyCard from "./SubcompetencyCard";
 import ICS_ICON from "public/icons/wired-flat-2456-person-talking.json";
 import SBP_ICON from "public/icons/wired-flat-1029-service.json";
 import PC_ICON from "public/icons/wired-flat-1237-vaccination.json";
 import PBLI_ICON from "public/icons/wired-flat-954-customer-insights.json";
 import P_ICON from "public/icons/wired-flat-456-handshake-deal.json";
 import MK_ICON from "public/icons/wired-flat-1231-medical-book.json";
-import { LottieIconButton } from "@/components/ui/lottie-icon-button";
-export default function CompetencyCard({
-  competency,
-}: {
-  competency: Competency;
-}) {
-  const {
-    subcompetencies,
-    selectedCompetencyId,
-    setSelectedCompetencyId,
-    selectedMilestoneIds,
-  } = useMilestoneSelector();
+import { TSubcompetencyRelate } from "@/db/types";
 
-  const deselectCompetency = () => {
-    setSelectedCompetencyId(undefined);
-  };
+const CompetencyCard = React.memo(
+  ({ competency }: { competency: Competency }) => {
+    const {
+      subcompetencies,
+      selectedCompetencyId,
+      setSelectedCompetencyId,
+      selectedMilestoneIds,
+    } = useMilestoneSelector();
 
-  const [isSelected, setIsSelected] = useState<boolean>(false);
-  const [noSelectedMilestones, setNoSelectedMilestones] = useState<number>(0);
-  useEffect(() => {
-    if (selectedCompetencyId === competency.id) {
-      setIsSelected(true);
-    } else {
-      setIsSelected(false);
-    }
-  }, [selectedCompetencyId]);
+    const deselectCompetency = () => {
+      setSelectedCompetencyId(undefined);
+    };
 
-  useEffect(() => {
-    setNoSelectedMilestones(getNumberOfSelectedMilestones());
-  }, [selectedMilestoneIds]);
+    const isSelected = useMemo(
+      () => selectedCompetencyId === competency.id,
+      [selectedCompetencyId, competency.id]
+    );
 
-  const getNumberOfSelectedMilestones = () => {
-    let result = 0;
-    let myMilestones = mySubcompetencies()
-      .flatMap((sc) => sc.milestones)
-      .flatMap((m) => m.id);
-    selectedMilestoneIds?.forEach((a) => {
-      if (myMilestones.some((m) => m === a.milestoneId)) {
-        result++;
+    const mySubcompetencies = useMemo(() => {
+      const result: TSubcompetencyRelate[] = [];
+      if (subcompetencies) {
+        subcompetencies.forEach((sc) => {
+          if (sc.competencies.id === competency.id) result.push(sc);
+        });
       }
-    });
-    return result;
-  };
+      return result;
+    }, [subcompetencies, competency.id]);
 
-  const mySubcompetencies = () => {
-    const result: TSubcompetencyRelate[] = [];
-    if (subcompetencies) {
-      subcompetencies.forEach((sc) => {
-        if (sc.competencies.id === competency.id) result.push(sc);
+    const getNumberOfSelectedMilestones = useMemo(() => {
+      let result = 0;
+      let myMilestones = mySubcompetencies
+        .flatMap((sc) => sc.milestones)
+        .flatMap((m) => m.id);
+      selectedMilestoneIds?.forEach((a) => {
+        if (myMilestones.some((m) => m === a.milestoneId)) {
+          result++;
+        }
       });
-    }
-    return result;
-  };
+      return result;
+    }, [selectedMilestoneIds, mySubcompetencies]);
 
-  const onSelect = () => {
-    if (selectedCompetencyId !== competency.id) {
-      setSelectedCompetencyId(competency.id);
-    }
-  };
+    const noSelectedMilestones = useMemo(
+      () => getNumberOfSelectedMilestones,
+      [getNumberOfSelectedMilestones]
+    );
 
-  return (
-    <>
-      <div onClick={onSelect}>
-        <motion.div
-          layout="position"
-          layoutId={competency.id}
-          variants={variants}
-          initial={isSelected ? "selected" : "deselected"}
-          animate={isSelected ? "selected" : "deselected"}
-          transition={{ duration: 0.2 }}
-          exit={{ opacity: 0, transition: { duration: 0.1 } }}
-          whileHover={{
-            y: 0,
-            boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)",
-            opacity: 85,
-          }}
-          className={cn("rounded-2xl border cursor-pointer bg-white")}
-          onClick={isSelected ? () => deselectCompetency() : () => onSelect()}
-        >
-          <div className={cn("p-4 text-primary")}>
-            <div className={cn("flex flex-row justify-between items-center")}>
+    const onSelect = () => {
+      if (selectedCompetencyId !== competency.id) {
+        setSelectedCompetencyId(competency.id);
+      }
+    };
+
+    return (
+      <>
+        <div onClick={onSelect}>
+          <motion.div
+            layout="position"
+            layoutId={competency.id}
+            variants={variants}
+            initial={isSelected ? "selected" : "deselected"}
+            animate={isSelected ? "selected" : "deselected"}
+            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, transition: { duration: 0.1 } }}
+            whileHover={{
+              y: 0,
+              boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)",
+              opacity: 85,
+            }}
+            className={cn("rounded-2xl border cursor-pointer bg-notepad")}
+            onClick={isSelected ? deselectCompetency : onSelect}
+          >
+            <div className={cn("p-4 text-primary")}>
               <div className={cn("flex flex-row items-center space-x-2")}>
-                <h3 className={cn("text-xl font-bold font-poppins")}>
-                  {name[competency.name]}
-                </h3>
-                {noSelectedMilestones > 0 && (
-                  <Badge className={cn("")}>{noSelectedMilestones}</Badge>
-                )}
+                <div className={cn("flex-col justify-center")}>
+                  <h3
+                    className={cn(
+                      "text-xl font-bold font-poppins flex flex-col justify-center"
+                    )}
+                  >
+                    {name[competency.name]}
+                  </h3>
+                </div>
+                <div>
+                  {noSelectedMilestones > 0 && (
+                    <Badge className={cn("")}>{noSelectedMilestones}</Badge>
+                  )}
+                </div>
               </div>
-              <motion.div layout transition={{ duration: 0.2 }}>
-                {isSelected ? (
-                  <XIcon />
-                ) : (
-                  <LottieIconButton
-                    label=""
-                    variant={"hide"}
-                    icon={icon[competency.name]}
-                    style={{ width: "72px", height: "72px" }}
-                  />
-                )}
-              </motion.div>
+              {/*icon */}
             </div>
-          </div>
-        </motion.div>
-      </div>
-      {isSelected &&
-        mySubcompetencies().map((s) => (
-          <SubcompetencyCard subcompetency={s} key={s.id} />
-        ))}
-    </>
-  );
-}
+          </motion.div>
+        </div>
+        {isSelected &&
+          mySubcompetencies.map((s) => (
+            <SubcompetencyCard subcompetency={s} key={s.id} />
+          ))}
+      </>
+    );
+  }
+);
+
+export default CompetencyCard;
 
 const icon: { [key: string]: any } = {
   ICS: ICS_ICON,
