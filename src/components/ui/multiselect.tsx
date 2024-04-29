@@ -1,40 +1,35 @@
+// MultiSelect.tsx
 "use client";
+
 import { cn } from "@/lib/utils";
-import Select, { ClassNamesConfig } from "react-select";
-import { useController, UseControllerProps } from "react-hook-form";
+import Select, { ActionMeta, ClassNamesConfig, MultiValue } from "react-select";
 
 type Option = unknown;
 
-type MultiSelectProps = UseControllerProps & {
+type MultiSelectProps = {
   options: Option[];
   disabled?: boolean;
+  value?: MultiValue<Option>;
+  onChange?: (
+    newValue: MultiValue<Option>,
+    actionMeta: ActionMeta<Option>
+  ) => void;
 };
 
 export default function MultiSelect({
   options,
-  defaultValue,
   disabled,
-  name,
-  control,
+  value,
+  onChange,
 }: MultiSelectProps) {
-  const {
-    field: { value, onChange: onChangeController, onBlur },
-  } = useController({
-    name,
-    control,
-    defaultValue: defaultValue || [],
-  });
-
   return (
     <Select
       className={cn("font-forma text-sm")}
       classNames={classNames as ClassNamesConfig}
       value={value}
       isMulti
-      name={name}
       options={options}
-      onChange={onChangeController}
-      onBlur={onBlur}
+      onChange={onChange}
       isDisabled={disabled}
       closeMenuOnSelect={false}
       unstyled
