@@ -28,7 +28,7 @@ export function LottiePlayer({
   }, [isPlaying]);
   return (
     <div className={cn("border rounded-md", className)} style={style}>
-      <Player ref={lottieRef} src={icon} style={{ width, height }} />
+      <Player loop ref={lottieRef} src={icon} style={{ width, height }} />
     </div>
   );
 }
