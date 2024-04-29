@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useState, useContext, createContext, useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { usePathname, useSearchParams } from "next/navigation";
-
+import { useRouter } from "next/navigation";
 type Tab = {
   id: string;
   label: string;
@@ -71,6 +71,7 @@ type TabsProps = {
 
 export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { activeTab, setActiveTab } = useTabsContext();
 
@@ -91,7 +92,7 @@ export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("tab", tabId);
     const newPathname = `${pathname}?${newSearchParams.toString()}`;
-    window.history.pushState({}, "", newPathname);
+    router.replace(newPathname);
   };
 
   return (
