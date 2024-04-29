@@ -38,7 +38,7 @@ export function FormCard({
         )}
       >
         <div className={cn("flex justify-between items-center")}>
-          <Link href={`/secure/evaluations/edit/${form.id}`}>
+          <Link href={`/forms/${form.id}`}>
             <div>
               <h5 className={cn("group text-md font-semibold m-0 p-0 ")}>
                 {parseTitle(form.title)}
