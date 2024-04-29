@@ -18,6 +18,7 @@ const config = {
       xs: "414px",
       "2xl": "1400px",
     },
+
     extend: {
       colors: {
         "accent-secondary": "hsl(var(--accent-secondary))",
@@ -74,6 +75,9 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      fontSize: {
+        "3xl": ["1.875rem", { lineHeight: "2.25rem" }],
       },
     },
   },
