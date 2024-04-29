@@ -7,6 +7,7 @@ import QuestionCards from "@/components/(evaluations)/editor/questions";
 import NavBar from "@/components/ui/top-navbar";
 import SaveFormButton from "@/components/(evaluations)/editor/save-form-button";
 import Section from "@/components/ui/section";
+import LoadingSection from "./loading-section";
 import {
   AnimatedTabs,
   TabContent,
@@ -14,6 +15,8 @@ import {
 } from "@/components/ui/animated-tabs";
 import ResponsesSection from "@/components/(evaluations)/sections/form-responses";
 import { FormValuesContext } from "@/providers/form-values-provider";
+import { Suspense } from "react";
+import { saveForm } from "@/server/actions/forms/save-form";
 
 const tabs = [
   {
@@ -59,9 +62,10 @@ export default function Editor({
     },
   });
 
-  const onSubmit = (data: TFormRelate) => {
-    // save evaluation
+  const handleSave = () => {
+    saveForm(methods.getValues());
   };
+
   return (
     <TabsProvider>
       <FormProvider {...methods}>
@@ -86,26 +90,27 @@ export default function Editor({
             <NavBar.Subtitle>
               <div className={cn("flex items-center space-x-2")}>
                 <AnimatedTabs tabs={tabs} size={"xs"} />
-                <SaveFormButton />
+                <div onClick={() => handleSave}>
+                  <SaveFormButton />
+                </div>
               </div>
             </NavBar.Subtitle>
           </NavBar.Heading>
         </NavBar>
-        <Section>
-          <TabContent id="editor">
-            <form
-              onSubmit={methods.handleSubmit(onSubmit)}
-              className="pb-[16rem]"
-            >
-              <QuestionCards subcompetencies={subcompetencies || []} />
-            </form>
-          </TabContent>
-          <TabContent id="responses">
-            <FormValuesContext.Provider value={{ form }}>
-              <ResponsesSection />
-            </FormValuesContext.Provider>
-          </TabContent>
-        </Section>
+        <Suspense fallback={<LoadingSection />}>
+          <Section>
+            <TabContent id="editor">
+              <div className="pb-[16rem]">
+                <QuestionCards subcompetencies={subcompetencies || []} />
+              </div>
+            </TabContent>
+            <TabContent id="responses">
+              <FormValuesContext.Provider value={{ form }}>
+                <ResponsesSection />
+              </FormValuesContext.Provider>
+            </TabContent>
+          </Section>
+        </Suspense>
       </FormProvider>
     </TabsProvider>
   );
