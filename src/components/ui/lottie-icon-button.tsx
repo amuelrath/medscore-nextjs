@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 
 interface LottieIconButtonProps extends ButtonProps {
   icon: any;
-  label: string;
+  label?: string;
 }
 
 export function LottieIconButton({
@@ -29,6 +29,7 @@ export function LottieIconButton({
 
   return (
     <Button
+      variant={buttonProps.variant}
       className={cn("border rounded-md", className)}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
