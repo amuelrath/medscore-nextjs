@@ -16,6 +16,9 @@ const config = {
     },
     screens: {
       xs: "414px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
       "2xl": "1400px",
     },
 
@@ -78,6 +81,13 @@ const config = {
       },
       fontSize: {
         "3xl": ["1.875rem", { lineHeight: "2.25rem" }],
+      },
+      backgroundSize: {
+        "size-200": "200% 200%",
+      },
+      backgroundPosition: {
+        "pos-0": "0% 0%",
+        "pos-100": "100% 100%",
       },
     },
   },
