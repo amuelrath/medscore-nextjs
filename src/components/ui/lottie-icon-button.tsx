@@ -29,19 +29,18 @@ export function LottieIconButton({
 
   return (
     <Button
-      variant={buttonProps.variant}
+      {...buttonProps}
       className={cn("border rounded-md", className)}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       style={style}
-      {...buttonProps}
     >
       <Player
         ref={lottieRef}
         src={icon}
         style={{ width: "84px", height: "84px" }}
       />
-      <p className={cn("font-light transition-all")}>{label}</p>
+      <p className={cn("transition-all")}>{label}</p>
     </Button>
   );
 }
