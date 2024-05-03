@@ -1,16 +1,8 @@
-"use client";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
 
-export default function Section({ children }: { children: ReactNode }) {
+export function Section({ children }: { children: ReactNode }) {
   return (
-    <section
-      className={cn(
-        " overflow-y-scroll fixed top-[4rem] left-[4rem] w-full h-full p-4 pr-[5rem] bg-background rounded-tl-[10px] no-scrollbar"
-      )}
-    >
-      {children}
-    </section>
+    <div className={cn("xs:px-4 xs:pb-4 lg:px-16 lg:pb-16")}>{children}</div>
   );
 }
