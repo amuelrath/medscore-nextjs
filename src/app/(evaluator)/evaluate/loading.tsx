@@ -1,5 +1,8 @@
-import LoadingSection from "@/components/(evaluations)/sections/loading-section";
-
-export default function Loading() {
-  return <LoadingSection />;
+import Loading from "@/components/ui/loading";
+export default function LoadingPage() {
+  return (
+    <div className="flex flex-col items-center">
+      <Loading />
+    </div>
+  );
 }
