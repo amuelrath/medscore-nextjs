@@ -4,16 +4,16 @@ import { useState, useContext, createContext, useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-type Tab = {
+interface Tab {
   id: string;
   label: string;
   icon?: React.ReactNode;
-};
+}
 
-type TabsContextType = {
+interface TabsContextType {
   activeTab: string;
   setActiveTab: (id: string) => void;
-};
+}
 
 const TabsContext = createContext<TabsContextType>({
   activeTab: "",
@@ -53,7 +53,7 @@ const tabsStyles = cva("relative flex flex-row space-x-2 items-center z-10", {
       lg: "text-lg",
     },
     color: {
-      primary: "bg-primary text-notepad",
+      primary: "text-notepad",
       accent: "bg-accent text-white",
       "accent-secondary": "bg-accent-secondary text-white",
     },
@@ -103,16 +103,15 @@ export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
           role="button"
           onClick={() => handleTabClick(tab.id)}
           className={`${
-            activeTab === tab.id ? "" : "hover:text-notepad/60"
-          } relative rounded-full px-2 py-1 font-medium transition focus-visible:outline-2`}
+            activeTab == tab.id ? "font-semibold" : "hover:text-primary/60"
+          } text-primary relative rounded-full py-1 transition-all focus-visible:outline-2`}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
-          <span className="relative z-20">{icons ? tab.icon : tab.label}</span>
+          <span className="relative z-40">{icons ? tab.icon : tab.label}</span>
           {activeTab === tab.id && (
             <motion.span
               layoutId="module-select"
-              className="absolute inset-0 z-10 bg-accent mix-blend-exclusion"
-              style={{ borderRadius: 5 }}
+              className="absolute inset-0 z-40 border-b-2 border-accent"
               transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
             />
           )}
