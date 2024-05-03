@@ -9,6 +9,7 @@ import { FormCard } from "@/components/(evaluations)/viewer/form-card";
 import { AnimatePresence } from "framer-motion";
 import { CreateFormDialog } from "../dialogs/create-form-dialog";
 import { Button } from "@/components/ui/button";
+import { Section } from "@/components/ui/section";
 
 export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
   const [filter, setFilter] = useState<string>("");
@@ -17,7 +18,7 @@ export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
     setFilter(e.target.value);
   };
   return (
-    <div className={cn("flex flex-col space-y-4")}>
+    <div className={cn("flex flex-col space-y-4 p-4")}>
       <div className={cn("flex flex-row justify-around")}>
         <div className={cn("flex space-x-8")}>
           <FormCardHero />
@@ -26,37 +27,39 @@ export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
         </div>
       </div>
       <hr className={cn("my-4")} />
-      <div className={cn("grid grid-cols-1 xl:grid-cols-2 gap-4")}>
-        <div className={cn("flex flex-row space-x-2 items-center")}>
-          <Input
-            className={cn("w-64")}
-            placeholder="Search Drafts..."
-            value={filter}
-            onChange={(e) => handleSearch(e)}
-          />
-          <CreateFormDialog>
-            <Button variant={"default"}>Create New Form</Button>
-          </CreateFormDialog>
+      <Section>
+        <div className={cn("grid grid-cols-1 xl:grid-cols-2 gap-4")}>
+          <div className={cn("flex flex-row space-x-2 items-center")}>
+            <Input
+              className={cn("w-64")}
+              placeholder="Search Drafts..."
+              value={filter}
+              onChange={(e) => handleSearch(e)}
+            />
+            <CreateFormDialog>
+              <Button variant={"default"}>Create New Form</Button>
+            </CreateFormDialog>
+          </div>
+          <AnimatePresence>
+            {forms
+              .filter((e) =>
+                e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
+              )
+              .sort((a, b) => {
+                const dateA = new Date(a.lastOpenedAt);
+                const dateB = new Date(b.lastOpenedAt);
+                return dateB.getTime() - dateA.getTime();
+              })
+              .map((form, index) => (
+                <FormCard
+                  key={form.id}
+                  form={form as unknown as TFormRelate}
+                  index={index}
+                />
+              ))}
+          </AnimatePresence>
         </div>
-        <AnimatePresence>
-          {forms
-            .filter((e) =>
-              e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
-            )
-            .sort((a, b) => {
-              const dateA = new Date(a.lastOpenedAt);
-              const dateB = new Date(b.lastOpenedAt);
-              return dateB.getTime() - dateA.getTime();
-            })
-            .map((form, index) => (
-              <FormCard
-                key={form.id}
-                form={form as unknown as TFormRelate}
-                index={index}
-              />
-            ))}
-        </AnimatePresence>
-      </div>
+      </Section>
     </div>
   );
 }
