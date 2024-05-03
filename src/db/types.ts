@@ -1,6 +1,5 @@
 import { User } from "./schema";
 import { InferResultType } from "./utils";
-import { programs } from "./schema";
 
 export type TFormRelate = InferResultType<
   "forms",
@@ -26,7 +25,7 @@ export type TFormRelate = InferResultType<
 >;
 export type TQuestionRelate = InferResultType<
   "questions",
-  { options: true; milestones: true }
+  { options: true; milestones: { with: { milestone: true } } }
 >;
 
 export type TSubcompetencyRelate = InferResultType<
