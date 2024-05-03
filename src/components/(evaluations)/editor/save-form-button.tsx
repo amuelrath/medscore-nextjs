@@ -7,8 +7,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { isEqual } from "lodash";
 import { Player } from "@lottiefiles/react-lottie-player";
-import CLOUD_LOADING_LOOP from "public/icons/system-regular-84-cloud.json";
-import CLOUD_DONE from "public/icons/system-regular-128-cloud-done.json";
+import CLOUD_LOADING_LOOP from "public/icons/system-regular-84-cloud-black.json";
+import CLOUD_DONE from "public/icons/system-regular-128-cloud-done-black.json";
 import { cn } from "@/lib/utils";
 import { saveForm } from "@/server/actions/forms/save-form";
 
@@ -72,7 +72,7 @@ export default function SaveFormButton() {
       type="submit"
       disabled={loading}
       variant={"icon"}
-      className={cn("text-white")}
+      className={cn("text-primary")}
       size={"icon"}
       onClick={handleSave}
     >
