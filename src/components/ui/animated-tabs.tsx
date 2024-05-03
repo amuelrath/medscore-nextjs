@@ -104,7 +104,7 @@ export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
           onClick={() => handleTabClick(tab.id)}
           className={`${
             activeTab == tab.id ? "font-semibold" : "hover:text-primary/60"
-          } text-primary relative rounded-full py-1 transition-all focus-visible:outline-2`}
+          } relative rounded-full py-1 text-primary transition-all focus-visible:outline-2`}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <span className="relative z-40">{icons ? tab.icon : tab.label}</span>

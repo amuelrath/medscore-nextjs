@@ -17,10 +17,10 @@ export default function Responses() {
         </div>
       </div>
 
-      <div className={cn("xl:col-span-4 sm:col-span-2 col-span-1 space-y-2")}>
+      <div className={cn("xl:col-span-4 col-span-1 space-y-2 sm:col-span-2")}>
         <div className={cn("flex flex-row items-center justify-between")}>
-          <h3 className={cn("font-semibold text-lg")}>Recent Responses</h3>
-          <div className={cn("flex flex-row space-x-2 items-center")}>
+          <h3 className={cn("text-lg font-semibold")}>Recent Responses</h3>
+          <div className={cn("flex flex-row items-center space-x-2")}>
             <Input
               placeholder="Search Responses..."
               className={cn("bg-white")}
@@ -38,13 +38,13 @@ export default function Responses() {
             </div>
           </div>
         </div>
-        <Card className={cn("w-full h-14")}></Card>
-        <Card className={cn("w-full h-14")}></Card>
-        <Card className={cn("w-full h-14")}></Card>
-        <Card className={cn("w-full h-14")}></Card>
-        <Card className={cn("w-full h-14")}></Card>
-        <Card className={cn("w-full h-14")}></Card>
-        <Card className={cn("w-full h-14")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
+        <Card className={cn("h-14 w-full")}></Card>
       </div>
     </div>
   );

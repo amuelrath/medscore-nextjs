@@ -30,7 +30,7 @@ const CompetencyCard = React.memo(
 
     const isSelected = useMemo(
       () => selectedCompetencyId === competency.id,
-      [selectedCompetencyId, competency.id]
+      [selectedCompetencyId, competency.id],
     );
 
     const mySubcompetencies = useMemo(() => {
@@ -58,7 +58,7 @@ const CompetencyCard = React.memo(
 
     const noSelectedMilestones = useMemo(
       () => getNumberOfSelectedMilestones,
-      [getNumberOfSelectedMilestones]
+      [getNumberOfSelectedMilestones],
     );
 
     const onSelect = () => {
@@ -80,18 +80,20 @@ const CompetencyCard = React.memo(
             exit={{ opacity: 0, transition: { duration: 0.1 } }}
             whileHover={{
               y: 0,
-              boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)",
+              boxShadow: "0 6px 12px 0px rgba(0,0,0,0.4)",
               opacity: 85,
             }}
-            className={cn("rounded-2xl border cursor-pointer bg-notepad")}
+            className={cn(
+              "cursor-pointer rounded-2xl bg-gradient-to-b from-foreground to-foreground/90",
+            )}
             onClick={isSelected ? deselectCompetency : onSelect}
           >
-            <div className={cn("p-4 text-primary")}>
+            <div className={cn("p-4 text-white")}>
               <div className={cn("flex flex-row items-center space-x-2")}>
                 <div className={cn("flex-col justify-center")}>
                   <h3
                     className={cn(
-                      "text-xl font-bold font-poppins flex flex-col justify-center"
+                      "font-poppins flex flex-col justify-center text-xl font-semibold",
                     )}
                   >
                     {name[competency.name]}
@@ -113,7 +115,7 @@ const CompetencyCard = React.memo(
           ))}
       </>
     );
-  }
+  },
 );
 
 export default CompetencyCard;

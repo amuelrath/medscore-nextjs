@@ -20,7 +20,7 @@ export function FormCardHero() {
   return (
     <Card
       className={cn(
-        "px-4 pt-2 pb-4 flex flex-col items-center hover:scale-105 transition-all"
+        "flex flex-col items-center px-4 pb-4 pt-2 transition-all hover:scale-105",
       )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}

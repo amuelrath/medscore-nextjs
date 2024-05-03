@@ -34,13 +34,13 @@ export function FormCard({
     >
       <Card
         className={cn(
-          "group hover:shadow-md col-span-1 transition-all flex flex-col justify-between p-2 select-none"
+          "group col-span-1 flex select-none flex-col justify-between p-2 transition-all hover:shadow-md",
         )}
       >
-        <div className={cn("flex justify-between items-center")}>
+        <div className={cn("flex items-center justify-between")}>
           <Link href={`/forms/${form.id}`}>
             <div>
-              <h5 className={cn("group text-md font-semibold m-0 p-0 ")}>
+              <h5 className={cn("text-md group m-0 p-0 font-semibold ")}>
                 {parseTitle(form.title)}
               </h5>
               <p className={cn("text-sm text-gray-500")}>
@@ -51,7 +51,7 @@ export function FormCard({
           </Link>
           <div
             className={cn(
-              "group group-hover:opacity-100 opacity-0 space-x-2 transition-opacity"
+              "group space-x-2 opacity-0 transition-opacity group-hover:opacity-100",
             )}
           >
             <Link href={`/forms/${form.id}`} className={cn("w-full")}>

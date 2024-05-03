@@ -38,22 +38,22 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className={cn("flex items-center space-x-2 group w-full")}
+              className={cn("group flex w-full items-center space-x-2")}
             >
               <Input
                 {...register(`questions.${nestIndex}.options.${k}.text`)}
-                className={cn("p-2 border rounded-md")}
+                className={cn("rounded-md border p-2")}
                 placeholder={"Option"}
               />
               <Input
                 placeholder="Points"
                 {...register(`questions.${nestIndex}.options.${k}.pointValue`)}
                 type="number"
-                className={cn("w-12 text-center border rounded-md p-1")}
+                className={cn("w-12 rounded-md border p-1 text-center")}
               />
               <div
                 className={cn(
-                  "group-hover:opacity-100 hover:cursor-pointer opacity-0 hover:bg-primary hover:text-white rounded-full transition-all p-1"
+                  "rounded-full p-1 opacity-0 transition-all hover:cursor-pointer hover:bg-primary hover:text-white group-hover:opacity-100",
                 )}
               >
                 <Trash2Icon
@@ -66,7 +66,7 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
           ))}
         </div>
       </AnimatePresence>
-      <div className="flex items-center justify-between opacity-0 group-hover:opacity-100 transition-all">
+      <div className="flex items-center justify-between opacity-0 transition-all group-hover:opacity-100">
         <PlusCircleIcon
           type="button"
           onClick={() =>
@@ -80,10 +80,10 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
             })
           }
           className={cn(
-            "mt-2 cursor-pointer group group-hover:opacity-100 opacity-0 hover:bg-primary hover:text-white transition-all p-1 rounded-full"
+            "group mt-2 cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
           )}
         />
-        <div className="space-x-2 mr-8">
+        <div className="mr-8 space-x-2">
           <Label className="text-xs" htmlFor="feedback">
             Require Feedback?
           </Label>

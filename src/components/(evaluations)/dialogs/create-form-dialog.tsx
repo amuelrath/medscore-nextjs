@@ -108,7 +108,7 @@ export function CreateFormDialog({ children }: { children: ReactNode }) {
               )}
             />
           </div>
-          <div className={cn("w-full flex flex-col space-y-2")}>
+          <div className={cn("flex w-full flex-col space-y-2")}>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction type="submit">Create</AlertDialogAction>
           </div>

@@ -28,8 +28,8 @@ export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
       </div>
       <hr className={cn("my-4")} />
       <Section>
-        <div className={cn("grid grid-cols-1 xl:grid-cols-2 gap-4")}>
-          <div className={cn("flex flex-row space-x-2 items-center")}>
+        <div className={cn("xl:grid-cols-2 grid grid-cols-1 gap-4")}>
+          <div className={cn("flex flex-row items-center space-x-2")}>
             <Input
               className={cn("w-64")}
               placeholder="Search Drafts..."
@@ -43,7 +43,9 @@ export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
           <AnimatePresence>
             {forms
               .filter((e) =>
-                e.title.toLocaleLowerCase().includes(filter.toLocaleLowerCase())
+                e.title
+                  .toLocaleLowerCase()
+                  .includes(filter.toLocaleLowerCase()),
               )
               .sort((a, b) => {
                 const dateA = new Date(a.lastOpenedAt);

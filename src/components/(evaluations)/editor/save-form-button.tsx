@@ -41,7 +41,7 @@ export default function SaveFormButton() {
         return [...prevQueue, formData];
       });
     }, 1000),
-    []
+    [],
   );
 
   const watchedData = useWatch({

@@ -58,7 +58,7 @@ export default function Editor({
   return (
     <TabsProvider>
       <FormProvider {...methods}>
-        <div className="sticky top-[57px] h-18 bg-background shadow-sm px-8 border-b p-2 z-40 flex flex-row items-center space-x-2">
+        <div className="h-18 sticky top-[57px] z-40 flex flex-row items-center space-x-2 border-b bg-background p-2 px-8 shadow-sm">
           <div className={cn("cursor-default")}>
             <Controller
               name={"title"}
@@ -66,7 +66,7 @@ export default function Editor({
               render={({ field }) => (
                 <Input
                   {...field}
-                  className={cn("text-xl font-semibold bg-inherit")}
+                  className={cn("bg-inherit text-xl font-semibold")}
                 />
               )}
             />

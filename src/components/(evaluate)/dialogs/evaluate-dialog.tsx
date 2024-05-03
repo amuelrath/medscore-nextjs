@@ -52,7 +52,7 @@ interface EvaluationContextValue {
 }
 
 const EvaluationContext = createContext<EvaluationContextValue | undefined>(
-  undefined
+  undefined,
 );
 
 function useEvaluation() {
@@ -120,7 +120,7 @@ export default function EvaluateDialog() {
 
   const dialogClasses = cn(
     "overflow-hidden",
-    step === "code" ? "h-[246.4px]" : "h-[298.4px]"
+    step === "code" ? "h-[246.4px]" : "h-[298.4px]",
   );
 
   return (
@@ -130,7 +130,7 @@ export default function EvaluateDialog() {
           <LottieIconButton
             label="Evaluate"
             variant="hide"
-            className="text-xl text-bold w text-notepad flex flex-col text-lg font-bold bg-gradient-to-t from-primary to-primary/70 hover:shadow-xl hover:-translate-y-1 transition-all w-60 h-32  rounded-md"
+            className="text-bold w flex h-32 w-60 flex-col rounded-md bg-gradient-to-t from-primary to-primary/70 text-lg text-xl font-bold text-notepad transition-all hover:-translate-y-1  hover:shadow-xl"
             icon={QUESTIONAIRE}
           />
         </AlertDialogTrigger>
@@ -183,7 +183,7 @@ function EvaluateForm() {
         </AlertDialogDescription>
       </AlertDialogHeader>
       <hr />
-      <div className="w-full flex flex-col items-center">
+      <div className="flex w-full flex-col items-center">
         <InputOTP
           ref={inputRef}
           onInputCapture={(e) => setCode(e.currentTarget.value)}
@@ -208,12 +208,12 @@ function EvaluateForm() {
               ref={spinnerRef}
               autoplay
               loop
-              className="size-6 absolute top-2 left-32"
+              className="absolute left-32 top-2 size-6"
             />
           )}
         </InputOTP>
         {error && (
-          <p className="mt-2 text-xs text-destructive text-center">
+          <p className="mt-2 text-center text-xs text-destructive">
             That code was invalid or has expired. Please try again.
           </p>
         )}
@@ -273,7 +273,7 @@ function SelectEvaluateeForm({
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="w-full flex flex-col items-center justify-center"
+        className="flex w-full flex-col items-center justify-center"
       >
         <Controller
           control={control}
@@ -297,7 +297,7 @@ function SelectEvaluateeForm({
           <span className="text-destructive">Please select a Student.</span>
         )}
 
-        <div className="w-full mt-2">
+        <div className="mt-2 w-full">
           <Button type="submit" className="w-full" onClick={onEvaluateClick}>
             Evaluate
           </Button>

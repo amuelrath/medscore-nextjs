@@ -119,7 +119,7 @@ export default function MilestoneSelector({
           <DrawerDescription>Select Milestones</DrawerDescription>
         </DrawerHeader>
         <ScrollArea className={cn("h-full")}>
-          <div className={cn("w-full h-full p-4 space-y-4")}>
+          <div className={cn("w-full h-full p-4 px-12 space-y-4")}>
             <MilestoneSelectorContext.Provider value={contextValue}>
               <AnimatePresence>
                 {selectedCompetencyId ? (

@@ -14,7 +14,6 @@ import { Section } from "@/components/ui/section";
 
 export default function EvaluateIdPage({ params }: { params: { id: string } }) {
   // TODO Verify that the form is still active. Or that the session the form was loaded on hasn't expired.
-  // TODO Use localstorage to hold onto the evaluatee's id. Kill the context.
   // TODO Add alert on attempt page refresh. If refresh, redirect to home page.
 
   const form = trpc.responses.getFormById.useQuery({
@@ -41,7 +40,7 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
     return (
       <div
         className={cn(
-          "w-full h-full flex items-center justify-center mt-[25%]"
+          "w-full h-full flex items-center justify-center mt-[25%]",
         )}
       >
         <Loading />
@@ -53,7 +52,7 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
     <>
       <header
         className={cn(
-          "sticky top-[57px] w-full h-12 bg-background z-20 shadow-md p-2 flex flex-col items-end justify-center"
+          "sticky top-[57px] w-full h-12 bg-background z-20 shadow-md p-2 flex flex-col items-end justify-center",
         )}
       >
         <p className={cn("text-xs font-bold text-gray-500 tracking-wider")}>
@@ -66,7 +65,7 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
       <Section>
         <div
           className={cn(
-            "flex flex-col h-full w-full space-y-4 lg:px-32 sm:px-4 pt-4 pb-40 no-scrollbar"
+            "flex flex-col h-full w-full space-y-4 lg:px-32 sm:px-4 pt-4 pb-40 no-scrollbar",
           )}
         >
           <AnimatePresence>
@@ -111,7 +110,7 @@ function QuestionCard({
       opacity: 1,
       transition: { duration: 0.1 * index },
     });
-  }, []);
+  }, [animationControls, index]);
 
   useEffect(() => {
     if (lottieRef.current && hovering) {
@@ -150,7 +149,7 @@ function QuestionCard({
                     "transition-all font-poppins border cursor-pointer flex flex-row items-center justify-start space-x-1 rounded-md p-2",
                     selectedOptionId === o.id
                       ? "bg-foreground text-white"
-                      : "bg-white text-primary hover:bg-foreground/10"
+                      : "bg-white text-primary hover:bg-foreground/10",
                   )}
                 >
                   <p className={cn("text-lg")}>{o.text}</p>
@@ -159,7 +158,7 @@ function QuestionCard({
           </div>
           <div
             className={cn(
-              "flex flex-row items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity"
+              "flex flex-row items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity",
             )}
           >
             {!question.feedback && (
@@ -168,7 +167,7 @@ function QuestionCard({
                   src={STICKY_NOTE}
                   ref={lottieRef}
                   className={cn(
-                    "size-6 cursor-pointer  hover:opacity-70 transition-opacity"
+                    "size-6 cursor-pointer  hover:opacity-70 transition-opacity",
                   )}
                 />
               </div>

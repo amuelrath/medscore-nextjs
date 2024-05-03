@@ -69,9 +69,9 @@ export default function QuestionCards({
                 transition={{ duration: 0.2, delay: index * 0.01 }}
                 ref={index === fields.length - 1 ? lastItemRef : null}
               >
-                <Card className={cn(`group p-4 space-y-2`)}>
+                <Card className={cn(`group space-y-2 p-4`)}>
                   <div className={cn("flex flex-row justify-between")}>
-                    <div className={cn("flex space-x-2 items-center")}>
+                    <div className={cn("flex items-center space-x-2")}>
                       <p className={cn("font-bold")}>{index + 1}.</p>
                       <div className={cn("space-x-2")}>
                         <Controller
@@ -81,7 +81,7 @@ export default function QuestionCards({
                             <MilestoneBadges
                               milestoneIds={
                                 field.value.flatMap(
-                                  (m) => m.milestoneId
+                                  (m) => m.milestoneId,
                                 ) as string[]
                               }
                               subcompetencies={subcompetencies}
@@ -92,7 +92,7 @@ export default function QuestionCards({
                     </div>
                     <div
                       className={cn(
-                        "opacity-0 cursor-pointer group-hover:opacity-100 hover:bg-primary hover:text-white transition-all p-1 rounded-full"
+                        "cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
                       )}
                     >
                       <Trash2Icon onClick={() => remove(index)} size={"1rem"} />
@@ -122,11 +122,11 @@ export default function QuestionCards({
               </motion.div>
             ))}
         </div>
-        <motion.div layout className={cn("flex justify-center mt-4")}>
+        <motion.div layout className={cn("mt-4 flex justify-center")}>
           <motion.div
             layoutId="add-question"
             className={cn(
-              "hover:text-white hover:bg-primary transition-all rounded-full p-1 cursor-pointer"
+              "cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white",
             )}
             onClick={() => {
               append({
@@ -169,7 +169,7 @@ function MilestoneBadges({
               <Badge>{m.name}</Badge>
             </TooltipTrigger>
             <TooltipContent>
-              <p className={cn("text-lg w-[400px]")}>{m.description}</p>
+              <p className={cn("w-[400px] text-lg")}>{m.description}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

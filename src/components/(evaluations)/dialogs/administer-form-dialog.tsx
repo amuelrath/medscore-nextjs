@@ -95,7 +95,7 @@ export default function AdministerDialog() {
         <div className="relative">
           <LottieIconButton icon={QUESTIONAIRE_ICON} label="Administer" />
           {isActive && (
-            <div className="absolute top-4 right-1 z-40">
+            <div className="absolute right-1 top-4 z-40">
               <Pinger variant={"emerald"} size={"sm"} />
             </div>
           )}
@@ -118,7 +118,7 @@ export default function AdministerDialog() {
                   <div className={cn("flex space-x-4")}>
                     <div className="flex">
                       {`"${form.title}" `}
-                      <p className="font-light mx-2">is active until</p>
+                      <p className="mx-2 font-light">is active until</p>
                       <p className="font-semibold">
                         {formatExpiresAt(cache?.expiresAt || "")}
                       </p>
@@ -143,11 +143,11 @@ export default function AdministerDialog() {
             {!isActive ? (
               <form onSubmit={handleSubmit(onSubmit)}>
                 {startAdminister.isLoading ? (
-                  <div className="flex justify-center items-center h-40">
+                  <div className="flex h-40 items-center justify-center">
                     <Loading size="md" />
                   </div>
                 ) : (
-                  <div className={cn("pb-2 space-y-4")}>
+                  <div className={cn("space-y-4 pb-2")}>
                     <div>
                       <Label>
                         For how long should the evaluation be active?
@@ -171,14 +171,14 @@ export default function AdministerDialog() {
                           <MultiSelect
                             options={options}
                             value={options.filter((option) =>
-                              value?.includes(option.value as string)
+                              value?.includes(option.value as string),
                             )}
                             onChange={(selectedOptions) =>
                               onChange(
                                 selectedOptions.map(
                                   (option) =>
-                                    (option as { value: string }).value
-                                )
+                                    (option as { value: string }).value,
+                                ),
                               )
                             }
                           />
