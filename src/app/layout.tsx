@@ -37,10 +37,16 @@ export default function RootLayout({
         />
       </head>
       <html lang="en">
-        <body className={"font-forma no-scrollbar h-full h-full grow"}>
-          <Provider>{children}</Provider>
-          <Toaster />
-        </body>
+        <Provider>
+          <body
+            className={
+              "font-forma bg-gradient-to-b from-background to-gray-200 no-scrollbar w-full min-h-screen "
+            }
+          >
+            {children}
+            <Toaster />
+          </body>
+        </Provider>
       </html>
     </>
   );
