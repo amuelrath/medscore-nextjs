@@ -33,6 +33,22 @@ export type TSubcompetencyRelate = InferResultType<
   { competencies: true; milestones: true }
 >;
 
+export type TEvaluationForm = InferResultType<
+  "formVersions",
+  {
+    questions: {
+      with: {
+        options: true;
+        milestones: {
+          with: {
+            milestone: true;
+          };
+        };
+      };
+    };
+  }
+>;
+
 export type TMilestoneRelate = InferResultType<
   "milestonesOnQuestions",
   {
