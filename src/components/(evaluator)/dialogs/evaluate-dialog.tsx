@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { LottieIconButton } from "@/components/ui/lottie-icon-button";
 import { Suspense } from "react";
 import Loading from "@/components/ui/loading";
-import QUESTIONAIRE from "public/icons/wired-flat-967-questionnaire.json";
+import QUESTIONNAIRE from "public/icons/wired-flat-967-questionnaire.json";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -73,6 +73,11 @@ export default function EvaluateDialog() {
   const [students, setStudents] = useState<User[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
+  // Clear the "evaluatee" from the cache on initial render
+  useEffect(() => {
+    localStorage.removeItem("evaluatee");
+  }, []);
+
   const mutation = trpc.responses.verifyCode.useMutation({
     onSuccess: (data) => {
       setStatus("success");
@@ -85,6 +90,9 @@ export default function EvaluateDialog() {
       setCode("");
     },
   });
+  useEffect(() => {
+    onCodeChange(code);
+  }, [code]);
 
   const onCodeChange = (value: string) => {
     setCode(value);
@@ -94,8 +102,7 @@ export default function EvaluateDialog() {
   };
 
   const onEvaluateClick = async () => {
-    if (!selectedStudent) throw new Error("No student selected");
-    router.replace(`/evaluate/${selectedStudent.id}`);
+    router.push(`/evaluate/${mutation.data?.formVersionId}`);
   };
 
   const onCancelClick = () => {
@@ -130,8 +137,8 @@ export default function EvaluateDialog() {
           <LottieIconButton
             label="Evaluate"
             variant="hide"
-            className="text-bold w flex h-32 w-60 flex-col rounded-md bg-gradient-to-t from-primary to-primary/70 text-lg text-xl font-bold text-notepad transition-all hover:-translate-y-1  hover:shadow-xl"
-            icon={QUESTIONAIRE}
+            className="text-bold w flex h-32 w-60 flex-col rounded-md bg-gradient-to-t from-primary to-primary/70 text-xl font-bold text-notepad transition-all hover:-translate-y-1  hover:shadow-xl"
+            icon={QUESTIONNAIRE}
           />
         </AlertDialogTrigger>
         <motion.div
@@ -251,13 +258,12 @@ function SelectEvaluateeForm({
 
   const onSubmit = (formData: { userId: string }) => {
     const selected = students.find((u) => u.id === formData.userId);
-    if (selected) setSelectedStudent(selected);
+    if (selected) {
+      setSelectedStudent(selected);
+      // TODO Serialize the student data?
+      localStorage.setItem("evaluatee", JSON.stringify(selected));
+    }
   };
-
-  useEffect(() => {
-    const storedStudent = localStorage.getItem("evaluatee");
-    if (storedStudent) setSelectedStudent(JSON.parse(storedStudent));
-  }, [setSelectedStudent]);
 
   return (
     <div className="w-full space-y-8">

@@ -13,11 +13,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import OptionList from "@/components/(evaluations)/editor/question-options";
+import OptionList from "@/components/(admin)/forms/editor/question-options";
 import { TFormRelate, TSubcompetencyRelate } from "@/db/types";
 import { v4 } from "uuid";
 import { useEffect, useRef } from "react";
-import MilestoneSelector from "@/components/(evaluations)/editor/MilestoneSelect";
+import MilestoneSelector from "./MilestoneSelect";
 import { trpc } from "@/app/_trpc/client";
 import { saveForm } from "@/server/actions/forms/save-form";
 

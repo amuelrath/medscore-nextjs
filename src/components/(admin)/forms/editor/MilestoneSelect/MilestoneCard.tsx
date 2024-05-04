@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import { useMilestoneSelector } from ".";
+import { useMilestoneSelector } from "./index";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 import { Milestone } from "@/db/schema";

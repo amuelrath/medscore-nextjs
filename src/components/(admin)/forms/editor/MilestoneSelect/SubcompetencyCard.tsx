@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useMilestoneSelector } from ".";
+import { useMilestoneSelector } from "./index";
 import { motion } from "framer-motion";
 import { TSubcompetencyRelate } from "@/db/types";
 import { cn } from "@/lib/utils";

@@ -3,9 +3,9 @@ import { cn } from "@/lib/utils";
 import { ArrowDown01Icon, ArrowUp01Icon, FilterIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AnalysisButton } from "@/components/(evaluations)/responses/analysis-button";
-import { ReportButton } from "@/components/(evaluations)/responses/reports-button";
-import AdministerDialog from "../dialogs/administer-form-dialog";
+import { AnalysisButton } from "@/components/(admin)/forms/responses/analysis-button";
+import { ReportButton } from "@/components/(admin)/forms/responses/reports-button";
+import AdministerDialog from "@/components/(admin)/forms/dialogs/administer-form-dialog";
 export default function Responses() {
   return (
     <div className={cn("")}>

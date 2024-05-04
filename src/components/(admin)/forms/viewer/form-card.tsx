@@ -7,7 +7,7 @@ import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { EditIcon, Trash2Icon } from "lucide-react";
-import { DeleteFormDialog } from "@/components/(evaluations)/dialogs/delete-evaluation-dialog";
+import { DeleteFormDialog } from "@/components/(admin)/forms/dialogs/delete-evaluation-dialog";
 
 export function FormCard({
   form,

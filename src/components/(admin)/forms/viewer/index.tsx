@@ -4,10 +4,10 @@ import { TFormRelate } from "@/db/types";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { FormCardHero } from "@/components/(evaluations)/viewer/form-card-hero";
-import { FormCard } from "@/components/(evaluations)/viewer/form-card";
+import { FormCardHero } from "@/components/(admin)/forms/viewer/form-card-hero";
+import { FormCard } from "@/components/(admin)/forms/viewer/form-card";
 import { AnimatePresence } from "framer-motion";
-import { CreateFormDialog } from "../dialogs/create-form-dialog";
+import { CreateFormDialog } from "@/components/(admin)/forms/dialogs/create-form-dialog";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/ui/section";
 
