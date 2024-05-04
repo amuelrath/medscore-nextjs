@@ -1,4 +1,4 @@
-import EvaluateDialog from "@/components/(evaluate)/dialogs/evaluate-dialog";
+import EvaluateDialog from "@/components/(evaluator)/dialogs/evaluate-dialog";
 import { LottieIconButton } from "@/components/ui/lottie-icon-button";
 import { cn } from "@/lib/utils";
 import RESPONSES from "public/icons/wired-flat-1334-order-history.json";

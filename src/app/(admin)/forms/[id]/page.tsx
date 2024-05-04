@@ -1,5 +1,5 @@
 "use client";
-import FormEditorSection from "@/components/(evaluations)/sections/form-editor";
+import FormEditorSection from "@/components/(admin)/forms/editor";
 import { trpc } from "@/app/_trpc/client";
 import { TFormRelate } from "@/db/types";
 export default function EditorPage({ params }: { params: { id: string } }) {
@@ -18,7 +18,10 @@ export default function EditorPage({ params }: { params: { id: string } }) {
   });
 
   // prefetch the responses page!
-  utils.forms.status.prefetch({ formId: params.id });
+  // TODO I'm not sure if this implementation is correct.
+  utils.forms.status
+    .prefetch({ formId: params.id })
+    .then(() => console.log("Prefetched Form!"));
 
   // update last opened
 
