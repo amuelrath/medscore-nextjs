@@ -1,4 +1,5 @@
-import LoadingSection from "@/components/(evaluations)/sections/loading-section";
+import Loading from "@/components/ui/loading";
+
 export default async function LoadingEditorV2() {
-  return <LoadingSection />;
+  return <Loading />;
 }
