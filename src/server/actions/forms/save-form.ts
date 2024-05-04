@@ -4,7 +4,7 @@ import { forms, questions, options, milestonesOnQuestions } from "@/db/schema";
 import { TFormRelate } from "@/db/types";
 import { and, eq, notInArray } from "drizzle-orm";
 
-export async function saveForm(form: Omit<TFormRelate, "programs">) {
+export async function saveForm(form: TFormRelate) {
   const result = await db.transaction(async (tx) => {
     // Update the form
     const formInDb = await tx
