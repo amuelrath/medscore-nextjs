@@ -15,7 +15,7 @@ export default function FormEditorNav() {
     );
   };
   return (
-    <nav className="h-18 sticky top-[57px] z-40 flex flex-row items-center space-x-2 border-b bg-background p-2 px-8 shadow-sm">
+    <nav className="h-18 sticky top-[57px] z-40 flex flex-row items-center space-x-2 border-b bg-background p-2 px-8 drop-shadow-sm">
       <div className={cn("cursor-default")}>
         <Controller
           name={"title"}
