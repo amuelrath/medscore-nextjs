@@ -1,149 +1,191 @@
-"use client";
-import {
-  useState,
-  useEffect,
-  useRef,
-  useContext,
-  createContext,
-  ReactNode,
-  forwardRef,
-  cloneElement,
-  Children,
-  isValidElement,
-} from "react";
+import { useId } from "react";
+import { useEffect, useRef } from "react";
 import CHECK_IN_ICON from "public/icons/system-regular-31-check-in-dark.json";
-import { Player, Controls } from "@lottiefiles/react-lottie-player";
+import { Player } from "@lottiefiles/react-lottie-player";
 import { cn } from "@/lib/utils";
+// TODO Fix Animation Breaking if you switch options too quickly
+// TODO Fix keyboard controls
 
-type TRadioGroupContext = {
-  selectedValue: string | undefined;
-  setSelectedValue: (newVal: string) => void;
-};
-
-const RadioGroupContext = createContext<TRadioGroupContext | undefined>(
-  undefined,
-);
-
-function useRadioGroup() {
-  const context = useContext(RadioGroupContext);
-  if (!context) {
-    throw new Error(
-      "useRadioGroup must be used inside a RadioGroupContext.Provider",
-    );
-  }
-  return context;
-}
-
-interface RadioGroupProviderProps {
-  defaultValue?: string;
-  onChange?: (value: string) => void;
-  children: ReactNode;
-  className?: string;
-}
-
-const RadioGroupProvider = forwardRef<
-  HTMLUListElement,
-  RadioGroupProviderProps
->(({ children, defaultValue, onChange, className, ...props }, ref) => {
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(
-    defaultValue || undefined,
-  );
+export function RadioGroup({
+  options,
+  value,
+  onChange,
+  name,
+}: {
+  options: { value: string; label: string; pointValue: number }[];
+  value: string;
+  onChange: (value: string) => void;
+  name: string;
+}) {
+  const id = useId();
+  const radioRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    if (onChange && selectedValue) {
-      onChange(selectedValue);
+    const selectedIndex = options.findIndex((option) => option.value === value);
+    if (selectedIndex !== -1 && radioRefs.current[selectedIndex]) {
+      radioRefs.current[selectedIndex]?.focus();
     }
-  }, [onChange, selectedValue]);
+  }, [value, options]);
 
-  const clonedChildren = Children.map(children, (child) => {
-    if (isValidElement(child)) {
-      return <li>{cloneElement(child)}</li>;
+  const handleFormKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
     }
-    return child;
-  });
+  };
 
   return (
-    <RadioGroupContext.Provider value={{ selectedValue, setSelectedValue }}>
-      <ul ref={ref} className={cn(className, "space-y-2")} {...props}>
-        {clonedChildren}
-      </ul>
-    </RadioGroupContext.Provider>
+    <div role="radiogroup" className="space-y-2"  onKeyDown={() => handleFormKeyDown}>
+      {options.map((option, k) => (
+        <RadioGroupItem
+          key={option.value}
+          id={`${id}-${k}`}
+          name={name}
+          value={option.value}
+          label={option.label}
+          checked={value === option.value}
+          onChange={onChange}
+          pointValue={option.pointValue}
+          tabIndex={k === 0 ? 0 : -1}
+        />
+      ))}
+    </div>
   );
-});
-
-RadioGroupProvider.displayName = "RadioGroupProvider";
-
-interface RadioGroupItemProps {
-  label: string | null;
-  value: string;
-  className?: string;
-  style?: React.CSSProperties;
 }
 
-const RadioGroupItem = forwardRef<HTMLDivElement, RadioGroupItemProps>(
-  ({ label, value, className, style, ...props }, ref) => {
-    const { selectedValue, setSelectedValue } = useRadioGroup();
-    const isSelected = selectedValue === value;
+function RadioGroupItem({
+  id,
+  name,
+  value,
+  label,
+  checked,
+  onChange,
+  pointValue,
+  tabIndex,
+}: {
+  id: string;
+  name: string;
+  value: string;
+  label: string;
+  checked: boolean;
+  onChange: (value: string) => void;
+  pointValue: number;
+  tabIndex: number;
+}) {
+  const playerRef = useRef<Player>(null);
+  const radioRef = useRef<HTMLInputElement>(null);
 
-    const playerRef = useRef<Player>(null);
-
-    useEffect(() => {
-      if (playerRef.current && isSelected) {
-        if (playerRef.current.state.seeker !== 50) {
-          playerRef.current?.play();
-          const checkSeeker = () => {
-            if (playerRef.current && playerRef.current.state.seeker === 50) {
-              playerRef.current.pause();
-            } else {
-              requestAnimationFrame(checkSeeker);
-            }
-          };
-          requestAnimationFrame(checkSeeker);
-        }
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Enter") {
+      onChange(value);
+    } else if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+      event.preventDefault();
+      const previousElement = radioRef.current
+        ?.previousElementSibling as HTMLInputElement;
+      if (previousElement) {
+        previousElement.focus();
       } else {
-        if (playerRef.current && playerRef.current.state.seeker > 0) {
-          playerRef.current?.setPlayerSpeed(2);
-          playerRef.current.setPlayerDirection(-1);
-          playerRef.current.play();
-          const checkSeeker = () => {
-            if (playerRef.current && playerRef.current.state.seeker === 0) {
-              playerRef.current?.setPlayerSpeed(1);
-              playerRef.current.setPlayerDirection(1);
-              playerRef.current.pause();
-              playerRef.current.setSeeker(0);
-            } else {
-              requestAnimationFrame(checkSeeker);
-            }
-          };
-          requestAnimationFrame(checkSeeker);
-        } else {
-          playerRef.current?.stop();
-          playerRef.current?.setSeeker(0);
+        const lastElement = radioRef.current?.parentElement?.lastElementChild
+          ?.previousElementSibling as HTMLInputElement;
+        if (lastElement) {
+          lastElement.focus();
         }
       }
-    }, [isSelected]);
+    } else if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+      event.preventDefault();
+      const nextElement = radioRef.current
+        ?.nextElementSibling as HTMLInputElement;
+      if (nextElement) {
+        nextElement.focus();
+      } else {
+        const firstElement = radioRef.current?.parentElement?.firstElementChild
+          ?.nextElementSibling as HTMLInputElement;
+        if (firstElement) {
+          firstElement.focus();
+        }
+      }
+    }
+  };
 
-    return (
-      <div
-        ref={ref}
-        onClick={() => setSelectedValue(value)}
-        className={cn(
-          "flex items-center rounded-full border p-2 transition-all ease-in-out hover:shadow-md",
-          className,
-        )}
-        style={style}
-        {...props}
-      >
-        <Player
-          ref={playerRef}
-          src={CHECK_IN_ICON}
-          className={cn("size-6 text-black transition-all")}
-        />
-        {label && <span className={cn("relative z-10 ml-2")}>{label}</span>}
-      </div>
-    );
-  },
-);
-RadioGroupItem.displayName = "RadioGroupItem";
+  useEffect(() => {
+    if (checked) {
+      radioRef.current?.focus();
+    }
+  }, [checked]);
 
-export { RadioGroupProvider, RadioGroupItem };
+  // Calculate background color based on pointValue
+  const normalizedValue = (pointValue + 1) / 2; // Normalize from -1 to 1 range to 0 to 1 range
+  const hue = Math.round(normalizedValue * 100); // Map the normalized value to a hue from 0 to 100 (green to red)
+  const bgColor = `hsl(${hue}, 70%, 90%)`; // Generate the HSL color string
+
+  useEffect(() => {
+    if (playerRef.current && checked) {
+      if (playerRef.current.state.seeker <= 50) {
+        playerRef.current?.play();
+        const checkSeeker = () => {
+          if (playerRef.current && playerRef.current.state.seeker === 50) {
+            playerRef.current.pause();
+          } else {
+            requestAnimationFrame(checkSeeker);
+          }
+        };
+        requestAnimationFrame(checkSeeker);
+      }
+    } else {
+      if (playerRef.current && playerRef.current.state.seeker > 0) {
+        playerRef.current?.setPlayerSpeed(2);
+        playerRef.current.setPlayerDirection(-1);
+        playerRef.current.play();
+        const checkSeeker = () => {
+          if (playerRef.current && playerRef.current.state.seeker <= 0) {
+            playerRef.current?.setPlayerSpeed(1);
+            playerRef.current.setPlayerDirection(1);
+            playerRef.current.pause();
+            playerRef.current.setSeeker(0);
+          } else {
+            requestAnimationFrame(checkSeeker);
+          }
+        };
+        requestAnimationFrame(checkSeeker);
+      } else {
+        playerRef.current?.stop();
+        playerRef.current?.setSeeker(0);
+      }
+    }
+  }, [checked]);
+
+  return (
+    <div
+      className={cn(
+        "flex items-center rounded-full border-4 p-2 transition-all ease-in-out",
+        checked ? "shadow-md drop-shadow-lg" : "hover:shadow-md",
+        "ring-primary focus-within:ring-2 focus-within:ring-offset-2",
+      )}
+      onClick={() => onChange(value)}
+      style={{
+        backgroundColor: bgColor,
+        borderColor: bgColor,
+      }}
+    >
+      <input
+        type="radio"
+        id={id}
+        name={name}
+        value={value}
+        checked={checked}
+        onChange={() => onChange(value)}
+        className="sr-only"
+        ref={radioRef}
+        onKeyDown={() => handleKeyDown}
+        tabIndex={tabIndex}
+      />
+      <Player
+        ref={playerRef}
+        src={CHECK_IN_ICON}
+        className={cn("size-6 text-black transition-all")}
+      />
+      <label htmlFor={id} className={cn("relative z-10 ml-2")}>
+        {label}
+      </label>
+    </div>
+  );
+}
