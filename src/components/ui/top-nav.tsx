@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from "public/mark@2x.png";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { preload } from "react-dom";
 
@@ -26,6 +26,11 @@ interface Props {
 export function TopNav({ tabs, icons, withoutTabs }: Props) {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(pathname);
+  const router = useRouter();
+
+  const handleNavigate = (href: string) => {
+    router.push(href);
+  };
 
   useEffect(() => {
     const activeTab = tabs.find((tab) => pathname.startsWith(tab.href));
@@ -36,54 +41,54 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
 
   return (
     <div
-      className={cn("z-50 shadow-xl border-b-2 border-primary sticky top-0")}
+      className={cn("sticky top-0 z-50 border-b-2 border-primary shadow-xl")}
     >
       <div
-        className={`flex flex-row justify-between bg-foreground items-center p-2`}
+        className={`flex flex-row items-center justify-between bg-foreground p-2`}
       >
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Image src={logo} alt="logo" className={cn("size-10 ")} />
           <h3 className={cn("flex flex-row")}>
-            <p className={cn("text-xl font-poppins font-bold text-accent")}>
+            <p className={cn("font-poppins text-xl font-bold text-accent")}>
               MED
             </p>
             <p
-              className={cn("text-xl font-poppins font-light text-destructive")}
+              className={cn("font-poppins text-xl font-light text-destructive")}
             >
               score
             </p>
           </h3>
         </div>
         {!withoutTabs && (
-          <div className={cn("flex flex-row space-x-2 items-center")}>
+          <div className={cn("flex flex-row items-center space-x-2")}>
             {tabs.map((tab) => (
-              <Link key={tab.id} href={tab.href || "#"}>
-                <div
-                  onMouseEnter={() =>
-                    preload(`http://localhost:3000${tab.href}`)
-                  }
-                  role="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`${
-                    activeTab === tab.id ? "" : "hover:text-white/70"
-                  } text-white tracking-wider relative rounded-full px-3 py-1.5 text-sm z-20 font-medium transition focus-visible:outline-2`}
-                  style={{ WebkitTapHighlightColor: "transparent" }}
-                >
-                  {activeTab === tab.id && (
-                    <motion.span
-                      layoutId="bubble"
-                      className="absolute inset-0 -z-10 mix-blend bg-accent mix-blend-exclusion"
-                      style={{ borderRadius: 9999 }}
-                      transition={{
-                        type: "spring",
-                        bounce: 0.1,
-                        duration: 0.4,
-                      }}
-                    />
-                  )}
-                  {icons ? tab.icon : tab.label}
-                </div>
-              </Link>
+              <div
+                key={tab.id}
+                onMouseEnter={() => preload(`http://localhost:3000${tab.href}`)}
+                role="button"
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  handleNavigate(tab.href);
+                }}
+                className={`${
+                  activeTab === tab.id ? "" : "hover:text-white/70"
+                } relative z-20 rounded-full px-3 py-1.5 text-sm font-medium tracking-wider text-white transition focus-visible:outline-2`}
+                style={{ WebkitTapHighlightColor: "transparent" }}
+              >
+                {activeTab === tab.id && (
+                  <motion.span
+                    layoutId="bubble"
+                    className="mix-blend absolute inset-0 -z-10 bg-accent mix-blend-exclusion"
+                    style={{ borderRadius: 9999 }}
+                    transition={{
+                      type: "spring",
+                      bounce: 0.1,
+                      duration: 0.4,
+                    }}
+                  />
+                )}
+                {icons ? tab.icon : tab.label}
+              </div>
             ))}
           </div>
         )}
