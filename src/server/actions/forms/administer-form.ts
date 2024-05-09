@@ -50,7 +50,6 @@ export async function administerForm(
 
     if (!formCopy) {
       console.error("Form did not copy!");
-      throw new Error("Form did not copy!");
     }
 
     // copy the questions and their associated options and milestones
