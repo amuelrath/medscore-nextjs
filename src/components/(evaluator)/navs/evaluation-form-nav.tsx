@@ -33,7 +33,6 @@ export default function EvaluationFormNav({
           className={cn("font-regular")}
         >{`${evaluatee?.firstName} ${evaluatee?.lastName}`}</p>
       </div>
-
     </nav>
   );
 }
