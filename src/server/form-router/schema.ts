@@ -35,3 +35,7 @@ export const ZFormDeleteFormMutationSchema = z.object({
 export const ZFormGetFormSubcompetenciesQuerySchema = z.object({
   formId: z.string(),
 });
+
+export const ZFormGetResponsesQuerySchema = z.object({
+  formId: z.string(),
+})

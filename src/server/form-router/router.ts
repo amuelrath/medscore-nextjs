@@ -10,6 +10,7 @@ import {
   ZFormGetFormStatusQuerySchema,
   ZFormGetFormSubcompetenciesQuerySchema,
   ZFormGetOneFormQuerySchema,
+  ZFormGetResponsesQuerySchema,
 } from "./schema";
 import { publicProcedure, router } from "../trpc";
 import { getFormStatus } from "../actions/forms/get-form-status";
@@ -18,6 +19,7 @@ import { createForm } from "../actions/forms/create-form";
 import { deleteForm } from "../actions/forms/delete-form";
 import { subcompetencies } from "@/db/schema";
 import { getSubcompetencies } from "../actions/forms/get-subcompetencies";
+import { getResponses } from "@/server/actions/forms/get-responses";
 
 export const formRouter = router({
   all: publicProcedure.input(ZFormGetAllFormsQuerySchema).query(({ input }) => {
@@ -32,7 +34,7 @@ export const formRouter = router({
       return administerForm(
         input.formId,
         input.studentIds,
-        new Date(input.expiresAt)
+        new Date(input.expiresAt),
       );
     }),
   status: publicProcedure
@@ -57,5 +59,10 @@ export const formRouter = router({
     .input(ZFormGetFormSubcompetenciesQuerySchema)
     .query(({ input }) => {
       return getSubcompetencies(input.formId);
+    }),
+  responses: publicProcedure
+    .input(ZFormGetResponsesQuerySchema)
+    .query(({ input }) => {
+      return getResponses(input.formId);
     }),
 });

@@ -1,5 +1,5 @@
-import { User } from "./schema";
 import { InferResultType } from "./utils";
+import { Answer } from "@/db/schema";
 
 export type TFormRelate = InferResultType<
   "forms",
@@ -49,18 +49,38 @@ export type TEvaluationForm = InferResultType<
   }
 >;
 
-export type TMilestoneRelate = InferResultType<
-  "milestonesOnQuestions",
+export type TResponseRelate = InferResultType<
+  "responses",
   {
-    milestone: true;
+    answers: {
+      with: {
+        questionVersions: {
+          with: {
+            formVersion: true;
+          };
+        };
+      };
+    };
   }
 >;
 
-export type TUserWithoutPassword = Omit<User, "password">;
+export interface TResponseSchema {
+  creatorId: string;
+  evaluateeId: string;
+  formVersionId: string;
+  answers: {
+    questionVersionId: string;
+    optionVersionId?: string;
+    feedback: string | undefined;
+  }[];
+}
 
-export type TFormWithProgram = InferResultType<
-  "forms",
-  {
-    programs: true;
-  }
->;
+export interface ResponseColumn {
+  id: string;
+  evaluateeFullName: string;
+  creatorFullName: string;
+  formName: string;
+  formProgramName: string;
+  createdAt: string | Date;
+  deletedAt: string | Date | null;
+}
