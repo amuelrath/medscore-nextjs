@@ -2,11 +2,11 @@
 import FormEditorSection from "@/components/(admin)/forms/editor";
 import { trpc } from "@/app/_trpc/client";
 import { TFormRelate } from "@/db/types";
-export default function EditorPage({ params }: { params: { id: string } }) {
+export default function EditorPage({ params }: { params: { formId: string } }) {
   const utils = trpc.useUtils();
   const formQuery = trpc.forms.byId.useSuspenseQuery({
     userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-    formId: params.id,
+    formId: params.formId,
   });
 
   if (!formQuery[1]) {
@@ -14,14 +14,12 @@ export default function EditorPage({ params }: { params: { id: string } }) {
   }
 
   const subcompetencyQuery = trpc.forms.subcompetencies.useSuspenseQuery({
-    formId: params.id,
+    formId: params.formId,
   });
 
   // prefetch the responses page!
   // TODO I'm not sure if this implementation is correct.
-  utils.forms.status
-    .prefetch({ formId: params.id })
-    .then(() => console.log("Prefetched Form!"));
+  utils.forms.status.prefetch({ formId: params.formId });
 
   // update last opened
 
