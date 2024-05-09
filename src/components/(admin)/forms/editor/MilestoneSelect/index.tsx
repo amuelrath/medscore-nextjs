@@ -107,7 +107,7 @@ export default function MilestoneSelector({
     <Drawer>
       <DrawerTrigger
         className={cn(
-          "group-hover:opacity-100 opacity-0 font-poppins p-1 cursor-pointer hover:bg-primary hover:text-white transition-all rounded-full"
+          "font-poppins cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
         )}
       >
         <MilestoneIcon size={"1rem"} />
@@ -118,7 +118,7 @@ export default function MilestoneSelector({
           <DrawerDescription>Select Milestones</DrawerDescription>
         </DrawerHeader>
         <ScrollArea className={cn("h-full")}>
-          <div className={cn("w-full h-full p-4 px-12 space-y-4")}>
+          <div className={cn("h-full w-full space-y-4 p-4 px-12")}>
             <MilestoneSelectorContext.Provider value={contextValue}>
               <AnimatePresence>
                 {selectedCompetencyId ? (
