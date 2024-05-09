@@ -4,11 +4,11 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { TFormRelate } from "@/db/types";
 import React from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { EditIcon, Trash2Icon } from "lucide-react";
 import { DeleteFormDialog } from "@/components/(admin)/forms/dialogs/delete-evaluation-dialog";
-
+// TODO Fix Hydration Error with rendering the title!
 export function FormCard({
   form,
   index,
@@ -16,6 +16,10 @@ export function FormCard({
   form: TFormRelate;
   index: number;
 }) {
+  const router = useRouter();
+  const handleNavigate = (href: string) => {
+    router.push(href);
+  };
   function parseTitle(title: string) {
     if (title.length > 43) {
       return title.slice(0, 43) + "...";
@@ -38,27 +42,31 @@ export function FormCard({
         )}
       >
         <div className={cn("flex items-center justify-between")}>
-          <Link href={`/forms/${form.id}`}>
-            <div>
-              <h5 className={cn("text-md group m-0 p-0 font-semibold ")}>
-                {parseTitle(form.title)}
-              </h5>
-              <p className={cn("text-sm text-gray-500")}>
-                {/* todo turn this into a link that allows the user to view that program */}
-                {form.programs?.name}
-              </p>
+          <div
+            className={cn("flex flex-col items-start cursor-pointer")}
+            onClick={() => handleNavigate(`/forms/${form.id}`)}
+          >
+            <div className={cn("text-md group m-0 p-0 font-semibold ")}>
+              {parseTitle(form.title)}
             </div>
-          </Link>
+            <div className={cn("text-sm text-gray-500")}>
+              {/* todo turn this into a link that allows the user to view that program */}
+              {form.programs?.name}
+            </div>
+          </div>
           <div
             className={cn(
               "group space-x-2 opacity-0 transition-opacity group-hover:opacity-100",
             )}
           >
-            <Link href={`/forms/${form.id}`} className={cn("w-full")}>
-              <Button variant={"default"} size={"sm"} className={cn("w-28")}>
-                <EditIcon />
-              </Button>
-            </Link>
+            <Button
+              variant={"default"}
+              size={"sm"}
+              className={cn("w-28")}
+              onClick={() => handleNavigate(`/forms/${form.id}`)}
+            >
+              <EditIcon />
+            </Button>
             <DeleteFormDialog form={form}>
               <Button variant={"destructive"} size={"sm"}>
                 <Trash2Icon />
