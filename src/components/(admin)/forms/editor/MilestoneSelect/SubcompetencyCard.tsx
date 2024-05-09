@@ -17,7 +17,7 @@ const SubcompetencyCard = React.memo(
 
     const isSelected = useMemo(
       () => selectedSubcompetencyId === subcompetency.id,
-      [selectedSubcompetencyId, subcompetency.id]
+      [selectedSubcompetencyId, subcompetency.id],
     );
 
     const formatTitle = useMemo(() => {
@@ -65,8 +65,8 @@ const SubcompetencyCard = React.memo(
             transition={{ duration: 0.3 }}
             whileHover={{ boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)" }}
             className={cn(
-              "w-full font-bold cursor-pointer p-4 h-12 rounded-2xl border flex flex row justify-between items-center text-white",
-              colors[subcompetency.competencies.name]
+              "row flex flex h-12 w-full cursor-pointer items-center justify-between rounded-2xl border p-4 font-bold text-white",
+              colors[subcompetency.competencies.name],
             )}
           >
             <p>{formatTitle}</p>
@@ -87,7 +87,7 @@ const SubcompetencyCard = React.memo(
         )}
       </>
     );
-  }
+  },
 );
 
 export default SubcompetencyCard;

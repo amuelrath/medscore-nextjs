@@ -18,7 +18,7 @@ const switchVariants = cva(
     defaultVariants: {
       size: "md",
     },
-  }
+  },
 );
 
 const thumbVariants = cva(
@@ -35,7 +35,7 @@ const thumbVariants = cva(
     defaultVariants: {
       size: "md",
     },
-  }
+  },
 );
 
 interface SwitchProps
