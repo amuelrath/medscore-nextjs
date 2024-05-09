@@ -12,7 +12,7 @@ type MultiSelectProps = {
   value?: MultiValue<Option>;
   onChange?: (
     newValue: MultiValue<Option>,
-    actionMeta: ActionMeta<Option>
+    actionMeta: ActionMeta<Option>,
   ) => void;
 };
 
