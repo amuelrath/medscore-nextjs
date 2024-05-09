@@ -3,6 +3,7 @@ import { Player } from "@lottiefiles/react-lottie-player";
 import { useRef } from "react";
 import LOADING_ICON from "public/icons/system-regular-720-spinner-half-circles.json";
 import { cva, VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 const loadingStyles = cva("flex items-center justify-center", {
   variants: {
@@ -44,13 +45,18 @@ export default function Loading({ color, size, icon }: LoadingProps) {
   }
 
   return (
-    <div className={loadingStyles({ color, size, icon })}>
+    <div
+      className={cn(
+        loadingStyles({ color, size, icon }),
+        "w-full min-h-screen flex flex-col justify-center items-center",
+      )}
+    >
       <Player
         ref={ref}
         src={iconSrc}
         loop
         autoplay
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "48px", height: "48px" }}
       />
     </div>
   );

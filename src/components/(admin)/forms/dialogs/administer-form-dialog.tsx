@@ -95,7 +95,7 @@ export default function AdministerDialog() {
         <div className="relative">
           <LottieIconButton icon={QUESTIONAIRE_ICON} label="Administer" />
           {isActive && (
-            <div className="absolute right-1 top-4 z-40">
+            <div className="absolute right-3 top-[18px]">
               <Pinger variant={"emerald"} size={"sm"} />
             </div>
           )}
@@ -242,7 +242,6 @@ export default function AdministerDialog() {
     </Dialog>
   );
 }
-
 const formatExpiresAt = (expiresAt: string) => {
   if (!expiresAt) return "";
 
@@ -257,18 +256,18 @@ const formatExpiresAt = (expiresAt: string) => {
     hour12: true,
   };
 
-  if (diffDays === 1) {
+  if (diffDays === 0) {
     return `Today at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else if (diffDays === 2) {
+  } else if (diffDays === 1) {
     return `Tomorrow at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else if (diffDays > 2 && diffDays <= 7) {
+  } else if (diffDays > 1 && diffDays <= 7) {
     return `${expiresAtDate.toLocaleDateString([], {
       weekday: "long",
     })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
   } else {
     return `${expiresAtDate.toLocaleDateString([], {
-      month: "2-digit",
-      day: "2-digit",
+      month: "short",
+      day: "numeric",
     })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
   }
 };

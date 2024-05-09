@@ -11,7 +11,7 @@ const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
 
   const isSelected = useMemo(
     () => selectedMilestoneIds?.some((a) => a.milestoneId === milestone.id),
-    [selectedMilestoneIds, milestone.id]
+    [selectedMilestoneIds, milestone.id],
   );
 
   const onSelect = useCallback(async () => {
@@ -31,7 +31,7 @@ const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
     if (selectedMilestoneIds) {
       if (isSelected) {
         setSelectedMilestoneIds(
-          selectedMilestoneIds.filter((a) => a.milestoneId !== milestone.id)
+          selectedMilestoneIds.filter((a) => a.milestoneId !== milestone.id),
         );
       }
     } else {
@@ -70,8 +70,8 @@ const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
         transition={{ duration: 0.1 }}
         whileHover={{ boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)" }}
         className={cn(
-          "w-full font-bold text-sm p-4 rounded-2xl border flex flex row justify-between items-center text-white mix-blend-multiply",
-          colors[getCompetencyName(milestone.name)]
+          "row flex flex w-full items-center justify-between rounded-2xl border p-4 text-sm font-bold text-white mix-blend-multiply",
+          colors[getCompetencyName(milestone.name)],
         )}
       >
         <p>{formatTitle}</p>
