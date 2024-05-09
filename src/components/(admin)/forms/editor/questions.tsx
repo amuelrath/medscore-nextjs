@@ -16,9 +16,7 @@ import {
 import OptionList from "@/components/(admin)/forms/editor/question-options";
 import { TFormRelate, TSubcompetencyRelate } from "@/db/types";
 import { v4 } from "uuid";
-import { useEffect, useRef } from "react";
 import MilestoneSelector from "./MilestoneSelect";
-import { trpc } from "@/app/_trpc/client";
 import { saveForm } from "@/server/actions/forms/save-form";
 
 export default function QuestionCards({
@@ -42,16 +40,6 @@ export default function QuestionCards({
     }
   };
 
-  const lastItemRef = useRef<HTMLDivElement>(null);
-  const prevFieldsLengthRef = useRef<number>(fields.length);
-
-  useEffect(() => {
-    if (lastItemRef.current && fields.length > prevFieldsLengthRef.current) {
-      lastItemRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-    prevFieldsLengthRef.current = fields.length;
-  }, [fields.length]);
-
   return (
     <AnimatePresence>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -67,7 +55,6 @@ export default function QuestionCards({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2, delay: index * 0.01 }}
-                ref={index === fields.length - 1 ? lastItemRef : null}
               >
                 <Card className={cn(`group space-y-2 p-4`)}>
                   <div className={cn("flex flex-row justify-between")}>
