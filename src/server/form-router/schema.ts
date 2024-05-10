@@ -36,6 +36,6 @@ export const ZFormGetFormSubcompetenciesQuerySchema = z.object({
   formId: z.string(),
 });
 
-export const ZFormGetResponsesQuerySchema = z.object({
+export const ZFormGetVersionsQuerySchema = z.object({
   formId: z.string(),
 })
