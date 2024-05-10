@@ -49,21 +49,6 @@ export type TEvaluationForm = InferResultType<
   }
 >;
 
-export type TResponseRelate = InferResultType<
-  "responses",
-  {
-    answers: {
-      with: {
-        questionVersions: {
-          with: {
-            formVersion: true;
-          };
-        };
-      };
-    };
-  }
->;
-
 export interface TResponseSchema {
   creatorId: string;
   evaluateeId: string;
@@ -75,12 +60,23 @@ export interface TResponseSchema {
   }[];
 }
 
-export interface ResponseColumn {
-  id: string;
-  evaluateeFullName: string;
-  creatorFullName: string;
-  formName: string;
-  formProgramName: string;
-  createdAt: string | Date;
-  deletedAt: string | Date | null;
-}
+export type TFormVersion = InferResultType<"formVersions", {
+  questions: {
+    with: {
+      options: true,
+      milestones: {
+        with: {
+          milestone: true
+        }
+      }
+    }
+  },
+  responses: {
+    with: {
+      answers: true,
+      creator: true,
+      evaluatee: true
+    }
+  },
+  code: true
+}>
