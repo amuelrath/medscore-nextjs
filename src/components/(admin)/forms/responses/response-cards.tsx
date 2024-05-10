@@ -25,7 +25,7 @@ export function ResponseCards({ formVersion }: { formVersion: TFormVersion }) {
   };
 
   return (
-    <WaterfallAnimation speed={0.1} exit={false}>
+    <WaterfallAnimation speed={0.1}>
       {formVersion?.responses?.map((r) => (
         <Card
           key={r.id}
