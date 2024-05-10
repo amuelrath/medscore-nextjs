@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import CHECK_IN_ICON from "public/icons/system-regular-31-check-in-dark.json";
 import { Player } from "@lottiefiles/react-lottie-player";
 import { cn } from "@/lib/utils";
+
 // TODO Fix Animation Breaking if you switch options too quickly
 // TODO Fix keyboard controls
 
@@ -18,8 +19,9 @@ export function RadioGroup({
   name: string;
 }) {
   const id = useId();
-  const radioRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  /*
+  const radioRefs = useRef<(HTMLInputElement | null)[]>([]);
   useEffect(() => {
     const selectedIndex = options.findIndex((option) => option.value === value);
     if (selectedIndex !== -1 && radioRefs.current[selectedIndex]) {
@@ -32,9 +34,9 @@ export function RadioGroup({
       event.preventDefault();
     }
   };
-
+*/
   return (
-    <div role="radiogroup" className="space-y-2"  onKeyDown={() => handleFormKeyDown}>
+    <div role="radiogroup" className="space-y-2">
       {options.map((option, k) => (
         <RadioGroupItem
           key={option.value}
@@ -72,8 +74,8 @@ function RadioGroupItem({
   tabIndex: number;
 }) {
   const playerRef = useRef<Player>(null);
+  /*
   const radioRef = useRef<HTMLInputElement>(null);
-
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Enter") {
       onChange(value);
@@ -111,11 +113,28 @@ function RadioGroupItem({
       radioRef.current?.focus();
     }
   }, [checked]);
-
+*/
   // Calculate background color based on pointValue
+
+  const positiveColor = "#97c2e8"; // Desaturated blue color for positive values
+  const negativeColor = "#f09f9f"; // Desaturated red color for negative values
+
   const normalizedValue = (pointValue + 1) / 2; // Normalize from -1 to 1 range to 0 to 1 range
-  const hue = Math.round(normalizedValue * 100); // Map the normalized value to a hue from 0 to 100 (green to red)
-  const bgColor = `hsl(${hue}, 70%, 90%)`; // Generate the HSL color string
+
+  const red = Math.round(
+    parseInt(negativeColor.slice(1, 3), 16) * (1 - normalizedValue) +
+      parseInt(positiveColor.slice(1, 3), 16) * normalizedValue,
+  );
+  const green = Math.round(
+    parseInt(negativeColor.slice(3, 5), 16) * (1 - normalizedValue) +
+      parseInt(positiveColor.slice(3, 5), 16) * normalizedValue,
+  );
+  const blue = Math.round(
+    parseInt(negativeColor.slice(5, 7), 16) * (1 - normalizedValue) +
+      parseInt(positiveColor.slice(5, 7), 16) * normalizedValue,
+  );
+
+  const bgColor = `rgb(${red}, ${green}, ${blue})`;
 
   useEffect(() => {
     if (playerRef.current && checked) {
@@ -174,8 +193,6 @@ function RadioGroupItem({
         checked={checked}
         onChange={() => onChange(value)}
         className="sr-only"
-        ref={radioRef}
-        onKeyDown={() => handleKeyDown}
         tabIndex={tabIndex}
       />
       <Player
