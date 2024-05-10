@@ -1,8 +1,25 @@
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { forwardRef, ReactNode } from "react";
 
-export function Section({ children }: { children: ReactNode }) {
-  return (
-    <div className={cn("xs:px-4 xs:pb-4 lg:px-16 lg:pb-16")}>{children}</div>
-  );
+interface SectionProps {
+  children: ReactNode;
+  className?: string;
 }
+
+export const Section = forwardRef<HTMLElement, SectionProps>(
+  ({ children, className }, ref) => {
+    return (
+      <section
+        ref={ref}
+        className={cn(
+          "no-scrollbar xs:px-4 xs:pb-4 lg:px-4 lg:pb-0",
+          className,
+        )}
+      >
+        {children}
+      </section>
+    );
+  },
+);
+
+Section.displayName = "Section";
