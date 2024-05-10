@@ -8,10 +8,10 @@ const pingerVariants = cva("rounded-full", {
     variant: {
       red: "border-red-300 bg-red-400",
       yellow: "border-yellow-300 bg-yellow-400",
-      emerald: "border-emerald-300 bg-emerald-400",
+      emerald: "border-white bg-emerald-400",
     },
     size: {
-      sm: "w-2 h-2",
+      sm: "w-3 h-3",
       md: "w-4 h-4",
       lg: "w-6 h-6",
     },
@@ -30,10 +30,10 @@ const Pinger = ({ variant, size }: PingerProps) => {
       scale: [1, 2, 2],
       opacity: [1, 0, 0],
       transition: {
-        duration: 1.5,
+        duration: 1,
         ease: "easeOut",
         repeat: Infinity,
-        repeatDelay: 0.5,
+        repeatDelay: 0.2,
       },
     },
   };
