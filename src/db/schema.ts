@@ -10,21 +10,12 @@ import {
   timestamp,
   primaryKey,
   boolean,
-  alias,
   foreignKey,
-  unique,
   varchar,
-  UniqueConstraint,
-  uniqueKeyName,
   AnyPgColumn,
 } from "drizzle-orm/pg-core";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
-export const operationEnum = pgEnum("operation", [
-  "INSERT",
-  "UPDATE",
-  "DELETE",
-]);
 
 // MARK: Competencies
 export const competencies = pgTable("competencies", {
@@ -65,7 +56,7 @@ export const subcompetencyRelations = relations(
       references: [specialties.id],
     }),
     milestones: many(milestones),
-  })
+  }),
 );
 
 // MARK: Milestones
@@ -110,7 +101,7 @@ export const programs = pgTable("programs", {
   name: text("name").notNull().unique(),
   description: text("description"),
   specialtyId: uuid("specialty_id").references(
-    (): AnyPgColumn => specialties.id
+    (): AnyPgColumn => specialties.id,
   ),
 });
 export type Program = typeof programs.$inferSelect;
@@ -165,7 +156,7 @@ export const usersOnProgramsRelations = relations(
       fields: [usersOnPrograms.programId],
       references: [programs.id],
     }),
-  })
+  }),
 );
 
 // MARK: Forms
@@ -277,7 +268,7 @@ export const milestonesOnQuestions = pgTable(
         foreignColumns: [questions.id],
       }),
     };
-  }
+  },
 );
 export type MilestonesOnQuestion = typeof milestonesOnQuestions.$inferSelect;
 export type NewMilestoneOnQuestion = typeof milestonesOnQuestions.$inferInsert;
@@ -292,16 +283,22 @@ export const milestonesOnQuestionsRelations = relations(
       fields: [milestonesOnQuestions.questionId],
       references: [questions.id],
     }),
-  })
+  }),
 );
 // MARK: Responses
 export const responses = pgTable("responses", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
+  formVersionId: uuid("form_version_id")
+    .notNull()
+    .references(() => formVersions.id),
   creatorId: uuid("creator_id")
     .references(() => users.id)
     .notNull(),
+  evaluateeId: uuid("evaluatee_id")
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
@@ -319,6 +316,14 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
     references: [users.id],
   }),
   answers: many(answers),
+  evaluatee: one(users, {
+    fields: [responses.evaluateeId],
+    references: [users.id],
+  }),
+  formVersions: one(formVersions, {
+    fields: [responses.formVersionId],
+    references: [formVersions.id],
+  }),
 }));
 
 // MARK: Answers
@@ -326,12 +331,17 @@ export const answers = pgTable("answers", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  optionVersionId: uuid("option_version_id")
+  questionVersionId: uuid("question_version_id")
     .notNull()
-    .references(() => optionVersions.id),
+    .references(() => questionVersions.id),
+  optionVersionId: uuid("option_version_id").references(
+    () => optionVersions.id,
+  ),
   responseId: uuid("response_id")
     .notNull()
     .references(() => responses.id),
+  feedback: text("feedback"),
+  createdAt: timestamp("created_at"),
   updatedAt: timestamp("updated_at")
     .notNull()
     .defaultNow()
@@ -344,6 +354,10 @@ export const answerRelations = relations(answers, ({ one, many }) => ({
   optionVersion: one(optionVersions, {
     fields: [answers.optionVersionId],
     references: [optionVersions.id],
+  }),
+  questionVersions: one(questionVersions, {
+    fields: [answers.questionVersionId],
+    references: [questionVersions.id],
   }),
   response: one(responses, {
     fields: [answers.responseId],
@@ -392,7 +406,7 @@ export const formCodesOnUsers = pgTable(
         columns: [table.formCodeId, table.userId],
       }),
     };
-  }
+  },
 );
 export type FormCodeOnUser = typeof formCodesOnUsers.$inferSelect;
 export type NewFormCodeOnUser = typeof formCodesOnUsers.$inferInsert;
@@ -407,7 +421,7 @@ export const formCodesOnUsersRelations = relations(
       fields: [formCodesOnUsers.userId],
       references: [users.id],
     }),
-  })
+  }),
 );
 
 // MARK: Form Versions
@@ -443,7 +457,8 @@ export const formVersionRelations = relations(
       fields: [formVersions.programId],
       references: [programs.id],
     }),
-  })
+    responses: many(responses),
+  }),
 );
 
 // MARK: Question Versions
@@ -469,7 +484,7 @@ export const questionVersionRelations = relations(
     }),
     options: many(optionVersions),
     milestones: many(milestoneOnQuestionVersions),
-  })
+  }),
 );
 
 // MARK: Option Versions
@@ -494,7 +509,7 @@ export const optionVersionRelations = relations(
       references: [questionVersions.id],
     }),
     answers: many(answers),
-  })
+  }),
 );
 
 // MARK: Milestones On Question Versions
@@ -514,7 +529,7 @@ export const milestoneOnQuestionVersions = pgTable(
         columns: [table.questionVersionId, table.milestoneId],
       }),
     };
-  }
+  },
 );
 export type MilestoneOnQuestionVersion =
   typeof milestoneOnQuestionVersions.$inferSelect;
@@ -531,5 +546,5 @@ export const milestoneOnQuestionVersionRelations = relations(
       fields: [milestoneOnQuestionVersions.milestoneId],
       references: [milestones.id],
     }),
-  })
+  }),
 );
