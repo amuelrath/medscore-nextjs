@@ -1,17 +1,16 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
 import { cn } from "@/lib/utils";
-import { AnimatePresence } from "framer-motion";
 import Loading from "@/components/ui/loading";
-import { TEvaluationForm, TQuestionRelate } from "@/db/types";
+import { TEvaluationForm } from "@/db/types";
 import { User } from "@/db/schema";
 import { Section } from "@/components/ui/section";
-import { QuestionCard } from "@/components/(evaluator)/forms/question-card";
 import EvaluationFormNav from "@/components/(evaluator)/navs/evaluation-form-nav";
+import EvaluationForm from "@/components/(evaluator)/forms/evaluation-form";
 
 export default function EvaluateIdPage({ params }: { params: { id: string } }) {
   // TODO Verify that the form is still active. Or that the session the form was loaded on hasn't expired.
-  // TODO Add alert on attempt page refresh. If refresh, redirect to home page.
+  // TODO Add alert on attempt page refresh. If refresh, redirect to home page and erase localStorage for "evaluatee".
 
   const form = trpc.responses.getFormById.useQuery({
     formId: params.id,
@@ -32,7 +31,8 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
   };
 
   const evaluatee = getEvaluatee();
-  if (!evaluatee) throw new Error("No Evaluatee Chosen. Please try again.");
+  // if (!evaluatee) throw new Error("No Evaluatee Chosen. Please try again.");
+  // this ^ throws an error even if evaluatee is defined in localStorage
 
   if (form.isLoading) {
     return (
@@ -51,7 +51,7 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
     <>
       <EvaluationFormNav
         form={form.data as unknown as TEvaluationForm}
-        evaluatee={evaluatee}
+        evaluatee={evaluatee || ({} as User)}
       />
       <Section>
         <div
@@ -59,20 +59,12 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
             "no-scrollbar flex h-full w-full flex-col space-y-4 pb-40 pt-4 sm:px-4 lg:px-32",
           )}
         >
-          <AnimatePresence>
-            {form.data &&
-              form.data.questions &&
-              form.data.questions
-                .filter((q) => q !== null)
-                .sort((a, b) => a.position - b.position)
-                .map((q, index) => (
-                  <QuestionCard
-                    key={q.id}
-                    index={index}
-                    question={q as unknown as TQuestionRelate}
-                  />
-                ))}
-          </AnimatePresence>
+          <EvaluationForm
+            form={
+              (form.data as unknown as TEvaluationForm) ||
+              ({} as TEvaluationForm)
+            }
+          />
         </div>
       </Section>
     </>
