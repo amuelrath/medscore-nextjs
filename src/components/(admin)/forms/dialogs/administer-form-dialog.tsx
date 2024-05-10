@@ -33,6 +33,7 @@ import { Player } from "@lottiefiles/react-lottie-player";
 import { toast } from "sonner";
 import { LottieIconButton } from "@/components/ui/lottie-icon-button";
 import { verifyCode } from "@/server/actions/responses/verify-code";
+import { formatDate } from "@/lib/formatDate";
 
 const administerDialogSchema = z.object({
   endDateTime: z.string(),
@@ -95,7 +96,7 @@ export default function AdministerDialog() {
         <div className="relative">
           <LottieIconButton icon={QUESTIONAIRE_ICON} label="Administer" />
           {isActive && (
-            <div className="absolute right-3 top-[18px]">
+            <div className="absolute -right-[4px] -top-[4px]">
               <Pinger variant={"emerald"} size={"sm"} />
             </div>
           )}
@@ -120,7 +121,7 @@ export default function AdministerDialog() {
                       {`"${form.title}" `}
                       <p className="mx-2 font-light">is active until</p>
                       <p className="font-semibold">
-                        {formatExpiresAt(cache?.expiresAt || "")}
+                        {formatDate(cache?.expiresAt || "")}
                       </p>
                     </div>
                     <Pinger variant={"emerald"} size={"md"} />
@@ -242,32 +243,3 @@ export default function AdministerDialog() {
     </Dialog>
   );
 }
-const formatExpiresAt = (expiresAt: string) => {
-  if (!expiresAt) return "";
-
-  const expiresAtDate = new Date(expiresAt);
-  const now = new Date();
-  const diffTime = expiresAtDate.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
-
-  const timeFormat: Intl.DateTimeFormatOptions = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  };
-
-  if (diffDays === 0) {
-    return `Today at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else if (diffDays === 1) {
-    return `Tomorrow at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else if (diffDays > 1 && diffDays <= 7) {
-    return `${expiresAtDate.toLocaleDateString([], {
-      weekday: "long",
-    })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else {
-    return `${expiresAtDate.toLocaleDateString([], {
-      month: "short",
-      day: "numeric",
-    })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  }
-};
