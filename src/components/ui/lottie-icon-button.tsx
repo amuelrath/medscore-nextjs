@@ -41,7 +41,8 @@ export function LottieIconButton({
       <Player
         ref={lottieRef}
         src={icon}
-        style={{ width: "64px", height: "64px" }}
+        style={{ width: "56px", height: "56px" }}
+        className={cn("drop-shadow-lg")}
       />
       <p className={cn("transition-all")}>{label}</p>
     </Button>
