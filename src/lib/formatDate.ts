@@ -3,8 +3,23 @@ export const formatDate = (date: string) => {
 
   const expiresAtDate = new Date(date);
   const now = new Date();
-  const diffTime = expiresAtDate.getTime() - now.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
+
+  const isSameDay = (date1: Date, date2: Date) =>
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate();
+
+  const isYesterday = (date: Date) => {
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    return isSameDay(date, yesterday);
+  };
+
+  const isTomorrow = (date: Date) => {
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    return isSameDay(date, tomorrow);
+  };
 
   const timeFormat: Intl.DateTimeFormatOptions = {
     hour: "2-digit",
@@ -12,18 +27,25 @@ export const formatDate = (date: string) => {
     hour12: true,
   };
 
-  if (diffDays === 0) {
+  if (isSameDay(expiresAtDate, now)) {
     return `Today at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else if (diffDays === 1) {
+  } else if (isTomorrow(expiresAtDate)) {
     return `Tomorrow at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
-  } else if (diffDays > 1 && diffDays <= 7) {
-    return `${expiresAtDate.toLocaleDateString([], {
-      weekday: "long",
-    })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
+  } else if (isYesterday(expiresAtDate)) {
+    return `Yesterday at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
   } else {
-    return `${expiresAtDate.toLocaleDateString([], {
-      month: "short",
-      day: "numeric",
-    })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
+    const diffDays = Math.ceil(
+      (expiresAtDate.getTime() - now.getTime()) / (1000 * 3600 * 24),
+    );
+    if (Math.abs(diffDays) <= 7) {
+      return `${expiresAtDate.toLocaleDateString([], {
+        weekday: "long",
+      })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
+    } else {
+      return `${expiresAtDate.toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+      })} at ${expiresAtDate.toLocaleTimeString([], timeFormat)}`;
+    }
   }
 };
