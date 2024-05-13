@@ -1,9 +1,8 @@
-"use sever";
+"use server";
 
 import { db } from "@/db";
 import { formCodes } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 export async function cancelAdministerForm(formId: string) {
   const allVersions = await db.query.formVersions.findMany({
@@ -15,15 +14,17 @@ export async function cancelAdministerForm(formId: string) {
 
   const allCodes = allVersions
     .flatMap((fv) => fv.code)
-    .filter((c) => c.deletedAt === null || undefined);
+    .filter((c) => c !== null && c !== undefined);
   const newestCode = allCodes.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   )[0];
 
-  await db
-    .update(formCodes)
-    .set({
-      deletedAt: new Date(),
-    })
-    .where(eq(formCodes.id, newestCode.id));
+  if (newestCode) {
+    await db
+      .update(formCodes)
+      .set({
+        deletedAt: new Date(),
+      })
+      .where(eq(formCodes.id, newestCode.id));
+  }
 }
