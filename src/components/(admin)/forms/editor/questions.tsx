@@ -42,7 +42,7 @@ export default function QuestionCards({
 
   return (
     <AnimatePresence>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className={cn("pb-[10rem]")}>
         <div className={cn("space-y-4")}>
           {fields
             .sort((a, b) => a.position! - b.position!)
@@ -153,11 +153,9 @@ function MilestoneBadges({
         <TooltipProvider key={`badge-${m.id}`}>
           <Tooltip>
             <TooltipTrigger>
-              <Badge>{m.name}</Badge>
+              <Badge variant={"foreground"} className={cn("pt-1 text-xs font-normal")}>{m.name}</Badge>
             </TooltipTrigger>
-            <TooltipContent>
-              <p className={cn("w-[400px] text-lg")}>{m.description}</p>
-            </TooltipContent>
+            <TooltipContent>{m.description}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       ))}
