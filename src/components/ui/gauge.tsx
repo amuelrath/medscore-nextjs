@@ -1,13 +1,24 @@
 import { motion } from "framer-motion";
 import { cva } from "class-variance-authority";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface GaugeChartProps {
   value: number;
   max?: number;
   size?: "xs" | "sm" | "md" | "lg";
-  color?: "emerald" | "accent" | "accent-secondary";
+  color?:
+    | "emerald"
+    | "accent"
+    | "accent-secondary"
+    | "ics"
+    | "sbp"
+    | "pbli"
+    | "mk"
+    | "p"
+    | "pc";
   bgStrokeColor?: string;
+  icon?: ReactNode;
 }
 
 const gaugeChartClasses = cva("relative", {
@@ -30,6 +41,7 @@ const GaugeChart: FC<GaugeChartProps> = ({
   size = "md",
   color = "accent-secondary",
   bgStrokeColor = "stroke-gray-300",
+  icon,
 }) => {
   const percentage = (value / max) * 100;
 
@@ -37,10 +49,21 @@ const GaugeChart: FC<GaugeChartProps> = ({
     emerald: "stroke-emerald-400",
     accent: "stroke-accent",
     "accent-secondary": "stroke-accent-secondary",
+    ics: "stroke-ics",
+    mk: "stroke-mk",
+    pbli: "stroke-accent-secondary",
+    pc: "stroke-pc",
+    p: "stroke-p",
+    sbp: "stroke-sbp",
   }[color];
 
   return (
-    <div className={gaugeChartClasses({ size })}>
+    <div
+      className={cn(
+        gaugeChartClasses({ size }),
+        "drop-shadow-lg transition-all hover:scale-125 ease-in-out",
+      )}
+    >
       <svg viewBox="0 0 200 120" className="absolute inset-0">
         <path
           className={bgStrokeColor}
@@ -60,8 +83,8 @@ const GaugeChart: FC<GaugeChartProps> = ({
           d="M20,100 A60,60 0 0 1 180,100"
         />
       </svg>
-      <div className="font-poppins absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light mt-2">
-        {value}
+      <div className="font-poppins absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light">
+        {icon}
       </div>
     </div>
   );
