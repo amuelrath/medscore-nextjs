@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup } from "@/components/ui/animated-radio-group";
 import { TQuestionRelate } from "@/db/types";
 import { motion, AnimatePresence } from "framer-motion";
-import { Answer } from "@/db/schema";
+import { Answer, Milestone, milestones, Option } from "@/db/schema";
+import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
+import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
 
 export function QuestionResponseCard({
   question,
@@ -15,7 +17,7 @@ export function QuestionResponseCard({
   answers,
   locked,
 }: {
-  question: TQuestionRelate;
+  question: TQuestionRelate | undefined | null;
   index: number;
   answers: Answer[];
   locked: boolean;
@@ -26,7 +28,7 @@ export function QuestionResponseCard({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   // Find the answer for the current question
-  const answer = answers.find((a) => a.questionVersionId === question.id);
+  const answer = answers.find((a) => a.questionVersionId === question?.id);
 
   // Set the default selected option based on the answer
   useEffect(() => {
@@ -36,6 +38,27 @@ export function QuestionResponseCard({
     }
   }, [answer]);
 
+  const getPointsEarnedAsFraction = (options: Option[], answer: Answer) => {
+    if (options.find((o) => o.pointValue === null || undefined)) return;
+    const selectedOption = options.find((o) => o.id === answer.optionVersionId);
+    const maxPointsAvailable = Number(
+      options.sort((a, b) => Number(b.pointValue) - Number(a.pointValue))[0]
+        .pointValue,
+    );
+
+    const bgColor = getBgColorFromPointValue(
+      Number(selectedOption?.pointValue),
+      maxPointsAvailable,
+    );
+
+    return (
+      <p className="text-lg font-bold tracking-widest">
+        <span style={{ color: bgColor }}>{selectedOption?.pointValue}</span>
+        {`/${maxPointsAvailable}`}
+      </p>
+    );
+  };
+
   // Handle Icon Hover Animation
   useEffect(() => {
     if (lottieRef.current && hovering) {
@@ -43,18 +66,47 @@ export function QuestionResponseCard({
     }
   }, [hovering]);
 
-  const isFeedbackRequired = question.feedback;
+  const isFeedbackRequired = question?.feedback;
   const feedbackPlaceholder = isFeedbackRequired
     ? "Please provide feedback... (Required)"
     : "Comments or Feedback...";
+
+  if (!question) return <>Error getting this question!</>;
 
   return (
     <motion.div layout>
       <Card>
         <CardContent className={cn("flex select-none flex-col space-y-4 p-4")}>
-          <CardTitle className="font-poppins flex items-center justify-between text-lg">
+          <CardTitle className="font-poppins flex items-center justify-between text-lg font-medium">
             <>
-              {`${question.text}`}
+              <div className={cn("flex flex-row items-center space-x-2")}>
+                <p> {question.text}</p>
+
+              </div>
+              <div className={cn("flex flex-col justify-center")} >
+              <div
+                className={cn(
+                  "font-poppins flex flex-row items-center space-x-1 text-xs",
+                )}
+              >
+                {getPointsEarnedAsFraction(
+                  question.options,
+                  answer || ({} as Answer),
+                )}
+                <p className={cn("font-bold tracking-wide text-gray-400")}>
+                  POINTS EARNED
+                </p>
+
+              </div>
+                <div className={cn("flex justify-end")} >
+                  {question.milestones.map((m) => (
+                      <MilestoneBadge
+                          key={`${question.id}-${m.milestoneId}`}
+                          milestone={m.milestone}
+                      />
+                  ))}
+                </div>
+              </div>
               {!question.feedback && !locked && (
                 <div
                   onClick={() => setFeedbackOpen(!feedbackOpen)}
