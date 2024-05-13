@@ -11,15 +11,18 @@ import {
   ZFormGetFormSubcompetenciesQuerySchema,
   ZFormGetOneFormQuerySchema,
   ZFormGetVersionsQuerySchema,
+  ZFormGetOneVersionQuerySchema,
+  ZFormGetResponsesQuerySchema,
 } from "./schema";
 import { publicProcedure, router } from "../trpc";
 import { getFormStatus } from "../actions/forms/get-form-status";
 import { cancelAdministerForm } from "../actions/forms/cancel-administer-form";
 import { createForm } from "../actions/forms/create-form";
 import { deleteForm } from "../actions/forms/delete-form";
-import { subcompetencies } from "@/db/schema";
 import { getSubcompetencies } from "../actions/forms/get-subcompetencies";
 import { getAllVersions } from "@/server/actions/forms/get-all-versions";
+import { getOneVersion } from "@/server/actions/forms/get-one-version";
+import { getResponses } from "@/server/actions/forms/get-responses";
 
 export const formRouter = router({
   all: publicProcedure.input(ZFormGetAllFormsQuerySchema).query(({ input }) => {
@@ -64,5 +67,15 @@ export const formRouter = router({
     .input(ZFormGetVersionsQuerySchema)
     .query(({ input }) => {
       return getAllVersions(input.formId);
+    }),
+  versionById: publicProcedure
+    .input(ZFormGetOneVersionQuerySchema)
+    .query(({ input }) => {
+      return getOneVersion(input.formVersionId);
+    }),
+  responses: publicProcedure
+    .input(ZFormGetResponsesQuerySchema)
+    .query(({ input }) => {
+      return getResponses(input.formVersionId);
     }),
 });
