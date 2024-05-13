@@ -40,7 +40,7 @@ export default function RootLayout({
         <Provider>
           <body
             className={
-              "font-forma no-scrollbar min-h-screen w-full bg-gradient-to-b from-background to-gray-200 "
+              "font-forma min-h-screen w-full bg-gradient-to-b from-background to-gray-200 "
             }
           >
             {children}
