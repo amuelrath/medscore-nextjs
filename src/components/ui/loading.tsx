@@ -48,7 +48,7 @@ export default function Loading({ color, size, icon }: LoadingProps) {
     <div
       className={cn(
         loadingStyles({ color, size, icon }),
-        "w-full min-h-screen flex flex-col justify-center items-center",
+        "w-full h-full mt-[25%] flex flex-col justify-center items-center",
       )}
     >
       <Player
