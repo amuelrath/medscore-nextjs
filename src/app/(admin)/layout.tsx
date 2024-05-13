@@ -37,4 +37,9 @@ const tabs = [
     label: "Programs",
     href: "/programs",
   },
+  {
+    id: "resources",
+    label: "Resources",
+    href: "/resources"
+  }
 ];
