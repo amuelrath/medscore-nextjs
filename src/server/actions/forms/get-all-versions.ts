@@ -12,7 +12,15 @@ export async function getAllVersions(formId: string): Promise<TFormVersion[]> {
           options: true,
           milestones: {
             with: {
-              milestone: true,
+              milestone: {
+                with: {
+                  subcompetencies: {
+                    with: {
+                      competencies: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
