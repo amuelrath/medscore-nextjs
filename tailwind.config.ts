@@ -24,6 +24,12 @@ const config = {
 
     extend: {
       colors: {
+        ics: "hsl(var(--ics))",
+        sbp: "hsl(var(--sbp))",
+        pc: "hsl(var(--pc))",
+        p: "hsl(var(--p))",
+        pbli: "hsl(var(--pbli))",
+        mk: "hsl(var(--mk))",
         "accent-secondary": "hsl(var(--accent-secondary))",
         notepad: "hsl(var(--notepad))",
         border: "hsl(var(--border))",
