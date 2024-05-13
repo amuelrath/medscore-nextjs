@@ -1,21 +1,24 @@
+"use client";
 import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
-import SelectedFormVersionsProvider from "@/providers/selected-form-version-provider";
-import { FormResponsesSidebar } from "@/components/(admin)/forms/navs/form-responses-sidebar";
 import { ResponseEditor } from "@/components/(admin)/forms/responses/response-editor";
-import SelectedResponseIdProvider from "@/providers/selected-response-id-provider";
-// TODO Add Skeleton Loaders
+import { Suspense } from "react";
+import Loading from "@/components/ui/loading";
+import { FormResponsesSidebar } from "@/components/(admin)/forms/navs/form-responses-sidebar";
+
 export default function Responses() {
   return (
-    <div className={cn("mt-6")}>
-      <SelectedFormVersionsProvider>
-        <SelectedResponseIdProvider>
-          <FormResponsesSidebar />
-          <Card className={cn("ml-[25.5%] h-[570px] bg-background")}>
+    <div className={cn("no-scrollbar mt-6")}>
+      <FormResponsesSidebar />
+      <div className={cn("-mt-3 ml-[25.5%]")}>
+        <h3 className={cn("font-poppins text-2xl font-bold tracking-wide")}>
+          Details
+        </h3>
+        <div className={cn("h-[570px]")}>
+          <Suspense fallback={<Loading />}>
             <ResponseEditor />
-          </Card>
-        </SelectedResponseIdProvider>
-      </SelectedFormVersionsProvider>
+          </Suspense>
+        </div>
+      </div>
     </div>
   );
 }
