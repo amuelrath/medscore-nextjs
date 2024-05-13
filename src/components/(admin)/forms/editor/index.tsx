@@ -10,6 +10,8 @@ import { FormValuesContext } from "@/providers/form-values-provider";
 import { Suspense } from "react";
 import Loading from "@/components/ui/loading";
 import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
+import {ScrollArea, ScrollBar} from "@/components/ui/scroll-area";
+import {Scrollbar} from "@radix-ui/react-scroll-area";
 
 export default function Editor({
   form,
@@ -41,21 +43,22 @@ export default function Editor({
   return (
     <TabsProvider>
       <FormProvider {...methods}>
-        <FormEditorNav />
-        <Section>
-          <Suspense fallback={<Loading />}>
-            <TabContent id="editor">
-              <div className="pb-[16rem] pt-4 md:px-24 lg:px-64 transition-all">
-                <QuestionCards subcompetencies={subcompetencies || []} />
-              </div>
-            </TabContent>
-            <TabContent id="responses">
-              <FormValuesContext.Provider value={{ form }}>
+        <FormValuesContext.Provider value={{ form }}>
+          <FormEditorNav />
+          <Section>
+            <Suspense fallback={<Loading />}>
+              <TabContent id="editor">
+                <ScrollArea className="h-[570px] pt-4 transition-all md:px-24 lg:px-64">
+                  <Scrollbar />
+                  <QuestionCards subcompetencies={subcompetencies || []} />
+                </ScrollArea>
+              </TabContent>
+              <TabContent id="responses">
                 <ResponsesSection />
-              </FormValuesContext.Provider>
-            </TabContent>
-          </Suspense>
-        </Section>
+              </TabContent>
+            </Suspense>
+          </Section>
+        </FormValuesContext.Provider>
       </FormProvider>
     </TabsProvider>
   );
