@@ -1,8 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { ReactNode, useEffect } from "react";
-import AdministerDialog from "@/components/(admin)/forms/dialogs/administer-form-dialog";
-import { AnalysisButton } from "@/components/(admin)/forms/responses/analysis-button";
+import { useEffect, useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -10,54 +8,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useSelectedFormVersion } from "@/providers/selected-form-version-provider";
 import { trpc } from "@/app/_trpc/client";
 import { useFormValues } from "@/providers/form-values-provider";
-import { TFormVersion } from "@/db/types";
 import { formatDate } from "@/lib/formatDate";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ScrollAreaScrollbar } from "@radix-ui/react-scroll-area";
 import { ResponseCards } from "@/components/(admin)/forms/responses/response-cards";
-import { useSelectedResponseId } from "@/providers/selected-response-id-provider";
+import { ResponseOverviewCard } from "@/components/(admin)/forms/responses/response-overview-card";
+import { useRouter, useSearchParams } from "next/navigation";
+import { TFormVersion } from "@/db/types";
+import { getPercentChangeOverall } from "@/lib/responses/getPercentChange";
+import { useFormVersions } from "@/hooks/useFormVersions";
 
 export function FormResponsesSidebar() {
-  const { form } = useFormValues();
-  const { setSelectedResponseId } = useSelectedResponseId();
-  const { formVersion, setFormVersion } = useSelectedFormVersion();
-  const allVersions = trpc.forms.versions.useSuspenseQuery({
-    formId: form.id,
-  })[1].data;
+  const router = useRouter();
+  const searchParams = useSearchParams()
+  const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
+  const { allVersions, isLoading, selectedVersionId } = useFormVersions();
 
   useEffect(() => {
-    setSelectedResponseId(null);
-  }, [formVersion]);
+    if (selectedVersionId) {
+      setSelectedVersion(selectedVersionId);
+    }
+  }, [selectedVersionId]);
 
   const handleVersionSelect = (versionId: string) => {
-    const selectedVersion = allVersions.find((v) => v.id === versionId);
-    selectedVersion &&
-      setFormVersion(selectedVersion as unknown as TFormVersion);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("versionId", versionId);
+    setSelectedVersion(versionId);
+    params.delete("responseId");
+    router.push(`?${params.toString()}`);
   };
+
+  const selectedFormVersion = allVersions?.find(
+    (v) => v.id === selectedVersion,
+  ) as TFormVersion | undefined;
 
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 h-full w-1/4 space-y-2 border-r bg-background px-2 pb-2 pt-28 drop-shadow-sm",
+        "fixed left-0 top-4 z-40 h-full w-1/4 border-r bg-background px-2 pb-2 pt-[108px] drop-shadow-sm",
       )}
     >
-      <div className={cn("flex justify-around pt-4")}>
-        <AdministerDialog />
-        <AnalysisButton />
-      </div>
-      <div className={cn("space-y-2 rounded-md px-2 pt-2")}>
-        <Select onValueChange={(val) => handleVersionSelect(val)}>
+      <div className={cn("flex flex-col space-y-8")} >
+
+      <ResponseOverviewCard />
+      <div className={cn("space-y-2 pt-6 rounded-md px-2")}>
+        <Select
+          key={`select-${selectedVersion}`}
+          onValueChange={handleVersionSelect}
+          value={selectedVersion || ""}
+        >
           <SelectTrigger>
-            <SelectValue placeholder={"Select an Administration Date"} />
+            <SelectValue placeholder="Select an Administration Date" />
           </SelectTrigger>
           <SelectContent>
-            {allVersions ? (
+            {isLoading ? (
+              <SelectValue placeholder={"Loading..."} />
+            ) : allVersions?.length ? (
               allVersions.map((v) => (
                 <SelectItem key={v.id} value={v.id}>
-                  <div className={cn("flex flex-row space-x-4")}>
+                  <div
+                    className={cn(
+                      "flex w-72 flex-row items-center justify-between",
+                    )}
+                  >
                     <span className={cn("")}>{formatDate(v.createdAt)}</span>
                     <span className={cn("font-bold")}>
                       {`${v.responses.length}`}
@@ -67,18 +82,23 @@ export function FormResponsesSidebar() {
                 </SelectItem>
               ))
             ) : (
-              <p>This Evaluation has not yet been administered.</p>
+              <SelectValue
+                placeholder={"This evaluation hasn't been administered yet! "}
+              />
             )}
           </SelectContent>
         </Select>
-        <ScrollArea className={cn("h-72 w-full scroll-p-4")}>
+        <ScrollArea className={cn("h-[293px] w-full scroll-p-4")}>
           <ScrollAreaScrollbar />
-          <div className={cn("p-4")}>
-            <ResponseCards
-              formVersion={formVersion as unknown as TFormVersion}
-            />
+          <div className={cn("px-4")}>
+            {selectedFormVersion ? (
+              <ResponseCards formVersion={selectedFormVersion} />
+            ) : (
+              <></>
+            )}
           </div>
         </ScrollArea>
+      </div>
       </div>
     </aside>
   );
