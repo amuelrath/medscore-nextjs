@@ -17,8 +17,9 @@ export default function FormEditorNav() {
     );
   };
   return (
-    <nav className="no-scrollbar overflow-y-hidden h-18 sticky top-[57px] z-40 flex flex-row items-center justify-between border-b bg-background p-2 px-4 drop-shadow-sm">
-      <div className={cn("space-x-2 flex flex-row items-center")}>
+      <div className={cn("fixed top-[57px] h-18 z-50 w-full")} >
+    <nav className="no-scrollbar  flex flex-row items-center justify-between overflow-y-hidden border-b bg-background p-2 px-4 drop-shadow-sm">
+      <div className={cn("flex flex-row items-center space-x-2")}>
         <div className={cn("cursor-default")}>
           <Controller
             name={"title"}
@@ -40,12 +41,13 @@ export default function FormEditorNav() {
         </div>
       </div>
       <div className={cn("fixed right-2 top-[10px]")}>
-        <div className={cn('flex flex-row space-x-2')} >
-        <AdministerDialog />
-        <AnalysisButton />
+        <div className={cn("flex flex-row space-x-2")}>
+          <AdministerDialog />
+          <AnalysisButton />
         </div>
       </div>
     </nav>
+      </div>
   );
 }
 
