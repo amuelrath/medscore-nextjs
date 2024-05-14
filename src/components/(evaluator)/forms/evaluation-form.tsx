@@ -30,7 +30,7 @@ export default function EvaluationForm({ form }: { form: TEvaluationForm }) {
 
   const submitResponse = trpc.responses.submitResponse.useMutation({
     onSuccess: () => {
-      router.replace("/evaluate");
+      toast.success("Submitted Successfully!");
     },
   });
 
@@ -56,11 +56,7 @@ export default function EvaluationForm({ form }: { form: TEvaluationForm }) {
 
   return (
     <FormProvider {...methods}>
-      <form
-        className={cn("space-y-4")}
-        onSubmit={onSubmit(handleSubmit)}
-        onKeyDown={() => handleFormKeyDown}
-      >
+      <form className={cn("space-y-4")} onKeyDown={() => handleFormKeyDown}>
         <AnimatePresence>
           {form &&
             form.questions &&
@@ -80,11 +76,14 @@ export default function EvaluationForm({ form }: { form: TEvaluationForm }) {
                 />
               ))}
         </AnimatePresence>
-        <Button type="submit" disabled={formState.isSubmitting}>
+        <Button
+          type="submit"
+          onClick={() => handleSubmit(methods.getValues())}
+          disabled={formState.isSubmitting}
+        >
           Submit
         </Button>
       </form>
-      <DevTool control={methods.control} />
     </FormProvider>
   );
 }
