@@ -1,7 +1,7 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { TQuestionRelate, TResponseSchema } from "@/db/types";
 import { useAnimation, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Player } from "@lottiefiles/react-lottie-player";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -30,9 +30,13 @@ export function QuestionCard({
   const [cardHeight, setCardHeight] = useState(0);
 
   // Set the questionId field when the component mounts
-  useEffect(() => {
+  const setQuestionId = useCallback(() => {
     setValue(`answers.${index}.questionVersionId`, question.id);
   }, [index, question.id, setValue]);
+
+  useEffect(() => {
+    setQuestionId();
+  }, [setQuestionId]);
 
   // Card In Animation?
   useEffect(() => {
@@ -54,11 +58,15 @@ export function QuestionCard({
   }, [hovering]);
 
   // Handle Card Expansion
-  useEffect(() => {
+  const updateCardHeight = useCallback(() => {
     if (cardRef.current) {
       setCardHeight(cardRef.current.offsetHeight);
     }
-  }, [feedbackOpen, errors.answers?.[index]]);
+  }, []);
+
+  useEffect(() => {
+    updateCardHeight();
+  }, [updateCardHeight, feedbackOpen, errors.answers?.[index]]);
 
   const isFeedbackRequired = question.feedback;
   const feedbackPlaceholder = isFeedbackRequired
@@ -112,6 +120,7 @@ export function QuestionCard({
                     value: o.id,
                     label: o.text || "",
                     pointValue: parseFloat(o.pointValue),
+                    position: o.position
                   }))}
                   value={field.value || "ERROR_NO_VALUE"}
                   onChange={field.onChange}
