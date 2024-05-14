@@ -1,5 +1,6 @@
 import { InferResultType } from "./utils";
 import { Answer } from "@/db/schema";
+import { withTheme } from "@emotion/react";
 
 export type TFormRelate = InferResultType<
   "forms",
@@ -25,7 +26,16 @@ export type TFormRelate = InferResultType<
 >;
 export type TQuestionRelate = InferResultType<
   "questions",
-  { options: true; milestones: { with: { milestone: true } } }
+  {
+    options: true;
+    milestones: {
+      with: {
+        milestone: {
+          with: { subcompetencies: { with: { competencies: true } } };
+        };
+      };
+    };
+  }
 >;
 
 export type TSubcompetencyRelate = InferResultType<
@@ -49,6 +59,15 @@ export type TEvaluationForm = InferResultType<
   }
 >;
 
+export type TResponse = InferResultType<
+  "responses",
+  {
+    answers: true;
+    creator: true;
+    evaluatee: true;
+  }
+>;
+
 export interface TResponseSchema {
   creatorId: string;
   evaluateeId: string;
@@ -60,23 +79,34 @@ export interface TResponseSchema {
   }[];
 }
 
-export type TFormVersion = InferResultType<"formVersions", {
-  questions: {
-    with: {
-      options: true,
-      milestones: {
-        with: {
-          milestone: true
-        }
-      }
-    }
-  },
-  responses: {
-    with: {
-      answers: true,
-      creator: true,
-      evaluatee: true
-    }
-  },
-  code: true
-}>
+export type TFormVersion = InferResultType<
+  "formVersions",
+  {
+    questions: {
+      with: {
+        options: true;
+        milestones: {
+          with: {
+            milestone: {
+              with: {
+                subcompetencies: {
+                  with: {
+                    competencies: true;
+                  };
+                };
+              };
+            };
+          };
+        };
+      };
+    };
+    responses: {
+      with: {
+        answers: true;
+        creator: true;
+        evaluatee: true;
+      };
+    };
+    code: true;
+  }
+>;
