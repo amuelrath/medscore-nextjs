@@ -29,41 +29,45 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
     <>
       <AnimatePresence>
         <div className={cn("space-y-2")}>
-          {fields.map((item, k) => (
-            <motion.div
-              key={item.id}
-              layout="position"
-              layoutId={`option-${item.id}`}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className={cn("group flex w-full items-center space-x-2")}
-            >
-              <Input
-                {...register(`questions.${nestIndex}.options.${k}.text`)}
-                className={cn("rounded-md border p-2")}
-                placeholder={"Option"}
-              />
-              <Input
-                placeholder="Points"
-                {...register(`questions.${nestIndex}.options.${k}.pointValue`)}
-                type="number"
-                className={cn("w-12 rounded-md border p-1 text-center")}
-              />
-              <div
-                className={cn(
-                  "rounded-full p-1 opacity-0 transition-all hover:cursor-pointer hover:bg-primary hover:text-white group-hover:opacity-100",
-                )}
+          {fields
+            .sort((a, b) => a.position - b.position)
+            .map((item, k) => (
+              <motion.div
+                key={`option-${item.id}`}
+                layout="position"
+                layoutId={`option-${item.id}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className={cn("group flex w-full items-center space-x-2")}
               >
-                <Trash2Icon
-                  className={cn("size-4")}
-                  type="button"
-                  onClick={() => remove(k)}
+                <Input
+                  {...register(`questions.${nestIndex}.options.${k}.text`)}
+                  className={cn("rounded-md border p-2")}
+                  placeholder={"Option"}
                 />
-              </div>
-            </motion.div>
-          ))}
+                <Input
+                  placeholder="Points"
+                  {...register(
+                    `questions.${nestIndex}.options.${k}.pointValue`,
+                  )}
+                  type="number"
+                  className={cn("w-12 rounded-md border p-1 text-center")}
+                />
+                <div
+                  className={cn(
+                    "rounded-full p-1 opacity-0 transition-all hover:cursor-pointer hover:bg-primary hover:text-white group-hover:opacity-100",
+                  )}
+                >
+                  <Trash2Icon
+                    className={cn("size-4")}
+                    type="button"
+                    onClick={() => remove(k)}
+                  />
+                </div>
+              </motion.div>
+            ))}
         </div>
       </AnimatePresence>
       <div className="flex items-center justify-between opacity-0 transition-all group-hover:opacity-100">
