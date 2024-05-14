@@ -1,6 +1,6 @@
-import { motion } from "framer-motion";
+import { LazyMotion, m, domAnimation } from "framer-motion";
 import { cva } from "class-variance-authority";
-import { FC, ReactNode } from "react";
+import { FC, memo, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 interface GaugeChartProps {
@@ -16,7 +16,9 @@ interface GaugeChartProps {
     | "pbli"
     | "mk"
     | "p"
-    | "pc";
+    | "pc"
+    | "primary"
+    | "foreground";
   bgStrokeColor?: string;
   icon?: ReactNode;
 }
@@ -35,59 +37,65 @@ const gaugeChartClasses = cva("relative", {
   },
 });
 
-const GaugeChart: FC<GaugeChartProps> = ({
-  value,
-  max = 100,
-  size = "md",
-  color = "accent-secondary",
-  bgStrokeColor = "stroke-gray-300",
-  icon,
-}) => {
-  const percentage = (value / max) * 100;
+const GaugeChart: FC<GaugeChartProps> = memo(
+  ({
+    value,
+    max = 100,
+    size = "md",
+    color = "accent-secondary",
+    bgStrokeColor = "stroke-gray-300",
+    icon,
+  }) => {
+    const percentage = (value / max) * 100;
+    const pathColor = {
+      emerald: "stroke-emerald-400",
+      accent: "stroke-accent",
+      "accent-secondary": "stroke-accent-secondary",
+      ics: "stroke-ics",
+      mk: "stroke-mk",
+      pbli: "stroke-accent-secondary",
+      pc: "stroke-pc",
+      p: "stroke-p",
+      sbp: "stroke-sbp",
+      primary: "stroke-primary",
+      foreground: "stroke-foreground",
+    }[color];
 
-  const pathColor = {
-    emerald: "stroke-emerald-400",
-    accent: "stroke-accent",
-    "accent-secondary": "stroke-accent-secondary",
-    ics: "stroke-ics",
-    mk: "stroke-mk",
-    pbli: "stroke-accent-secondary",
-    pc: "stroke-pc",
-    p: "stroke-p",
-    sbp: "stroke-sbp",
-  }[color];
+    return (
+      <LazyMotion features={domAnimation}>
+        <m.div
+          className={cn(
+            gaugeChartClasses({ size }),
+            "drop-shadow-lg transition-all ease-in-out hover:scale-125",
+          )}
+        >
+          <svg viewBox="0 0 200 120" className="absolute inset-0">
+            <path
+              className={bgStrokeColor}
+              strokeWidth={20}
+              strokeLinecap="butt"
+              fill="none"
+              d="M20,100 A60,60 0 0 1 180,100"
+            />
+            <m.path
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: percentage / 100 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className={pathColor}
+              strokeWidth={20}
+              strokeLinecap="butt"
+              fill="none"
+              d="M20,100 A60,60 0 0 1 180,100"
+            />
+          </svg>
+          <div className="font-poppins absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light">
+            {icon}
+          </div>
+        </m.div>
+      </LazyMotion>
+    );
+  },
+);
 
-  return (
-    <div
-      className={cn(
-        gaugeChartClasses({ size }),
-        "drop-shadow-lg transition-all hover:scale-125 ease-in-out",
-      )}
-    >
-      <svg viewBox="0 0 200 120" className="absolute inset-0">
-        <path
-          className={bgStrokeColor}
-          strokeWidth={20}
-          strokeLinecap="butt"
-          fill="none"
-          d="M20,100 A60,60 0 0 1 180,100"
-        />
-        <motion.path
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: percentage / 100 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className={pathColor}
-          strokeWidth={20}
-          strokeLinecap="butt"
-          fill="none"
-          d="M20,100 A60,60 0 0 1 180,100"
-        />
-      </svg>
-      <div className="font-poppins absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light">
-        {icon}
-      </div>
-    </div>
-  );
-};
-
+GaugeChart.displayName = "GaugeChart";
 export default GaugeChart;
