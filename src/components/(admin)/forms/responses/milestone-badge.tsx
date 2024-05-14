@@ -1,24 +1,63 @@
 import { Badge } from "@/components/ui/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+const TooltipProvider = lazy(() =>
+  import("@/components/ui/tooltip").then((module) => ({
+    default: module.TooltipProvider,
+  })),
+);
+const Tooltip = lazy(() =>
+  import("@/components/ui/tooltip").then((module) => ({
+    default: module.Tooltip,
+  })),
+);
+const TooltipTrigger = lazy(() =>
+  import("@/components/ui/tooltip").then((module) => ({
+    default: module.TooltipTrigger,
+  })),
+);
+const TooltipContent = lazy(() =>
+  import("@/components/ui/tooltip").then((module) => ({
+    default: module.TooltipContent,
+  })),
+);
+
 import { Milestone } from "@/db/schema";
 import { cn } from "@/lib/utils";
+import { lazy, memo, Suspense } from "react";
 // A milestone badge should display the concatenated name of a milestone, on hover it gives more details about case-level performance
-export function MilestoneBadge({ milestone }: { milestone: Milestone }) {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <Badge className={cn("pt-1 text-xs font-normal")} variant={"foreground"}>
-            {milestone.name}
+export const MilestoneBadge = memo(
+  ({ milestone }: { milestone: Milestone }) => {
+    const { name, description } = milestone;
+    return (
+      <Suspense
+        fallback={
+          <Badge
+            className={cn(
+              "mx-1 line-clamp-1 w-[72px] pt-1 text-center font-normal",
+            )}
+            variant="foreground"
+          >
+            {name}
           </Badge>
-        </TooltipTrigger>
-        <TooltipContent>{milestone.description}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
+        }
+      >
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge
+                className={cn("mx-1 line-clamp-1 w-[72px] pt-1 font-normal")}
+                variant={"foreground"}
+              >
+                {name}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent className={cn("fixed -top-3 right-16 w-64 z-50")}>
+              {description}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </Suspense>
+    );
+  },
+);
+
+MilestoneBadge.displayName = "MilestoneBadge";
