@@ -42,72 +42,73 @@ export default function QuestionCards({
 
   return (
     <AnimatePresence>
-      <form onSubmit={handleSubmit(onSubmit)} className={cn("pb-[10rem]")}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={cn("pb-[10rem] pt-[5rem]")}
+      >
         <div className={cn("space-y-4")}>
-          {fields
-            .sort((a, b) => a.position! - b.position!)
-            .map((item, index) => (
-              <motion.div
-                key={`question-${item.id}`}
-                layout="position"
-                layoutId={`question-${item.id}`}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2, delay: index * 0.01 }}
-              >
-                <Card className={cn(`group space-y-2 p-4`)}>
-                  <div className={cn("flex flex-row justify-between")}>
-                    <div className={cn("flex items-center space-x-2")}>
-                      <p className={cn("font-bold")}>{index + 1}.</p>
-                      <div className={cn("space-x-2")}>
-                        <Controller
-                          name={`questions.${index}.milestones`}
-                          control={control}
-                          render={({ field }) => (
-                            <MilestoneBadges
-                              milestoneIds={
-                                field.value.flatMap(
-                                  (m) => m.milestoneId,
-                                ) as string[]
-                              }
-                              subcompetencies={subcompetencies}
-                            />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div
-                      className={cn(
-                        "cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
-                      )}
-                    >
-                      <Trash2Icon onClick={() => remove(index)} size={"1rem"} />
+          {fields.map((item, index) => (
+            <motion.div
+              key={`question-${item.id}`}
+              layout="position"
+              layoutId={`question-${item.id}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, delay: index * 0.01 }}
+            >
+              <Card className={cn(`group space-y-2 p-4`)}>
+                <div className={cn("flex flex-row justify-between")}>
+                  <div className={cn("flex items-center space-x-2")}>
+                    <p className={cn("font-bold")}>{item.position}.</p>
+                    <div className={cn("space-x-2")}>
+                      <Controller
+                        name={`questions.${index}.milestones`}
+                        control={control}
+                        render={({ field }) => (
+                          <MilestoneBadges
+                            milestoneIds={
+                              field.value.flatMap(
+                                (m) => m.milestoneId,
+                              ) as string[]
+                            }
+                            subcompetencies={subcompetencies}
+                          />
+                        )}
+                      />
                     </div>
                   </div>
-                  <div className={cn("flex flex-row items-center space-x-2")}>
-                    <Input
-                      type="text"
-                      {...register(`questions.${index}.text`)}
-                      placeholder="Question"
-                      className={cn("p-2")}
-                    />
-                    <Controller
-                      name={`questions.${index}.milestones`}
-                      control={control}
-                      render={({ field }) => (
-                        <MilestoneSelector
-                          onChange={field.onChange}
-                          subcompetencies={subcompetencies}
-                          values={item.milestones}
-                        />
-                      )}
-                    />
+                  <div
+                    className={cn(
+                      "cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
+                    )}
+                  >
+                    <Trash2Icon onClick={() => remove(index)} size={"1rem"} />
                   </div>
-                  <OptionList {...{ nestIndex: index, control, register }} />
-                </Card>
-              </motion.div>
-            ))}
+                </div>
+                <div className={cn("flex flex-row items-center space-x-2")}>
+                  <Input
+                    type="text"
+                    {...register(`questions.${index}.text`)}
+                    placeholder="Question"
+                    className={cn("p-2")}
+                  />
+                  <Controller
+                    name={`questions.${index}.milestones`}
+                    control={control}
+                    render={({ field }) => (
+                      <MilestoneSelector
+                        onChange={field.onChange}
+                        subcompetencies={subcompetencies}
+                        values={item.milestones}
+                      />
+                    )}
+                  />
+                </div>
+                <OptionList {...{ nestIndex: index, control, register }} />
+              </Card>
+            </motion.div>
+          ))}
         </div>
         <motion.div layout className={cn("mt-4 flex justify-center")}>
           <motion.div
@@ -116,11 +117,12 @@ export default function QuestionCards({
               "cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white",
             )}
             onClick={() => {
+              const newPosition = fields.length + 1;
               append({
                 id: v4(),
                 text: "",
                 feedback: false,
-                position: fields.length + 1,
+                position: newPosition,
                 milestones: [],
                 options: [],
                 deletedAt: null,
@@ -153,7 +155,12 @@ function MilestoneBadges({
         <TooltipProvider key={`badge-${m.id}`}>
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant={"foreground"} className={cn("pt-1 text-xs font-normal")}>{m.name}</Badge>
+              <Badge
+                variant={"foreground"}
+                className={cn("pt-1 text-xs font-normal")}
+              >
+                {m.name}
+              </Badge>
             </TooltipTrigger>
             <TooltipContent>{m.description}</TooltipContent>
           </Tooltip>
