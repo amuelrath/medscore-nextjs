@@ -1,16 +1,9 @@
-export const getBgColorFromPointValue = (
-  pointValue: number,
-  maxPointsAvailable?: number,
-) => {
+export const getBgColorFromPointValue = (percentScore: number) => {
   const positiveColor = "#97c2e8"; // Desaturated blue color for positive values
   const negativeColor = "#f09f9f"; // Desaturated red color for negative values
 
-  const normalizedValue =
-    typeof pointValue === "number"
-      ? pointValue / (maxPointsAvailable || 1)
-      : pointValue && pointValue
-        ? Number(pointValue) / (maxPointsAvailable || 1)
-        : 0;
+  // Ensure percentScore is within the range of 0 to 1
+  const normalizedValue = Math.max(0, Math.min(1, percentScore));
 
   const red = Math.round(
     parseInt(negativeColor.slice(1, 3), 16) * (1 - normalizedValue) +
