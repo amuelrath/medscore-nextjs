@@ -10,8 +10,7 @@ import { FormValuesContext } from "@/providers/form-values-provider";
 import { Suspense } from "react";
 import Loading from "@/components/ui/loading";
 import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
-import {ScrollArea, ScrollBar} from "@/components/ui/scroll-area";
-import {Scrollbar} from "@radix-ui/react-scroll-area";
+import {ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function Editor({
   form,
@@ -48,8 +47,8 @@ export default function Editor({
           <Section>
             <Suspense fallback={<Loading />}>
               <TabContent id="editor">
-                <ScrollArea className="h-[570px] pt-4 transition-all md:px-24 lg:px-64">
-                  <Scrollbar />
+                <ScrollArea className="h-[650px] transition-all md:px-24 lg:px-64">
+                  <ScrollBar />
                   <QuestionCards subcompetencies={subcompetencies || []} />
                 </ScrollArea>
               </TabContent>
