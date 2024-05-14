@@ -1,3 +1,4 @@
+// @/components/(admin)/forms/responses/index.tsx
 "use client";
 import { cn } from "@/lib/utils";
 import { ResponseEditor } from "@/components/(admin)/forms/responses/response-editor";
@@ -13,7 +14,7 @@ export default function Responses() {
         <h3 className={cn("font-poppins text-2xl font-bold tracking-wide")}>
           Details
         </h3>
-        <div className={cn("h-[570px]")}>
+        <div className={cn("h-[570px] mt-8")}>
           <Suspense fallback={<Loading />}>
             <ResponseEditor />
           </Suspense>
