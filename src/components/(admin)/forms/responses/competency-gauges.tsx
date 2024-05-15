@@ -86,10 +86,10 @@ interface CompetencyGaugesProps {
 
 export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
   ({ competencyPercentages }) => {
-    const { formVersion, response, isLoading } = useCurrentResponseAndForm();
+    const { formVersion, response } = useCurrentResponseAndForm();
 
     const competenciesWithQuestions = useMemo(() => {
-      if (isLoading || !formVersion || !response) {
+      if (!formVersion || !response) {
         return [];
       }
 
@@ -102,9 +102,9 @@ export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
         if (!questions) return false;
         return questions.length > 0;
       });
-    }, [isLoading, formVersion, response]);
+    }, [, formVersion, response]);
 
-    if (isLoading || !formVersion || !response) {
+    if ( !formVersion || !response) {
       return null; // or render a loading state
     }
 
