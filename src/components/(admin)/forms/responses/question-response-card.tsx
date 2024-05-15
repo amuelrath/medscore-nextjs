@@ -59,8 +59,7 @@ export function QuestionResponseCard({
     );
 
     const bgColor = getBgColorFromPointValue(
-      Number(selectedOption?.pointValue),
-      maxPointsAvailable,
+      Number(selectedOption?.pointValue) / maxPointsAvailable,
     );
 
     return (
@@ -95,6 +94,7 @@ export function QuestionResponseCard({
         value: o.id,
         label: o.text || "",
         pointValue: parseFloat(o.pointValue),
+        position: o.position,
       }));
   }, [question]);
 
