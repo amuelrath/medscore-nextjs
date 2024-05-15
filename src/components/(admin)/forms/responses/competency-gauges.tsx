@@ -20,8 +20,8 @@ import P from "public/icons/p-icon.json";
 import MK from "public/icons/mk-mask-icon.json";
 import PC from "public/icons/pc-heart-icon.json";
 import PBLI from "public/icons/pbli-icon.json";
-import { useCurrentResponse } from "@/hooks/useCurrentResponse";
-import { getQuestionsByCompetency } from "@/lib/responses/getQuestionsByCompetency";
+import { useCurrentResponseAndForm } from "@/hooks/useCurrentResponseAndForm";
+import { getFilteredQuestionsAndAnswers } from "@/lib/responses/utils";
 import { TQuestionRelate } from "@/db/types";
 import { Answer } from "@/db/schema";
 
@@ -86,7 +86,7 @@ interface CompetencyGaugesProps {
 
 export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
   ({ competencyPercentages }) => {
-    const { formVersion, response, isLoading } = useCurrentResponse();
+    const { formVersion, response, isLoading } = useCurrentResponseAndForm();
 
     const competenciesWithQuestions = useMemo(() => {
       if (isLoading || !formVersion || !response) {
@@ -94,11 +94,12 @@ export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
       }
 
       return Object.keys(COMPETENCIES).filter((competencyName) => {
-        const { questions } = getQuestionsByCompetency(
+        const { filteredQuestions: questions } = getFilteredQuestionsAndAnswers(
           competencyName as keyof typeof COMPETENCIES,
           formVersion.questions as unknown as TQuestionRelate[],
           response.answers as unknown as Answer[],
         );
+        if (!questions) return false;
         return questions.length > 0;
       });
     }, [isLoading, formVersion, response]);
@@ -116,7 +117,7 @@ export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
             <CompetencyGauge
               key={competencyId}
               competencyName={competencyName as keyof typeof COMPETENCIES}
-              competencyPercentage={competencyPercentages[competencyId]}
+              competencyPercentage={competencyPercentages[competencyName]}
             />
           );
         })}
