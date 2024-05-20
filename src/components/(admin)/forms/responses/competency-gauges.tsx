@@ -13,18 +13,16 @@ import { cn } from "@/lib/utils";
 import { Player } from "@lottiefiles/react-lottie-player";
 import GaugeChart from "@/components/ui/gauge";
 import { COMPETENCIES } from "@/db/constants";
-import { CompetencyScoreDialogTrigger } from "@/components/(admin)/forms/dialogs/competency-score-dialog";
 import ICS from "public/icons/ics-bubbles-icon.json";
 import SBP from "public/icons/sbp-nodes-icon.json";
 import P from "public/icons/p-icon.json";
 import MK from "public/icons/mk-mask-icon.json";
 import PC from "public/icons/pc-heart-icon.json";
 import PBLI from "public/icons/pbli-icon.json";
-import { useCurrentResponseAndForm } from "@/hooks/useCurrentResponseAndForm";
 import { getFilteredQuestionsAndAnswers } from "@/lib/responses/utils";
-import { TQuestionRelate } from "@/db/types";
-import { Answer } from "@/db/schema";
-
+import { FormVersionsResult } from "@/db/types";
+import dynamic from "next/dynamic";
+import { useSelectedContext } from "@/providers/selected-values-provider";
 const COMPETENCY_ICONS = {
   ICS,
   SBP,
@@ -33,6 +31,14 @@ const COMPETENCY_ICONS = {
   PC,
   PBLI,
 };
+
+const DynamicCompetencyScoreDialogTrigger = dynamic(
+  () =>
+    import("@/components/(admin)/forms/dialogs/competency-score-dialog").then(
+      (module) => module.CompetencyScoreDialogTrigger,
+    ),
+  { ssr: false },
+);
 
 interface CompetencyGaugeProps {
   competencyName: keyof typeof COMPETENCIES;
@@ -64,7 +70,7 @@ export const CompetencyGauge: FC<CompetencyGaugeProps> = memo(
     const iconSrc = COMPETENCY_ICONS[competencyName];
 
     return (
-      <CompetencyScoreDialogTrigger competencyName={competencyName}>
+      <DynamicCompetencyScoreDialogTrigger competencyName={competencyName}>
         <div onMouseEnter={handleHoverEnter} onMouseLeave={handleHoverExit}>
           <Suspense fallback={<div className="size-8" />}>
             <GaugeChart
@@ -75,36 +81,37 @@ export const CompetencyGauge: FC<CompetencyGaugeProps> = memo(
             />
           </Suspense>
         </div>
-      </CompetencyScoreDialogTrigger>
+      </DynamicCompetencyScoreDialogTrigger>
     );
   },
 );
 
 interface CompetencyGaugesProps {
   competencyPercentages: Record<string, number>;
+  versions: FormVersionsResult;
 }
 
 export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
   ({ competencyPercentages }) => {
-    const { formVersion, response } = useCurrentResponseAndForm();
+    const { selectedVersion, selectedResponse } = useSelectedContext();
 
     const competenciesWithQuestions = useMemo(() => {
-      if (!formVersion || !response) {
+      if (!selectedVersion || !selectedResponse) {
         return [];
       }
 
       return Object.keys(COMPETENCIES).filter((competencyName) => {
         const { filteredQuestions: questions } = getFilteredQuestionsAndAnswers(
           competencyName as keyof typeof COMPETENCIES,
-          formVersion.questions as unknown as TQuestionRelate[],
-          response.answers as unknown as Answer[],
+          selectedVersion.questions,
+          selectedResponse.answers,
         );
         if (!questions) return false;
         return questions.length > 0;
       });
-    }, [, formVersion, response]);
+    }, [selectedVersion, selectedResponse]);
 
-    if ( !formVersion || !response) {
+    if (!selectedVersion || !selectedResponse) {
       return null; // or render a loading state
     }
 
