@@ -1,8 +1,8 @@
 "use server";
 import { db } from "@/db";
-import { TFormVersion } from "@/db/types";
+import { DateToString } from "@/db/utils";
 
-export async function getAllVersions(formId: string): Promise<TFormVersion[]> {
+export async function getAllVersions(formId: string) {
   return db.query.formVersions.findMany({
     where: (version, { eq }) => eq(version.formId, formId),
     with: {
@@ -35,3 +35,7 @@ export async function getAllVersions(formId: string): Promise<TFormVersion[]> {
     },
   });
 }
+
+export type FormVersionsResult = NonNullable<
+  DateToString<Awaited<ReturnType<typeof getAllVersions>>>
+>;
