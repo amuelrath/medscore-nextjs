@@ -32,7 +32,7 @@ export function LottieIconButton({
     <Button
       {...buttonProps}
         variant={"foreground"}
-      className={cn("rounded-md border relative", className)}
+      className={cn("font-forma rounded-md border relative", className)}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       style={style}
