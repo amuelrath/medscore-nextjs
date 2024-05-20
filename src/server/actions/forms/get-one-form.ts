@@ -1,7 +1,9 @@
 import { db } from "@/db";
+import { DateToString } from "@/db/utils";
+export type NonNullable<T> = T extends null | undefined ? never : T;
 
 export async function getOneForm(formId: string, userId: string) {
-  return await db.query.forms.findFirst({
+  return db.query.forms.findFirst({
     with: {
       programs: {
         with: {
@@ -13,6 +15,7 @@ export async function getOneForm(formId: string, userId: string) {
         },
       },
       questions: {
+        orderBy: (q, { asc }) => asc(q.position),
         with: {
           options: true,
           milestones: {
@@ -27,7 +30,9 @@ export async function getOneForm(formId: string, userId: string) {
       and(
         eq(form.id, formId),
         isNull(form.deletedAt),
-        eq(form.creatorId, userId)
+        eq(form.creatorId, userId),
       ),
   });
 }
+
+export type FormResult = NonNullable<DateToString<Awaited<ReturnType<typeof getOneForm>>>>;
