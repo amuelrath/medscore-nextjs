@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { User } from "@/db/schema";
 import { trpc } from "@/app/_trpc/client";
-import { useEffect, useRef, useState } from "react";
-import { DevTool } from "@hookform/devtools";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -49,10 +48,6 @@ export default function EvaluationForm({ form }: { form: TEvaluationForm }) {
   };
 
   const { handleSubmit: onSubmit, formState } = methods;
-
-  useEffect(() => {
-    console.log(formState.errors);
-  }, [formState.errors]);
 
   return (
     <FormProvider {...methods}>
