@@ -1,22 +1,23 @@
-"use client";
-import { Player } from "@lottiefiles/react-lottie-player";
-import { useRef } from "react";
-import LOADING_ICON from "public/icons/system-regular-720-spinner-half-circles.json";
-import { cva, VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+'use client';
 
-const loadingStyles = cva("flex items-center justify-center", {
+import { Player } from '@lottiefiles/react-lottie-player';
+import { useRef } from 'react';
+import LOADING_ICON from 'public/icons/system-regular-720-spinner-half-circles.json';
+import { cva, VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+const loadingStyles = cva('flex items-center justify-center', {
   variants: {
     color: {
-      primary: "text-primary",
-      secondary: "text-secondary",
+      primary: 'text-primary',
+      secondary: 'text-secondary',
       // Add more color variants as needed
     },
     size: {
-      sm: "w-8 h-8",
-      md: "w-12 h-12",
-      lg: "w-24 h-24",
-      xl: "w-72 h-72",
+      sm: 'w-8 h-8',
+      md: 'w-12 h-12',
+      lg: 'w-24 h-24',
+      xl: 'w-72 h-72',
       // Add more size variants as needed
     },
     icon: {
@@ -25,9 +26,9 @@ const loadingStyles = cva("flex items-center justify-center", {
     },
   },
   defaultVariants: {
-    color: "primary",
-    size: "md",
-    icon: "default",
+    color: 'primary',
+    size: 'md',
+    icon: 'default',
   },
 });
 
@@ -48,7 +49,7 @@ export default function Loading({ color, size, icon }: LoadingProps) {
     <div
       className={cn(
         loadingStyles({ color, size, icon }),
-        "w-full h-full mt-[25%] flex flex-col justify-center items-center",
+        'mt-[25%] flex h-full w-full flex-col items-center justify-center',
       )}
     >
       <Player
@@ -56,7 +57,7 @@ export default function Loading({ color, size, icon }: LoadingProps) {
         src={iconSrc}
         loop
         autoplay
-        style={{ width: "48px", height: "48px" }}
+        style={{ width: '48px', height: '48px' }}
       />
     </div>
   );
