@@ -1,5 +1,5 @@
 "use client";
-import { TFormRelate, TSubcompetencyRelate } from "@/db/types";
+import { FormResult, TFormRelate, TSubcompetencyRelate } from "@/db/types";
 import { v4 } from "uuid";
 import { FormProvider, useForm } from "react-hook-form";
 import QuestionCards from "@/components/(admin)/forms/editor/questions";
@@ -10,32 +10,30 @@ import { FormValuesContext } from "@/providers/form-values-provider";
 import { Suspense } from "react";
 import Loading from "@/components/ui/loading";
 import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
-import {ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export default function Editor({
   form,
   subcompetencies,
 }: {
-  form: TFormRelate;
-  subcompetencies: TSubcompetencyRelate[];
+  form: FormResult;
+  subcompetencies: TSubcompetencyRelate[] | undefined;
 }) {
   const methods = useForm<TFormRelate>({
     defaultValues: form || {
-      form: {
-        id: v4(),
-        title: "Untitled Evaluation",
-        programId: "",
-        questions: [
-          {
-            id: v4(),
-            text: "",
-            options: [
-              { id: v4(), text: "" },
-              { id: v4(), text: "" },
-            ],
-          },
-        ],
-      },
+      id: v4(),
+      title: "Untitled Evaluation",
+      programId: "",
+      questions: [
+        {
+          id: v4(),
+          text: "",
+          options: [
+            { id: v4(), text: "" },
+            { id: v4(), text: "" },
+          ],
+        },
+      ],
     },
   });
 
