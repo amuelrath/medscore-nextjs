@@ -1,5 +1,7 @@
 "use server";
 import { db } from "@/db";
+import { NonNullable } from "@/server/actions/forms/get-one-form";
+import { DateToString } from "@/db/utils";
 
 export async function getOneVersion(formVersionId: string) {
   return db.query.formVersions.findFirst({
@@ -26,3 +28,7 @@ export async function getOneVersion(formVersionId: string) {
     },
   });
 }
+
+export type FormVersionResult = NonNullable<
+  DateToString<Awaited<ReturnType<typeof getOneVersion>>>
+>;
