@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Provider from "@/app/_trpc/provider";
+import { StrictMode } from "react";
 
 export const metadata: Metadata = {
   title: "medscore",
@@ -37,16 +38,18 @@ export default function RootLayout({
         />
       </head>
       <html lang="en">
-        <Provider>
-          <body
-            className={
-              "font-forma min-h-screen w-full bg-gradient-to-b from-background to-gray-200 "
-            }
-          >
-            {children}
-            <Toaster />
-          </body>
-        </Provider>
+        <StrictMode>
+          <Provider>
+            <body
+              className={
+                "font-poppins min-h-screen w-full bg-gradient-to-b from-background to-gray-200 "
+              }
+            >
+              {children}
+              <Toaster />
+            </body>
+          </Provider>
+        </StrictMode>
       </html>
     </>
   );
