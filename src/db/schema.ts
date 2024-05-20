@@ -14,6 +14,7 @@ import {
   varchar,
   AnyPgColumn,
 } from "drizzle-orm/pg-core";
+import { DateToString } from "@/db/utils";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
 
@@ -167,10 +168,7 @@ export const forms = pgTable("forms", {
     .default(sql`gen_random_uuid()`),
   title: text("title").notNull().default("Untitled Evaluation"),
   lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   deletedAt: timestamp("deleted_at"),
   programId: uuid("program_id")
     .references((): AnyPgColumn => programs.id)
@@ -307,7 +305,7 @@ export const responses = pgTable("responses", {
   deletedAt: timestamp("deleted_at"),
   // connect to form version
 });
-export type Response = typeof responses.$inferSelect;
+export type Response = DateToString<typeof responses.$inferSelect>;
 export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
   // connect to form version
@@ -348,7 +346,7 @@ export const answers = pgTable("answers", {
     .$onUpdateFn(() => new Date()),
   deletedAt: timestamp("deleted_at"),
 });
-export type Answer = typeof answers.$inferSelect;
+export type Answer = DateToString<typeof answers.$inferSelect>;
 export type NewAnswer = typeof answers.$inferInsert;
 export const answerRelations = relations(answers, ({ one, many }) => ({
   optionVersion: one(optionVersions, {
