@@ -1,6 +1,6 @@
+// FormResponsesSidebar.tsx
 "use client";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -13,31 +13,39 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ScrollAreaScrollbar } from "@radix-ui/react-scroll-area";
 import { ResponseCards } from "@/components/(admin)/forms/responses/response-cards";
 import { ResponseOverviewCard } from "@/components/(admin)/forms/responses/response-overview-card";
-import { useRouter, useSearchParams } from "next/navigation";
-import { TFormVersion } from "@/db/types";
-import { useAllFormVersions } from "@/hooks/useAllFormVersions";
-import { useCurrentResponseAndForm } from "@/hooks/useCurrentResponseAndForm";
+import { useAllFormVersions } from "@/providers/all-form-versions-provider";
+import { useSelectedContext } from "@/providers/selected-values-provider";
+import React, { useMemo } from "react";
+
+const MemoizedResponseOverviewCard = React.memo(ResponseOverviewCard);
+const MemoizedResponseCards = React.memo(ResponseCards);
 
 export function FormResponsesSidebar() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
-  const { allVersions, selectedVersionId } = useAllFormVersions();
-  const { formVersion: selectedFormVersion } = useCurrentResponseAndForm();
-
-  useEffect(() => {
-    if (selectedVersionId) {
-      setSelectedVersion(selectedVersionId);
-    }
-  }, [selectedVersionId]);
+  const { versions } = useAllFormVersions();
+  const { selectedVersion, setSelectedVersion } = useSelectedContext();
 
   const handleVersionSelect = (versionId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("versionId", versionId);
-    setSelectedVersion(versionId);
-    params.delete("responseId");
-    router.push(`?${params.toString()}`);
+    const version = versions.find((v) => v.id === versionId);
+    setSelectedVersion(version);
   };
+
+  const versionOptions = useMemo(
+    () =>
+      versions.map((v) => (
+        <SelectItem key={v.id} value={v.id}>
+          <div
+            className={cn("flex w-72 flex-row items-center justify-between")}
+          >
+            <span className={cn("")}>{formatDate(v.createdAt)}</span>
+            <span className={cn("font-bold")}>
+              {`${v.responses.length}`}
+              <span> Responses</span>
+            </span>
+          </div>
+        </SelectItem>
+      )),
+    [versions],
+  );
 
   return (
     <aside
@@ -46,36 +54,22 @@ export function FormResponsesSidebar() {
       )}
     >
       <div className={cn("flex flex-col space-y-8")}>
-        <ResponseOverviewCard />
+        <MemoizedResponseOverviewCard />
         <div className={cn("space-y-2 rounded-md px-2 pt-6")}>
           <Select
-            key={`select-${selectedVersion}`}
+            key={`select-${selectedVersion?.id}`}
             onValueChange={handleVersionSelect}
-            value={selectedVersion || ""}
+            value={selectedVersion?.id || ""}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select an Administration Date" />
             </SelectTrigger>
             <SelectContent>
-              {allVersions.length ? (
-                allVersions.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
-                    <div
-                      className={cn(
-                        "flex w-72 flex-row items-center justify-between",
-                      )}
-                    >
-                      <span className={cn("")}>{formatDate(v.createdAt)}</span>
-                      <span className={cn("font-bold")}>
-                        {`${v.responses.length}`}
-                        <span> Responses</span>
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))
+              {versions.length ? (
+                versionOptions
               ) : (
                 <SelectValue
-                  placeholder={"This evaluation hasn't been administered yet! "}
+                  placeholder={"This evaluation hasn't been administered yet!"}
                 />
               )}
             </SelectContent>
@@ -83,12 +77,8 @@ export function FormResponsesSidebar() {
           <ScrollArea className={cn("h-[293px] w-full scroll-p-4")}>
             <ScrollAreaScrollbar />
             <div className={cn("px-4")}>
-              {selectedFormVersion ? (
-                <ResponseCards
-                  formVersion={selectedFormVersion as unknown as TFormVersion}
-                />
-              ) : (
-                <></>
+              {selectedVersion && (
+                <MemoizedResponseCards formVersion={selectedVersion} />
               )}
             </div>
           </ScrollArea>
