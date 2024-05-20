@@ -5,11 +5,12 @@ import { cn } from "@/lib/utils";
 import STICKY_NOTE from "public/icons/system-regular-152-sticky-note.json";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup } from "@/components/ui/animated-radio-group";
-import { TQuestionRelate } from "@/db/types";
+import { QuestionVersionResult } from "@/db/types";
 import { m, LazyMotion, AnimatePresence, domAnimation } from "framer-motion";
 import { Answer } from "@/db/schema";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
 import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
+import { DateToString } from "@/db/utils";
 
 export function QuestionResponseCard({
   question,
@@ -17,9 +18,9 @@ export function QuestionResponseCard({
   answers,
   locked,
 }: {
-  question: TQuestionRelate | undefined | null;
+  question: QuestionVersionResult | undefined | null;
   index: number;
-  answers: Answer[];
+  answers: DateToString<Answer>[];
   locked: boolean;
 }) {
   const lottieRef = useRef<Player>(null);
@@ -45,7 +46,8 @@ export function QuestionResponseCard({
     if (
       !question ||
       !answer ||
-      question.options.find((o) => o.pointValue === null || undefined)
+      !question.options ||
+      question?.options?.find((o) => o.pointValue === null || undefined)
     )
       return;
 
@@ -86,7 +88,7 @@ export function QuestionResponseCard({
   );
 
   const options = useMemo(() => {
-    if (!question) return [];
+    if (!question || !question.options) return [];
 
     return question.options
       .sort((a, b) => a.position - b.position)
@@ -98,7 +100,7 @@ export function QuestionResponseCard({
       }));
   }, [question]);
 
-  if (!question) return <>Error getting this question!</>;
+  if (!question || !question.milestones) return <>Error getting milestones!</>;
 
   return (
     <LazyMotion features={domAnimation}>
