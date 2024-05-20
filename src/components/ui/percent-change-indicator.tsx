@@ -9,19 +9,21 @@ export function ChangeIndicator({ percentChange }: { percentChange: number }) {
 
   if (percentChange === 0)
     return (
-      <p className={cn("font-poppins text-end font-regular text-xs italic")}>No Change.</p>
+      <p className={cn("font-poppins mb-1 font-regular font-bold text-end text-xs italic")}>
+        No Change.
+      </p>
     );
 
   return (
     <div className={cn("flex select-none flex-row items-center")}>
-      <p
+      <div
         className={cn(
           "font-poppins flex flex-row items-center space-x-1 text-sm font-bold tracking-wide",
           isChangePositive ? "text-emerald-500" : "text-destructive",
         )}
       >
         <Counter duration={0.3} value={percentChange} />%
-      </p>
+      </div>
       <Player
         src={isChangePositive ? TRENDING_UP : TRENDING_DOWN}
         className={cn("size-5 pb-1 pl-1")}
