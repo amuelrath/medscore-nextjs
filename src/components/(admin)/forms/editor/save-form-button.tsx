@@ -18,30 +18,34 @@ export default function SaveFormButton() {
   const [changeQueue, setChangeQueue] = useState<TFormRelate[]>([]);
   const doneAnimationRef = useRef<Player>(null);
 
-  const handleSave = async () => {
-    setLoading(true);
-    try {
-      const formData = changeQueue[changeQueue.length - 1];
-      await saveForm(formData);
-      setChangeQueue([]);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSave = useCallback(async () => {
+    return async () => {
+      setLoading(true);
+      try {
+        const formData = changeQueue[changeQueue.length - 1];
+        await saveForm(formData);
+        setChangeQueue([]);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  }, [setLoading, setChangeQueue, changeQueue]);
 
   const debouncedSave = useCallback(
-    debounce((formData: TFormRelate) => {
-      setChangeQueue((prevQueue) => {
-        const lastIndex = prevQueue.length - 1;
-        if (lastIndex >= 0 && isEqual(prevQueue[lastIndex], formData)) {
-          return prevQueue;
-        }
-        return [...prevQueue, formData];
-      });
-    }, 1000),
-    [],
+    (formData: TFormRelate) => {
+      debounce(() => {
+        setChangeQueue((prevQueue) => {
+          const lastIndex = prevQueue.length - 1;
+          if (lastIndex >= 0 && isEqual(prevQueue[lastIndex], formData)) {
+            return prevQueue;
+          }
+          return [...prevQueue, formData];
+        });
+      }, 1000)();
+    },
+    [setChangeQueue],
   );
 
   const watchedData = useWatch({
@@ -53,13 +57,13 @@ export default function SaveFormButton() {
     if (methods.formState.isDirty) {
       debouncedSave(watchedData as TFormRelate);
     }
-  }, [watchedData]);
+  }, [watchedData, debouncedSave]);
 
   useEffect(() => {
     if (!loading && changeQueue.length > 0) {
       handleSave();
     }
-  }, [loading, changeQueue]);
+  }, [loading, changeQueue, handleSave]);
 
   useEffect(() => {
     if (!loading && doneAnimationRef.current) {
