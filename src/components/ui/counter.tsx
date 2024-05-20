@@ -55,7 +55,7 @@ const Counter: React.FC<CounterProps> = ({
 
   return (
     <div className={className}>
-      {Math.floor(count).toString().padStart(2, "0")}
+      {count.toFixed(1).toString().padStart(2, "0")}
     </div>
   );
 };
