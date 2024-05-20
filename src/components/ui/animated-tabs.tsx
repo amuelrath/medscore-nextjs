@@ -1,13 +1,19 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState, useContext, createContext, useEffect } from "react";
+import {
+  useState,
+  useContext,
+  createContext,
+  useEffect,
+  ReactNode,
+} from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 interface Tab {
   id: string;
   label: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
 }
 
 interface TabsContextType {
@@ -24,7 +30,7 @@ export function useTabsContext() {
   return useContext(TabsContext);
 }
 
-export function TabsProvider({ children }: { children: React.ReactNode }) {
+export function TabsProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState("");
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
@@ -38,13 +44,13 @@ export function TabContent({
   children,
 }: {
   id: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const { activeTab } = useTabsContext();
   return activeTab === id ? <>{children}</> : null;
 }
 
-const tabsStyles = cva("relative flex flex-row space-x-2 items-center z-10", {
+const tabsStyles = cva("font-forma relative flex flex-row space-x-2 items-center z-10", {
   variants: {
     size: {
       xs: "text-xs",
@@ -85,7 +91,7 @@ export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
     } else {
       setActiveTab(tabs[0]?.id);
     }
-  }, [searchParams, tabs]);
+  }, [searchParams, tabs, setActiveTab]);
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
