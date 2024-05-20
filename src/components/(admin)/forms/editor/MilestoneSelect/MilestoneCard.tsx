@@ -1,11 +1,11 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, memo } from "react";
 import { motion } from "framer-motion";
 import { useMilestoneSelector } from "./index";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 import { Milestone } from "@/db/schema";
 
-const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
+const MilestoneCard = memo(({ milestone }: { milestone: Milestone }) => {
   const { setSelectedMilestoneIds, selectedMilestoneIds } =
     useMilestoneSelector();
 
@@ -70,7 +70,7 @@ const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
         transition={{ duration: 0.1 }}
         whileHover={{ boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)" }}
         className={cn(
-          "row flex flex w-full items-center justify-between rounded-2xl border p-4 text-sm font-bold text-white mix-blend-multiply",
+          "flex w-full flex-row items-center justify-between rounded-2xl border p-4 text-sm font-bold text-white mix-blend-multiply",
           colors[getCompetencyName(milestone.name)],
         )}
       >
@@ -86,6 +86,7 @@ const MilestoneCard = React.memo(({ milestone }: { milestone: Milestone }) => {
   );
 });
 
+MilestoneCard.displayName = "MilestoneCard";
 export default MilestoneCard;
 
 const variants = {
