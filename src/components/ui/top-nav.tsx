@@ -1,9 +1,8 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import Image from "next/image";
 import logo from "public/mark@2x.png";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { preload } from "react-dom";
@@ -11,7 +10,7 @@ import { preload } from "react-dom";
 interface Tab {
   id: string;
   label: string;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   href: string;
 }
 
@@ -47,7 +46,7 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
         className={`flex flex-row items-center justify-between bg-foreground p-2`}
       >
         <div className={cn("flex flex-row items-center space-x-2")}>
-          <Image src={logo} alt="logo" className={cn("size-10 ")} />
+          <Image priority src={logo} alt="logo" className={cn("size-10")} />
           <h3 className={cn("flex flex-row")}>
             <p className={cn("font-poppins text-xl font-bold text-accent")}>
               MED
@@ -60,7 +59,7 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
           </h3>
         </div>
         {!withoutTabs && (
-          <div className={cn("flex flex-row items-center space-x-2")}>
+          <div className={cn("flex font-forma flex-row items-center space-x-2")}>
             {tabs.map((tab) => (
               <div
                 key={tab.id}
