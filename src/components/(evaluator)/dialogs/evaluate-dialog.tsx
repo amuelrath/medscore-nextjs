@@ -91,15 +91,14 @@ export default function EvaluateDialog() {
     },
   });
   useEffect(() => {
+    const onCodeChange = (value: string) => {
+      setCode(value);
+      if (value.length === 6) {
+        mutation.mutate({ code: value });
+      }
+    };
     onCodeChange(code);
-  }, [code]);
-
-  const onCodeChange = (value: string) => {
-    setCode(value);
-    if (value.length === 6) {
-      mutation.mutate({ code: value });
-    }
-  };
+  }, [code, mutation]);
 
   const onEvaluateClick = async () => {
     router.push(`/evaluate/${mutation.data?.formVersionId}`);
