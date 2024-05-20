@@ -99,6 +99,11 @@
   }
 }
 
+@font-face {
+  font-family: "poppins", sans-serif;
+  font-display: swap;
+}
+
 .font-poppins {
   font-family: "poppins", sans-serif;
 }
@@ -106,4 +111,3 @@
 .font-forma {
   font-family: "forma-djr-micro", sans-serif;
 }
-
