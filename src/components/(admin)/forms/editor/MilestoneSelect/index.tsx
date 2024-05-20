@@ -95,13 +95,12 @@ export default function MilestoneSelector({
     selectedSubcompetencyId,
   };
 
-  const handleChange = (selectedMilestoneIds: Allocation[]) => {
-    onChange(selectedMilestoneIds);
-  };
-
   useEffect(() => {
+    const handleChange = (selectedMilestoneIds: Allocation[]) => {
+      onChange(selectedMilestoneIds);
+    };
     handleChange(selectedMilestoneIds);
-  }, [selectedMilestoneIds]);
+  }, [selectedMilestoneIds, onChange]);
 
   return (
     <Drawer>
