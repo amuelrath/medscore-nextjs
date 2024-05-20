@@ -1,7 +1,6 @@
 "use client";
 import FormEditorSection from "@/components/(admin)/forms/editor";
 import { trpc } from "@/app/_trpc/client";
-import { TFormRelate } from "@/db/types";
 export default function EditorPage({ params }: { params: { formId: string } }) {
   const utils = trpc.useUtils();
   const formQuery = trpc.forms.byId.useSuspenseQuery({
@@ -21,15 +20,14 @@ export default function EditorPage({ params }: { params: { formId: string } }) {
   // TODO I'm not sure if this implementation is correct.
   utils.forms.status.prefetch({ formId: params.formId });
 
-  // update last opened
-
+  if (!formQuery[1].data) throw new Error("No data found.");
   if (formQuery[1].data?.creatorId !== process.env.NEXT_PUBLIC_DEV_USER_ID!) {
     return new Error("Unauthorized");
   }
 
   return (
     <FormEditorSection
-      form={formQuery[1].data as unknown as TFormRelate}
+      form={formQuery[1].data}
       subcompetencies={subcompetencyQuery[1].data}
     />
   );
