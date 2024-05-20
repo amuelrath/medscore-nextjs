@@ -17,7 +17,7 @@ export type IncludeRelation<TableName extends keyof TSchema> = DBQueryConfig<
 
 export type InferResultType<
   TableName extends keyof TSchema,
-  With extends IncludeRelation<TableName> | undefined = undefined
+  With extends IncludeRelation<TableName> | undefined = undefined,
 > = BuildQueryResult<
   TSchema,
   TSchema[TableName],
@@ -25,3 +25,15 @@ export type InferResultType<
     with: With;
   }
 >;
+
+export type DateToString<T> = {
+  [K in keyof T]: T[K] extends Date
+    ? string
+    : T[K] extends Date | null
+      ? string | null
+      : T[K] extends Array<infer U>
+        ? Array<DateToString<U>>
+        : T[K] extends object
+          ? DateToString<T[K]>
+          : T[K];
+};

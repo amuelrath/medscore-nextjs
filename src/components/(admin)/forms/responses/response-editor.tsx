@@ -2,52 +2,26 @@
 import { Player } from "@lottiefiles/react-lottie-player";
 import EYE_BLINKING from "public/icons/wired-flat-69-eye.json";
 import { cn } from "@/lib/utils";
-import { TQuestionRelate } from "@/db/types";
+import { QuestionVersionResult } from "@/db/types";
 import { QuestionResponseCard } from "@/components/(admin)/forms/responses/question-response-card";
 import { Answer, Option } from "@/db/schema";
-import { memo, Suspense, useEffect, useMemo, useRef } from "react";
-import { useSearchParams } from "next/navigation";
-import { trpc } from "@/app/_trpc/client";
+import { memo, Suspense, useMemo } from "react";
 import { List, AutoSizer, ListRowRenderer } from "react-virtualized";
+import { useSelectedContext } from "@/providers/selected-values-provider";
 
 export const ResponseEditor = memo(() => {
-  const searchParams = useSearchParams();
-  const selectedVersionId = searchParams.get("versionId");
-  const selectedResponseId = searchParams.get("responseId");
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  const {
-    data: formVersion,
-    isLoading: isFormVersionLoading,
-    isError: isFormVersionError,
-  } = trpc.forms.versionById.useQuery(
-    { formVersionId: selectedVersionId as string },
-    { enabled: !!selectedVersionId },
-  );
-
-  const response = useMemo(
-    () => formVersion?.responses.find((r) => r.id === selectedResponseId),
-    [formVersion?.responses, selectedResponseId],
-  );
+  const { selectedVersion, selectedResponse } = useSelectedContext();
 
   const sortedQuestions = useMemo(() => {
-    if (formVersion?.questions) {
-      return [...formVersion.questions].sort((a, b) => a.position - b.position);
+    if (selectedVersion?.questions) {
+      return [...selectedVersion?.questions].sort(
+        (a, b) => a.position - b.position,
+      );
     }
     return [];
-  }, [formVersion?.questions]);
+  }, [selectedVersion?.questions]);
 
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = 0;
-    }
-  }, [selectedResponseId]);
-
-  if (isFormVersionError) {
-    return <div>Error loading form.</div>;
-  }
-
-  if (!selectedVersionId || !selectedResponseId || isFormVersionLoading) {
+  if (!selectedVersion || !selectedResponse) {
     return (
       <div className={cn("flex h-full w-full justify-center")}>
         <div
@@ -64,32 +38,7 @@ export const ResponseEditor = memo(() => {
               className={cn("size-24 drop-shadow-lg")}
             />
           </Suspense>
-          <p className={"font-poppins"}>Select a response to view details.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!formVersion?.questions || !response) {
-    return (
-      <div className={cn("flex h-full w-full justify-center")}>
-        <div
-          className={cn(
-            "flex h-full w-full flex-col items-center justify-center",
-          )}
-        >
-          <Suspense fallback={<div className="size-24" />}>
-            <Player
-              src={EYE_BLINKING}
-              autoplay
-              loop
-              speed={0.7}
-              className={cn("size-24 drop-shadow-lg")}
-            />
-          </Suspense>
-          <p className={"font-poppins"}>
-            No questions or response found for the selected form version.
-          </p>
+          <p>Select a response to view details.</p>
         </div>
       </div>
     );
@@ -101,8 +50,8 @@ export const ResponseEditor = memo(() => {
       <div key={question.id} style={style} className={cn("pr-8")}>
         <QuestionResponseCard
           locked={true}
-          answers={response?.answers as unknown as Answer[]}
-          question={question as unknown as TQuestionRelate}
+          answers={selectedResponse.answers}
+          question={question}
           index={index}
         />
       </div>
@@ -117,12 +66,13 @@ export const ResponseEditor = memo(() => {
             <List
               height={height}
               width={width}
-              rowCount={formVersion.questions.length}
+              rowCount={selectedVersion.questions.length}
               rowHeight={({ index }) =>
                 estimateRowHeight(
-                  formVersion.questions[index] as unknown as TQuestionRelate,
-                  formVersion.questions[index].options as unknown as Option[],
-                  response.answers as unknown as Answer[],
+                  selectedVersion.questions[index],
+                  selectedVersion.questions[index]
+                    .options as unknown as Option[],
+                  selectedResponse.answers as unknown as Answer[],
                 )
               }
               rowRenderer={rowRenderer}
@@ -132,7 +82,6 @@ export const ResponseEditor = memo(() => {
             />
           )}
         </AutoSizer>
-        <div className="font-poppins mt-4">Edits/ Discussion go Here</div>
       </div>
     </div>
   );
@@ -142,7 +91,7 @@ ResponseEditor.displayName = "ResponseEditor";
 
 // TODO find a less hacky way of doing this.
 const estimateRowHeight = (
-  question: TQuestionRelate,
+  question: QuestionVersionResult,
   options: Option[],
   answers: Answer[],
 ): number => {

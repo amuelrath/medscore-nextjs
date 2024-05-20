@@ -1,7 +1,40 @@
-import { InferResultType } from "./utils";
-import { Answer } from "@/db/schema";
-import { withTheme } from "@emotion/react";
+import { DateToString, InferResultType } from "./utils";
+import { FormVersionsResult } from "@/server/actions/forms/get-all-versions";
+import { FormResult } from "@/server/actions/forms/get-one-form";
+import { FormVersionResult } from "@/server/actions/forms/get-one-version";
+export type { FormVersionsResult, FormResult, FormVersionResult };
 
+export type ResponseResult = NonNullable<
+  DateToString<
+    InferResultType<
+      "responses",
+      { answers: true; creator: true; evaluatee: true }
+    >
+  >
+>;
+
+export type AnswerResult = NonNullable<
+  DateToString<InferResultType<"answers">>
+>;
+export type QuestionVersionResult = InferResultType<
+  "questionVersions",
+  {
+    options: true;
+    milestones: {
+      with: {
+        milestone: {
+          with: {
+            subcompetencies: {
+              with: {
+                competencies: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  }
+>;
 export type TFormRelate = InferResultType<
   "forms",
   {
@@ -24,6 +57,7 @@ export type TFormRelate = InferResultType<
     };
   }
 >;
+
 export type TQuestionRelate = InferResultType<
   "questions",
   {

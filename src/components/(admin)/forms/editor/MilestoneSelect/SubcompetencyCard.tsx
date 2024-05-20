@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { useMilestoneSelector } from "./index";
 import { motion } from "framer-motion";
 import { TSubcompetencyRelate } from "@/db/types";
@@ -7,7 +7,7 @@ import { XIcon } from "lucide-react";
 import MilestoneCard from "./MilestoneCard";
 import { Badge } from "@/components/ui/badge";
 
-const SubcompetencyCard = React.memo(
+const SubcompetencyCard = memo(
   ({ subcompetency }: { subcompetency: TSubcompetencyRelate }) => {
     const {
       setSelectedSubcompetencyId,
@@ -47,8 +47,6 @@ const SubcompetencyCard = React.memo(
       return result;
     }, [milestones, selectedMilestoneIds]);
 
-    const numberOfSelectedMilestones = getNumberOfSelectedMilestones;
-
     return (
       <>
         <div
@@ -65,13 +63,13 @@ const SubcompetencyCard = React.memo(
             transition={{ duration: 0.3 }}
             whileHover={{ boxShadow: "0 6px 12px 0px rgba(0,0,0,0.2)" }}
             className={cn(
-              "row flex flex h-12 w-full cursor-pointer items-center justify-between rounded-2xl border p-4 font-bold text-white",
+              "flex h-12 w-full cursor-pointer flex-row items-center justify-between rounded-2xl border p-4 font-bold text-white",
               colors[subcompetency.competencies.name],
             )}
           >
             <p>{formatTitle}</p>
             <div className={cn("flex flex-row items-center space-x-2")}>
-              {numberOfSelectedMilestones > 0 && (
+              {getNumberOfSelectedMilestones > 0 && (
                 <Badge>{getNumberOfSelectedMilestones}</Badge>
               )}
               <motion.div animate={isSelected ? { rotate: 0 } : { rotate: 45 }}>
@@ -90,6 +88,7 @@ const SubcompetencyCard = React.memo(
   },
 );
 
+SubcompetencyCard.displayName = "SubcompetencyCard";
 export default SubcompetencyCard;
 
 const colors: { [key: string]: string } = {
