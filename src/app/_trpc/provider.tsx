@@ -13,7 +13,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
           url: "http://localhost:3000/api/trpc",
         }),
       ],
-    })
+    }),
   );
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
