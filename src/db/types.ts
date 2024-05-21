@@ -14,26 +14,43 @@ export type ResponseResult = NonNullable<
 >;
 
 export type AnswerResult = NonNullable<
-  DateToString<InferResultType<"answers">>
+  DateToString<
+    Omit<
+      InferResultType<"answers">,
+      "createdAt" | "deletedAt" | "updatedAt" | "responseId"
+    >
+  >
 >;
-export type QuestionVersionResult = InferResultType<
-  "questionVersions",
-  {
-    options: true;
-    milestones: {
-      with: {
-        milestone: {
-          with: {
-            subcompetencies: {
-              with: {
-                competencies: true;
+export type QuestionVersionResult = Omit<
+  InferResultType<
+    "questionVersions",
+    {
+      options: {
+        columns: { questionVersionId: false };
+      };
+      milestones: {
+        columns: { questionVersionId: false; milestoneId: false };
+        with: {
+          milestone: {
+            columns: { sublevel: false; level: false; subcompetencyId: false };
+            with: {
+              subcompetencies: {
+                columns: {
+                  level: false;
+                  specialtyId: false;
+                  competencyId: false;
+                };
+                with: {
+                  competencies: true;
+                };
               };
             };
           };
         };
       };
-    };
-  }
+    }
+  >,
+  "formVersionId"
 >;
 export type TFormRelate = InferResultType<
   "forms",
