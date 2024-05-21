@@ -1,8 +1,12 @@
 import EvaluateDialog from "@/components/(evaluator)/dialogs/evaluate-dialog";
-import { LottieIconButton } from "@/components/ui/lottie-icon-button";
 import { cn } from "@/lib/utils";
 import RESPONSES from "public/icons/wired-flat-1334-order-history.json";
-
+import dynamic from "next/dynamic";
+const DynamicLottieIconButton = dynamic(() =>
+  import("@/components/ui/lottie-icon-button").then(
+    (module) => module.LottieIconButton,
+  ),
+);
 export default async function EvaluationForm() {
   return (
     <div className={cn("flex flex-col items-center")}>
@@ -21,7 +25,7 @@ export default async function EvaluationForm() {
       >
         <EvaluateDialog />
 
-        <LottieIconButton
+        <DynamicLottieIconButton
           variant={"hide"}
           className={cn(
             "flex flex-col text-white bg-gradient-to-t from-foreground to-foreground/70 text-lg font-bold hover:shadow-xl hover:-translate-y-1 transition-all w-60 h-32 rounded-md"
