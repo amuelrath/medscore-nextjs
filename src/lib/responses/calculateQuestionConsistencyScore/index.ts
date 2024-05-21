@@ -1,5 +1,4 @@
-import { FormVersionResult } from "@/server/actions/forms/get-one-version";
-import { QuestionVersionResult } from "@/db/types";
+import { FormVersionsResult, QuestionVersionResult } from "@/db/types";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 
 /**
@@ -14,7 +13,7 @@ import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePoin
  *          and the percentage of evaluatees who performed consistently poorly (consistentlyBadPercentage) on the specified question.
  */
 export function getQuestionConsistencyScore(
-  formVersions: FormVersionResult[],
+  formVersions: FormVersionsResult,
   evaluateeIds: string[],
   questionId: string,
   goodThreshold: number,

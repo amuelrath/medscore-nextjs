@@ -29,6 +29,13 @@ export function calculateCompetencyScoreData(
   let result: CompetencyScoreData[] | undefined = [];
   let relevantFormVersions: FormVersionsResult;
   if (!versions || !evaluateeId) return undefined;
+  const evaluateeIsEvaluated = () => {
+    let responses = versions.flatMap((v) => v.responses);
+    if (!responses)
+      throw new Error("No responses could be found for a version.");
+    return Boolean(responses.find((r) => r.evaluatee.id === evaluateeId));
+  };
+  if (!evaluateeIsEvaluated()) throw new Error("Evaluatee is not evaluated!");
   // Find the index of the current form version
   const currentFormVersionIndex = versions.findIndex(
     (version) => version.id === currentFormVersionId,

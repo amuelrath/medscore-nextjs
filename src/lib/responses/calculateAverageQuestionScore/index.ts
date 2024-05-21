@@ -1,12 +1,11 @@
-import { FormVersionResult } from "@/server/actions/forms/get-one-version";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
+import { FormVersionsResult } from "@/server/actions/forms/get-all-versions";
 
 /**
  * Calculates the average score for a specific question across form versions.
  *
  * @param versions - An array of form versions containing questions and responses.
  * @param questionText - The text of the question for which to calculate the average score.
- * @param all - Optional flag to consider all occurrences of the question across versions. Default is false.
  * @returns The average score of the specified question as a percentage.
  *
  * @description
@@ -20,10 +19,6 @@ import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePoin
  * The function compares the normalized question text (with whitespace removed and converted to lowercase)
  * to find matching questions across versions.
  *
- * The `all` parameter is an optional boolean flag that determines whether to consider all occurrences of the
- * question across versions or only the first occurrence in each version. If `all` is set to `true`, the function
- * will calculate the average score based on all matching questions across all versions. If `all` is set to `false`
- * or not provided, the function will only consider the first occurrence of the question in each version.
  *
  * The function returns the average score of the specified question as a percentage. If no matching question is found,
  * the function returns 0.
@@ -79,9 +74,8 @@ import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePoin
  * console.log(averageScoreAll); // Output: 75
  */
 export function calculateAverageQuestionScore(
-  versions: FormVersionResult[],
+  versions: FormVersionsResult,
   questionText: string | null,
-  all = false,
 ): number {
   if (!questionText) return 0;
   const normalizedQuestionText = questionText.replace(/\s/g, "").toLowerCase();
@@ -101,10 +95,8 @@ export function calculateAverageQuestionScore(
           );
           if (!answer) return;
 
-          const { pointsEarned, pointsAvailable } = calculatePointsEarnedAndAvailable(
-            [question],
-            [answer],
-          );
+          const { pointsEarned, pointsAvailable } =
+            calculatePointsEarnedAndAvailable([question], [answer]);
           const score =
             (pointsAvailable || 0) > 0
               ? (pointsEarned || 0) / (pointsAvailable || 0)
@@ -113,8 +105,6 @@ export function calculateAverageQuestionScore(
         });
       }
     });
-
-    if (!all) return;
   });
 
   if (questionScores.length === 0) return 0;

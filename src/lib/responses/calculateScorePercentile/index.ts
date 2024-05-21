@@ -1,7 +1,5 @@
 import { FormVersionResult } from "@/db/types";
-import {
-  calculatePointsEarnedAndAvailable,
-} from "@/lib/responses/calculatePointsEarnedAndAvailable";
+import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 import { calculateCompetencyPercentages } from "@/lib/responses/calculateCompetencyPercentages";
 
 /**
@@ -39,10 +37,8 @@ export function calculateScorePercentile(
         ? competencyPercentages[competencyName] || 0
         : 0;
     } else {
-      const { pointsEarned, pointsAvailable } = calculatePointsEarnedAndAvailable(
-        version.questions,
-        answers,
-      );
+      const { pointsEarned, pointsAvailable } =
+        calculatePointsEarnedAndAvailable(version.questions, answers);
       return (pointsAvailable || 0) > 0
         ? ((pointsEarned || 0) / (pointsAvailable || 0)) * 100
         : 0;
