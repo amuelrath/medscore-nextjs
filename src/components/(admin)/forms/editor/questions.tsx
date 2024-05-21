@@ -18,12 +18,10 @@ import { TFormRelate, TSubcompetencyRelate } from "@/db/types";
 import { v4 } from "uuid";
 import MilestoneSelector from "./MilestoneSelect";
 import { saveForm } from "@/server/actions/forms/save-form";
+import { useFormValues } from "@/providers/form-values-provider";
 
-export default function QuestionCards({
-  subcompetencies,
-}: {
-  subcompetencies: TSubcompetencyRelate[];
-}) {
+export default function QuestionCards() {
+  const { subcompetencies } = useFormValues();
   const { control, register, getValues, handleSubmit } =
     useFormContext<TFormRelate>();
   const { fields, remove, append } = useFieldArray({
@@ -36,7 +34,6 @@ export default function QuestionCards({
       await saveForm(getValues());
     } catch (error) {
       console.error("Error saving form:", error);
-      // Handle the error appropriately (e.g., show an error message to the user)
     }
   };
 
