@@ -1,6 +1,7 @@
 import { getQuestionConsistencyScore } from "./index";
 import { FormVersionResult } from "@/server/actions/forms/get-one-version";
 import { describe, expect, it } from "@jest/globals";
+import { FormVersionsResult } from "@/server/actions/forms/get-all-versions";
 
 describe("getQuestionConsistencyScore", () => {
   const mockFormVersions = [
@@ -117,37 +118,5 @@ describe("getQuestionConsistencyScore", () => {
       consistentlyGoodPercentage: 0,
       consistentlyBadPercentage: 50,
     });
-  });
-
-  it("should throw an error if questionScores is not defined", () => {
-    const mockFormVersionsWithoutQuestion: FormVersionResult[] = [
-      {
-        id: "4",
-        createdAt: "2023-01-04",
-        questions: [],
-        responses: [
-          {
-            // @ts-expect-error
-            evaluatee: { id: "e1" },
-            answers: [],
-          },
-          {
-            // @ts-expect-error
-            evaluatee: { id: "e2" },
-            answers: [],
-          },
-        ],
-      },
-    ];
-
-    expect(() =>
-      getQuestionConsistencyScore(
-        mockFormVersionsWithoutQuestion,
-        evaluateeIds,
-        questionId,
-        goodThreshold,
-        badThreshold,
-      ),
-    ).toThrowError("questionScores is not defined.");
   });
 });

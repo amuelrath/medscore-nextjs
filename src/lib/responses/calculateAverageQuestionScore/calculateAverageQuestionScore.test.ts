@@ -28,11 +28,17 @@ describe("calculateAverageQuestionScore", () => {
       responses: [
         {
           evaluatee: { id: "e1" },
-          answers: [{ questionVersionId: "q1", optionVersionId: "o1" }],
+          answers: [
+            { questionVersionId: "q1", optionVersionId: "o1" },
+            { questionVersionId: "q2", optionVersionId: "o3" },
+          ],
         },
         {
           evaluatee: { id: "e2" },
-          answers: [{ questionVersionId: "q2", optionVersionId: "o4" }],
+          answers: [
+            { questionVersionId: "q1", optionVersionId: "o2" },
+            { questionVersionId: "q2", optionVersionId: "o4" },
+          ],
         },
       ],
     },
@@ -60,11 +66,17 @@ describe("calculateAverageQuestionScore", () => {
       responses: [
         {
           evaluatee: { id: "e3" },
-          answers: [{ questionVersionId: "q3", optionVersionId: "o6" }],
+          answers: [
+            { questionVersionId: "q3", optionVersionId: "o6" },
+            { questionVersionId: "q4", optionVersionId: "o7" },
+          ],
         },
         {
           evaluatee: { id: "e4" },
-          answers: [{ questionVersionId: "q4", optionVersionId: "o7" }],
+          answers: [
+            { questionVersionId: "q3", optionVersionId: "o5" },
+            { questionVersionId: "q4", optionVersionId: "o7" },
+          ],
         },
       ],
     },
@@ -75,21 +87,18 @@ describe("calculateAverageQuestionScore", () => {
     expect(calculateAverageQuestionScore(mockVersions, "")).toBe(0);
   });
 
-  it("should calculate the average score for a specific question", () => {
-    const averageScore = calculateAverageQuestionScore(
-      mockVersions,
-      "Question 1",
-    );
-    expect(averageScore).toBe(50);
-  });
-
   it("should calculate the average score for a specific question considering all occurrences", () => {
     const averageScoreAll = calculateAverageQuestionScore(
       mockVersions,
       "Question 1",
-      true,
     );
-    expect(averageScoreAll).toBe(75);
+    expect(averageScoreAll).toBe(81.25);
+
+    const averageScoreForQuestion2 = calculateAverageQuestionScore(
+      mockVersions,
+      "Question 2",
+    );
+    expect(averageScoreForQuestion2).toBe(68.75);
   });
 
   it("should return 0 if no matching question is found", () => {

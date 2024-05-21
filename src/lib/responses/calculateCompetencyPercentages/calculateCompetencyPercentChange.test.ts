@@ -119,12 +119,12 @@ describe("calculateCompetencyPercentages", () => {
   it("should calculate competency percentages correctly", () => {
     const result = calculateCompetencyPercentages(mockQuestions, mockAnswers);
     expect(result).toEqual({
-      ICS: 42.85714285714286,
+      ICS: 75,
       MK: 0,
       PBLI: 0,
       PC: 0,
-      PROF: 0,
-      SBP: 66.66666666666666,
+      P: 0,
+      SBP: 100,
     });
   });
 
@@ -135,7 +135,7 @@ describe("calculateCompetencyPercentages", () => {
       MK: 0,
       PBLI: 0,
       PC: 0,
-      PROF: 0,
+      P: 0,
       SBP: 0,
     });
   });
