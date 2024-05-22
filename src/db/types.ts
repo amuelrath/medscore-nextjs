@@ -6,9 +6,31 @@ export type { FormVersionsResult, FormResult, FormVersionResult };
 
 export type ResponseResult = NonNullable<
   DateToString<
-    InferResultType<
-      "responses",
-      { answers: true; creator: true; evaluatee: true }
+    Omit<
+      InferResultType<
+        "responses",
+        {
+          answers: {
+            columns: {
+              id: true;
+              optionVersionId: true;
+              questionVersionId: true;
+              createdAt: false;
+              updatedAt: false;
+              deletedAt: false;
+              responseId: false;
+              feedback: true;
+            };
+          };
+          creator: {
+            columns: { email: false; password: false };
+          };
+          evaluatee: {
+            columns: { email: false; password: false };
+          };
+        }
+      >,
+      "updatedAt" | "deletedAt" | "creatorId" | "evaluateeId"
     >
   >
 >;
