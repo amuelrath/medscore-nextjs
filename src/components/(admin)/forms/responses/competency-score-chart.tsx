@@ -42,14 +42,21 @@ export function CompetencyScoreChart({
   );
 
   const chartData = useMemo(() => {
-    const labels =
-      data?.map((item) => formatDate(new Date(item.versionCreatedAt))) || [];
-    const scores =
-      data?.map((item) =>
-        item.pointsEarned && item.pointsAvailable
-          ? (item.pointsEarned / item.pointsAvailable) * 100
-          : 0,
-      ) || [];
+    // Sort the data by versionCreatedAt
+    const sortedData = [...(data || [])].sort(
+      (a, b) =>
+        new Date(a.versionCreatedAt).getTime() -
+        new Date(b.versionCreatedAt).getTime(),
+    );
+
+    const labels = sortedData.map((item) =>
+      formatDate(new Date(item.versionCreatedAt)),
+    );
+    const scores = sortedData.map((item) =>
+      item.pointsEarned && item.pointsAvailable
+        ? (item.pointsEarned / item.pointsAvailable) * 100
+        : 0,
+    );
 
     return {
       labels,
@@ -62,7 +69,6 @@ export function CompetencyScoreChart({
       ],
     };
   }, [data]);
-
   const options = useMemo(
     () => ({
       responsive: true,
