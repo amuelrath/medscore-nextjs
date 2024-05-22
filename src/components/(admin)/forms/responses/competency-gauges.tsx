@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import GaugeChart from "@/components/ui/gauge";
 import { COMPETENCIES } from "@/db/constants";
 import ICS from "public/icons/ics-bubbles-icon.json";
@@ -47,12 +47,11 @@ interface CompetencyGaugeProps {
 
 export const CompetencyGauge: FC<CompetencyGaugeProps> = memo(
   ({ competencyName, competencyPercentage }) => {
-    const ref = useRef<Player>(null);
+    const ref = useRef<any>(null);
     const [hovering, setHovering] = useState<boolean>(false);
 
     useEffect(() => {
       if (hovering) {
-        ref.current?.setLoop(true);
         ref.current?.play();
       } else {
         ref.current?.stop();
@@ -77,7 +76,14 @@ export const CompetencyGauge: FC<CompetencyGaugeProps> = memo(
               value={competencyPercentage}
               size="xs"
               color="foreground"
-              icon={<Player ref={ref} src={iconSrc} className={cn("size-8")} />}
+              icon={
+                <Lottie
+                  autoplay={false}
+                  lottieRef={ref}
+                  animationData={iconSrc}
+                  className={cn("size-8")}
+                />
+              }
             />
           </Suspense>
         </div>

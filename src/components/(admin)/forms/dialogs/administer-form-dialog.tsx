@@ -3,14 +3,24 @@ import { useFormValues } from "@/providers/form-values-provider";
 import { Button } from "@/components/ui/button";
 import Pinger from "@/components/ui/pinger";
 import QUESTIONAIRE_ICON from "public/icons/wired-flat-967-questionnaire.json";
-import {
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogPortal,
-  Dialog,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+const DialogContent = dynamic(() =>
+  import("@/components/ui/dialog").then((mod) => mod.DialogContent),
+);
+const DialogDescription = dynamic(() =>
+  import("@/components/ui/dialog").then((mod) => mod.DialogDescription),
+);
+const DialogTitle = dynamic(() =>
+  import("@/components/ui/dialog").then((mod) => mod.DialogTitle),
+);
+const DialogPortal = dynamic(() =>
+  import("@/components/ui/dialog").then((mod) => mod.DialogPortal),
+);
+const Dialog = dynamic(() =>
+  import("@/components/ui/dialog").then((mod) => mod.Dialog),
+);
+const DialogTrigger = dynamic(() =>
+  import("@/components/ui/dialog").then((mod) => mod.DialogTrigger),
+);
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MultiSelect from "@/components/ui/multiselect";
@@ -19,20 +29,27 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/app/_trpc/client";
 import Loading from "@/components/ui/loading";
 import COPY_ICON from "public/icons/system-regular-99-copy.json";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-import { Player } from "@lottiefiles/react-lottie-player";
+const InputOTP = dynamic(() =>
+  import("@/components/ui/input-otp").then((mod) => mod.InputOTP),
+);
+const InputOTPGroup = dynamic(() =>
+  import("@/components/ui/input-otp").then((mod) => mod.InputOTPGroup),
+);
+const InputOTPSeparator = dynamic(() =>
+  import("@/components/ui/input-otp").then((mod) => mod.InputOTPSeparator),
+);
+const InputOTPSlot = dynamic(() =>
+  import("@/components/ui/input-otp").then((mod) => mod.InputOTPSlot),
+);
+import Lottie from "lottie-react";
 import { toast } from "sonner";
-import { LottieIconButton } from "@/components/ui/lottie-icon-button";
 import { formatDate } from "@/lib/formatDate";
+import dynamic from "next/dynamic";
+import { DynamicLottieIconButton } from "@/components/ui/lottie-icon-button";
 
 const administerDialogSchema = z.object({
   endDateTime: z.string(),
@@ -40,7 +57,7 @@ const administerDialogSchema = z.object({
 });
 
 type AdministerDialogFormData = z.infer<typeof administerDialogSchema>;
-
+// TODO Truncate Title
 export default function AdministerDialog() {
   const {
     register,
@@ -52,6 +69,7 @@ export default function AdministerDialog() {
   });
 
   const { form } = useFormValues();
+  const [hover, setHover] = useState<boolean>(false);
   const utils = trpc.useUtils();
   const { data: cache } = trpc.forms.status.useQuery({ formId: form.id });
   const stopAdminister = trpc.forms.stopAdminister.useMutation({
@@ -65,7 +83,14 @@ export default function AdministerDialog() {
     },
   });
 
-  const lottieRef = useRef<Player>(null);
+  const lottieRef = useRef<any>(null);
+  useEffect(() => {
+    if (hover) {
+      lottieRef.current?.play();
+    } else {
+      lottieRef.current?.stop();
+    }
+  }, [hover]);
 
   const onSubmit = (data: AdministerDialogFormData) => {
     startAdminister.mutate({
@@ -90,10 +115,13 @@ export default function AdministerDialog() {
   const isActive = cache?.expiresAt && new Date() < new Date(cache.expiresAt);
 
   return (
-    <Dialog>
+    <Dialog modal>
       <DialogTrigger asChild>
         <div className="relative">
-          <LottieIconButton icon={QUESTIONAIRE_ICON} label="Administer" />
+          <DynamicLottieIconButton
+            icon={QUESTIONAIRE_ICON}
+            label="Administer"
+          />
           {isActive && (
             <div className="absolute -right-[4px] -top-[4px]">
               <Pinger variant={"emerald"} size={"sm"} />
@@ -110,20 +138,26 @@ export default function AdministerDialog() {
           layout="preserve-aspect"
         >
           <DialogContent
-            className={cn("rounded-md", isActive ? "h-[252px]" : "h-[335px]")}
+            onOpenAutoFocus={(e) => e.preventDefault()}
+            className={cn(
+              "min-w-[600px] rounded-md",
+              isActive ? "h-[252px]" : "h-[335px]",
+            )}
           >
             <DialogTitle>
               {isActive ? (
                 <>
-                  <div className={cn("flex space-x-4")}>
-                    <div className="flex">
-                      {`"${form.title}" `}
-                      <p className="mx-2 font-light">is active until</p>
+                  <div className={cn("text-md flex space-x-2")}>
+                    <div className="flex flex-row space-x-1.5">
+                      <p> {`"${form.title}"`}</p>
+                      <p className="font-semibold">is active until</p>
                       <p className="font-semibold">
                         {formatDate(cache?.expiresAt || "")}
                       </p>
                     </div>
-                    <Pinger variant={"emerald"} size={"md"} />
+                    <div className={cn("absolute -right-1 -top-1")}>
+                      <Pinger variant={"emerald"} size={"md"} />
+                    </div>
                   </div>
                   <DialogDescription>
                     <p>Share this code with Evaluators to collect responses.</p>
@@ -223,10 +257,12 @@ export default function AdministerDialog() {
                       toast.info("Code copied to clipboard");
                     }}
                   >
-                    <Player
-                      src={COPY_ICON}
-                      ref={lottieRef}
-                      hover
+                    <Lottie
+                      autoplay={false}
+                      onMouseEnter={() => setHover(true)}
+                      onMouseLeave={() => setHover(false)}
+                      animationData={COPY_ICON}
+                      lottieRef={lottieRef}
                       style={{ width: 24, height: 24 }}
                     />
                   </Button>

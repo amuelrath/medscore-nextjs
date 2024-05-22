@@ -1,14 +1,14 @@
 "use client";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
+import { CSSProperties, useEffect, useRef } from "react";
 interface LottiePlayerProps {
   icon: any;
   isPlaying: boolean;
   width?: string;
   height?: string;
   className?: string;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 export function LottiePlayer({
   icon,
@@ -18,7 +18,7 @@ export function LottiePlayer({
   className,
   style,
 }: LottiePlayerProps) {
-  const lottieRef = useRef<Player>(null);
+  const lottieRef = useRef<any>(null);
   useEffect(() => {
     if (isPlaying) {
       lottieRef.current?.play();
@@ -28,7 +28,12 @@ export function LottiePlayer({
   }, [isPlaying]);
   return (
     <div className={cn("rounded-md border", className)} style={style}>
-      <Player loop ref={lottieRef} src={icon} style={{ width, height }} />
+      <Lottie
+        loop
+        lottieRef={lottieRef}
+        animationData={icon}
+        style={{ width, height }}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import TRENDING_UP from "public/icons/system-solid-160-trending-up.json";
 import TRENDING_DOWN from "public/icons/system-solid-159-trending-down.json";
 import { cn } from "@/lib/utils";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import Counter from "@/components/ui/counter";
 
 export function ChangeIndicator({ percentChange }: { percentChange: number }) {
@@ -9,7 +9,11 @@ export function ChangeIndicator({ percentChange }: { percentChange: number }) {
 
   if (percentChange === 0)
     return (
-      <p className={cn("font-poppins mb-1 font-regular font-bold text-end text-xs italic")}>
+      <p
+        className={cn(
+          "font-poppins font-regular mb-1 text-end text-xs font-bold italic",
+        )}
+      >
         No Change.
       </p>
     );
@@ -24,11 +28,11 @@ export function ChangeIndicator({ percentChange }: { percentChange: number }) {
       >
         <Counter duration={0.3} value={percentChange} />%
       </div>
-      <Player
-        src={isChangePositive ? TRENDING_UP : TRENDING_DOWN}
+      <Lottie
+        loop={false}
+        animationData={isChangePositive ? TRENDING_UP : TRENDING_DOWN}
         className={cn("size-5 pb-1 pl-1")}
         autoplay
-        hover
       />
     </div>
   );

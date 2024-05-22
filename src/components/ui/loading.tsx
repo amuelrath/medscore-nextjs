@@ -1,23 +1,23 @@
-'use client';
+"use client";
 
-import { Player } from '@lottiefiles/react-lottie-player';
-import { useRef } from 'react';
-import LOADING_ICON from 'public/icons/system-regular-720-spinner-half-circles.json';
-import { cva, VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+import Lottie from "lottie-react";
+import { useRef } from "react";
+import LOADING_ICON from "public/icons/system-regular-720-spinner-half-circles.json";
+import { cva, VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
-const loadingStyles = cva('flex items-center justify-center', {
+const loadingStyles = cva("flex items-center justify-center", {
   variants: {
     color: {
-      primary: 'text-primary',
-      secondary: 'text-secondary',
+      primary: "text-primary",
+      secondary: "text-secondary",
       // Add more color variants as needed
     },
     size: {
-      sm: 'w-8 h-8',
-      md: 'w-12 h-12',
-      lg: 'w-24 h-24',
-      xl: 'w-72 h-72',
+      sm: "w-8 h-8",
+      md: "w-12 h-12",
+      lg: "w-24 h-24",
+      xl: "w-72 h-72",
       // Add more size variants as needed
     },
     icon: {
@@ -26,16 +26,16 @@ const loadingStyles = cva('flex items-center justify-center', {
     },
   },
   defaultVariants: {
-    color: 'primary',
-    size: 'md',
-    icon: 'default',
+    color: "primary",
+    size: "md",
+    icon: "default",
   },
 });
 
 interface LoadingProps extends VariantProps<typeof loadingStyles> {}
 
 export default function Loading({ color, size, icon }: LoadingProps) {
-  const ref = useRef<Player>(null);
+  const ref = useRef<any>(null);
 
   let iconSrc = LOADING_ICON;
   // Update the iconSrc based on the icon variant
@@ -49,15 +49,15 @@ export default function Loading({ color, size, icon }: LoadingProps) {
     <div
       className={cn(
         loadingStyles({ color, size, icon }),
-        'mt-[25%] flex h-full w-full flex-col items-center justify-center',
+        "mt-[25%] flex h-full w-full flex-col items-center justify-center",
       )}
     >
-      <Player
-        ref={ref}
-        src={iconSrc}
+      <Lottie
+        lottieRef={ref}
+        animationData={iconSrc}
         loop
         autoplay
-        style={{ width: '48px', height: '48px' }}
+        style={{ width: "48px", height: "48px" }}
       />
     </div>
   );

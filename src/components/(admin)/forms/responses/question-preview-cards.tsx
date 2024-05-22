@@ -26,13 +26,13 @@ const TooltipContent = dynamic(() =>
   })),
 );
 import { calculateAverageQuestionScore } from "@/lib/responses/calculateAverageQuestionScore";
-import { Player } from "@lottiefiles/react-lottie-player";
 import { cn } from "@/lib/utils";
 import { ReactElement } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
 import { Card } from "@/components/ui/card";
 import dynamic from "next/dynamic";
+import Lottie from "lottie-react";
 export function QuestionPreviewCards({
   versions,
   questions,
@@ -175,8 +175,8 @@ export function QuestionPreviewCardIcon({
           <TooltipContent
             className={cn("font-poppins flex flex-row items-center space-x-2")}
           >
-            <Player
-              src={isOutlierAbove ? THUMBS_UP : THUMBS_DOWN}
+            <Lottie
+              animationData={isOutlierAbove ? THUMBS_UP : THUMBS_DOWN}
               autoplay
               loop={false}
               className={cn("size-4 pb-0.5")}

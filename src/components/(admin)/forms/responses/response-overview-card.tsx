@@ -6,8 +6,7 @@ import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 import React, { useMemo } from "react";
 import { ChangeIndicator } from "@/components/ui/percent-change-indicator";
-import { Player } from "@lottiefiles/react-lottie-player";
-import EYE_ICON from "public/icons/wired-flat-69-eye.json";
+import { DynamicEyeball } from "@/components/ui/lottie/eyeball";
 import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import { CompetencyGauges } from "@/components/(admin)/forms/responses/competency-gauges";
@@ -64,13 +63,7 @@ export function ResponseOverviewCard() {
             " mt-10 flex h-full w-full flex-col items-center justify-start",
           )}
         >
-          <Player
-            src={EYE_ICON}
-            autoplay
-            loop
-            speed={0.7}
-            className={cn("size-20 drop-shadow-lg")}
-          />
+          <DynamicEyeball className={cn("size-20 drop-shadow-lg")} />
           <p>Select a response to see results.</p>
         </div>
       </div>
@@ -165,9 +158,14 @@ export function ResponseOverviewCard() {
                     </Tooltip>
                   </TooltipProvider>
                 ) : (
-                  <p className={cn("text-xs font-bold italic")}>
-                    No Overall Change.
-                  </p>
+                  <>
+                    <p className={cn(" text-sm font-bold text-gray-400")}>
+                      &Delta; OVERALL
+                    </p>
+                    <p className={cn("text-xs font-bold italic")}>
+                      No Overall Change.
+                    </p>
+                  </>
                 )}
               </div>
             </div>

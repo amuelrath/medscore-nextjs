@@ -1,16 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Player } from "@lottiefiles/react-lottie-player";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import STICKY_NOTE from "public/icons/system-regular-152-sticky-note.json";
+import Lottie from "lottie-react";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup } from "@/components/ui/animated-radio-group";
-import { QuestionVersionResult } from "@/db/types";
+import { AnswerResult, QuestionVersionResult } from "@/db/types";
 import { m, LazyMotion, AnimatePresence, domAnimation } from "framer-motion";
-import { Answer } from "@/db/schema";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
 import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
-import { DateToString } from "@/db/utils";
 
 export function QuestionResponseCard({
   question,
@@ -20,10 +18,10 @@ export function QuestionResponseCard({
 }: {
   question: QuestionVersionResult | undefined | null;
   index: number;
-  answers: DateToString<Answer>[];
+  answers: AnswerResult[];
   locked: boolean;
 }) {
-  const lottieRef = useRef<Player>(null);
+  const lottieRef = useRef<any>();
   const [hovering, setHovering] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -76,6 +74,8 @@ export function QuestionResponseCard({
   useEffect(() => {
     if (lottieRef.current && hovering) {
       lottieRef.current.play();
+    } else {
+      lottieRef.current?.pause();
     }
   }, [hovering]);
 
@@ -129,7 +129,7 @@ export function QuestionResponseCard({
                   <div className={cn("flex justify-end")}>
                     {question.milestones.map((m) => (
                       <MilestoneBadge
-                        key={`${question.id}-${m.milestoneId}`}
+                        key={`${question.id}-${m.milestone.id}`}
                         milestone={m.milestone}
                       />
                     ))}
@@ -141,10 +141,10 @@ export function QuestionResponseCard({
                     onMouseEnter={() => setHovering(true)}
                     onMouseLeave={() => setHovering(false)}
                   >
-                    <Player
-                      src={STICKY_NOTE}
-                      hover
+                    <Lottie
+                      lottieRef={lottieRef}
                       autoplay
+                      animationData={STICKY_NOTE}
                       className={cn(
                         "size-6 cursor-pointer transition-opacity hover:opacity-70",
                       )}
@@ -167,7 +167,7 @@ export function QuestionResponseCard({
             <AnimatePresence>
               {(feedbackOpen || answer?.feedback) && (
                 <m.div
-                  initial={{ height: 0 }}
+                  initial={{ height: "auto" }}
                   animate={{ height: "auto" }}
                   exit={{ height: 0 }}
                   transition={{ duration: 0.2 }}

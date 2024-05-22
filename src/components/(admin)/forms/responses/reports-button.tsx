@@ -1,7 +1,6 @@
-"use client";
-import { LottieIconButton } from "@/components/ui/lottie-icon-button";
+import { DynamicLottieIconButton } from "@/components/ui/lottie-icon-button";
 import REPORT_ICON from "public/icons/wired-flat-2450-invoice-general.json";
 
 export function ReportButton() {
-  return <LottieIconButton label="Report" icon={REPORT_ICON} />;
+  return <DynamicLottieIconButton label="Report" icon={REPORT_ICON} />;
 }

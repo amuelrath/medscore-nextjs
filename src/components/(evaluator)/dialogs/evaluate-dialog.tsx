@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { LottieIconButton } from "@/components/ui/lottie-icon-button";
+import { DynamicLottieIconButton } from "@/components/ui/lottie-icon-button";
 import { Suspense } from "react";
 import Loading from "@/components/ui/loading";
 import QUESTIONNAIRE from "public/icons/wired-flat-967-questionnaire.json";
@@ -35,7 +35,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import LOADING_SPINNER from "public/icons/system-regular-719-spinner-circle-black.json";
 
 interface EvaluationContextValue {
@@ -98,7 +98,7 @@ export default function EvaluateDialog() {
       }
     };
     onCodeChange(code);
-  }, [code, mutation]);
+  }, [code, mutation.mutate]); // ignore eslint error
 
   const onEvaluateClick = async () => {
     router.push(`/evaluate/${mutation.data?.formVersionId}`);
@@ -133,7 +133,7 @@ export default function EvaluateDialog() {
     <EvaluationContext.Provider value={value}>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <LottieIconButton
+          <DynamicLottieIconButton
             label="Evaluate"
             variant="hide"
             className="text-bold w flex h-32 w-60 flex-col rounded-md bg-gradient-to-t from-primary to-primary/70 text-xl font-bold text-notepad transition-all hover:-translate-y-1  hover:shadow-xl"
@@ -171,7 +171,7 @@ export default function EvaluateDialog() {
 
 function EvaluateForm() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const spinnerRef = useRef<Player>(null);
+  const spinnerRef = useRef<any>(null);
   const { code, status, setCode } = useEvaluation();
   const loading = status === "loading";
   const error = status === "error";
@@ -183,13 +183,13 @@ function EvaluateForm() {
           <span className="text-xl font-bold">
             Please enter your Evaluation Access Code.
           </span>
+          <AlertDialogDescription>
+            Enter the access code provided by your program administrator.
+          </AlertDialogDescription>
         </AlertDialogTitle>
-        <AlertDialogDescription>
-          Enter the access code provided by your program administrator.
-        </AlertDialogDescription>
       </AlertDialogHeader>
       <hr />
-      <div className="flex w-full flex-col items-center">
+      <div className="relative flex w-full flex-col items-center">
         <InputOTP
           ref={inputRef}
           onInputCapture={(e) => setCode(e.currentTarget.value)}
@@ -209,12 +209,12 @@ function EvaluateForm() {
             <InputOTPSlot index={5} />
           </InputOTPGroup>
           {loading && (
-            <Player
-              src={LOADING_SPINNER}
-              ref={spinnerRef}
+            <Lottie
+              className={cn("absolute left-[45.75%] size-6")}
+              animationData={LOADING_SPINNER}
+              lottieRef={spinnerRef}
               autoplay
               loop
-              className="absolute left-32 top-2 size-6"
             />
           )}
         </InputOTP>
