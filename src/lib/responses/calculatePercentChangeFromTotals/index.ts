@@ -4,29 +4,17 @@ export interface PercentChangeData {
   versionId: string;
 }
 
-export function calculatePercentChangeFromTotals(
-  totals: PercentChangeData[],
-  currentVersionId: string,
-) {
+export function calculatePercentChangeFromTotals(totals: PercentChangeData[]) {
   if (totals.length < 2) {
-    return null;
+    return {
+      percentChangeFromPrevious: 0,
+      percentChangeFromFirst: 0,
+    };
   }
 
-  const currentVersionIndex = totals.findIndex(
-    (total) => total.versionId === currentVersionId,
-  );
-
-  if (currentVersionIndex === -1) {
-    return null;
-  }
-
-  const currentScore = totals[currentVersionIndex].score;
-  const previousScore = totals[currentVersionIndex - 1]?.score;
+  const currentScore = totals[totals.length - 1].score;
+  const previousScore = totals[totals.length - 2]?.score ?? currentScore;
   const firstScore = totals[0].score;
-
-  if (previousScore === undefined || firstScore === undefined) {
-    return null;
-  }
 
   const percentChangeFromPrevious =
     ((currentScore - previousScore) / previousScore) * 100;
