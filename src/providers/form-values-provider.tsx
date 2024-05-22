@@ -1,8 +1,9 @@
-import { FormResult, TFormRelate } from "@/db/types";
+import { FormResult, TFormRelate, TSubcompetencyRelate } from "@/db/types";
 import { createContext, useContext } from "react";
 
 export const FormValuesContext = createContext<{
   form: FormResult;
+  subcompetencies: TSubcompetencyRelate[];
 } | null>(null);
 
 export const useFormValues = () => {
