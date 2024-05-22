@@ -36,40 +36,50 @@ export function calculateCompetencyScoreData(
     return Boolean(responses.find((r) => r.evaluatee.id === evaluateeId));
   };
   if (!evaluateeIsEvaluated()) throw new Error("Evaluatee is not evaluated!");
-  // Find the index of the current form version
-  const currentFormVersionIndex = versions.findIndex(
+  // Find the current form version
+  const currentFormVersion = versions.find(
     (version) => version.id === currentFormVersionId,
   );
 
-  // Filter form versions up to the current one
+  if (!currentFormVersion) {
+    throw new Error("Current form version not found!");
+  }
+
+  // Filter form versions based on the createdAt timestamp of the current version
   if (!all) {
-    relevantFormVersions = versions.slice(0, currentFormVersionIndex + 1);
+    relevantFormVersions = versions.filter(
+      (version) =>
+        new Date(version.createdAt) <= new Date(currentFormVersion.createdAt),
+    );
   } else {
     relevantFormVersions = versions;
   }
 
   // Process each form version and calculate the competency score data
-  relevantFormVersions.map((version) => {
-    const response = version.responses?.find(
-      (r) => r.evaluatee.id === evaluateeId,
-    );
-    const answers = response!.answers;
-    const questions = version.questions;
+  relevantFormVersions
+    .sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    )
+    .map((version) => {
+      const response = version.responses?.find(
+        (r) => r.evaluatee.id === evaluateeId,
+      );
+      const answers = response?.answers;
+      const questions = version.questions;
 
-    const { filteredQuestions, filteredAnswers } =
-      getFilteredQuestionsAndAnswers(competencyName, questions, answers);
+      const { filteredQuestions, filteredAnswers } =
+        getFilteredQuestionsAndAnswers(competencyName, questions, answers);
 
-    const { pointsEarned, pointsAvailable } = calculatePointsEarnedAndAvailable(
-      filteredQuestions,
-      filteredAnswers,
-    );
+      const { pointsEarned, pointsAvailable } =
+        calculatePointsEarnedAndAvailable(filteredQuestions, filteredAnswers);
 
-    result?.push({
-      pointsEarned,
-      pointsAvailable,
-      versionCreatedAt: new Date(version.createdAt),
+      result?.push({
+        pointsEarned,
+        pointsAvailable,
+        versionCreatedAt: new Date(version.createdAt),
+      });
     });
-  });
 
   return result;
 }
