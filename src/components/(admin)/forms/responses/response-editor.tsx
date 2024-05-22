@@ -1,16 +1,17 @@
 "use client";
-import { Player } from "@lottiefiles/react-lottie-player";
-import EYE_BLINKING from "public/icons/wired-flat-69-eye.json";
 import { cn } from "@/lib/utils";
-import { QuestionVersionResult } from "@/db/types";
+import { AnswerResult, QuestionVersionResult } from "@/db/types";
 import { QuestionResponseCard } from "@/components/(admin)/forms/responses/question-response-card";
 import { Answer, Option } from "@/db/schema";
-import { memo, Suspense, useMemo } from "react";
-import { List, AutoSizer, ListRowRenderer } from "react-virtualized";
+import { memo, Suspense, useEffect, useMemo, useState } from "react";
+import { AutoSizer, List, ListRowRenderer } from "react-virtualized";
 import { useSelectedContext } from "@/providers/selected-values-provider";
+import { DynamicEyeball } from "@/components/ui/lottie/eyeball";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const ResponseEditor = memo(() => {
   const { selectedVersion, selectedResponse } = useSelectedContext();
+  const [rowHeights, setRowHeights] = useState<Record<number, number>>({});
 
   const sortedQuestions = useMemo(() => {
     if (selectedVersion?.questions) {
@@ -21,6 +22,20 @@ export const ResponseEditor = memo(() => {
     return [];
   }, [selectedVersion?.questions]);
 
+  useEffect(() => {
+    const newRowHeights: Record<number, number> = {};
+
+    selectedVersion?.questions.forEach((item, index) => {
+      newRowHeights[index] = estimateRowHeight(
+        sortedQuestions[index],
+        sortedQuestions[index].options as unknown as Option[],
+        selectedResponse?.answers as unknown as AnswerResult[],
+      );
+    });
+
+    setRowHeights(newRowHeights);
+  }, [selectedVersion?.questions, selectedResponse?.answers, sortedQuestions]);
+
   if (!selectedVersion || !selectedResponse) {
     return (
       <div className={cn("flex h-full w-full justify-center")}>
@@ -30,13 +45,7 @@ export const ResponseEditor = memo(() => {
           )}
         >
           <Suspense fallback={<div className="size-24" />}>
-            <Player
-              src={EYE_BLINKING}
-              autoplay
-              loop
-              speed={0.7}
-              className={cn("size-24 drop-shadow-lg")}
-            />
+            <DynamicEyeball className="size-24 drop-shadow-xl" />
           </Suspense>
           <p>Select a response to view details.</p>
         </div>
@@ -47,7 +56,11 @@ export const ResponseEditor = memo(() => {
   const rowRenderer: ListRowRenderer = ({ index, style }) => {
     const question = sortedQuestions[index];
     return (
-      <div key={question.id} style={style} className={cn("pr-8")}>
+      <div
+        key={question.id}
+        style={style}
+        className={cn("overflow-hidden pr-8")}
+      >
         <QuestionResponseCard
           locked={true}
           answers={selectedResponse.answers}
@@ -64,10 +77,12 @@ export const ResponseEditor = memo(() => {
         <AutoSizer>
           {({ height, width }) => (
             <List
+              key={JSON.stringify(rowHeights)}
               height={height}
               width={width}
               rowCount={selectedVersion.questions.length}
               rowHeight={({ index }) =>
+                rowHeights[index] ||
                 estimateRowHeight(
                   selectedVersion.questions[index],
                   selectedVersion.questions[index]
@@ -93,9 +108,9 @@ ResponseEditor.displayName = "ResponseEditor";
 const estimateRowHeight = (
   question: QuestionVersionResult,
   options: Option[],
-  answers: Answer[],
+  answers: AnswerResult[],
 ): number => {
-  const answerForThisQuestion = answers.find(
+  const answerForThisQuestion = answers?.find(
     (a) => a.questionVersionId === question.id,
   );
   // Constants to adjust the height estimation
