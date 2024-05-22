@@ -2,12 +2,12 @@ import { Controller, useFormContext } from "react-hook-form";
 import { TQuestionRelate, TResponseSchema } from "@/db/types";
 import { useAnimation, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Player } from "@lottiefiles/react-lottie-player";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import STICKY_NOTE from "public/icons/system-regular-152-sticky-note.json";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup } from "@/components/ui/animated-radio-group";
+import Lottie from "lottie-react";
 
 export function QuestionCard({
   question,
@@ -23,7 +23,7 @@ export function QuestionCard({
     formState: { errors },
   } = useFormContext<TResponseSchema>();
   const animationControls = useAnimation();
-  const lottieRef = useRef<Player>(null);
+  const lottieRef = useRef<any>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [hovering, setHovering] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(question.feedback);
@@ -52,8 +52,10 @@ export function QuestionCard({
   // TODO Change to be on icon hover rather than card hover.
   // Handle Icon Hover Animation
   useEffect(() => {
-    if (lottieRef.current && hovering) {
+    if (hovering) {
       lottieRef.current.play();
+    } else {
+      lottieRef.current.stop();
     }
   }, [hovering]);
 
@@ -81,8 +83,6 @@ export function QuestionCard({
         height: cardHeight,
       }}
       transition={{ duration: 0.1 }}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
     >
       <Card
         ref={cardRef}
@@ -97,10 +97,11 @@ export function QuestionCard({
               {`${question.text}`}
               {!question.feedback && (
                 <div onClick={() => setFeedbackOpen(!feedbackOpen)}>
-                  <Player
-                    src={STICKY_NOTE}
-                    hover
-                    autoplay
+                  <Lottie
+                    onMouseEnter={() => setHovering(true)}
+                    onMouseLeave={() => setHovering(false)}
+                    lottieRef={lottieRef}
+                    animationData={STICKY_NOTE}
                     className={cn(
                       "size-6 cursor-pointer transition-opacity hover:opacity-70",
                     )}
@@ -120,7 +121,7 @@ export function QuestionCard({
                     value: o.id,
                     label: o.text || "",
                     pointValue: parseFloat(o.pointValue),
-                    position: o.position
+                    position: o.position,
                   }))}
                   value={field.value || "ERROR_NO_VALUE"}
                   onChange={field.onChange}
