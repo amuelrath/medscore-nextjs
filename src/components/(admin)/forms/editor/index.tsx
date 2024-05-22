@@ -1,6 +1,5 @@
 "use client";
-import { FormResult, TFormRelate, TSubcompetencyRelate } from "@/db/types";
-import { v4 } from "uuid";
+import { FormResult, TSubcompetencyRelate } from "@/db/types";
 import { FormProvider, useForm } from "react-hook-form";
 import QuestionCards from "@/components/(admin)/forms/editor/questions";
 import { Section } from "@/components/ui/section";
@@ -17,37 +16,23 @@ export default function Editor({
   subcompetencies,
 }: {
   form: FormResult;
-  subcompetencies: TSubcompetencyRelate[] | undefined;
+  subcompetencies: TSubcompetencyRelate[];
 }) {
-  const methods = useForm<TFormRelate>({
-    defaultValues: form || {
-      id: v4(),
-      title: "Untitled Evaluation",
-      programId: "",
-      questions: [
-        {
-          id: v4(),
-          text: "",
-          options: [
-            { id: v4(), text: "" },
-            { id: v4(), text: "" },
-          ],
-        },
-      ],
-    },
+  const methods = useForm<FormResult>({
+    defaultValues: form,
   });
 
   return (
     <TabsProvider>
       <FormProvider {...methods}>
-        <FormValuesContext.Provider value={{ form }}>
+        <FormValuesContext.Provider value={{ form, subcompetencies }}>
           <FormEditorNav />
           <Section>
             <Suspense fallback={<Loading />}>
               <TabContent id="editor">
                 <ScrollArea className="h-[650px] transition-all md:px-24 lg:px-64">
                   <ScrollBar />
-                  <QuestionCards subcompetencies={subcompetencies || []} />
+                  <QuestionCards/>
                 </ScrollArea>
               </TabContent>
               <TabContent id="responses">
