@@ -17,7 +17,7 @@ export default function EvaluationFormNav({
     >
       <div className={cn("flex-col justify-center")}>
         <p className={cn("text-xs font-bold tracking-wider text-gray-400")}>
-          FORM
+          CASE
         </p>
         <p className={cn("font-regular")}>{form.title}</p>
       </div>
