@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { lazy, memo, Suspense } from "react";
 // A milestone badge should display the concatenated name of a milestone, on hover it gives more details about case-level performance
 export const MilestoneBadge = memo(
-  ({ milestone }: { milestone: Milestone }) => {
+  ({ milestone }: { milestone: Partial<Milestone> }) => {
     const { name, description } = milestone;
     return (
       <Suspense
