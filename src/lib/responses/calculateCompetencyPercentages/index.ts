@@ -17,16 +17,16 @@ export function calculateCompetencyPercentages(
         questions,
         answers,
       );
-    const pointsData = calculatePointsEarnedAndAvailable(
+
+    const { pointsEarned, pointsAvailable } = calculatePointsEarnedAndAvailable(
       filteredQuestions,
       filteredAnswers,
     );
 
-    const pointsEarned = pointsData?.pointsEarned ?? 0;
-    const pointsAvailable = pointsData?.pointsAvailable ?? 0;
-
-    competencyPercentages[competencyName] =
+    const percentage =
       pointsAvailable > 0 ? (pointsEarned / pointsAvailable) * 100 : 0;
+    competencyPercentages[competencyName] = parseFloat(percentage.toFixed(2));
   }
+
   return competencyPercentages;
 }
