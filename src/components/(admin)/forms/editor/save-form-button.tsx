@@ -19,28 +19,31 @@ export default function SaveFormButton() {
   const doneAnimationRef = useRef<Player>(null);
 
   const handleSave = useCallback(async () => {
-    return async () => {
-      setLoading(true);
-      try {
-        const formData = changeQueue[changeQueue.length - 1];
-        await saveForm(formData);
-        setChangeQueue([]);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      const formData = changeQueue[changeQueue.length - 1];
+      //console.log("Saving form data:", formData);
+      await saveForm(formData);
+      // console.log("Form saved successfully");
+      setChangeQueue([]);
+    } catch (error) {
+      //console.error("Error saving form:", error);
+    } finally {
+      setLoading(false);
+    }
   }, [setLoading, setChangeQueue, changeQueue]);
 
   const debouncedSave = useCallback(
     (formData: TFormRelate) => {
       debounce(() => {
+        //console.log("Debounced save triggered");
         setChangeQueue((prevQueue) => {
           const lastIndex = prevQueue.length - 1;
           if (lastIndex >= 0 && isEqual(prevQueue[lastIndex], formData)) {
+            // console.log("No changes detected, skipping save");
             return prevQueue;
           }
+          //console.log("Changes detected, adding to change queue");
           return [...prevQueue, formData];
         });
       }, 1000)();
@@ -55,13 +58,15 @@ export default function SaveFormButton() {
 
   useDeepCompareEffect(() => {
     if (methods.formState.isDirty) {
+      //console.log("Form is dirty, triggering debounced save");
       debouncedSave(watchedData as TFormRelate);
     }
   }, [watchedData, debouncedSave]);
 
   useEffect(() => {
-    if (!loading && changeQueue.length > 0) {
-      handleSave();
+    if (changeQueue.length > 0) {
+      // console.log("Attempting to save...");
+      handleSave().then((r) => console.log("Saved", r));
     }
   }, [loading, changeQueue, handleSave]);
 
