@@ -7,7 +7,6 @@ import {
   PercentChangeData,
 } from "@/lib/responses/calculatePercentChangeFromTotals";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
-
 export function calculatePercentChange(
   evaluateeId: string,
   formVersions: FormVersionsResult,
@@ -16,39 +15,42 @@ export function calculatePercentChange(
 ) {
   if (!formVersions || !evaluateeId || !currentVersionId) return null;
 
-  const allEvaluateeResponses = formVersions.flatMap((v) =>
-    v.responses?.find((r) => r.evaluatee.id === evaluateeId),
+  // Sort the form versions based on their createdAt date in ascending order
+  const sortedVersions = formVersions.sort((a, b) =>
+    a.createdAt.localeCompare(b.createdAt),
   );
 
-  if (!allEvaluateeResponses || allEvaluateeResponses.length === 0) {
+  const currentVersionIndex = sortedVersions.findIndex(
+    (v) => v.id === currentVersionId,
+  );
+  if (currentVersionIndex === -1) return null;
+
+  const relevantVersions = sortedVersions.slice(0, currentVersionIndex + 1);
+
+  const evaluateeResponses = relevantVersions
+    .map((v) => v.responses?.find((r) => r.evaluatee.id === evaluateeId))
+    .filter(
+      (response): response is NonNullable<typeof response> =>
+        response !== undefined,
+    );
+
+  if (evaluateeResponses.length === 0) {
     return null;
   }
 
-  const versions = formVersions.filter((v) =>
-    allEvaluateeResponses.map((r) => r?.formVersionId).includes(v.id),
-  );
-
-  if (!versions || versions.length === 0) {
-    throw new Error("Couldn't locate versions from their responses.");
-  }
-
-  const totals = versions
-    .map((v) => {
-      const responses = allEvaluateeResponses.filter(
-        (r) => r?.formVersionId === v.id,
+  const totals = evaluateeResponses
+    .map((response) => {
+      const version = relevantVersions.find(
+        (v) => v.id === response.formVersionId,
       );
+      if (!version) return null;
 
-      if (!responses || responses.length === 0) {
-        return null;
-      }
-
-      const answers = responses.flatMap((a) => a?.answers);
-
+      const answers = response.answers;
       if (!answers || answers.length === 0) {
         return null;
       }
 
-      let questions: QuestionVersionResult[] | undefined = v.questions;
+      let questions: QuestionVersionResult[] | undefined = version.questions;
       let filteredAnswers: AnswerResult[] = answers.filter(
         (answer): answer is AnswerResult => answer !== undefined,
       );
@@ -61,7 +63,7 @@ export function calculatePercentChange(
             filteredAnswers,
           );
         questions = filteredQuestions;
-        filteredAnswers = competencyAnswers!; // TODO this might break something
+        filteredAnswers = competencyAnswers!;
       }
 
       const { pointsEarned, pointsAvailable } =
@@ -70,12 +72,12 @@ export function calculatePercentChange(
       const percent = (pointsEarned || 0) / (pointsAvailable || 0);
 
       return {
-        createdAt: new Date(v.createdAt),
+        createdAt: new Date(version.createdAt),
         score: percent,
-        versionId: v.id,
+        versionId: version.id,
       };
     })
-    .filter((total): total is PercentChangeData => total !== undefined);
+    .filter((total): total is PercentChangeData => total !== null);
 
-  return calculatePercentChangeFromTotals(totals, currentVersionId);
+  return calculatePercentChangeFromTotals(totals);
 }
