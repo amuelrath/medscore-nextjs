@@ -1,13 +1,13 @@
 "use client";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import DOCUMENT_ICON_2 from "public/icons/wired-flat-60-documents.json";
 import { useRef, useState, useEffect } from "react";
 
 export function FormCardHero() {
   const [isHovering, setIsHovering] = useState<boolean>(false);
-  const lottieRef = useRef<Player>(null);
+  const lottieRef = useRef<any>(null);
 
   useEffect(() => {
     if (isHovering) {
@@ -25,9 +25,9 @@ export function FormCardHero() {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <Player
-        src={DOCUMENT_ICON_2}
-        ref={lottieRef}
+      <Lottie
+        animationData={DOCUMENT_ICON_2}
+        lottieRef={lottieRef}
         style={{ width: "120px", height: "120px" }}
       />
       <CardTitle className={cn("text-sm")}>Untitled Evaluation</CardTitle>
