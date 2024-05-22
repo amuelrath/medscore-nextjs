@@ -1,4 +1,3 @@
-// FormResponsesSidebar.tsx
 "use client";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +25,7 @@ export function FormResponsesSidebar() {
 
   const handleVersionSelect = (versionId: string) => {
     const version = versions.find((v) => v.id === versionId);
+    if (!version) throw new Error("Selected version could not be located!");
     setSelectedVersion(version);
   };
 
