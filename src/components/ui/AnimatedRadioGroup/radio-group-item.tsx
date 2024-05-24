@@ -1,5 +1,5 @@
-import { forwardRef, useContext, useEffect, useRef } from "react";
-import { Player, Controls } from "@lottiefiles/react-lottie-player";
+import { forwardRef, useEffect, useRef } from "react";
+import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
 import CHECK_IN_ICON from "public/icons/system-regular-31-check-in-dark.json";
 import { useFocusVisible } from "@/hooks/useFocusVisible";
@@ -63,8 +63,8 @@ const RadioGroupItem = forwardRef<HTMLDivElement, RadioGroupItemProps>(
         )}
         {...props}
       >
-        <Player
-          src={CHECK_IN_ICON}
+        <Lottie
+          animationData={CHECK_IN_ICON}
           className={cn("size-6 text-black transition-all", {
             "opacity-100": isSelected,
             "opacity-0": !isSelected,

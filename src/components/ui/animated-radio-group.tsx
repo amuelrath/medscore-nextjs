@@ -1,7 +1,7 @@
 import { useId, useCallback } from "react";
 import { useEffect, useRef } from "react";
 import CHECK_IN_ICON from "public/icons/system-regular-31-check-in-dark.json";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import { cn } from "@/lib/utils";
 import debounce from "lodash/debounce";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
@@ -64,7 +64,7 @@ function RadioGroupItem({
   pointValue: number;
   tabIndex: number;
 }) {
-  const playerRef = useRef<Player>(null);
+  const lottieRef = useRef<any>(null);
 
   const debouncedOnChange = useCallback(
     (value: string) => {
@@ -78,50 +78,31 @@ function RadioGroupItem({
   const bgColor = getBgColorFromPointValue((pointValue + 1) / 2);
 
   useEffect(() => {
-    let animationFrameId: number | null = null;
-
-    if (playerRef.current && checked) {
-      if (playerRef.current.state.seeker <= 50) {
-        playerRef.current?.play();
-        const checkSeeker = () => {
-          if (playerRef.current && playerRef.current.state.seeker === 50) {
-            playerRef.current.pause();
-            animationFrameId = null;
-          } else {
-            animationFrameId = requestAnimationFrame(checkSeeker);
-          }
-        };
-        animationFrameId = requestAnimationFrame(checkSeeker);
+    lottieRef.current.setSpeed(2);
+    if (checked) {
+      if (lottieRef.current.currentFrame === 50) {
+        // Animation is already in the selected state, do nothing
+      } else {
+        lottieRef.current.setDirection(1);
+        lottieRef.current.playSegments([0, 50], true);
       }
     } else {
-      if (playerRef.current && playerRef.current.state.seeker > 0) {
-        playerRef.current?.setPlayerSpeed(2);
-        playerRef.current.setPlayerDirection(-1);
-        playerRef.current.play();
-        const checkSeeker = () => {
-          if (playerRef.current && playerRef.current.state.seeker <= 0) {
-            playerRef.current?.setPlayerSpeed(1);
-            playerRef.current.setPlayerDirection(1);
-            playerRef.current.pause();
-            playerRef.current.setSeeker(0);
-            animationFrameId = null;
-          } else {
-            animationFrameId = requestAnimationFrame(checkSeeker);
-          }
-        };
-        animationFrameId = requestAnimationFrame(checkSeeker);
+      if (lottieRef.current.currentFrame === 0) {
+        // Animation is already in the unselected state, do nothing
       } else {
-        playerRef.current?.stop();
-        playerRef.current?.setSeeker(0);
+        lottieRef.current.setDirection(-1);
+        lottieRef.current.playSegments([50, 0], true);
       }
     }
-
-    return () => {
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
   }, [checked]);
+
+  const handleLoopComplete = () => {
+    if (checked && lottieRef.current.currentFrame === 50) {
+      lottieRef.current.pause();
+    } else if (!checked && lottieRef.current.currentFrame === 0) {
+      lottieRef.current.pause();
+    }
+  };
 
   return (
     <div
@@ -146,10 +127,12 @@ function RadioGroupItem({
         className="sr-only"
         tabIndex={tabIndex}
       />
-      <Player
-        ref={playerRef}
-        src={CHECK_IN_ICON}
+      <Lottie
+        loop={false}
+        lottieRef={lottieRef}
+        animationData={CHECK_IN_ICON}
         className={cn("size-6 text-black transition-all")}
+        onLoopComplete={handleLoopComplete}
       />
       <label htmlFor={id} className={cn("relative z-10 ml-2")}>
         {label}

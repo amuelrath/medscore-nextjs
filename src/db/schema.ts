@@ -168,8 +168,6 @@ export const forms = pgTable("forms", {
     .default(sql`gen_random_uuid()`),
   title: text("title").notNull().default("Untitled Evaluation"),
   lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  deletedAt: timestamp("deleted_at"),
   programId: uuid("program_id")
     .references((): AnyPgColumn => programs.id)
     .notNull(),
@@ -196,11 +194,6 @@ export const questions = pgTable("questions", {
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
-  deletedAt: timestamp("deleted_at"),
   text: text("text"),
   feedback: boolean("feedback").notNull().default(false),
   position: integer("position").notNull(),
@@ -226,15 +219,11 @@ export const options = pgTable("options", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   text: text("text"),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
   position: integer("position").notNull(),
   pointValue: decimal("point_value").default("0.0").notNull(),
   questionId: uuid("question_id")
     .notNull()
-    .references((): AnyPgColumn => questions.id),
+    .references((): AnyPgColumn => questions.id, { onDelete: "cascade" }),
 });
 export type Option = typeof options.$inferSelect;
 export type NewOption = typeof options.$inferInsert;
@@ -251,7 +240,7 @@ export const milestonesOnQuestions = pgTable(
   {
     questionId: uuid("question_id")
       .notNull()
-      .references((): AnyPgColumn => questions.id),
+      .references((): AnyPgColumn => questions.id, { onDelete: "cascade" }),
     milestoneId: uuid("milestone_id")
       .notNull()
       .references((): AnyPgColumn => milestones.id),
@@ -290,20 +279,14 @@ export const responses = pgTable("responses", {
     .default(sql`gen_random_uuid()`),
   formVersionId: uuid("form_version_id")
     .notNull()
-    .references(() => formVersions.id),
+    .references(() => formVersions.id, { onDelete: "cascade" }),
   creatorId: uuid("creator_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   evaluateeId: uuid("evaluatee_id")
     .notNull()
-    .references(() => users.id),
+    .references(() => users.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
-  deletedAt: timestamp("deleted_at"),
-  // connect to form version
 });
 export type Response = DateToString<typeof responses.$inferSelect>;
 export type NewResponse = typeof responses.$inferInsert;
@@ -331,20 +314,16 @@ export const answers = pgTable("answers", {
     .default(sql`gen_random_uuid()`),
   questionVersionId: uuid("question_version_id")
     .notNull()
-    .references(() => questionVersions.id),
+    .references(() => questionVersions.id, { onDelete: "cascade" }),
   optionVersionId: uuid("option_version_id").references(
     () => optionVersions.id,
+    { onDelete: "cascade" },
   ),
   responseId: uuid("response_id")
     .notNull()
-    .references(() => responses.id),
+    .references(() => responses.id, { onDelete: "cascade" }),
   feedback: text("feedback"),
   createdAt: timestamp("created_at"),
-  updatedAt: timestamp("updated_at")
-    .notNull()
-    .defaultNow()
-    .$onUpdateFn(() => new Date()),
-  deletedAt: timestamp("deleted_at"),
 });
 export type Answer = DateToString<typeof answers.$inferSelect>;
 export type NewAnswer = typeof answers.$inferInsert;
@@ -370,7 +349,7 @@ export const formCodes = pgTable("form_codes", {
     .default(sql`gen_random_uuid()`),
   formVersionId: uuid("form_version_id")
     .notNull()
-    .references(() => formVersions.id),
+    .references(() => formVersions.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 6 }).notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -392,10 +371,10 @@ export const formCodesOnUsers = pgTable(
   {
     formCodeId: uuid("form_code_id")
       .notNull()
-      .references(() => formCodes.id),
+      .references(() => formCodes.id, { onDelete: "cascade" }),
     userId: uuid("user_id")
       .notNull()
-      .references(() => users.id),
+      .references(() => users.id, { onDelete: "cascade" }),
     deletedAt: timestamp("deleted_at"),
   },
   (table) => {
@@ -429,7 +408,7 @@ export const formVersions = pgTable("form_versions", {
     .default(sql`gen_random_uuid()`),
   formId: uuid("form_id")
     .notNull()
-    .references(() => forms.id),
+    .references(() => forms.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   programId: uuid("program_id")
     .notNull()
@@ -543,6 +522,52 @@ export const milestoneOnQuestionVersionRelations = relations(
     milestone: one(milestones, {
       fields: [milestoneOnQuestionVersions.milestoneId],
       references: [milestones.id],
+    }),
+  }),
+);
+
+export const competencyPerformanceSummaries = pgTable(
+  "competency_performance_summaries",
+  {
+    evaluateeId: uuid("evaluatee_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    formVersionId: uuid("form_version_id")
+      .notNull()
+      .references(() => formVersions.id, { onDelete: "cascade" }),
+    competencyId: uuid("competency_id")
+      .notNull()
+      .references(() => competencies.id),
+    strengths: text("strengths"),
+    weaknesses: text("weaknesses"),
+    feedback: text("feedback"),
+  },
+  (table) => {
+    return {
+      id: primaryKey({
+        columns: [table.evaluateeId, table.formVersionId, table.competencyId],
+      }),
+    };
+  },
+);
+export type CompetencyPerformanceSummary =
+  typeof competencyPerformanceSummaries.$inferSelect;
+export type NewCompetencyPerformanceSummary =
+  typeof competencyPerformanceSummaries.$inferInsert;
+export const competencyPerformanceSummaryRelations = relations(
+  competencyPerformanceSummaries,
+  ({ one }) => ({
+    evaluatee: one(users, {
+      fields: [competencyPerformanceSummaries.evaluateeId],
+      references: [users.id],
+    }),
+    formVersion: one(formVersions, {
+      fields: [competencyPerformanceSummaries.formVersionId],
+      references: [formVersions.id],
+    }),
+    competency: one(competencies, {
+      fields: [competencyPerformanceSummaries.competencyId],
+      references: [competencies.id],
     }),
   }),
 );

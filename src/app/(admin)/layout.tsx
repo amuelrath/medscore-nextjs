@@ -9,7 +9,7 @@ export default async function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className={cn("flex flex-col min-h-screen no-scrollbar")}>
+    <div className={cn("no-scrollbar flex min-h-screen flex-col")}>
       <TopNav tabs={tabs} />
       <ReactQueryDevtools />
       <div className={cn("transition-all")}>{children}</div>
@@ -41,6 +41,6 @@ const tabs = [
   {
     id: "resources",
     label: "Resources",
-    href: "/resources"
-  }
+    href: "/resources",
+  },
 ];

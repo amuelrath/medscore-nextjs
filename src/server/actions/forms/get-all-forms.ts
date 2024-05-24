@@ -2,7 +2,7 @@
 import { db } from "@/db";
 
 export async function getAllForms(userId: string) {
-  const result = await db.query.forms.findMany({
+  return db.query.forms.findMany({
     with: {
       programs: {
         with: {
@@ -24,8 +24,6 @@ export async function getAllForms(userId: string) {
         },
       },
     },
-    where: (form, { isNull, eq, and }) =>
-      and(eq(form.creatorId, userId), isNull(form.deletedAt)),
+    where: (form, { eq }) => eq(form.creatorId, userId),
   });
-  return result;
 }

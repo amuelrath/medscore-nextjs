@@ -2,7 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import Provider from "@/app/_trpc/provider";
-import { StrictMode } from "react";
+import { ReactNode, StrictMode } from "react";
+import { Poppins } from "next/font/google";
+import { cn } from "@/lib/utils";
+const poppins = Poppins({
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  display: "auto",
+  subsets: ["latin", "latin-ext"],
+  style: ["italic", "normal"],
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: "medscore",
@@ -12,12 +21,11 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <>
       <head>
-        <link rel="stylesheet" href="https://use.typekit.net/liq0htw.css" />
         <link rel="shortcut icon" href="/image/favicon.ico" />
         <link
           rel="apple-touch-icon"
@@ -36,14 +44,16 @@ export default function RootLayout({
           sizes="16x16"
           href="/image/favicon.ico"
         />
+        <title>MEDscore</title>
       </head>
       <html lang="en">
         <StrictMode>
           <Provider>
             <body
-              className={
-                "font-poppins min-h-screen w-full bg-gradient-to-b from-background to-gray-200 "
-              }
+              className={cn(
+                poppins.className,
+                "min-h-screen w-full bg-gradient-to-b from-background to-gray-200",
+              )}
             >
               {children}
               <Toaster />

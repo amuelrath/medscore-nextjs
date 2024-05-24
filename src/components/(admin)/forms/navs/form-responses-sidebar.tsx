@@ -10,14 +10,24 @@ import {
 import { formatDate } from "@/lib/formatDate";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ScrollAreaScrollbar } from "@radix-ui/react-scroll-area";
-import { ResponseCards } from "@/components/(admin)/forms/responses/response-cards";
-import { ResponseOverviewCard } from "@/components/(admin)/forms/responses/response-overview-card";
 import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import React, { useMemo } from "react";
+import dynamic from "next/dynamic";
 
-const MemoizedResponseOverviewCard = React.memo(ResponseOverviewCard);
-const MemoizedResponseCards = React.memo(ResponseCards);
+const DynamicResponseCards = dynamic(() =>
+  import("@/components/(admin)/forms/responses/response-cards").then(
+    (module) => module.ResponseCards,
+  ),
+);
+const DynamicResponseOverviewCard = dynamic(() =>
+  import("@/components/(admin)/forms/responses/response-overview-card").then(
+    (module) => module.ResponseOverviewCard,
+  ),
+);
+
+const MemoizedResponseOverviewCard = React.memo(DynamicResponseOverviewCard);
+const MemoizedResponseCards = React.memo(DynamicResponseCards);
 
 export function FormResponsesSidebar() {
   const { versions } = useAllFormVersions();

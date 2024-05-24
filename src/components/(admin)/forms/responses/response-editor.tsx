@@ -1,14 +1,19 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { AnswerResult, QuestionVersionResult } from "@/db/types";
-import { QuestionResponseCard } from "@/components/(admin)/forms/responses/question-response-card";
 import { Answer, Option } from "@/db/schema";
 import { memo, Suspense, useEffect, useMemo, useState } from "react";
 import { AutoSizer, List, ListRowRenderer } from "react-virtualized";
 import { useSelectedContext } from "@/providers/selected-values-provider";
+import dynamic from "next/dynamic";
 import { DynamicEyeball } from "@/components/ui/lottie/eyeball";
-import { motion, AnimatePresence } from "framer-motion";
-
+const DynamicQuestionResponseCard = dynamic(
+  () =>
+    import("@/components/(admin)/forms/responses/question-response-card").then(
+      (module) => module.QuestionResponseCard,
+    ),
+  { ssr: false },
+);
 export const ResponseEditor = memo(() => {
   const { selectedVersion, selectedResponse } = useSelectedContext();
   const [rowHeights, setRowHeights] = useState<Record<number, number>>({});
@@ -57,11 +62,11 @@ export const ResponseEditor = memo(() => {
     const question = sortedQuestions[index];
     return (
       <div
-        key={question.id}
         style={style}
         className={cn("overflow-hidden pr-8")}
+        key={question.id}
       >
-        <QuestionResponseCard
+        <DynamicQuestionResponseCard
           locked={true}
           answers={selectedResponse.answers}
           question={question}

@@ -31,7 +31,6 @@ const COMPETENCY_ICONS = {
   PC,
   PBLI,
 };
-
 const DynamicCompetencyScoreDialogTrigger = dynamic(
   () =>
     import("@/components/(admin)/forms/dialogs/competency-score-dialog").then(

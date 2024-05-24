@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { isEqual } from "lodash";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import CLOUD_LOADING_LOOP from "public/icons/system-regular-84-cloud-black.json";
 import CLOUD_DONE from "public/icons/system-regular-128-cloud-done-black.json";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ export default function SaveFormButton() {
   const methods = useFormContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [changeQueue, setChangeQueue] = useState<TFormRelate[]>([]);
-  const doneAnimationRef = useRef<Player>(null);
+  const doneAnimationRef = useRef<any>(null);
 
   const handleSave = useCallback(async () => {
     setLoading(true);
@@ -86,24 +86,19 @@ export default function SaveFormButton() {
       onClick={handleSave}
     >
       {loading ? (
-        <Player
-          src={CLOUD_LOADING_LOOP}
+        <Lottie
+          animationData={CLOUD_LOADING_LOOP}
           loop
           autoplay
           style={{ width: 18, height: 18 }}
         />
       ) : (
-        <Player
-          ref={doneAnimationRef}
-          src={CLOUD_DONE}
+        <Lottie
+          lottieRef={doneAnimationRef}
+          animationData={CLOUD_DONE}
           loop={false}
           autoplay
           style={{ width: 18, height: 18 }}
-          onEvent={(event) => {
-            if (event === "complete") {
-              doneAnimationRef.current?.pause();
-            }
-          }}
         />
       )}
     </Button>

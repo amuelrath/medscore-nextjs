@@ -24,7 +24,7 @@ export default function MultiSelect({
 }: MultiSelectProps) {
   return (
     <Select
-      className={cn("font-forma text-sm")}
+      className={cn("text-sm")}
       classNames={classNames as ClassNamesConfig}
       value={value}
       isMulti

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Player } from "@lottiefiles/react-lottie-player";
+import Lottie from "lottie-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ARROW from "public/icons/system-regular-161-trending-flat.json";
@@ -7,18 +7,16 @@ import ARROW from "public/icons/system-regular-161-trending-flat.json";
 export function ResponseDetailsButton() {
   const [isHovered, setIsHovered] = useState(false);
 
-  const arrowRef = useRef<Player>(null);
+  const arrowRef = useRef<any>(null);
 
   const handleHoverEnter = () => {
     setIsHovered(true);
-    arrowRef.current?.setSeeker(0);
-    arrowRef.current?.play();
+    arrowRef.current?.goToAndPlay(0, true);
   };
 
   const handleHoverExit = () => {
     setIsHovered(false);
-    arrowRef.current?.setSeeker(0);
-    arrowRef.current?.stop();
+    arrowRef.current?.goToAndStop(0, true);
   };
   return (
     <Button
@@ -50,7 +48,11 @@ export function ResponseDetailsButton() {
               : "translate-x-full opacity-0",
           )}
         >
-          <Player src={ARROW} ref={arrowRef} className={cn("size-10")} />
+          <Lottie
+            animationData={ARROW}
+            lottieRef={arrowRef}
+            className={cn("size-10")}
+          />
         </div>
       </div>
     </Button>

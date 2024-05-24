@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { TFormWithProgram } from "@/db/types";
 import React, { ReactNode } from "react";
 import {
   AlertDialog,
@@ -14,12 +13,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
+import { Form } from "@/db/schema";
 
 export function DeleteFormDialog({
   form,
   children,
 }: {
-  form: TFormWithProgram;
+  form: Form;
   children: ReactNode;
 }) {
   const utils = trpc.useUtils();

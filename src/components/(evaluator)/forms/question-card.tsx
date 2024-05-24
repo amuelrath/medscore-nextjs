@@ -92,7 +92,7 @@ export function QuestionCard({
         )}
       >
         <CardContent className={cn("flex select-none flex-col space-y-4 p-4")}>
-          <CardTitle className="font-poppins flex items-center justify-between text-lg">
+          <CardTitle className="flex items-center justify-between text-lg">
             <>
               {`${question.text}`}
               {!question.feedback && (

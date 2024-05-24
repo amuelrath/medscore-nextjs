@@ -26,13 +26,11 @@ export async function getOneForm(formId: string, userId: string) {
         },
       },
     },
-    where: (form, { eq, and, isNull }) =>
-      and(
-        eq(form.id, formId),
-        isNull(form.deletedAt),
-        eq(form.creatorId, userId),
-      ),
+    where: (form, { eq, and }) =>
+      and(eq(form.id, formId), eq(form.creatorId, userId)),
   });
 }
 
-export type FormResult = NonNullable<DateToString<Awaited<ReturnType<typeof getOneForm>>>>;
+export type FormResult = NonNullable<
+  DateToString<Awaited<ReturnType<typeof getOneForm>>>
+>;

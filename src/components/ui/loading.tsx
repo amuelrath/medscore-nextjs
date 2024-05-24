@@ -49,7 +49,7 @@ export default function Loading({ color, size, icon }: LoadingProps) {
     <div
       className={cn(
         loadingStyles({ color, size, icon }),
-        "mt-[25%] flex h-full w-full flex-col items-center justify-center",
+        "flex h-full w-full flex-col items-center justify-center",
       )}
     >
       <Lottie

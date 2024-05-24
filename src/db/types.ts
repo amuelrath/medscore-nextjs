@@ -183,3 +183,42 @@ export type TFormVersion = InferResultType<
     code: true;
   }
 >;
+
+export type AiInsightData = {
+  exam: {
+    type: "Objective Structured Clinical Exam" | "Survey";
+    specialty: string;
+    title: string;
+    administeredAt: string;
+    evaluatee: {
+      name: string;
+      role: "Medical Resident" | "Medical Fellow";
+    };
+    overallPerformance: {
+      averageScore: number;
+      percentileRank: number;
+      questionsAboveAverage: number;
+      questionsBelowAverage: number;
+    };
+    domains: {
+      name:
+        | "Patient Care"
+        | "Medical Knowledge"
+        | "Professionalism"
+        | "Systems-Based Practice"
+        | "Practice-Based Learning and Improvement"
+        | "Interpersonal and Communication Skills";
+      percentChangeFromPreviousAttempt: number;
+      percentChangeFromFirstAttempt: number;
+      timeVersusScoreCorrelationCoefficient: number;
+      questionsFromExam: {
+        questionText: string;
+        allocatedAcgmeMilestoneDescription: string;
+        percentScore: number;
+        averageScore: number;
+        percentileRank: number;
+        evaluatorFeedback: string;
+      }[];
+    }[];
+  };
+};

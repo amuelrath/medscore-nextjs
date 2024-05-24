@@ -2,7 +2,7 @@
 import { db } from "@/db";
 
 export async function getSubcompetencies(formId: string) {
-  const tx = await db.transaction(async (tx) => {
+  return await db.transaction(async (tx) => {
     const form = await tx.query.forms.findFirst({
       with: {
         programs: true,
@@ -10,7 +10,7 @@ export async function getSubcompetencies(formId: string) {
       where: (f, { eq }) => eq(f.id, formId),
     });
 
-    return await tx.query.subcompetencies.findMany({
+    return tx.query.subcompetencies.findMany({
       with: {
         milestones: true,
         competencies: true,
@@ -18,6 +18,4 @@ export async function getSubcompetencies(formId: string) {
       where: (s, { eq }) => eq(s.specialtyId, form?.programs.specialtyId || ""),
     });
   });
-
-  return tx;
 }

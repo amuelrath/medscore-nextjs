@@ -1,7 +1,6 @@
 import { getQuestionConsistencyScore } from "./index";
 import { FormVersionResult } from "@/server/actions/forms/get-one-version";
 import { describe, expect, it } from "@jest/globals";
-import { FormVersionsResult } from "@/server/actions/forms/get-all-versions";
 
 describe("getQuestionConsistencyScore", () => {
   const mockFormVersions = [

@@ -90,7 +90,7 @@ const CompetencyCard = memo(({ competency }: { competency: Competency }) => {
               <div className={cn("flex-col justify-center")}>
                 <h3
                   className={cn(
-                    "font-poppins flex flex-col justify-center text-xl font-semibold",
+                    "flex flex-col justify-center text-xl font-semibold",
                   )}
                 >
                   {name[competency.name]}

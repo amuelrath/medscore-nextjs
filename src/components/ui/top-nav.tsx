@@ -48,18 +48,18 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Image priority src={logo} alt="logo" className={cn("size-10")} />
           <h3 className={cn("flex flex-row")}>
-            <p className={cn("font-poppins text-xl font-bold text-accent")}>
+            <p className={cn("text-xl font-bold text-accent")}>
               MED
             </p>
             <p
-              className={cn("font-poppins text-xl font-light text-destructive")}
+              className={cn("text-xl font-light text-destructive")}
             >
               score
             </p>
           </h3>
         </div>
         {!withoutTabs && (
-          <div className={cn("flex font-forma flex-row items-center space-x-2")}>
+          <div className={cn("flex flex-row items-center space-x-2")}>
             {tabs.map((tab) => (
               <div
                 key={tab.id}

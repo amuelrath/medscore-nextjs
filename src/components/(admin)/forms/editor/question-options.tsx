@@ -80,7 +80,6 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
               text: "",
               position: fields.length + 1,
               pointValue: "0",
-              updatedAt: new Date(),
             })
           }
           className={cn(

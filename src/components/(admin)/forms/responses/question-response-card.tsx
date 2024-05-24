@@ -4,11 +4,18 @@ import { cn } from "@/lib/utils";
 import STICKY_NOTE from "public/icons/system-regular-152-sticky-note.json";
 import Lottie from "lottie-react";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup } from "@/components/ui/animated-radio-group";
 import { AnswerResult, QuestionVersionResult } from "@/db/types";
 import { m, LazyMotion, AnimatePresence, domAnimation } from "framer-motion";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
 import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
+import dynamic from "next/dynamic";
+
+const DynamicRadioGroup = dynamic(() =>
+  import("@/components/ui/animated-radio-group").then(
+    (module) => module.RadioGroup,
+  ),
+  { ssr: false }
+);
 
 export function QuestionResponseCard({
   question,
@@ -109,16 +116,16 @@ export function QuestionResponseCard({
           <CardContent
             className={cn("flex select-none flex-col space-y-4 p-4")}
           >
-            <CardTitle className="font-poppins flex items-center justify-between text-lg font-medium">
+            <CardTitle className="flex items-center justify-between text-lg font-medium">
               <>
                 <div className={cn("flex flex-row items-center space-x-2")}>
-                  <p className={cn("font-poppins font-bold")}>{index + 1}.</p>
+                  <p className={cn("font-bold")}>{index + 1}.</p>
                   <p> {question.text}</p>
                 </div>
                 <div className={cn("flex flex-col justify-center")}>
                   <div
                     className={cn(
-                      "font-poppins flex flex-row items-center justify-end space-x-1 text-xs",
+                      "flex flex-row items-center justify-end space-x-1 text-xs",
                     )}
                   >
                     {getPointsEarnedAsFraction}
@@ -153,7 +160,7 @@ export function QuestionResponseCard({
                 )}
               </>
             </CardTitle>
-            <RadioGroup
+            <DynamicRadioGroup
               options={options}
               value={selectedOption || "ERROR_NO_VALUE"}
               onChange={(value) => {

@@ -81,7 +81,6 @@ export function CompetencyScoreChart({
         y: {
           ticks: {
             font: {
-              family: "Poppins",
               size: 12,
             },
           },
@@ -89,7 +88,6 @@ export function CompetencyScoreChart({
         x: {
           ticks: {
             font: {
-              family: "Poppins",
               size: 12,
             },
           },
@@ -105,11 +103,9 @@ export function CompetencyScoreChart({
             },
           },
           titleFont: {
-            family: "Poppins",
             size: 14,
           },
           bodyFont: {
-            family: "Poppins",
             size: 12,
           },
         },
@@ -122,11 +118,7 @@ export function CompetencyScoreChart({
     return <div>No data available</div>;
   }
 
-  return (
-    <div className={cn("h-48 w-1/2")}>
-      <Line data={chartData} options={options} />
-    </div>
-  );
+  return <Line data={chartData} options={options} />;
 }
 
 function formatDate(date: Date): string {

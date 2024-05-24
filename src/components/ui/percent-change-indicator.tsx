@@ -11,7 +11,7 @@ export function ChangeIndicator({ percentChange }: { percentChange: number }) {
     return (
       <p
         className={cn(
-          "font-poppins font-regular mb-1 text-end text-xs font-bold italic",
+          "font-regular mb-1 text-end text-xs font-bold italic",
         )}
       >
         No Change.
@@ -22,7 +22,7 @@ export function ChangeIndicator({ percentChange }: { percentChange: number }) {
     <div className={cn("flex select-none flex-row items-center")}>
       <div
         className={cn(
-          "font-poppins flex flex-row items-center space-x-1 text-sm font-bold tracking-wide",
+          "flex flex-row items-center space-x-1 text-sm font-bold tracking-wide",
           isChangePositive ? "text-emerald-500" : "text-destructive",
         )}
       >

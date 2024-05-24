@@ -62,8 +62,6 @@ export async function getOneVersion(formVersionId: string) {
           createdAt: true,
           creatorId: false,
           evaluateeId: false,
-          deletedAt: false,
-          updatedAt: false,
         },
         with: {
           creator: {
@@ -79,11 +77,9 @@ export async function getOneVersion(formVersionId: string) {
           answers: {
             columns: {
               id: true,
-              deletedAt: false,
               createdAt: false,
               questionVersionId: true,
               optionVersionId: true,
-              updatedAt: false,
               responseId: false,
               feedback: true,
             },

@@ -106,7 +106,7 @@ export default function MilestoneSelector({
     <Drawer>
       <DrawerTrigger
         className={cn(
-          "font-poppins cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
+          "cursor-pointer rounded-full p-1 opacity-0 transition-all hover:bg-primary hover:text-white group-hover:opacity-100",
         )}
       >
         <MilestoneIcon size={"1rem"} />

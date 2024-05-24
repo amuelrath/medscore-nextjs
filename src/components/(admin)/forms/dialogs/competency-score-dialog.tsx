@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import React, { ReactNode, useMemo } from "react";
+import React, { ReactNode, Suspense, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { User } from "@/db/schema";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
@@ -16,33 +16,8 @@ import { getFilteredQuestionsAndAnswers } from "@/lib/responses/utils";
 import { getFullName } from "@/lib/getFullName";
 import { ChangeIndicator } from "@/components/ui/percent-change-indicator";
 import { Separator } from "@/components/ui/separator";
-import { CompetencyScoreChart } from "@/components/(admin)/forms/responses/competency-score-chart";
 import { QuestionPreviewCards } from "@/components/(admin)/forms/responses/question-preview-cards";
-const TooltipProvider = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.TooltipProvider,
-  })),
-);
-const Tooltip = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.Tooltip,
-  })),
-);
-const TooltipTrigger = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.TooltipTrigger,
-  })),
-);
-const TooltipContent = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.TooltipContent,
-  })),
-);
-const InsightsButton = dynamic(() =>
-  import("@/components/ui/see-more-button").then(
-    (module) => module.SeeMoreButton,
-  ),
-);
+import { SeeMoreButton } from "@/components/ui/see-more-button";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 import { calculatePercentChange } from "@/lib/responses/calculatePercentChange";
 import { useSelectedContext } from "@/providers/selected-values-provider";
@@ -51,6 +26,54 @@ import dynamic from "next/dynamic";
 import Counter from "@/components/ui/counter";
 import { calculateScorePercentile } from "@/lib/responses/calculateScorePercentile";
 import { FormVersionResult } from "@/server/actions/forms/get-one-version";
+import Loading from "@/components/ui/loading";
+import { FeedbackSummaryCard } from "@/components/(admin)/forms/responses/feedback-summary-card";
+import { AiInsightData } from "@/db/types";
+import { Card } from "@/components/ui/card";
+const DynamicCompetencyScoreChart = dynamic(
+  () =>
+    import("@/components/(admin)/forms/responses/competency-score-chart").then(
+      (module) => module.CompetencyScoreChart,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className={cn("h-48 w-1/2")}>
+        <span className={cn("pb-12")}>
+          <Loading />
+        </span>
+      </div>
+    ),
+  },
+);
+const TooltipProvider = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.TooltipProvider,
+    })),
+  { ssr: false },
+);
+const Tooltip = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.Tooltip,
+    })),
+  { ssr: false },
+);
+const TooltipTrigger = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.TooltipTrigger,
+    })),
+  { ssr: false },
+);
+const TooltipContent = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.TooltipContent,
+    })),
+  { ssr: false },
+);
 
 export function CompetencyScoreDialogTrigger({
   competencyName,
@@ -77,12 +100,6 @@ export function CompetencyScoreDialogTrigger({
       selectedResponse?.answers,
     );
 
-  const percentile = calculateScorePercentile(
-    selectedVersion || ({} as FormVersionResult),
-    evaluatee?.id || "",
-    competencyName,
-  );
-
   const p = useMemo(() => {
     return calculatePointsEarnedAndAvailable(questions, answers);
   }, [questions, answers]);
@@ -101,23 +118,21 @@ export function CompetencyScoreDialogTrigger({
       <DialogTrigger>{children}</DialogTrigger>
       <DialogContent
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className={cn("max-h-[95%] min-w-[1000px]")}
+        className={cn("max-h-[95%] min-w-[90%]")}
       >
-        <DialogHeader className={cn("mb-4")}>
+        <DialogHeader>
           <div className={cn("flex flex-col divide-y-2")}>
             <div>
               <DialogTitle
-                className={cn(
-                  "font-poppins flex flex-row items-start justify-between",
-                )}
+                className={cn("flex flex-row items-start justify-between")}
               >
                 <p className={cn("text-4xl font-bold text-gray-800")}>
                   {COMPETENCIES[competencyName].name}
                 </p>
-                <InsightsButton
+                <SeeMoreButton
                   label={"See Insights"}
                   className={
-                    "font-forma mr-8 bg-foreground text-xl font-extrabold text-white"
+                    "mr-8 bg-foreground text-xl font-extrabold text-white"
                   }
                   size={"sm"}
                   iconStyles={"size-10"}
@@ -126,7 +141,7 @@ export function CompetencyScoreDialogTrigger({
 
               <DialogDescription
                 className={cn(
-                  "font-poppins w-full text-sm italic tracking-wide text-gray-500",
+                  "w-full text-sm italic tracking-wide text-gray-500",
                 )}
               >
                 {COMPETENCIES[competencyName].description}
@@ -135,7 +150,7 @@ export function CompetencyScoreDialogTrigger({
 
             <div
               className={cn(
-                "font-poppins flex flex-row items-center justify-around space-x-2 pt-2 text-3xl font-semibold ",
+                "flex flex-row items-center justify-around space-x-2 pt-2 text-3xl font-bold ",
               )}
             >
               <p className={cn("line-clamp-1 text-gray-500")}>
@@ -150,7 +165,7 @@ export function CompetencyScoreDialogTrigger({
               <div className={cn("flex items-center justify-center")}>
                 <p
                   className={cn(
-                    "font-poppins line-clamp-1 text-2xl font-bold tracking-wider",
+                    "line-clamp-1 text-2xl font-bold tracking-wider",
                   )}
                 >
                   <span style={{ color: bgColor }}>{p?.pointsEarned}</span>
@@ -221,22 +236,33 @@ export function CompetencyScoreDialogTrigger({
             </div>
           </div>
         </DialogHeader>
-        <div className={cn("flex w-full flex-row")}>
-          <CompetencyScoreChart
-            evaluateeId={selectedResponse.evaluatee.id}
-            currentFormVersionId={selectedVersion.id}
-            competencyName={competencyName}
-            versions={versions}
-          />
-          <div
-            className={cn("flex w-1/2 flex-col items-center justify-center")}
-          >
-            <Counter
-              className={"text-8xl font-extrabold "}
-              value={percentile || 0}
-              duration={0.3}
+        <div className={cn("flex flex-row space-x-4")}>
+          <div className={cn("w-1/2")}>
+            <DynamicCompetencyScoreChart
+              evaluateeId={selectedResponse.evaluatee.id}
+              currentFormVersionId={selectedVersion.id}
+              competencyName={competencyName}
+              versions={versions}
             />
-            <p className={cn("text-sm font-bold text-gray-400")}>PERCENTILE</p>
+          </div>
+          <div className={cn("w-1/2")}>
+            <Suspense
+              fallback={
+                <Card className="h-52 w-full animate-pulse bg-gradient-to-b from-foreground/70 to-black/70">
+                  <Loading />
+                </Card>
+              }
+            >
+              <FeedbackSummaryCard
+                percentImprovementFromPreviousAttempt={
+                  percentChange?.percentChangeFromPrevious || 0
+                }
+                percentImprovementFromFirstAttempt={
+                  percentChange?.percentChangeFromFirst || 0
+                }
+                competencyName={competencyName}
+              />
+            </Suspense>
           </div>
         </div>
         <hr />

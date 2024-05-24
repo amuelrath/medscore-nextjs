@@ -12,7 +12,7 @@ export default function EvaluationFormNav({
   return (
     <nav
       className={cn(
-        "font-poppins sticky top-[57px] z-20 flex h-12 w-full space-x-4 divide-x-2 divide-solid bg-background p-2 shadow-md",
+        "sticky top-[57px] z-20 flex h-12 w-full space-x-4 divide-x-2 divide-solid bg-background p-2 shadow-md",
       )}
     >
       <div className={cn("flex-col justify-center")}>

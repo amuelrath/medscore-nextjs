@@ -5,25 +5,33 @@ import {
 } from "@/db/types";
 import THUMBS_UP from "public/icons/thumb-up.json";
 import THUMBS_DOWN from "public/icons/thumb-down.json";
-const TooltipProvider = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.TooltipProvider,
-  })),
+const TooltipProvider = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.TooltipProvider,
+    })),
+  { ssr: false },
 );
-const Tooltip = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.Tooltip,
-  })),
+const Tooltip = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.Tooltip,
+    })),
+  { ssr: false },
 );
-const TooltipTrigger = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.TooltipTrigger,
-  })),
+const TooltipTrigger = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.TooltipTrigger,
+    })),
+  { ssr: false },
 );
-const TooltipContent = dynamic(() =>
-  import("@/components/ui/tooltip").then((module) => ({
-    default: module.TooltipContent,
-  })),
+const TooltipContent = dynamic(
+  () =>
+    import("@/components/ui/tooltip").then((module) => ({
+      default: module.TooltipContent,
+    })),
+  { ssr: false },
 );
 import { calculateAverageQuestionScore } from "@/lib/responses/calculateAverageQuestionScore";
 import { cn } from "@/lib/utils";
@@ -67,6 +75,7 @@ export function QuestionPreviewCards({
               q.text,
             );
             const evaluateeScore = getQuestionPointsEarned(q, answers);
+            const answerData = getAnswer(q, answers);
 
             return (
               <Card
@@ -75,58 +84,61 @@ export function QuestionPreviewCards({
                 )}
                 key={q.id}
               >
-                <div className={cn("absolute bottom-3 right-3")}>
-                  <QuestionPreviewCardIcon
-                    evaluateeScore={evaluateeScore.percent}
-                    averageScore={averageScore}
-                  />
-                </div>
+                <div className={cn("")}></div>
                 <div
                   className={cn(
                     "flex w-full flex-row items-center justify-between",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "font-poppins text-sm font-bold text-gray-300",
-                    )}
-                  >
+                  <span className={cn("text-sm font-bold text-gray-300")}>
                     QUESTION {q.position}.
                   </span>
-                  <span className={cn("font-poppins text-xs")}>
-                    <PointsEarned q={q} />
-                  </span>
+                  <div className={cn("flex flex-row items-center space-x-2")}>
+                    <span className={cn("text-xs")}>
+                      <PointsEarned q={q} />
+                    </span>
+                    <QuestionPreviewCardIcon
+                      evaluateeScore={evaluateeScore.percent}
+                      averageScore={averageScore}
+                    />
+                  </div>
                 </div>
                 <div
                   className={cn(
-                    "font-poppins flex min-h-[6rem] flex-col justify-between font-normal",
+                    "flex min-h-[6rem] flex-col justify-items-stretch font-normal",
                   )}
                 >
                   <div>
                     <p className={cn("text-md")}>{q.text}</p>
                   </div>
-                  <div className={cn("flex flex-row items-baseline space-x-2")}>
-                    <span
-                      className={cn(
-                        "font-poppins text-sm font-bold text-gray-300",
-                      )}
-                    >
+                  <div className={cn("flex flex-row items-baseline mb-2 space-x-2")}>
+                    <span className={cn("text-sm font-bold text-gray-300")}>
                       {evaluatorName.toUpperCase()}:
                     </span>
-                    <span
-                      className={cn(
-                        "font-forma text-lg font-bold text-primary/80",
-                      )}
-                    >
-                      {getAnswer(q, answers)}
+                    <span className={cn("text-lg font-semibold text-primary/80")}>
+                      {answerData.answer}
                     </span>
                   </div>
+                  {answerData.feedback && (
+                    <>
+                      <hr />
+                      <div
+                        className={cn(
+                          "flex mt-1 flex-col items-start justify-start",
+                        )}
+                      >
+                        <span className={cn("text-sm italic text-primary/80")}>
+                          &quot;{answerData.feedback}&quot;
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </Card>
             );
           })
         ) : (
-          <p className={cn("font-poppins col-span-full text-center")}>
+          <p className={cn("col-span-full text-center")}>
             No questions found for this competency.
           </p>
         )}
@@ -153,27 +165,31 @@ export function QuestionPreviewCardIcon({
   const description = getPerformanceDescription(isOutlierAbove, isOutlierBelow);
 
   return (
-    <div className={cn("font-poppins font-regular relative text-sm")}>
+    <div className={cn("font-regular relative text-sm")}>
       <TooltipProvider delayDuration={0.4} skipDelayDuration={3}>
         <Tooltip>
           <TooltipTrigger
             className={cn(
-              "size-6 items-center rounded-md bg-foreground transition-all hover:scale-125",
+              "size-6 items-center rounded-md bg-foreground transition-all aspect-square hover:scale-110",
             )}
           >
             <div
               className={cn(
-                "inline-block bg-gradient-to-br bg-clip-text text-lg font-extrabold text-transparent drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]",
+                "bg-gradient-to-br bg-clip-text text-lg font-extrabold text-transparent",
                 isOutlierAbove
                   ? "from-accent to-accent-secondary"
                   : "from-destructive to-orange-400",
               )}
             >
-              {isOutlierAbove ? "!!" : "??"}
+              {isOutlierAbove ? (
+                <p className="-mt-[1px]">!!</p>
+              ) : (
+                <p className="-mt-[1px] pl-[1px]">??</p>
+              )}
             </div>
           </TooltipTrigger>
           <TooltipContent
-            className={cn("font-poppins flex flex-row items-center space-x-2")}
+            className={cn("flex flex-row items-center space-x-2")}
           >
             <Lottie
               animationData={isOutlierAbove ? THUMBS_UP : THUMBS_DOWN}
@@ -225,10 +241,10 @@ const getAnswer = (
   const option = question?.options.find(
     (o) => o.id === answer?.optionVersionId,
   );
-  return option?.text || ""; // Return an empty string if option is undefined
+  return { answer: option?.text, feedback: answer?.feedback } || "Err"; // Return an empty string if option is undefined
 };
 
-const getQuestionPointsEarned = (
+export const getQuestionPointsEarned = (
   question: QuestionVersionResult,
   answers: AnswerResult[] | undefined,
 ) => {

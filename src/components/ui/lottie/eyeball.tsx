@@ -21,6 +21,8 @@ export function Eyeball({ className }: { className?: string }) {
   );
 }
 
-export const DynamicEyeball = dynamic(() =>
-  import("@/components/ui/lottie/eyeball").then((module) => module.Eyeball),
+export const DynamicEyeball = dynamic(
+  () =>
+    import("@/components/ui/lottie/eyeball").then((module) => module.Eyeball),
+  { ssr: false },
 );

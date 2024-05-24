@@ -44,7 +44,7 @@ export const MilestoneBadge = memo(
           <Tooltip>
             <TooltipTrigger>
               <Badge
-                className={cn("mx-1 line-clamp-1 w-[72px] pt-1 font-normal")}
+                className={cn("mx-1 line-clamp-1 w-[72px] font-normal")}
                 variant={"foreground"}
               >
                 {name}

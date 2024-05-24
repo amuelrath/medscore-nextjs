@@ -122,9 +122,7 @@ export default function QuestionCards() {
                 position: newPosition,
                 milestones: [],
                 options: [],
-                deletedAt: null,
                 formId: getValues(`id`) || "",
-                updatedAt: new Date(),
               });
             }}
           >
@@ -154,7 +152,7 @@ function MilestoneBadges({
             <TooltipTrigger>
               <Badge
                 variant={"foreground"}
-                className={cn("pt-1 text-xs font-normal")}
+                className={cn("px-3 text-xs font-normal")}
               >
                 {m.name}
               </Badge>

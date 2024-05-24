@@ -16,7 +16,6 @@ export async function getAllVersions(formId: string) {
       code: {
         columns: {
           code: true,
-          deletedAt: false,
           createdAt: true,
           expiresAt: false,
           formVersionId: false,
@@ -74,8 +73,6 @@ export async function getAllVersions(formId: string) {
           createdAt: true,
           creatorId: false,
           evaluateeId: false,
-          deletedAt: false,
-          updatedAt: false,
         },
         with: {
           answers: {
@@ -84,9 +81,7 @@ export async function getAllVersions(formId: string) {
               optionVersionId: true,
               questionVersionId: true,
               feedback: true,
-              deletedAt: false,
               createdAt: false,
-              updatedAt: false,
               responseId: false,
             },
           },

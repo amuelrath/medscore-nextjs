@@ -88,7 +88,7 @@ const GaugeChart: FC<GaugeChartProps> = memo(
               d="M20,100 A60,60 0 0 1 180,100"
             />
           </svg>
-          <div className="font-poppins absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light">
+          <div className="absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light">
             {icon}
           </div>
         </m.div>

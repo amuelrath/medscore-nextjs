@@ -50,7 +50,7 @@ export function TabContent({
   return activeTab === id ? <>{children}</> : null;
 }
 
-const tabsStyles = cva("font-forma relative flex flex-row space-x-2 items-center z-10", {
+const tabsStyles = cva(`relative flex flex-row space-x-2 items-center z-10`, {
   variants: {
     size: {
       xs: "text-xs",
