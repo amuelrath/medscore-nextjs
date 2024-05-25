@@ -71,7 +71,10 @@ export default function AdministerDialog() {
   const { form } = useFormValues();
   const [hover, setHover] = useState<boolean>(false);
   const utils = trpc.useUtils();
-  const { data: cache } = trpc.forms.status.useQuery({ formId: form.id });
+  const { data: cache } = trpc.forms.status.useQuery(
+    { formId: form.id },
+    { staleTime: 1000 * 60 * 5 },
+  );
   const stopAdminister = trpc.forms.stopAdminister.useMutation({
     onSuccess() {
       utils.forms.status.invalidate();

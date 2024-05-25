@@ -12,9 +12,12 @@ export default function EvaluateIdPage({ params }: { params: { id: string } }) {
   // TODO Verify that the form is still active. Or that the session the form was loaded on hasn't expired.
   // TODO Add alert on attempt page refresh. If refresh, redirect to home page and erase localStorage for "evaluatee".
 
-  const form = trpc.responses.getFormById.useQuery({
-    formId: params.id,
-  });
+  const form = trpc.responses.getFormById.useQuery(
+    {
+      formId: params.id,
+    },
+    { staleTime: 1000 * 60 * 60 },
+  );
 
   const getEvaluatee = () => {
     if (typeof window !== "undefined") {

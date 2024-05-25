@@ -1,10 +1,9 @@
 "use client";
-import { ReactNode, Suspense } from "react";
+import { ReactNode } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { FormValuesContext } from "@/providers/form-values-provider";
 import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
 import { Section } from "@/components/ui/section";
-import Loading from "@/components/ui/loading";
 import { TabContent, TabsProvider } from "@/components/ui/animated-tabs";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { FormResult } from "@/server/actions/forms/get-one-form";
@@ -19,14 +18,24 @@ export default function FormIdLayout({
   responses: ReactNode;
   params: { formId: string };
 }) {
-  const formQuery = trpc.forms.byId.useSuspenseQuery({
-    userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-    formId: params.formId,
-  });
+  const formQuery = trpc.forms.byId.useSuspenseQuery(
+    {
+      userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+      formId: params.formId,
+    },
+    {
+      staleTime: 1000 * 60 * 5, // 5-minute fresh time
+    },
+  );
 
-  const subcompetencyQuery = trpc.forms.subcompetencies.useSuspenseQuery({
-    formId: params.formId,
-  });
+  const subcompetencyQuery = trpc.forms.subcompetencies.useSuspenseQuery(
+    {
+      formId: params.formId,
+    },
+    {
+      staleTime: 1000 * 60 * 60 * 24, // 24-hour fresh time (subcompetencies dont change unless the form's program changes
+    },
+  );
 
   const methods = useForm<FormResult>({
     defaultValues: formQuery[1].data,

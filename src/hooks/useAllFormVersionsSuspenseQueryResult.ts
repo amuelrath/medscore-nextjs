@@ -6,9 +6,12 @@ import { useMemo } from "react";
 export function useAllFormVersionsSuspenseQueryResult() {
   const { form } = useFormValues();
 
-  const unmemoizedAllVersions = trpc.forms.versions.useSuspenseQuery({
-    formId: form.id,
-  })[1].data;
+  const unmemoizedAllVersions = trpc.forms.versions.useSuspenseQuery(
+    {
+      formId: form.id,
+    },
+    { staleTime: 1000 * 60 * 60 },
+  )[1].data;
 
   const versions = useMemo(
     () => unmemoizedAllVersions,

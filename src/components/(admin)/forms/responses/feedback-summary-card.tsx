@@ -81,6 +81,8 @@ export function FeedbackSummaryCard({
       formVersionId: selectedVersion?.id || "",
       competencyId: COMPETENCIES[competencyName].id,
     },
+  }, {
+    staleTime: 1000 * 60 * 60 // 1-hour fresh time
   })[1].data;
 
   return (
