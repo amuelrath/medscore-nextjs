@@ -3,7 +3,7 @@ import { getFilteredQuestionsAndAnswers } from "../utils";
 import { COMPETENCIES } from "@/db/constants";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 
-interface CompetencyScoreData {
+export interface CompetencyScoreData {
   pointsEarned: number | undefined;
   pointsAvailable: number | undefined;
   versionCreatedAt: Date;
