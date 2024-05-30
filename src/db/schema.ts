@@ -13,6 +13,7 @@ import {
   foreignKey,
   varchar,
   AnyPgColumn,
+  json,
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
 
@@ -67,11 +68,13 @@ export const milestones = pgTable("milestones", {
     .default(sql`gen_random_uuid()`),
   name: text("name").notNull(), // eg PC 1.2.3
   description: text("description").notNull(), // eg "demonstrates knowledge of patient care"
+  simpleDescription: text("simple_description").notNull(),
   level: smallint("level").notNull(), // eg 2
   sublevel: smallint("sublevel").notNull(), // eg 3
   subcompetencyId: uuid("subcompetency_id")
     .notNull()
     .references((): AnyPgColumn => subcompetencies.id),
+  metadata: json("metadata"),
 });
 export type Milestone = typeof milestones.$inferSelect;
 export const milestoneRelations = relations(milestones, ({ one, many }) => ({
@@ -133,6 +136,7 @@ export type NewUser = typeof users.$inferInsert;
 export const userRelations = relations(users, ({ many }) => ({
   programs: many(usersOnPrograms),
   forms: many(forms),
+  competencyPerformanceSummaries: many(competencyPerformanceSummaries),
 }));
 
 // MARK: Users On Programs
@@ -195,8 +199,10 @@ export const questions = pgTable("questions", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   text: text("text"),
+  simpleDescription: text("simple_description"),
   feedback: boolean("feedback").notNull().default(false),
   position: integer("position").notNull(),
+  metadata: json("metadata"),
   formId: uuid("form_id")
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
@@ -210,6 +216,7 @@ export const questionRelations = relations(questions, ({ one, many }) => ({
   }),
   options: many(options),
   milestones: many(milestonesOnQuestions),
+  recommendedMilestone: one(recommendedMilestones),
 }));
 
 // MARK: Options
@@ -435,6 +442,7 @@ export const formVersionRelations = relations(
       references: [programs.id],
     }),
     responses: many(responses),
+    competencyPerformanceSummaries: many(competencyPerformanceSummaries),
   }),
 );
 
@@ -568,6 +576,40 @@ export const competencyPerformanceSummaryRelations = relations(
     competency: one(competencies, {
       fields: [competencyPerformanceSummaries.competencyId],
       references: [competencies.id],
+    }),
+  }),
+);
+
+export const recommendedMilestones = pgTable(
+  "recommended_milestones",
+  {
+    questionId: uuid("question_id")
+      .notNull()
+      .references(() => questions.id, { onDelete: "cascade" }),
+    milestoneId: uuid("milestone_id")
+      .notNull()
+      .references(() => milestones.id),
+    justification: text("justification").notNull(),
+    score: text("score").notNull()
+  },
+  (table) => {
+    return {
+      id: primaryKey({ columns: [table.questionId, table.milestoneId] }),
+    };
+  },
+);
+export type RecommendedMilestone = typeof recommendedMilestones.$inferSelect;
+export type NewRecommendedMilestone = typeof recommendedMilestones.$inferInsert;
+export const recommendedMilestoneRelations = relations(
+  recommendedMilestones,
+  ({ one }) => ({
+    question: one(questions, {
+      fields: [recommendedMilestones.questionId],
+      references: [questions.id],
+    }),
+    milestones: one(milestones, {
+      fields: [recommendedMilestones.milestoneId],
+      references: [milestones.id],
     }),
   }),
 );
