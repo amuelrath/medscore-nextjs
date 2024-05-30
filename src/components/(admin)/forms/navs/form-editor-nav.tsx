@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Controller } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import { Tabs } from "@/components/ui/animated-tabs";
 import SaveFormButton from "@/components/(admin)/forms/editor/save-form-button";
 import { useFormContext } from "react-hook-form";
 import { TFormRelate } from "@/db/types";
@@ -34,7 +34,7 @@ export default function FormEditorNav() {
         </div>
 
         <div className={cn("flex items-center space-x-2")}>
-          <AnimatedTabs tabs={tabs} size={"xs"} />
+          <Tabs tabs={tabs} size={"xs"} />
           <div onClick={() => handleSave}>
             <SaveFormButton />
           </div>
