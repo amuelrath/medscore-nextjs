@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TFormRelate } from "@/db/types";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 import { v4 } from "uuid";
-import { useRef, useEffect } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
@@ -16,14 +15,6 @@ export default function Option({ nestIndex }: { nestIndex: number }) {
     control,
     name: `questions.${nestIndex}.options`,
   });
-
-  const lastItemRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (lastItemRef.current) {
-      lastItemRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [fields.length]);
 
   return (
     <>
