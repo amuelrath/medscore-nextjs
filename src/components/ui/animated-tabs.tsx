@@ -50,13 +50,13 @@ export function TabContent({
   return activeTab === id ? <>{children}</> : null;
 }
 
-const tabsStyles = cva(`relative flex flex-row space-x-2 items-center z-10`, {
+const tabsStyles = cva(`relative select-none flex flex-row space-x-2 items-center z-10`, {
   variants: {
     size: {
       xs: "text-xs",
-      sm: "text-sm",
-      md: "text-base",
-      lg: "text-lg",
+      sm: "text-sm space-x-4",
+      md: "text-base space-x-4",
+      lg: "text-lg space-x-6",
     },
     color: {
       primary: "text-notepad",
@@ -71,11 +71,12 @@ const tabsStyles = cva(`relative flex flex-row space-x-2 items-center z-10`, {
 });
 
 type TabsProps = {
+  id?: string;
   tabs: Tab[];
   icons?: boolean;
 } & VariantProps<typeof tabsStyles>;
 
-export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
+export function Tabs({ id, tabs, icons, size, color }: TabsProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -109,14 +110,14 @@ export function AnimatedTabs({ tabs, icons, size, color }: TabsProps) {
           role="button"
           onClick={() => handleTabClick(tab.id)}
           className={`${
-            activeTab == tab.id ? "font-semibold" : "hover:text-primary/60"
-          } relative rounded-full py-1 text-primary transition-all focus-visible:outline-2`}
+            activeTab == tab.id ? "text-shadow text-primary" : "text-primary/70 hover:text-primary/60"
+          } relative tracking-wide rounded-full font-semibold py-1 text-primary transition-all focus-visible:outline-2`}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <span className="relative z-40">{icons ? tab.icon : tab.label}</span>
           {activeTab === tab.id && (
             <motion.span
-              layoutId="module-select"
+              layoutId={`module-select-${id}`}
               className="absolute inset-0 z-40 border-b-2 border-accent"
               transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
             />
