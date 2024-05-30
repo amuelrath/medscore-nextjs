@@ -1,11 +1,9 @@
-"use client";
 import debounce from "debounce";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { TFormRelate } from "@/db/types";
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { isEqual } from "lodash";
 import Lottie from "lottie-react";
 import CLOUD_LOADING_LOOP from "public/icons/system-regular-84-cloud-black.json";
 import CLOUD_DONE from "public/icons/system-regular-128-cloud-done-black.json";
@@ -19,56 +17,44 @@ export default function SaveFormButton() {
   const doneAnimationRef = useRef<any>(null);
 
   const handleSave = useCallback(async () => {
+    if (changeQueue.length === 0) return;
+
     setLoading(true);
     try {
       const formData = changeQueue[changeQueue.length - 1];
-      //console.log("Saving form data:", formData);
+
       await saveForm(formData);
-      // console.log("Form saved successfully");
       setChangeQueue([]);
     } catch (error) {
-      //console.error("Error saving form:", error);
+      console.error("Error saving form:", error);
     } finally {
       setLoading(false);
     }
-  }, [setLoading, setChangeQueue, changeQueue]);
+  }, [changeQueue]);
 
-  const debouncedSave = useCallback(
-    (formData: TFormRelate) => {
-      debounce(() => {
-        //console.log("Debounced save triggered");
-        setChangeQueue((prevQueue) => {
-          const lastIndex = prevQueue.length - 1;
-          if (lastIndex >= 0 && isEqual(prevQueue[lastIndex], formData)) {
-            // console.log("No changes detected, skipping save");
-            return prevQueue;
-          }
-          //console.log("Changes detected, adding to change queue");
-          return [...prevQueue, formData];
-        });
-      }, 1000)();
-    },
-    [setChangeQueue],
+  const debouncedUpdateChangeQueue = useCallback(
+    debounce((formData: TFormRelate) => {
+      setChangeQueue((prevQueue) => [...prevQueue, formData]);
+    }, 2000),
+    [],
   );
 
   const watchedData = useWatch({
     control: methods.control,
-    defaultValue: methods.formState.defaultValues,
+    defaultValue: methods.getValues(),
   });
 
   useDeepCompareEffect(() => {
     if (methods.formState.isDirty) {
-      //console.log("Form is dirty, triggering debounced save");
-      debouncedSave(watchedData as TFormRelate);
+      debouncedUpdateChangeQueue(watchedData as TFormRelate);
     }
-  }, [watchedData, debouncedSave]);
+  }, [watchedData, debouncedUpdateChangeQueue]);
 
   useEffect(() => {
-    if (changeQueue.length > 0) {
-      // console.log("Attempting to save...");
-      handleSave().then((r) => console.log("Saved", r));
+    if (changeQueue.length > 0 && !loading) {
+      handleSave();
     }
-  }, [loading, changeQueue, handleSave]);
+  }, [changeQueue, loading, handleSave]);
 
   useEffect(() => {
     if (!loading && doneAnimationRef.current) {
