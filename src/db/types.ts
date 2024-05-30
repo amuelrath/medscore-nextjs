@@ -89,6 +89,7 @@ export type TFormRelate = InferResultType<
     questions: {
       with: {
         options: true;
+        recommendedMilestone: true;
         milestones: {
           with: { milestone: true };
         };
@@ -101,6 +102,7 @@ export type TQuestionRelate = InferResultType<
   "questions",
   {
     options: true;
+    recommendedMilestone: true;
     milestones: {
       with: {
         milestone: {
