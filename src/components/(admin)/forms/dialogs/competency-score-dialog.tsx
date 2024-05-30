@@ -8,6 +8,12 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import React, { ReactNode, Suspense, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { User } from "@/db/schema";
@@ -23,17 +29,13 @@ import { calculatePercentChange } from "@/lib/responses/calculatePercentChange";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import dynamic from "next/dynamic";
-import Counter from "@/components/ui/counter";
-import { calculateScorePercentile } from "@/lib/responses/calculateScorePercentile";
-import { FormVersionResult } from "@/server/actions/forms/get-one-version";
 import Loading from "@/components/ui/loading";
 import { FeedbackSummaryCard } from "@/components/(admin)/forms/responses/feedback-summary-card";
-import { AiInsightData } from "@/db/types";
 import { Card } from "@/components/ui/card";
 const DynamicCompetencyScoreChart = dynamic(
   () =>
-    import("@/components/(admin)/forms/responses/competency-score-chart").then(
-      (module) => module.CompetencyScoreChart,
+    import("@/components/(admin)/forms/responses/score-chart").then(
+      (module) => module.ScoreChart,
     ),
   {
     ssr: false,
@@ -46,35 +48,6 @@ const DynamicCompetencyScoreChart = dynamic(
     ),
   },
 );
-const TooltipProvider = dynamic(
-  () =>
-    import("@/components/ui/tooltip").then((module) => ({
-      default: module.TooltipProvider,
-    })),
-  { ssr: false },
-);
-const Tooltip = dynamic(
-  () =>
-    import("@/components/ui/tooltip").then((module) => ({
-      default: module.Tooltip,
-    })),
-  { ssr: false },
-);
-const TooltipTrigger = dynamic(
-  () =>
-    import("@/components/ui/tooltip").then((module) => ({
-      default: module.TooltipTrigger,
-    })),
-  { ssr: false },
-);
-const TooltipContent = dynamic(
-  () =>
-    import("@/components/ui/tooltip").then((module) => ({
-      default: module.TooltipContent,
-    })),
-  { ssr: false },
-);
-
 export function CompetencyScoreDialogTrigger({
   competencyName,
   children,
