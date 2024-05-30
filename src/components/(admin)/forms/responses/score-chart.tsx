@@ -10,8 +10,8 @@ import {
 import { Line } from "react-chartjs-2";
 import { FormVersionsResult } from "@/db/types";
 import { COMPETENCIES } from "@/db/constants";
-import { cn } from "@/lib/utils";
 import { calculateCompetencyScoreData } from "@/lib/responses/calculateCompetencyScoreData";
+import { calculateFormScoreData } from "@/lib/responses/calculateFormScoreData";
 
 ChartJS.register(
   CategoryScale,
@@ -21,25 +21,31 @@ ChartJS.register(
   Tooltip,
 );
 
-interface CompetencyScoreChartProps {
+interface ScoreChartProps {
   evaluateeId: string;
   currentFormVersionId: string;
-  competencyName: keyof typeof COMPETENCIES;
+  competencyName?: keyof typeof COMPETENCIES;
   versions: FormVersionsResult | undefined;
 }
 
-export function CompetencyScoreChart({
+export function ScoreChart({
   evaluateeId,
   currentFormVersionId,
   competencyName,
   versions,
-}: CompetencyScoreChartProps) {
-  const data = calculateCompetencyScoreData(
-    currentFormVersionId,
-    evaluateeId,
-    competencyName,
-    versions,
-  );
+}: ScoreChartProps) {
+  const data = useMemo(() => {
+    if (competencyName) {
+      return calculateCompetencyScoreData(
+        currentFormVersionId,
+        evaluateeId,
+        competencyName,
+        versions,
+      );
+    } else {
+      return calculateFormScoreData(evaluateeId, versions);
+    }
+  }, [competencyName, currentFormVersionId, evaluateeId, versions]);
 
   const chartData = useMemo(() => {
     // Sort the data by versionCreatedAt
@@ -69,6 +75,7 @@ export function CompetencyScoreChart({
       ],
     };
   }, [data]);
+
   const options = useMemo(
     () => ({
       responsive: true,
@@ -121,7 +128,7 @@ export function CompetencyScoreChart({
   return <Line data={chartData} options={options} />;
 }
 
-function formatDate(date: Date): string {
+export function formatDate(date: Date): string {
   const monthNames = [
     "Jan",
     "Feb",
