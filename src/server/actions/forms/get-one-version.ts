@@ -43,12 +43,25 @@ export async function getOneVersion(formVersionId: string) {
             },
           },
           milestones: {
+            columns: { questionVersionId: false, milestoneId: false },
             with: {
               milestone: {
                 columns: {
                   level: false,
                   sublevel: false,
                   subcompetencyId: false,
+                },
+                with: {
+                  subcompetencies: {
+                    columns: {
+                      level: false,
+                      specialtyId: false,
+                      competencyId: false,
+                    },
+                    with: {
+                      competencies: true,
+                    },
+                  },
                 },
               },
             },

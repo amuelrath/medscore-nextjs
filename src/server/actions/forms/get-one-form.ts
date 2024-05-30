@@ -17,10 +17,21 @@ export async function getOneForm(formId: string, userId: string) {
       questions: {
         orderBy: (q, { asc }) => asc(q.position),
         with: {
+          recommendedMilestone: true,
           options: true,
           milestones: {
             with: {
-              milestone: true,
+              milestone: {
+                columns: {
+                  id: true,
+                  simpleDescription: false,
+                  name: true,
+                  sublevel: true,
+                  level: true,
+                  description: true,
+                  subcompetencyId: true,
+                },
+              },
             },
           },
         },
