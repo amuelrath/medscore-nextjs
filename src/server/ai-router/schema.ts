@@ -1,55 +1,5 @@
 import z from "zod";
 
-export const ZAiGenerateInsightsSchema = z.object({
-  exam: z.object({
-    type: z.union([
-      z.literal("Objective Structured Clinical Exam"),
-      z.literal("Survey"),
-    ]),
-    specialty: z.string(),
-    title: z.string(),
-    administeredAt: z.string(),
-    evaluatee: z.object({
-      name: z.string(),
-      role: z.union([
-        z.literal("Medical Resident"),
-        z.literal("Medical Fellow"),
-      ]),
-    }),
-    overallPerformance: z.object({
-      averageScore: z.number(),
-      percentileRank: z.number(),
-      questionsAboveAverage: z.number(),
-      questionsBelowAverage: z.number(),
-    }),
-    domains: z.array(
-      z.object({
-        name: z.union([
-          z.literal("Patient Care"),
-          z.literal("Medical Knowledge"),
-          z.literal("Professionalism"),
-          z.literal("Systems-Based Practice"),
-          z.literal("Practice-Based Learning and Improvement"),
-          z.literal("Interpersonal and Communication Skills"),
-        ]),
-        percentChangeFromPreviousAttempt: z.number(),
-        percentChangeFromFirstAttempt: z.number(),
-        timeVersusScoreCorrelationCoefficient: z.number(),
-        questionsFromExam: z.array(
-          z.object({
-            questionText: z.string(),
-            allocatedAcgmeMilestoneDescription: z.string(),
-            percentScore: z.number(),
-            averageScore: z.number(),
-            percentileRank: z.number(),
-            evaluatorFeedback: z.string(),
-          }),
-        ),
-      }),
-    ),
-  }),
-});
-
 const ZAiSummarizeCompetencyPerformanceExamQuestionSchema = z.object({
   desiredBehavior: z.string(),
   evaluatorComments: z.string(),
@@ -83,4 +33,16 @@ export const ZAiSummarizeCompetencyPerformanceSchema = z.object({
   data: dataSchema,
   context: ZAiSummarizeCompetencyPerformanceContextSchema,
   meta: ZAiSummarizeCompetencyPerformanceMetaSchema,
+});
+
+export const ZAiGenerateSimpleDescriptionSchema = z.object({
+  text: z.string().optional(),
+  questionId: z.string(),
+  specialtyId: z.string(),
+});
+
+export const ZAiRecommendMilestonesSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  formTitle: z.string()
 });
