@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { FormScoreDialog } from "@/components/(admin)/forms/dialogs/form-score-dialog";
 
 export function ResponseOverviewCard() {
   const { versions } = useAllFormVersions();
@@ -87,14 +88,20 @@ export function ResponseOverviewCard() {
           <div
             className={cn("grid w-full grid-cols-2 divide-x drop-shadow-lg")}
           >
-            <div className={cn("flex items-center justify-center")}>
-              <p className={cn(" pr-2 text-5xl font-bold tracking-wider")}>
-                <span style={{ color: scoreBgColor }}>
-                  {points?.pointsEarned}
-                </span>
-                {`/${points?.pointsAvailable}`}
-              </p>
-            </div>
+            <FormScoreDialog>
+              <div
+                className={cn(
+                  "flex cursor-pointer items-center justify-center transition-all hover:scale-110",
+                )}
+              >
+                <p className={cn(" pr-2 text-5xl font-bold tracking-wider")}>
+                  <span style={{ color: scoreBgColor }}>
+                    {points?.pointsEarned}
+                  </span>
+                  {`/${points?.pointsAvailable}`}
+                </p>
+              </div>
+            </FormScoreDialog>
             <div className={cn("grid grid-cols-1 gap-2 pl-2")}>
               <div className={cn("flex flex-col items-end")}>
                 <TooltipProvider>
