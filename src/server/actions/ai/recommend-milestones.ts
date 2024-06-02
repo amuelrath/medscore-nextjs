@@ -96,11 +96,11 @@ Behavior: ${text}
   // query the index
   const queryResponse = await index.query({
     vector: embedding,
-    topK: 5,
+    topK: 3,
     includeMetadata: true,
   });
 
-  // get the top five matches
+  // get the top three matches
   const bestMatches =
     queryResponse.matches as unknown as QueryMilestonesIndexResult[];
   console.log("Best Matches: ", bestMatches);
@@ -189,11 +189,9 @@ Response Format:
     schema,
   });
 
-  const result = {
+  return {
     milestoneId: ai.object.milestoneId,
     justification: ai.object.justification,
     score: milestones.find((m) => m.id === ai.object.milestoneId)?.score,
   };
-  console.log("Pick Best Milestone result: ", result);
-  return result;
 }

@@ -1,3 +1,4 @@
+// forms/page.tsx
 "use client";
 import { trpc } from "@/app/_trpc/client";
 import FormViewerSection from "@/components/(admin)/forms/viewer";

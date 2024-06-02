@@ -58,6 +58,7 @@ export const subcompetencyRelations = relations(
       references: [specialties.id],
     }),
     milestones: many(milestones),
+    competencyPerformanceSummaries: many(competencyPerformanceSummaries),
   }),
 );
 
@@ -312,7 +313,38 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
     fields: [responses.formVersionId],
     references: [formVersions.id],
   }),
+  competencyScores: many(competencyScores),
 }));
+
+// COMPETENCY SCORES
+export const competencyScores = pgTable("competency_scores", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  responseId: uuid("response_id")
+    .notNull()
+    .references(() => responses.id, { onDelete: "cascade" }),
+  competencyId: uuid("competency_id")
+    .notNull()
+    .references(() => competencies.id),
+  score: text("score").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export type CompetencyScore = typeof competencyScores.$inferSelect;
+export type NewCompetencyScore = typeof competencyScores.$inferInsert;
+export const competencyScoreRelations = relations(
+  competencyScores,
+  ({ one }) => ({
+    response: one(responses, {
+      fields: [competencyScores.responseId],
+      references: [responses.id],
+    }),
+    competency: one(competencies, {
+      fields: [competencyScores.competencyId],
+      references: [competencies.id],
+    }),
+  }),
+);
 
 // MARK: Answers
 export const answers = pgTable("answers", {
@@ -590,7 +622,7 @@ export const recommendedMilestones = pgTable(
       .notNull()
       .references(() => milestones.id),
     justification: text("justification").notNull(),
-    score: text("score").notNull()
+    score: text("score").notNull(),
   },
   (table) => {
     return {
