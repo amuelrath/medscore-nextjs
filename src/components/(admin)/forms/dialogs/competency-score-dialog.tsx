@@ -27,11 +27,11 @@ import { SeeMoreButton } from "@/components/ui/see-more-button";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 import { calculatePercentChange } from "@/lib/responses/calculatePercentChange";
 import { useSelectedContext } from "@/providers/selected-values-provider";
-import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
 import { FeedbackSummaryCard } from "@/components/(admin)/forms/responses/feedback-summary-card";
 import { Card } from "@/components/ui/card";
+import { useAllFormVersionsSuspenseQueryResult } from "@/hooks/useAllFormVersionsSuspenseQueryResult";
 const DynamicCompetencyScoreChart = dynamic(
   () =>
     import("@/components/(admin)/forms/responses/score-chart").then(
@@ -55,7 +55,7 @@ export function CompetencyScoreDialogTrigger({
   competencyName: keyof typeof COMPETENCIES;
   children: ReactNode;
 }) {
-  const { versions } = useAllFormVersions();
+  const { versions } = useAllFormVersionsSuspenseQueryResult();
   const { selectedVersion, selectedResponse } = useSelectedContext();
   const evaluatee = selectedResponse?.evaluatee;
 

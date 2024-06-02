@@ -13,19 +13,17 @@ import {
 } from "@/components/ui/alert-dialog";
 import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
-import { Form } from "@/db/schema";
-
+import { FormResult } from "@/server/actions/forms/get-one-form";
+// TODO use server action to delete form
 export function DeleteFormDialog({
   form,
   children,
 }: {
-  form: Form;
+  form: FormResult;
   children: ReactNode;
 }) {
-  const utils = trpc.useUtils();
   const mutation = trpc.forms.delete.useMutation({
     onSuccess() {
-      utils.forms.all.invalidate();
       toast.success(`Deleted "${form.title}"`);
     },
   });

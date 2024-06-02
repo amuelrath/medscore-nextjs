@@ -10,27 +10,14 @@ import {
 import { formatDate } from "@/lib/formatDate";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ScrollAreaScrollbar } from "@radix-ui/react-scroll-area";
-import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import React, { useMemo } from "react";
-import dynamic from "next/dynamic";
-
-const DynamicResponseCards = dynamic(() =>
-  import("@/components/(admin)/forms/responses/response-cards").then(
-    (module) => module.ResponseCards,
-  ),
-);
-const DynamicResponseOverviewCard = dynamic(() =>
-  import("@/components/(admin)/forms/responses/response-overview-card").then(
-    (module) => module.ResponseOverviewCard,
-  ),
-);
-
-const MemoizedResponseOverviewCard = React.memo(DynamicResponseOverviewCard);
-const MemoizedResponseCards = React.memo(DynamicResponseCards);
+import { ResponseOverviewCard } from "@/components/(admin)/forms/responses/response-overview-card";
+import { ResponseCards } from "@/components/(admin)/forms/responses/response-cards";
+import { useAllFormVersionsSuspenseQueryResult } from "@/hooks/useAllFormVersionsSuspenseQueryResult";
 
 export function FormResponsesSidebar() {
-  const { versions } = useAllFormVersions();
+  const { versions } = useAllFormVersionsSuspenseQueryResult();
   const { selectedVersion, setSelectedVersion } = useSelectedContext();
 
   const handleVersionSelect = (versionId: string) => {
@@ -64,7 +51,7 @@ export function FormResponsesSidebar() {
       )}
     >
       <div className={cn("flex flex-col space-y-8")}>
-        <MemoizedResponseOverviewCard />
+        <ResponseOverviewCard />
         <div className={cn("space-y-2 rounded-md px-2 pt-6")}>
           <Select
             key={`select-${selectedVersion?.id}`}
@@ -88,7 +75,7 @@ export function FormResponsesSidebar() {
             <ScrollAreaScrollbar />
             <div className={cn("px-4")}>
               {selectedVersion && (
-                <MemoizedResponseCards formVersion={selectedVersion} />
+                <ResponseCards formVersion={selectedVersion} />
               )}
             </div>
           </ScrollArea>

@@ -1,20 +1,19 @@
 "use client";
-// TODO: Fix type error on the Form: It thinks that Date is gonna be a string for some weird ass reason
-import { TFormRelate } from "@/db/types";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { FormCardHero } from "@/components/(admin)/forms/viewer/form-card-hero";
 import { FormCard } from "@/components/(admin)/forms/viewer/form-card";
 import { AnimatePresence } from "framer-motion";
 import { CreateFormDialog } from "@/components/(admin)/forms/dialogs/create-form-dialog";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/ui/section";
+import { FormsResult } from "@/server/actions/forms/get-all-forms";
 
-export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
+export default function EvaluationsViewer({ forms }: { forms: FormsResult }) {
   const [filter, setFilter] = useState<string>("");
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
   };
   return (
@@ -53,11 +52,7 @@ export default function EvaluationsViewer({ forms }: { forms: TFormRelate[] }) {
                 return dateB.getTime() - dateA.getTime();
               })
               .map((form, index) => (
-                <FormCard
-                  key={form.id}
-                  form={form as unknown as TFormRelate}
-                  index={index}
-                />
+                <FormCard key={form.id} form={form} index={index} />
               ))}
           </AnimatePresence>
         </div>

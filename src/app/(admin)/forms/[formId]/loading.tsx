@@ -1,5 +1,5 @@
 import Loading from "@/components/ui/loading";
 
-export default async function LoadingEditor() {
+export default function LoadingEditor() {
   return <Loading />;
 }

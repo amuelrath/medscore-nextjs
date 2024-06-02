@@ -1,11 +1,11 @@
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import { calculatePercentChange } from "@/lib/responses/calculatePercentChange";
-import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { useCompetencyScores } from "../use-competency-scores";
+import { useAllFormVersionsSuspenseQueryResult } from "@/hooks/useAllFormVersionsSuspenseQueryResult";
 
 export function useFormScores() {
-  const { versions } = useAllFormVersions();
+  const { versions } = useAllFormVersionsSuspenseQueryResult();
   const { selectedVersion, selectedResponse } = useSelectedContext();
 
   //  we can also aggregate the data by using 'selectedVersion.responses.flatMap((r) => r.answers)'
