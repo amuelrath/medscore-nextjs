@@ -11,10 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { trpc } from "@/app/_trpc/client";
+import { FormResult } from "@/server/actions/forms/get-form-by-id";
+import { deleteForm } from "@/server/actions/forms/delete-form";
 import { toast } from "sonner";
-import { FormResult } from "@/server/actions/forms/get-one-form";
-// TODO use server action to delete form
 export function DeleteFormDialog({
   form,
   children,
@@ -22,13 +21,9 @@ export function DeleteFormDialog({
   form: FormResult;
   children: ReactNode;
 }) {
-  const mutation = trpc.forms.delete.useMutation({
-    onSuccess() {
-      toast.success(`Deleted "${form.title}"`);
-    },
-  });
   const handleDeleteForm = async () => {
-    mutation.mutate({ formId: form.id });
+    await deleteForm(form.id);
+    toast.success(`"${form.title}" deleted successfully`);
   };
 
   return (
@@ -40,14 +35,20 @@ export function DeleteFormDialog({
             {`Delete "${form.title}" ?`}
 
             <AlertDialogDescription>
-              This action is irrevsible. All data will be lost.
+              This action is irreversible. All data will be lost.
             </AlertDialogDescription>
           </AlertDialogTitle>
         </AlertDialogHeader>
         <div className={cn("flex flex-col space-y-2")}>
-          <AlertDialogAction onClick={() => handleDeleteForm()}>
-            Delete
-          </AlertDialogAction>
+          <form
+            className={cn("w-full")}
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleDeleteForm();
+            }}
+          >
+            <AlertDialogAction className={cn("w-full")} type={"submit"}>Delete</AlertDialogAction>
+          </form>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
         </div>
       </AlertDialogContent>
