@@ -4,7 +4,8 @@ import { db } from "@/db";
 import { formCodes } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function cancelAdministerForm(formId: string) {
+export async function cancelAdministerForm({ formId }: { formId: string | undefined }) {
+  if (!formId) throw new Error("Form Id is required");
   const allVersions = await db.query.formVersions.findMany({
     where: (fv, { eq }) => eq(fv.formId, formId),
     with: {
