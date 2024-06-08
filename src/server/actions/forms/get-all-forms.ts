@@ -1,8 +1,8 @@
 "use server";
 import { db } from "@/db";
-import { NonNullable } from "@/server/actions/forms/get-one-form";
+import { NonNullable } from "@/server/actions/forms/get-form-by-id";
 
-export async function getAllForms(userId: string) {
+export async function getAllForms({ userId }: { userId: string }) {
   return db.query.forms.findMany({
     with: {
       programs: {

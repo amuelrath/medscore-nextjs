@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { NonNullable } from "@/server/actions/forms/get-one-form";
+import { NonNullable } from "@/server/actions/forms/get-form-by-id";
 import { DateToString } from "@/db/utils";
 
 export async function getOneVersion(formVersionId: string) {
