@@ -9,7 +9,6 @@ import {
   LineOptions,
 } from "chart.js";
 import { Radar } from "react-chartjs-2";
-import { useCompetencyScores } from "@/hooks/use-competency-scores";
 import { CompetencyScoreData } from "@/lib/responses/calculateCompetencyScoreData";
 import { COMPETENCIES } from "@/db/constants";
 import { formatDate } from "@/components/(admin)/forms/responses/score-chart";
@@ -27,8 +26,6 @@ interface SortedScores {
 }
 
 export function CompetencyRadarChart() {
-  const { allScores } = useCompetencyScores();
-
   // Helper function to sort scores by versionCreatedAt date
   const sortScoresByDate = (scores: CompetencyScoreData[] | undefined) =>
     scores?.sort(
