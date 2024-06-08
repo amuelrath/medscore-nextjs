@@ -17,10 +17,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAllFormVersionsSuspenseQueryResult } from "@/hooks/useAllFormVersionsSuspenseQueryResult";
+import { useAllVersionsSuspenseQuery } from "@/hooks/queries/useAllVersionsSuspenseQuery";
+import { usePathname } from "next/navigation";
 
 export function ResponseOverviewCard() {
-  const { versions } = useAllFormVersionsSuspenseQueryResult();
+  const pathname = usePathname();
+  const formId = pathname.split("/")[2];
+  const { versions } = useAllVersionsSuspenseQuery({ formId });
   const { selectedVersion, selectedResponse } = useSelectedContext();
   const points = useMemo(() => {
     return calculatePointsEarnedAndAvailable(
@@ -52,6 +55,9 @@ export function ResponseOverviewCard() {
     );
   }, [selectedVersion?.id, versions, selectedResponse?.evaluatee.id]);
 
+  // TODO - loading skeleton
+  // TODO - error message
+
   if (!selectedResponse?.id)
     return (
       <div className={cn("h-52 px-4")} key={selectedVersion?.id}>
@@ -78,10 +84,7 @@ export function ResponseOverviewCard() {
         </header>
         <div className={cn("flex flex-col items-center space-y-4")}>
           {competencyPercentages && (
-            <CompetencyGauges
-              competencyPercentages={competencyPercentages}
-              versions={versions}
-            />
+            <CompetencyGauges competencyPercentages={competencyPercentages} />
           )}
           <hr className={cn("w-full bg-primary text-primary")} />
           <div
