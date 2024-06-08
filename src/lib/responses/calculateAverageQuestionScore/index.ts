@@ -74,7 +74,7 @@ import { FormVersionsResult } from "@/server/actions/forms/get-all-versions";
  * console.log(averageScoreAll); // Output: 75
  */
 export function calculateAverageQuestionScore(
-  versions: FormVersionsResult,
+  versions: FormVersionsResult | undefined,
   questionText: string | null,
 ): number {
   if (!questionText) return 0;
@@ -82,7 +82,7 @@ export function calculateAverageQuestionScore(
 
   const questionScores: number[] = [];
 
-  versions.forEach((version) => {
+  versions?.forEach((version) => {
     version.questions?.forEach((question) => {
       if (!question.text) return;
       if (
