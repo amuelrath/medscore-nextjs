@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "sonner";
-import Provider from "@/app/_trpc/provider";
+import Provider from "@/server/provider";
 import { ReactNode, StrictMode } from "react";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
+import DotPattern from "@/components/magicui/dot-pattern";
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "auto",
@@ -55,6 +56,12 @@ export default function RootLayout({
                 "min-h-screen w-full bg-gradient-to-b from-background to-gray-200",
               )}
             >
+              <DotPattern
+                className={cn(
+                  "[mask-image:radial-gradient(1000px_circle_at_center,white,transparent)]",
+                  "absolute inset-0 -z-20 opacity-50",
+                )}
+              />
               {children}
               <Toaster />
             </body>
