@@ -1,56 +1,43 @@
 "use client";
-import { useFormValues } from "@/providers/form-values-provider";
 import { Button } from "@/components/ui/button";
 import Pinger from "@/components/ui/pinger";
 import QUESTIONAIRE_ICON from "public/icons/wired-flat-967-questionnaire.json";
-const DialogContent = dynamic(() =>
-  import("@/components/ui/dialog").then((mod) => mod.DialogContent),
-);
-const DialogDescription = dynamic(() =>
-  import("@/components/ui/dialog").then((mod) => mod.DialogDescription),
-);
-const DialogTitle = dynamic(() =>
-  import("@/components/ui/dialog").then((mod) => mod.DialogTitle),
-);
-const DialogPortal = dynamic(() =>
-  import("@/components/ui/dialog").then((mod) => mod.DialogPortal),
-);
-const Dialog = dynamic(() =>
-  import("@/components/ui/dialog").then((mod) => mod.Dialog),
-);
-const DialogTrigger = dynamic(() =>
-  import("@/components/ui/dialog").then((mod) => mod.DialogTrigger),
-);
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import MultiSelect from "@/components/ui/multiselect";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { motion } from "framer-motion";
-import { useForm, Controller } from "react-hook-form";
-import { z } from "zod";
-import { useEffect, useRef, useState } from "react";
-import { trpc } from "@/app/_trpc/client";
-import Loading from "@/components/ui/loading";
 import COPY_ICON from "public/icons/system-regular-99-copy.json";
-const InputOTP = dynamic(() =>
-  import("@/components/ui/input-otp").then((mod) => mod.InputOTP),
-);
-const InputOTPGroup = dynamic(() =>
-  import("@/components/ui/input-otp").then((mod) => mod.InputOTPGroup),
-);
-const InputOTPSeparator = dynamic(() =>
-  import("@/components/ui/input-otp").then((mod) => mod.InputOTPSeparator),
-);
-const InputOTPSlot = dynamic(() =>
-  import("@/components/ui/input-otp").then((mod) => mod.InputOTPSlot),
-);
 import Lottie from "lottie-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/formatDate";
-import dynamic from "next/dynamic";
 import { DynamicLottieIconButton } from "@/components/ui/lottie-icon-button";
-
+import { z } from "zod";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useRef, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import Loading from "@/components/ui/loading";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import MultiSelect from "@/components/ui/multiselect";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { motion } from "framer-motion";
+import { QueryClient, useQuery } from "@tanstack/react-query";
+import { getFormStatus } from "@/server/actions/forms/get-form-status";
+import { useMutation } from "@tanstack/react-query";
+import { cancelAdministerForm } from "@/server/actions/forms/cancel-administer-form";
+import { administerForm } from "@/server/actions/forms/administer-form";
+import { usePathname } from "next/navigation";
+import { useFormSuspenseQuery } from "@/hooks/queries/useFormSuspenseQuery";
 const administerDialogSchema = z.object({
   endDateTime: z.string(),
   evaluatedStudentIds: z.array(z.string()),
@@ -67,22 +54,43 @@ export default function AdministerDialog() {
   } = useForm<AdministerDialogFormData>({
     resolver: zodResolver(administerDialogSchema),
   });
-
-  const { form } = useFormValues();
+  const pathname = usePathname();
+  const formId = pathname.split("/")[2];
+  const { form } = useFormSuspenseQuery({ formId });
   const [hover, setHover] = useState<boolean>(false);
-  const utils = trpc.useUtils();
-  const { data: cache } = trpc.forms.status.useQuery(
-    { formId: form.id },
-    { staleTime: 1000 * 60 * 5 },
-  );
-  const stopAdminister = trpc.forms.stopAdminister.useMutation({
-    onSuccess() {
-      utils.forms.status.invalidate();
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 3, // 3 minutes
+      },
     },
   });
-  const startAdminister = trpc.forms.administer.useMutation({
-    onSuccess() {
-      utils.forms.status.invalidate();
+  // get the status of the form
+  const {
+    data: cache,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["forms", "status", { formId: form?.id }],
+    queryFn: () => getFormStatus({ formId: form?.id }),
+  });
+  // if we stop administering, we need to invalidate the query
+  const stopAdminister = useMutation({
+    mutationFn: () => cancelAdministerForm({ formId: form?.id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["forms", "status", { formId: form?.id }],
+      });
+    },
+  });
+  // if we start administering, we need to invalidate the query
+  const startAdminister = useMutation({
+    mutationFn: administerForm,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["forms", "status", { formId: form?.id }],
+      });
     },
   });
 
@@ -97,14 +105,14 @@ export default function AdministerDialog() {
 
   const onSubmit = (data: AdministerDialogFormData) => {
     startAdminister.mutate({
-      formId: form.id,
-      studentIds: data.evaluatedStudentIds,
-      expiresAt: data.endDateTime,
+      formId: form?.id,
+      userIds: data.evaluatedStudentIds,
+      expiresAt: new Date(data.endDateTime),
     });
   };
 
   const options =
-    form.programs.users
+    form?.programs.users
       ?.filter((s) => s.user.role === "STUDENT")
       .map((s) => ({
         label: `${s.user.firstName} ${s.user.lastName}`,
@@ -112,7 +120,7 @@ export default function AdministerDialog() {
       })) || [];
 
   const cancelFormCode = () => {
-    stopAdminister.mutate({ formId: form.id });
+    stopAdminister.mutate();
   };
 
   const isActive = cache?.expiresAt && new Date() < new Date(cache.expiresAt);
@@ -152,7 +160,7 @@ export default function AdministerDialog() {
                 <>
                   <div className={cn("text-md flex space-x-2")}>
                     <div className="flex flex-row space-x-1.5">
-                      <p> {`"${form.title}"`}</p>
+                      <p> {`"${form?.title}"`}</p>
                       <p className="font-semibold">is active until</p>
                       <p className="font-semibold">
                         {formatDate(cache?.expiresAt || "")}
@@ -167,7 +175,7 @@ export default function AdministerDialog() {
                   </DialogDescription>
                 </>
               ) : (
-                `Administer "${form.title}"`
+                `Administer "${form?.title}"`
               )}
               <DialogDescription>
                 {isActive
@@ -179,7 +187,7 @@ export default function AdministerDialog() {
             <hr />
             {!isActive ? (
               <form onSubmit={handleSubmit(onSubmit)}>
-                {startAdminister.isLoading ? (
+                {isLoading ? (
                   <div className="flex h-40 items-center justify-center">
                     <Loading size="md" />
                   </div>
