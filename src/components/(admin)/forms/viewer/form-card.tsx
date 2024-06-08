@@ -44,26 +44,27 @@ export function FormCard({ form, index }: { form: FormResult; index: number }) {
               {form.programs?.name}
             </div>
           </Link>
-          <Link
-            href={`/forms/${form.id}`}
+          <div
             className={cn(
               "group space-x-2 opacity-0 transition-opacity group-hover:opacity-100",
             )}
           >
-            <Button
-              role={"div"}
-              variant={"default"}
-              size={"sm"}
-              className={cn("w-28")}
-            >
-              <EditIcon />
-            </Button>
+            <Link href={`/forms/${form.id}`}>
+              <Button
+                role={"div"}
+                variant={"default"}
+                size={"sm"}
+                className={cn("w-28")}
+              >
+                <EditIcon />
+              </Button>
+            </Link>
             <DeleteFormDialog form={form}>
               <Button variant={"destructive"} size={"sm"}>
                 <Trash2Icon />
               </Button>
             </DeleteFormDialog>
-          </Link>
+          </div>
         </div>
       </Card>
     </motion.div>
