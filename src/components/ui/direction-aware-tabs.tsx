@@ -1,5 +1,4 @@
 "use client";
-
 import {
   ReactNode,
   createContext,
@@ -9,10 +8,7 @@ import {
 } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import useMeasure from "react-use-measure";
-
 import { cn } from "@/lib/utils";
-import { useSearchParamEffect } from "@/hooks/useSearchParamEffect";
-import { useSearchParams } from "next/navigation";
 
 type Tab = {
   id: number;
