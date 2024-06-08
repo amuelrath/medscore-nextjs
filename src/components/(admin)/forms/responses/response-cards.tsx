@@ -25,7 +25,7 @@ export function ResponseCards() {
   }
 
   return (
-    <WaterfallAnimation key={selectedVersion.id} speed={0.1}>
+    <WaterfallAnimation noExit key={selectedVersion.id} speed={0.1}>
       {selectedVersion.responses.map((r) => (
         <Card
           key={r.id}
