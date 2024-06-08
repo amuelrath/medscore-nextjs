@@ -2,6 +2,8 @@
 import { TopNav } from "@/components/ui/top-nav";
 import { ReactNode } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import DotPattern from "@/components/magicui/dot-pattern";
+import { cn } from "@/lib/utils";
 
 export default function RootLayout({
   children,
@@ -11,7 +13,10 @@ export default function RootLayout({
       <ReactQueryDevtools />
       <TopNav withoutTabs tabs={[]} />
 
-      <main>{children}</main>
+      <main>
+
+        {children}
+      </main>
     </div>
   );
 }
