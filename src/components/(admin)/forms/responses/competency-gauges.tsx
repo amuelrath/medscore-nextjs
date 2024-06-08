@@ -20,7 +20,6 @@ import MK from "public/icons/mk-mask-icon.json";
 import PC from "public/icons/pc-heart-icon.json";
 import PBLI from "public/icons/pbli-icon.json";
 import { getFilteredQuestionsAndAnswers } from "@/lib/responses/utils";
-import { FormVersionsResult } from "@/db/types";
 import dynamic from "next/dynamic";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 const COMPETENCY_ICONS = {
@@ -93,7 +92,6 @@ export const CompetencyGauge: FC<CompetencyGaugeProps> = memo(
 
 interface CompetencyGaugesProps {
   competencyPercentages: Record<string, number>;
-  versions: FormVersionsResult;
 }
 
 export const CompetencyGauges: FC<CompetencyGaugesProps> = memo(
