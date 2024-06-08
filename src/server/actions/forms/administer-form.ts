@@ -8,11 +8,16 @@ import {
   optionVersions,
   questionVersions,
 } from "@/db/schema";
-export async function administerForm(
-  formId: string,
-  userIds: string[],
-  expiresAt: Date
-) {
+export async function administerForm({
+  formId,
+  userIds,
+  expiresAt,
+}: {
+  formId: string | undefined;
+  userIds: string[];
+  expiresAt: Date;
+}) {
+  if (!formId) throw new Error("Form Id is required");
   const code = Math.floor(100000 + Math.random() * 900000).toString();
 
   const form = await db.query.forms.findFirst({
@@ -78,19 +83,19 @@ export async function administerForm(
               text: o.text,
               pointValue: o.pointValue,
               position: o.position,
-            })
+            }),
           ),
           // copy the milestones
           ...q.milestones.map((m) =>
             db.insert(milestoneOnQuestionVersions).values({
               questionVersionId: questionCopy[0].id,
               milestoneId: m.milestoneId,
-            })
+            }),
           ),
         ]);
 
         return questionCopy[0];
-      })
+      }),
     );
 
     // create the form code
@@ -109,8 +114,8 @@ export async function administerForm(
         db.insert(formCodesOnUsers).values({
           formCodeId: formCode[0].id,
           userId: u,
-        })
-      )
+        }),
+      ),
     );
 
     return {
