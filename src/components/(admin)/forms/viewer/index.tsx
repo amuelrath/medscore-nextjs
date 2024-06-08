@@ -5,7 +5,7 @@ import { ChangeEvent, useState } from "react";
 import { FormCardHero } from "@/components/(admin)/forms/viewer/form-card-hero";
 import { FormCard } from "@/components/(admin)/forms/viewer/form-card";
 import { AnimatePresence } from "framer-motion";
-import { CreateFormDialog } from "@/components/(admin)/forms/dialogs/create-form-dialog";
+import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/ui/section";
 import { getAllForms } from "@/server/actions/forms/get-all-forms";
@@ -51,9 +51,9 @@ export default function EvaluationsViewer() {
               value={filter}
               onChange={(e) => handleSearch(e)}
             />
-            <CreateFormDialog>
+            <CreateFormDialogTrigger>
               <Button variant={"default"}>Create New Form</Button>
-            </CreateFormDialog>
+            </CreateFormDialogTrigger>
           </div>
           <AnimatePresence>
             {forms
