@@ -8,14 +8,30 @@ import { AnimatePresence } from "framer-motion";
 import { CreateFormDialog } from "@/components/(admin)/forms/dialogs/create-form-dialog";
 import { Button } from "@/components/ui/button";
 import { Section } from "@/components/ui/section";
-import { FormsResult } from "@/server/actions/forms/get-all-forms";
+import { getAllForms } from "@/server/actions/forms/get-all-forms";
+import { useQuery } from "@tanstack/react-query";
+import Loading from "@/components/ui/loading";
 
-export default function EvaluationsViewer({ forms }: { forms: FormsResult }) {
+export default function EvaluationsViewer() {
+  const { data: forms, isLoading } = useQuery({
+    queryKey: ["forms"],
+    queryFn: () =>
+      getAllForms({
+        userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+      }),
+  });
+
   const [filter, setFilter] = useState<string>("");
 
   const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     setFilter(e.target.value);
   };
+
+  // TODO - add error handling
+  // TODO - add loading skeleton
+  if (isLoading) return <Loading />;
+  if (!forms) return <div>No forms found</div>;
+
   return (
     <div className={cn("flex flex-col space-y-4 p-4")}>
       <div className={cn("flex flex-row justify-around")}>
