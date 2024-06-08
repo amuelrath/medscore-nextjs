@@ -1,15 +1,20 @@
-"use client";
 import { ReactNode } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { FormValuesContext } from "@/providers/form-values-provider";
+import {
+  DirectionAwareContent,
+  DirectionAwareTabsProvider,
+} from "@/components/ui/direction-aware-tabs";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getFormById } from "@/server/actions/forms/get-form-by-id";
+import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
+import { EditorFormProvider } from "@/components/(admin)/forms/providers/editor-form-provider";
 import { Section } from "@/components/ui/section";
-import { TabContent, TabsProvider } from "@/components/ui/animated-tabs";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { FormResult } from "@/server/actions/forms/get-one-form";
-import { trpc } from "@/app/_trpc/client";
 
-export default function FormIdLayout({
+export default async function FormIdLayout({
   editor,
   responses,
   params,
@@ -18,52 +23,52 @@ export default function FormIdLayout({
   responses: ReactNode;
   params: { formId: string };
 }) {
-  const formQuery = trpc.forms.byId.useSuspenseQuery(
-    {
-      userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-      formId: params.formId,
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 60, // 3 minutes
+      },
     },
-    {
-      staleTime: 1000 * 60 * 5, // 5-minute fresh time
-    },
-  );
-
-  const subcompetencyQuery = trpc.forms.subcompetencies.useSuspenseQuery(
-    {
-      formId: params.formId,
-    },
-    {
-      staleTime: 1000 * 60 * 60 * 24, // 24-hour fresh time (subcompetencies dont change unless the form's program changes
-    },
-  );
-
-  const methods = useForm<FormResult>({
-    defaultValues: formQuery[1].data,
   });
 
-  if (!formQuery[1].data) throw new Error("No data found.");
+  // Fetch form and subcompetencies data
+  const [form] = await Promise.all([
+    queryClient.fetchQuery({
+      queryKey: ["form", params.formId],
+      queryFn: () =>
+        getFormById({
+          formId: params.formId,
+          userId: process.env.NEXT_PUBLIC_DEV_USER_ID as string,
+        }),
+    }),
+    queryClient.prefetchQuery({
+      queryKey: ["subcompetencies", params.formId],
+      queryFn: () => getSubcompetencies({ formId: params.formId }),
+      staleTime: 1000 * 60 * 60 * 24, // 1 day
+    }),
+  ]);
+
+  const tabs = [
+    {
+      id: 0,
+      label: "Editor",
+      content: <Section>{editor}</Section>,
+    },
+    {
+      id: 1,
+      label: "Responses",
+      content: <>{responses}</>,
+    },
+  ];
 
   return (
-    <TabsProvider>
-      <FormProvider {...methods}>
-        <FormValuesContext.Provider
-          value={{
-            form: formQuery[1].data,
-            subcompetencies: subcompetencyQuery[1].data,
-          }}
-        >
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <DirectionAwareTabsProvider tabs={tabs}>
+        <EditorFormProvider defaultValues={form}>
           <FormEditorNav />
-          <Section>
-            <TabContent id="editor">
-              <ScrollArea className="h-[650px] transition-all md:px-24 lg:px-64">
-                {editor}
-                <ScrollBar />
-              </ScrollArea>
-            </TabContent>
-            <TabContent id="responses">{responses}</TabContent>
-          </Section>
-        </FormValuesContext.Provider>
-      </FormProvider>
-    </TabsProvider>
+          <DirectionAwareContent />
+        </EditorFormProvider>
+      </DirectionAwareTabsProvider>
+    </HydrationBoundary>
   );
 }
