@@ -5,7 +5,6 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
   AlertDialogTrigger,
-  AlertDialogPortal,
   AlertDialogHeader,
   AlertDialogCancel,
   AlertDialogAction,
@@ -24,8 +23,8 @@ import { ReactNode } from "react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
+import { createForm } from "@/server/actions/forms/create-form";
 
 const createFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -41,16 +40,10 @@ export function CreateFormDialog({ children }: { children: ReactNode }) {
   } = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
   });
-  const utils = trpc.useUtils();
-  const mutation = trpc.forms.insert.useMutation({
-    onSuccess() {
-      utils.forms.all.invalidate();
-    },
-  });
 
   const handleCreateForm = async (data: z.infer<typeof createFormSchema>) => {
-    mutation.mutate({ title: data.title, programId: data.program });
-    toast.success(`Created "${data.title}"`);
+    await createForm(data.title, data.program);
+    toast.success("Form created successfully");
   };
   return (
     <AlertDialog>
