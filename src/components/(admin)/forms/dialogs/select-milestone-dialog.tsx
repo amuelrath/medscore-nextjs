@@ -3,9 +3,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { MilestoneIcon } from "lucide-react";
-import { Control, useController } from "react-hook-form";
-import { TFormRelate } from "@/db/types";
-import { useFormValues } from "@/providers/form-values-provider";
+import { Control, useController, useFormContext } from "react-hook-form";
+import { FormResult } from "@/db/types";
 import { Separator } from "@/components/ui/separator";
 import CIRCLE_ARROW from "public/icons/circle-arrow.json";
 import { LottieHover } from "@/components/ui/lottie-hover";
@@ -16,13 +15,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/app/_trpc/client";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
+import { useMutation } from "@tanstack/react-query";
+import { recommendMilestones } from "@/server/actions/ai/recommend-milestones";
+import { useSubcompetenciesSuspenseQuery } from "@/hooks/queries/useSubcompetenciesSuspenseQuery";
 
 type Recommendation = {
   questionId: string;
@@ -37,16 +38,22 @@ export function SelectMilestoneDialogTrigger({
   control,
 }: {
   index: number;
-  control: Control<TFormRelate>;
-  question: TFormRelate["questions"][0];
+  control: Control<FormResult>;
+  question: FormResult["questions"][0];
 }) {
+  // access the form itself
+  const { getValues } = useFormContext<FormResult>();
+  const form = getValues();
+
   // access the milestone values controller
   const { field } = useController({
     name: `questions.${index}.milestones`,
     control,
   });
+  const { subcompetencies } = useSubcompetenciesSuspenseQuery({
+    formId: question.formId,
+  });
 
-  const { subcompetencies, form } = useFormValues();
   const [selectedSubcompetencyId, setSelectedSubcompetencyId] = useState<
     string | null
   >(null);
@@ -59,7 +66,8 @@ export function SelectMilestoneDialogTrigger({
     useState<Recommendation>(question.recommendedMilestone);
 
   // if one doesn't exist in the db, generate one
-  const getRecommendedMilestone = trpc.ai.recommendMilestones.useMutation({
+  const getRecommendedMilestone = useMutation({
+    mutationFn: recommendMilestones,
     onMutate: () => console.log("Generating Recommendation..."),
   });
 
