@@ -1,5 +1,6 @@
-export const formatDate = (date: string) => {
+export const formatDate = (date: string | Date) => {
   if (!date) return "";
+  if (date instanceof Date) date = date.toISOString();
 
   const expiresAtDate = new Date(date);
   const now = new Date();
