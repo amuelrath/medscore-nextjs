@@ -31,7 +31,8 @@ import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
 import { FeedbackSummaryCard } from "@/components/(admin)/forms/responses/feedback-summary-card";
 import { Card } from "@/components/ui/card";
-import { useAllFormVersionsSuspenseQueryResult } from "@/hooks/useAllFormVersionsSuspenseQueryResult";
+import { useAllVersionsSuspenseQuery } from "@/hooks/queries/useAllVersionsSuspenseQuery";
+import { usePathname } from "next/navigation";
 const DynamicCompetencyScoreChart = dynamic(
   () =>
     import("@/components/(admin)/forms/responses/score-chart").then(
@@ -55,7 +56,9 @@ export function CompetencyScoreDialogTrigger({
   competencyName: keyof typeof COMPETENCIES;
   children: ReactNode;
 }) {
-  const { versions } = useAllFormVersionsSuspenseQueryResult();
+  const pathname = usePathname();
+  const formId = pathname.split("/")[2];
+  const { versions } = useAllVersionsSuspenseQuery({ formId });
   const { selectedVersion, selectedResponse } = useSelectedContext();
   const evaluatee = selectedResponse?.evaluatee;
 
