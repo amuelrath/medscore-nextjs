@@ -1,14 +1,40 @@
+"use client";
 import { User } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { TEvaluationForm } from "@/db/types";
+import { useQuery } from "@tanstack/react-query";
+import { getFormById } from "@/server/actions/forms/get-form-by-id";
+import Loading from "@/components/ui/loading";
 
-export default function EvaluationFormNav({
-  form,
-  evaluatee,
-}: {
-  form: TEvaluationForm;
-  evaluatee: User;
-}) {
+export function EvaluationFormNav({ formId }: { formId: string }) {
+  const { data: form, isLoading } = useQuery({
+    queryKey: ["form", formId],
+    queryFn: () =>
+      getFormById({
+        formId: formId,
+        userId: process.env.NEXT_PUBLIC_USER_ID as string,
+      }),
+  });
+
+  const getEvaluatee = () => {
+    if (typeof window !== "undefined") {
+      try {
+        const evaluateeString = window.localStorage.getItem("evaluatee");
+        if (evaluateeString) {
+          return JSON.parse(evaluateeString) as User;
+        }
+      } catch (error) {
+        console.error("Error parsing evaluatee from localStorage:", error);
+      }
+    }
+    return null;
+  };
+
+  const evaluatee = getEvaluatee();
+
+  // TODO Add skeleton loader
+  if (isLoading) return <Loading />;
+  if (!form) return <>Error loading form.</>;
+
   return (
     <nav
       className={cn(
