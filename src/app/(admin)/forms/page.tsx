@@ -1,13 +1,13 @@
-import FormViewerSection from "@/components/(admin)/forms/viewer";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAllForms } from "@/server/actions/forms/get-all-forms";
+import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
+import FormsHome from "@/components/(admin)/forms/home";
 
 export default async function FormsPage() {
-  // prefetch forms
+  // prefetch forms (just the id, title, program)
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -15,18 +15,20 @@ export default async function FormsPage() {
       },
     },
   });
+
   await queryClient.prefetchQuery({
-    queryKey: ["forms"],
+    queryKey: ["forms", "lite"],
     queryFn: () =>
-      getAllForms({
+      getAllFormsLite({
         userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
       }),
   });
 
-  // hydrate queryClient
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <FormViewerSection />
+      <div className="lg:p-8 xs:px-4">
+        <FormsHome />
+      </div>
     </HydrationBoundary>
   );
 }
