@@ -1,8 +1,7 @@
 "use server";
 import { db } from "@/db";
-import { DateToString } from "@/db/utils";
 
-export async function getAllVersions(formId: string) {
+export async function getAllVersions({ formId }: { formId: string }) {
   return db.query.formVersions.findMany({
     where: (version, { eq }) => eq(version.formId, formId),
     columns: {
@@ -113,5 +112,5 @@ export async function getAllVersions(formId: string) {
 }
 
 export type FormVersionsResult = NonNullable<
-  DateToString<Awaited<ReturnType<typeof getAllVersions>>>
+  Awaited<ReturnType<typeof getAllVersions>>
 >;

@@ -10,38 +10,29 @@ import {
 import { formatDate } from "@/lib/formatDate";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ScrollAreaScrollbar } from "@radix-ui/react-scroll-area";
-import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import React, { useMemo } from "react";
-import dynamic from "next/dynamic";
-
-const DynamicResponseCards = dynamic(() =>
-  import("@/components/(admin)/forms/responses/response-cards").then(
-    (module) => module.ResponseCards,
-  ),
-);
-const DynamicResponseOverviewCard = dynamic(() =>
-  import("@/components/(admin)/forms/responses/response-overview-card").then(
-    (module) => module.ResponseOverviewCard,
-  ),
-);
-
-const MemoizedResponseOverviewCard = React.memo(DynamicResponseOverviewCard);
-const MemoizedResponseCards = React.memo(DynamicResponseCards);
+import { ResponseOverviewCard } from "@/components/(admin)/forms/responses/response-overview-card";
+import { ResponseCards } from "@/components/(admin)/forms/responses/response-cards";
+import { useAllVersionsSuspenseQuery } from "@/hooks/queries/useAllVersionsSuspenseQuery";
+import { usePathname } from "next/navigation";
 
 export function FormResponsesSidebar() {
-  const { versions } = useAllFormVersions();
+  const pathname = usePathname();
+  const formId = pathname.split("/")[2];
+  const { versions } = useAllVersionsSuspenseQuery({ formId });
   const { selectedVersion, setSelectedVersion } = useSelectedContext();
 
   const handleVersionSelect = (versionId: string) => {
-    const version = versions.find((v) => v.id === versionId);
+    const version = versions?.find((v) => v.id === versionId);
     if (!version) throw new Error("Selected version could not be located!");
+    // @ts-ignore TODO - fix types
     setSelectedVersion(version);
   };
 
   const versionOptions = useMemo(
     () =>
-      versions.map((v) => (
+      versions?.map((v) => (
         <SelectItem key={v.id} value={v.id}>
           <div
             className={cn("flex w-72 flex-row items-center justify-between")}
@@ -57,14 +48,17 @@ export function FormResponsesSidebar() {
     [versions],
   );
 
+  // TODO - add loading skeleton
+  // TODO - add error message
+  if (!versions) return <div>No versions found!</div>;
   return (
     <aside
       className={cn(
-        "fixed left-0 top-4 z-40 h-full w-1/4 border-r bg-background px-2 pb-2 pt-[108px] drop-shadow-sm",
+        "fixed left-0 top-0 z-40 h-full w-1/4 border-r bg-background p-2 drop-shadow-sm",
       )}
     >
-      <div className={cn("flex flex-col space-y-8")}>
-        <MemoizedResponseOverviewCard />
+      <div className={cn("flex h-full flex-col space-y-8")}>
+        <ResponseOverviewCard />
         <div className={cn("space-y-2 rounded-md px-2 pt-6")}>
           <Select
             key={`select-${selectedVersion?.id}`}
@@ -87,9 +81,7 @@ export function FormResponsesSidebar() {
           <ScrollArea className={cn("h-[293px] w-full scroll-p-4")}>
             <ScrollAreaScrollbar />
             <div className={cn("px-4")}>
-              {selectedVersion && (
-                <MemoizedResponseCards formVersion={selectedVersion} />
-              )}
+              {selectedVersion && <ResponseCards />}
             </div>
           </ScrollArea>
         </div>

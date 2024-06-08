@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/db";
 
-export async function verifyCode(code: string) {
+export async function verifyCode({ code }: { code: string }) {
   const dataFromFormCode = await db.query.formCodes.findFirst({
     with: {
       usersWithCode: {

@@ -7,9 +7,10 @@ import {
   PercentChangeData,
 } from "@/lib/responses/calculatePercentChangeFromTotals";
 import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePointsEarnedAndAvailable";
+
 export function calculatePercentChange(
   evaluateeId: string,
-  formVersions: FormVersionsResult,
+  formVersions: FormVersionsResult | undefined,
   currentVersionId: string,
   competencyName?: keyof typeof COMPETENCIES,
 ) {
@@ -17,7 +18,7 @@ export function calculatePercentChange(
 
   // Sort the form versions based on their createdAt date in ascending order
   const sortedVersions = formVersions.sort((a, b) =>
-    a.createdAt.localeCompare(b.createdAt),
+    a.createdAt.toISOString().localeCompare(b.createdAt.toISOString()),
   );
 
   const currentVersionIndex = sortedVersions.findIndex(

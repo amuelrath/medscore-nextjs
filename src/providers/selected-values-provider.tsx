@@ -8,10 +8,10 @@ import {
 import { FormVersionResult, ResponseResult } from "@/db/types";
 
 type SelectedContextType = {
-  selectedVersion?: FormVersionResult;
-  setSelectedVersion: (version?: FormVersionResult) => void;
-  selectedResponse?: ResponseResult;
-  setSelectedResponse: (response?: ResponseResult) => void;
+  selectedVersion?: FormVersionResult | undefined;
+  setSelectedVersion: (version?: FormVersionResult | undefined) => void;
+  selectedResponse?: ResponseResult | undefined;
+  setSelectedResponse: (response?: ResponseResult | undefined) => void;
 };
 
 const SelectedContext = createContext<SelectedContextType>({

@@ -7,7 +7,6 @@ import { calculatePointsEarnedAndAvailable } from "@/lib/responses/calculatePoin
 import React, { useMemo } from "react";
 import { ChangeIndicator } from "@/components/ui/percent-change-indicator";
 import { DynamicEyeball } from "@/components/ui/lottie/eyeball";
-import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 import { CompetencyGauges } from "@/components/(admin)/forms/responses/competency-gauges";
 import { calculatePercentChange } from "@/lib/responses/calculatePercentChange";
@@ -18,10 +17,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { FormScoreDialog } from "@/components/(admin)/forms/dialogs/form-score-dialog";
+import { useAllVersionsSuspenseQuery } from "@/hooks/queries/useAllVersionsSuspenseQuery";
+import { usePathname } from "next/navigation";
 
 export function ResponseOverviewCard() {
-  const { versions } = useAllFormVersions();
+  const pathname = usePathname();
+  const formId = pathname.split("/")[2];
+  const { versions } = useAllVersionsSuspenseQuery({ formId });
   const { selectedVersion, selectedResponse } = useSelectedContext();
   const points = useMemo(() => {
     return calculatePointsEarnedAndAvailable(
@@ -53,6 +55,9 @@ export function ResponseOverviewCard() {
     );
   }, [selectedVersion?.id, versions, selectedResponse?.evaluatee.id]);
 
+  // TODO - loading skeleton
+  // TODO - error message
+
   if (!selectedResponse?.id)
     return (
       <div className={cn("h-52 px-4")} key={selectedVersion?.id}>
@@ -79,29 +84,24 @@ export function ResponseOverviewCard() {
         </header>
         <div className={cn("flex flex-col items-center space-y-4")}>
           {competencyPercentages && (
-            <CompetencyGauges
-              competencyPercentages={competencyPercentages}
-              versions={versions}
-            />
+            <CompetencyGauges competencyPercentages={competencyPercentages} />
           )}
           <hr className={cn("w-full bg-primary text-primary")} />
           <div
             className={cn("grid w-full grid-cols-2 divide-x drop-shadow-lg")}
           >
-            <FormScoreDialog>
-              <div
-                className={cn(
-                  "flex cursor-pointer items-center justify-center transition-all hover:scale-110",
-                )}
-              >
-                <p className={cn(" pr-2 text-5xl font-bold tracking-wider")}>
-                  <span style={{ color: scoreBgColor }}>
-                    {points?.pointsEarned}
-                  </span>
-                  {`/${points?.pointsAvailable}`}
-                </p>
-              </div>
-            </FormScoreDialog>
+            <div
+              className={cn(
+                "flex cursor-pointer items-center justify-center transition-all hover:scale-110",
+              )}
+            >
+              <p className={cn(" pr-2 text-5xl font-bold tracking-wider")}>
+                <span style={{ color: scoreBgColor }}>
+                  {points?.pointsEarned}
+                </span>
+                {`/${points?.pointsAvailable}`}
+              </p>
+            </div>
             <div className={cn("grid grid-cols-1 gap-2 pl-2")}>
               <div className={cn("flex flex-col items-end")}>
                 <TooltipProvider>

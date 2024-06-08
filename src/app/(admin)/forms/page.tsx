@@ -1,12 +1,34 @@
-// forms/page.tsx
-"use client";
-import { trpc } from "@/app/_trpc/client";
-import FormViewerSection from "@/components/(admin)/forms/viewer";
-import { TFormRelate } from "@/db/types";
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from "@tanstack/react-query";
+import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
+import FormsHome from "@/components/(admin)/forms/home";
 
-export default function SecureEvaluationsHomePage() {
-  const query = trpc.forms.all.useSuspenseQuery({
-    userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-  },  { staleTime: 1000 *  60 * 5 }); // 5-minute fresh time
-  return <FormViewerSection forms={query[0] as unknown as TFormRelate[]} />;
+export default async function FormsPage() {
+  // prefetch forms (just the id, title, program)
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 10, // 10 minutes
+      },
+    },
+  });
+
+  await queryClient.prefetchQuery({
+    queryKey: ["forms", "lite"],
+    queryFn: () =>
+      getAllFormsLite({
+        userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+      }),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="lg:p-8 xs:px-4">
+        <FormsHome />
+      </div>
+    </HydrationBoundary>
+  );
 }

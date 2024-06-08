@@ -1,3 +1,4 @@
+"use client";
 import debounce from "debounce";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { TFormRelate } from "@/db/types";

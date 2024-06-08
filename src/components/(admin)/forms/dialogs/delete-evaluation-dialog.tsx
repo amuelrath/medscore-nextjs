@@ -11,26 +11,35 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { trpc } from "@/app/_trpc/client";
+import { deleteForm } from "@/server/actions/forms/delete-form";
 import { toast } from "sonner";
-import { Form } from "@/db/schema";
-
-export function DeleteFormDialog({
+import {
+  FormLiteResult,
+} from "@/server/actions/forms/get-all-forms-lite";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+export function DeleteFormDialogTrigger({
   form,
   children,
 }: {
-  form: Form;
+  form: FormLiteResult;
   children: ReactNode;
 }) {
-  const utils = trpc.useUtils();
-  const mutation = trpc.forms.delete.useMutation({
-    onSuccess() {
-      utils.forms.all.invalidate();
-      toast.success(`Deleted "${form.title}"`);
+  const queryClient = useQueryClient();
+  const deleteFormMutation = useMutation({
+    mutationFn: deleteForm,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["forms", "lite"],
+      });
+      toast.success(`"${form.title}" deleted successfully`);
     },
   });
+
   const handleDeleteForm = async () => {
-    mutation.mutate({ formId: form.id });
+    await deleteFormMutation.mutate({
+      formId: form.id,
+    });
+    toast.success(`"${form.title}" deleted successfully`);
   };
 
   return (
@@ -42,12 +51,15 @@ export function DeleteFormDialog({
             {`Delete "${form.title}" ?`}
 
             <AlertDialogDescription>
-              This action is irrevsible. All data will be lost.
+              This action is irreversible. All data will be lost.
             </AlertDialogDescription>
           </AlertDialogTitle>
         </AlertDialogHeader>
         <div className={cn("flex flex-col space-y-2")}>
-          <AlertDialogAction onClick={() => handleDeleteForm()}>
+          <AlertDialogAction
+            onClick={handleDeleteForm}
+            className={cn("w-full bg-destructive text-white")}
+          >
             Delete
           </AlertDialogAction>
           <AlertDialogCancel>Cancel</AlertDialogCancel>

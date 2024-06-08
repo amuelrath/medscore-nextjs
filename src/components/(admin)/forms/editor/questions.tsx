@@ -17,17 +17,21 @@ import OptionList from "@/components/(admin)/forms/editor/question-options";
 import { TFormRelate, TQuestionRelate, TSubcompetencyRelate } from "@/db/types";
 import { v4 } from "uuid";
 import { saveForm } from "@/server/actions/forms/save-form";
-import { useFormValues } from "@/providers/form-values-provider";
 import { SelectMilestoneDialogTrigger } from "@/components/(admin)/forms/dialogs/select-milestone-dialog";
-import { questions } from "@/db/schema";
+import { useSubcompetenciesSuspenseQuery } from "@/hooks/queries/useSubcompetenciesSuspenseQuery";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Scrollbar } from "@radix-ui/react-scroll-area";
 
 export default function QuestionCards() {
-  const { subcompetencies, form } = useFormValues();
   const { control, register, getValues, handleSubmit } =
     useFormContext<TFormRelate>();
   const { fields, remove, append } = useFieldArray({
     control,
     name: "questions",
+  });
+  const form = getValues();
+  const { subcompetencies } = useSubcompetenciesSuspenseQuery({
+    formId: form.id,
   });
   const onSubmit = async () => {
     try {
@@ -37,17 +41,20 @@ export default function QuestionCards() {
     }
   };
   return (
+    <ScrollArea className={cn("h-[83vh] pt-8")}>
+      <Scrollbar />
     <AnimatePresence>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className={cn("pb-[10rem] pt-[5rem]")}
+        className={cn("pb-[10rem] px-64")}
       >
         <div className={cn("space-y-4")}>
           {fields.map((item, index) => {
             // because react-hook-form also has an Id prop which gets taken by 'item'
             // rather than the actual questionId
-            const question = form.questions.find(q => q.position === item.position) as unknown as TQuestionRelate
-
+            const question = form.questions.find(
+              (q) => q.position === item.position,
+            ) as unknown as TQuestionRelate;
 
             return (
               <motion.div
@@ -134,6 +141,7 @@ export default function QuestionCards() {
         </motion.div>
       </form>
     </AnimatePresence>
+    </ScrollArea>
   );
 }
 

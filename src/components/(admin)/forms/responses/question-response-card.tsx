@@ -10,11 +10,12 @@ import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
 import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
 import dynamic from "next/dynamic";
 
-const DynamicRadioGroup = dynamic(() =>
-  import("@/components/ui/animated-radio-group").then(
-    (module) => module.RadioGroup,
-  ),
-  { ssr: false }
+const DynamicRadioGroup = dynamic(
+  () =>
+    import("@/components/ui/animated-radio-group").then(
+      (module) => module.RadioGroup,
+    ),
+  { ssr: false },
 );
 
 export function QuestionResponseCard({

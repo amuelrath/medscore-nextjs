@@ -3,9 +3,8 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { MilestoneIcon } from "lucide-react";
-import { Control, useController } from "react-hook-form";
-import { TFormRelate } from "@/db/types";
-import { useFormValues } from "@/providers/form-values-provider";
+import { Control, useController, useFormContext } from "react-hook-form";
+import { FormResult } from "@/db/types";
 import { Separator } from "@/components/ui/separator";
 import CIRCLE_ARROW from "public/icons/circle-arrow.json";
 import { LottieHover } from "@/components/ui/lottie-hover";
@@ -16,15 +15,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { MilestoneBadge } from "@/components/(admin)/forms/responses/milestone-badge";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/app/_trpc/client";
-import LOADER_DASHES from "public/icons/loader-dashes.json";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getBgColorFromPointValue } from "@/lib/getColorFromPointValue";
-import Lottie from "lottie-react";
+import { useMutation } from "@tanstack/react-query";
+import { recommendMilestones } from "@/server/actions/ai/recommend-milestones";
+import { useSubcompetenciesSuspenseQuery } from "@/hooks/queries/useSubcompetenciesSuspenseQuery";
 
 type Recommendation = {
   questionId: string;
@@ -39,16 +38,22 @@ export function SelectMilestoneDialogTrigger({
   control,
 }: {
   index: number;
-  control: Control<TFormRelate>;
-  question: TFormRelate["questions"][0];
+  control: Control<FormResult>;
+  question: FormResult["questions"][0];
 }) {
+  // access the form itself
+  const { getValues } = useFormContext<FormResult>();
+  const form = getValues();
+
   // access the milestone values controller
   const { field } = useController({
     name: `questions.${index}.milestones`,
     control,
   });
+  const { subcompetencies } = useSubcompetenciesSuspenseQuery({
+    formId: question.formId,
+  });
 
-  const { subcompetencies, form } = useFormValues();
   const [selectedSubcompetencyId, setSelectedSubcompetencyId] = useState<
     string | null
   >(null);
@@ -61,12 +66,14 @@ export function SelectMilestoneDialogTrigger({
     useState<Recommendation>(question.recommendedMilestone);
 
   // if one doesn't exist in the db, generate one
-  const { mutateAsync: getRecommendedMilestone, isLoading } =
-    trpc.ai.recommendMilestones.useMutation();
+  const getRecommendedMilestone = useMutation({
+    mutationFn: recommendMilestones,
+    onMutate: () => console.log("Generating Recommendation..."),
+  });
 
   // if the user clicks the regenerate button, generate a new recommendation
   const handleRegenerateClick = async () => {
-    const result = await getRecommendedMilestone({
+    const result = await getRecommendedMilestone.mutateAsync({
       id: question.id,
       text: question.text || "",
       formTitle: form.title,
@@ -161,81 +168,43 @@ export function SelectMilestoneDialogTrigger({
               />
             </div>
           </div>
-          <div
-            className={cn("flex h-40 flex-1 flex-col items-center space-y-2")}
-          >
+          <div className={cn("flex flex-1 flex-col items-center space-y-2")}>
             <p
               className={cn(
                 "text-md w-full text-center font-bold tracking-wide text-gray-400",
-                isLoading && "animate-pulse"
               )}
             >
               RECOMMENDED MILESTONE
             </p>
-            <AnimatePresence mode={"wait"}>
-              {isLoading ? (
-                <motion.div
-                  layout={"preserve-aspect"}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <Lottie
-                    animationData={LOADER_DASHES}
-                    loop={true}
-                    autoplay={true}
-                    className={cn("size-[116px]")}
-                  />
-                </motion.div>
-              ) : (
-                <motion.div
-                layout={"preserve-aspect"}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className={cn("flex flex-col items-center space-y-2")}
-                >
-                  <div className={cn(" flex flex-row items-center space-x-2")}>
-                    <p
-                      className={cn(
-                        "text-center text-3xl font-bold tracking-wide",
-                      )}
-                    >
-                      {getMilestone(recommenedMilestone?.milestoneId)?.name}
-                    </p>
-                    <div
-                      onClick={() => handleRegenerateClick()}
-                      className={cn("size-8 cursor-pointer drop-shadow-lg")}
-                    >
-                      <LottieHover src={CIRCLE_ARROW} />
-                    </div>
-                  </div>
-                  <p className={cn("px-4 text-center text-sm italic")}>
-                    {
-                      getMilestone(recommenedMilestone?.milestoneId)
-                        ?.description
-                    }
-                  </p>
-                  <div className={cn("flex flex-row space-x-2")}>
-                    <div
-                      className={cn(
-                        "cursor-pointer rounded-full bg-emerald-500 px-2.5 py-0.5 text-white transition-all hover:bg-emerald-500/80",
-                      )}
-                    >
-                      <div className={cn("select-none text-sm font-semibold")}>
-                        Accept
-                      </div>
-                    </div>
-                    <SeeWhyTooltip
-                      score={recommenedMilestone?.score}
-                      justification={recommenedMilestone?.justification}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className={cn("flex flex-row space-x-2")}>
+              <p className={cn("text-center text-3xl font-bold tracking-wide")}>
+                {getMilestone(recommenedMilestone?.milestoneId)?.name}
+              </p>
+              <div
+                onClick={() => handleRegenerateClick()}
+                className={cn("size-8 cursor-pointer drop-shadow-lg")}
+              >
+                <LottieHover src={CIRCLE_ARROW} />
+              </div>
+            </div>
+            <p className={cn("px-4 text-center text-sm italic")}>
+              {getMilestone(recommenedMilestone?.milestoneId)?.description}
+            </p>
+            <div className={cn("flex flex-row space-x-2")}>
+              <div
+                className={cn(
+                  "cursor-pointer rounded-full bg-emerald-500 px-2.5 py-0.5 text-white transition-all hover:bg-emerald-500/80",
+                )}
+              >
+                <div className={cn("select-none text-sm font-semibold")}>
+                  Accept
+                </div>
+              </div>
+              <SeeWhyTooltip
+                score={recommenedMilestone?.score}
+                justification={recommenedMilestone?.justification}
+              />
+            </div>
           </div>
         </div>
         <hr />
@@ -388,7 +357,7 @@ function SeeWhyTooltip({
         <div
           className={cn("flex flex-row items-center justify-center space-x-2")}
         >
-          <p className={cn("text-lg font-bold")}>Match Score: </p>
+          <p className={cn("text-lg font-bold")}>Vector Match Score: </p>
           <p style={{ color }} className={cn("text-xl font-extrabold")}>
             {(parseFloat(score || "") * 100).toFixed(1)}
           </p>

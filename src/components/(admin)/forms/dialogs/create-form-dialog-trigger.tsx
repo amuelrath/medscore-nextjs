@@ -5,7 +5,6 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
   AlertDialogTrigger,
-  AlertDialogPortal,
   AlertDialogHeader,
   AlertDialogCancel,
   AlertDialogAction,
@@ -24,15 +23,16 @@ import { ReactNode } from "react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { trpc } from "@/app/_trpc/client";
 import { toast } from "sonner";
+import { createForm } from "@/server/actions/forms/create-form";
+import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const createFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   program: z.string().min(1, { message: "Program is required" }),
 });
 
-export function CreateFormDialog({ children }: { children: ReactNode }) {
+export function CreateFormDialogTrigger({ children }: { children: ReactNode }) {
   const {
     control,
     register,
@@ -41,26 +41,34 @@ export function CreateFormDialog({ children }: { children: ReactNode }) {
   } = useForm<z.infer<typeof createFormSchema>>({
     resolver: zodResolver(createFormSchema),
   });
-  const utils = trpc.useUtils();
-  const mutation = trpc.forms.insert.useMutation({
-    onSuccess() {
-      utils.forms.all.invalidate();
+  const queryClient = useQueryClient();
+  const createFormMutation = useMutation({
+    mutationFn: createForm,
+    onSettled: () => {
+       queryClient.invalidateQueries({
+        queryKey: ["forms", "lite"],
+      });
+      toast.success("Form created successfully");
     },
   });
 
   const handleCreateForm = async (data: z.infer<typeof createFormSchema>) => {
-    mutation.mutate({ title: data.title, programId: data.program });
-    toast.success(`Created "${data.title}"`);
+    console.log(data);
+    createFormMutation.mutate({
+      title: data.title,
+      programId: data.program,
+    });
   };
+
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+      <AlertDialogTrigger>{children}</AlertDialogTrigger>
       <AlertDialogContent className={cn("rounded-md")}>
         <AlertDialogHeader className={cn("flex text-start")}>
           <AlertDialogTitle>
             Create New Form
             <AlertDialogDescription>
-              Create a New OSCE Form to evaluate students.
+              Create a New Competency-Based Assessment.
             </AlertDialogDescription>
           </AlertDialogTitle>
         </AlertDialogHeader>
@@ -97,8 +105,6 @@ export function CreateFormDialog({ children }: { children: ReactNode }) {
                       <SelectItem value="a5d6ff06-c3c5-44c1-9bb3-8d9641b87081">
                         Family Medicine Residency
                       </SelectItem>
-                      <SelectItem value="1">One</SelectItem>
-                      <SelectItem value="1">One</SelectItem>
                     </SelectContent>
                   </Select>
                   {error && (
@@ -109,8 +115,13 @@ export function CreateFormDialog({ children }: { children: ReactNode }) {
             />
           </div>
           <div className={cn("flex w-full flex-col space-y-2")}>
+            <AlertDialogAction
+              type={"submit"}
+              className={cn("bg-foreground text-background")}
+            >
+              Create
+            </AlertDialogAction>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction type="submit">Create</AlertDialogAction>
           </div>
         </form>
       </AlertDialogContent>

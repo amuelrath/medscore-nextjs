@@ -1,5 +1,4 @@
 "use server";
-import { ZAiRecommendMilestonesSchema } from "@/server/ai-router/schema";
 import { z } from "zod";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { OpenAI } from "openai";
@@ -26,9 +25,15 @@ interface QueryMilestonesIndexResult {
   };
 }
 
-type Input = z.infer<typeof ZAiRecommendMilestonesSchema>;
-
-export async function recommendMilestones({ id, text, formTitle }: Input) {
+export async function recommendMilestones({
+  id,
+  text,
+  formTitle,
+}: {
+  id: string;
+  text: string;
+  formTitle: string;
+}) {
   if (!id || !text) return null;
 
   // Initialize helpers

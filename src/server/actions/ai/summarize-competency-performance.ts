@@ -3,12 +3,31 @@ import { db } from "@/db";
 import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { z } from "zod";
-import { ZAiSummarizeCompetencyPerformanceSchema } from "@/server/ai-router/schema";
 import { competencyPerformanceSummaries } from "@/db/schema";
 
-type FeedbackInput = z.infer<typeof ZAiSummarizeCompetencyPerformanceSchema>;
-
-export async function summarizeCompetencyPerformance(input: FeedbackInput) {
+export async function summarizeCompetencyPerformance(input: {
+  meta: {
+    evaluateeId: string;
+    formVersionId: string;
+    competencyId: string;
+  };
+  context: {
+    evaluateeName: string;
+    examTitle: string;
+    competencyName: string;
+    percentImprovementFromPreviousAttempt: number;
+    percentImprovementFromFirstAttempt: number;
+  };
+  data: {
+    type: string;
+    examQuestions: {
+      desiredBehavior: string;
+      evaluatorComments: string;
+      percentScore: number;
+      averageScoreForAllPeople: number;
+    }[];
+  };
+}) {
   if (!input) return null;
 
   // Check to see if feedback has already been summarized

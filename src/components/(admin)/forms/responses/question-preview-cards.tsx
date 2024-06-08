@@ -111,11 +111,17 @@ export function QuestionPreviewCards({
                   <div>
                     <p className={cn("text-md")}>{q.text}</p>
                   </div>
-                  <div className={cn("flex flex-row items-baseline mb-2 space-x-2")}>
+                  <div
+                    className={cn(
+                      "mb-2 flex flex-row items-baseline space-x-2",
+                    )}
+                  >
                     <span className={cn("text-sm font-bold text-gray-300")}>
                       {evaluatorName.toUpperCase()}:
                     </span>
-                    <span className={cn("text-lg font-semibold text-primary/80")}>
+                    <span
+                      className={cn("text-lg font-semibold text-primary/80")}
+                    >
                       {answerData.answer}
                     </span>
                   </div>
@@ -124,7 +130,7 @@ export function QuestionPreviewCards({
                       <hr />
                       <div
                         className={cn(
-                          "flex mt-1 flex-col items-start justify-start",
+                          "mt-1 flex flex-col items-start justify-start",
                         )}
                       >
                         <span className={cn("text-sm italic text-primary/80")}>
@@ -170,7 +176,7 @@ export function QuestionPreviewCardIcon({
         <Tooltip>
           <TooltipTrigger
             className={cn(
-              "size-6 items-center rounded-md bg-foreground transition-all aspect-square hover:scale-110",
+              "aspect-square size-6 items-center rounded-md bg-foreground transition-all hover:scale-110",
             )}
           >
             <div

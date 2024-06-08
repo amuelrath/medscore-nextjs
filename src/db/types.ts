@@ -1,6 +1,6 @@
 import { DateToString, InferResultType } from "./utils";
 import { FormVersionsResult } from "@/server/actions/forms/get-all-versions";
-import { FormResult } from "@/server/actions/forms/get-one-form";
+import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { FormVersionResult } from "@/server/actions/forms/get-one-version";
 export type { FormVersionsResult, FormResult, FormVersionResult };
 

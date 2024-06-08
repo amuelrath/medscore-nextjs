@@ -1,75 +1,51 @@
-"use client";
-import { trpc } from "@/app/_trpc/client";
 import { cn } from "@/lib/utils";
-import Loading from "@/components/ui/loading";
-import { TEvaluationForm } from "@/db/types";
-import { User } from "@/db/schema";
 import { Section } from "@/components/ui/section";
-import EvaluationFormNav from "@/components/(evaluator)/navs/evaluation-form-nav";
+import { EvaluationFormNav } from "@/components/(evaluator)/navs/evaluation-form-nav";
 import EvaluationForm from "@/components/(evaluator)/forms/evaluation-form";
+import {
+  dehydrate,
+  QueryClient,
+  HydrationBoundary,
+} from "@tanstack/react-query";
+import { getFormById } from "@/server/actions/forms/get-form-by-id";
 
-export default function EvaluateIdPage({ params }: { params: { id: string } }) {
+export default async function EvaluateIdPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   // TODO Verify that the form is still active. Or that the session the form was loaded on hasn't expired.
   // TODO Add alert on attempt page refresh. If refresh, redirect to home page and erase localStorage for "evaluatee".
 
-  const form = trpc.responses.getFormById.useQuery(
-    {
-      formId: params.id,
+  // prefetch form based on params.id
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 3, // 3 minutes
+      },
     },
-    { staleTime: 1000 * 60 * 60 },
-  );
+  });
+  await queryClient.prefetchQuery({
+    queryKey: ["form", params.id],
+    queryFn: () =>
+      getFormById({
+        formId: params.id,
+        userId: process.env.NEXT_PUBLIC_USER_ID as string,
+      }),
+  });
 
-  const getEvaluatee = () => {
-    if (typeof window !== "undefined") {
-      try {
-        const evaluateeString = window.localStorage.getItem("evaluatee");
-        if (evaluateeString) {
-          return JSON.parse(evaluateeString) as User;
-        }
-      } catch (error) {
-        console.error("Error parsing evaluatee from localStorage:", error);
-      }
-    }
-    return null;
-  };
-
-  const evaluatee = getEvaluatee();
-  // if (!evaluatee) throw new Error("No Evaluatee Chosen. Please try again.");
-  // this ^ throws an error even if evaluatee is defined in localStorage
-
-  if (form.isLoading) {
-    return (
-      <div
-        className={cn(
-          "mt-[25%] flex h-full w-full items-center justify-center",
-        )}
-      >
-        <Loading />
-      </div>
-    );
-  }
-
-  // TODO weird type errors thrown by Date being a string
   return (
-    <>
-      <EvaluationFormNav
-        form={form.data as unknown as TEvaluationForm}
-        evaluatee={evaluatee || ({} as User)}
-      />
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <EvaluationFormNav formId={params.id} />
       <Section>
         <div
           className={cn(
             "no-scrollbar flex h-full w-full flex-col space-y-4 pb-40 pt-4 sm:px-4 lg:px-32",
           )}
         >
-          <EvaluationForm
-            form={
-              (form.data as unknown as TEvaluationForm) ||
-              ({} as TEvaluationForm)
-            }
-          />
+          <EvaluationForm formId={params.id} />
         </div>
       </Section>
-    </>
+    </HydrationBoundary>
   );
 }

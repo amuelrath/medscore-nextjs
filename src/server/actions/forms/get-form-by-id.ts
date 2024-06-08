@@ -1,15 +1,34 @@
+'use server'
 import { db } from "@/db";
-import { DateToString } from "@/db/utils";
 export type NonNullable<T> = T extends null | undefined ? never : T;
 
-export async function getOneForm(formId: string, userId: string) {
+export async function getFormById({
+  formId,
+  userId,
+}: {
+  formId: string;
+  userId: string;
+}) {
   return db.query.forms.findFirst({
     with: {
       programs: {
         with: {
           users: {
+            columns: {
+              userId: false,
+              programId: false,
+            },
             with: {
-              user: true,
+              user: {
+                columns: {
+                  id: true,
+                  firstName: true,
+                  role: true,
+                  lastName: true,
+                  email: false,
+                  password: false,
+                },
+              },
             },
           },
         },
@@ -42,6 +61,4 @@ export async function getOneForm(formId: string, userId: string) {
   });
 }
 
-export type FormResult = NonNullable<
-  DateToString<Awaited<ReturnType<typeof getOneForm>>>
->;
+export type FormResult = NonNullable<Awaited<ReturnType<typeof getFormById>>>;

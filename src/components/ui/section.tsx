@@ -12,7 +12,7 @@ export const Section = forwardRef<HTMLElement, SectionProps>(
       <section
         ref={ref}
         className={cn(
-          "no-scrollbar xs:px-4 xs:pb-4 lg:px-4 lg:pb-0",
+          "no-scrollbar pt-8 xs:px-4 xs:pb-4 lg:px-4 lg:pb-0",
           className,
         )}
       >

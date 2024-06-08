@@ -1,7 +1,8 @@
 "use server";
 import { db } from "@/db";
 
-export async function getFormStatus(formId: string) {
+export async function getFormStatus({ formId }: { formId: string | undefined }) {
+  if (!formId) throw new Error("Form Id is required");
   const allFormVersions = await db.query.formVersions.findMany({
     where: (form, { eq }) => eq(form.formId, formId),
     with: { code: true },

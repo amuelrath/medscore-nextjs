@@ -1,6 +1,5 @@
 "use client";
 import { createContext, useContext, useState, useRef, useEffect } from "react";
-import { trpc } from "@/app/_trpc/client";
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
@@ -37,6 +36,8 @@ import {
 } from "@/components/ui/input-otp";
 import Lottie from "lottie-react";
 import LOADING_SPINNER from "public/icons/system-regular-719-spinner-circle-black.json";
+import { verifyCode } from "@/server/actions/responses/verify-code";
+import { useMutation } from "@tanstack/react-query";
 
 interface EvaluationContextValue {
   step: "code" | "select";
@@ -78,7 +79,8 @@ export default function EvaluateDialog() {
     localStorage.removeItem("evaluatee");
   }, []);
 
-  const mutation = trpc.responses.verifyCode.useMutation({
+  const verifyCodeMutation = useMutation({
+    mutationFn: verifyCode,
     onSuccess: (data) => {
       setStatus("success");
       setStudents(data.usersWithCode.map((u) => u.user));
@@ -90,25 +92,26 @@ export default function EvaluateDialog() {
       setCode("");
     },
   });
+
   useEffect(() => {
     const onCodeChange = (value: string) => {
       setCode(value);
       if (value.length === 6) {
-        mutation.mutate({ code: value });
+        verifyCodeMutation.mutate({ code: value });
       }
     };
     onCodeChange(code);
-  }, [code, mutation.mutate]); // ignore eslint error
+  }, [code, verifyCodeMutation.mutate]); // ignore eslint error
 
   const onEvaluateClick = async () => {
-    router.push(`/evaluate/${mutation.data?.formVersionId}`);
+    router.push(`/evaluate/${verifyCodeMutation.data?.formVersionId}`);
   };
 
   const onCancelClick = () => {
     setStep("code");
     setCode("");
     setStatus("idle");
-    mutation.reset();
+    verifyCodeMutation.reset();
   };
 
   const value = {
