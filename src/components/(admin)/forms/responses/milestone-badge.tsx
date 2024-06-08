@@ -50,7 +50,7 @@ export const MilestoneBadge = memo(
                 {name}
               </Badge>
             </TooltipTrigger>
-            <TooltipContent className={cn("fixed -top-3 right-16 w-64 z-50")}>
+            <TooltipContent className={cn("fixed -top-3 right-16 z-50 w-64")}>
               {description}
             </TooltipContent>
           </Tooltip>
