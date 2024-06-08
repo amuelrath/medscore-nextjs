@@ -1,34 +1,32 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { FormVersionResult } from "@/db/types";
 import { Separator } from "@/components/ui/separator";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { getFullName } from "@/lib/getFullName";
 import { useSelectedContext } from "@/providers/selected-values-provider";
 
-export function ResponseCards({
-  formVersion,
-}: {
-  formVersion: FormVersionResult | null | undefined;
-}) {
-  const { selectedResponse, setSelectedResponse } = useSelectedContext();
+export function ResponseCards() {
+  const { selectedResponse, setSelectedResponse, selectedVersion } =
+    useSelectedContext();
 
   const handleResponseClick = (responseId: string) => {
-    const response = formVersion?.responses.find((r) => r.id === responseId);
+    const response = selectedVersion?.responses.find(
+      (r) => r.id === responseId,
+    );
     setSelectedResponse(response);
   };
 
-  if (!formVersion) {
+  if (!selectedVersion) {
     return <div>Version not found.</div>;
   }
 
-  if (!formVersion.responses || formVersion.responses.length === 0) {
+  if (!selectedVersion.responses || selectedVersion.responses.length === 0) {
     return <div>No responses found.</div>;
   }
 
   return (
-    <WaterfallAnimation key={formVersion.id} speed={0.1}>
-      {formVersion.responses.map((r) => (
+    <WaterfallAnimation key={selectedVersion.id} speed={0.1}>
+      {selectedVersion.responses.map((r) => (
         <Card
           key={r.id}
           onClick={() => handleResponseClick(r.id)}
