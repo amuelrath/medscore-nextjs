@@ -25,14 +25,24 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createForm } from "@/server/actions/forms/create-form";
-import { QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 const createFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   program: z.string().min(1, { message: "Program is required" }),
 });
 
-export function CreateFormDialogTrigger({ children }: { children: ReactNode }) {
+export function CreateFormDialogTrigger({
+  children,
+  asChild,
+}: {
+  children: ReactNode;
+  asChild?: boolean;
+}) {
   const {
     control,
     register,
@@ -45,7 +55,7 @@ export function CreateFormDialogTrigger({ children }: { children: ReactNode }) {
   const createFormMutation = useMutation({
     mutationFn: createForm,
     onSettled: () => {
-       queryClient.invalidateQueries({
+      queryClient.invalidateQueries({
         queryKey: ["forms", "lite"],
       });
       toast.success("Form created successfully");
@@ -62,7 +72,7 @@ export function CreateFormDialogTrigger({ children }: { children: ReactNode }) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger>{children}</AlertDialogTrigger>
+      <AlertDialogTrigger asChild={asChild}>{children}</AlertDialogTrigger>
       <AlertDialogContent className={cn("rounded-md")}>
         <AlertDialogHeader className={cn("flex text-start")}>
           <AlertDialogTitle>

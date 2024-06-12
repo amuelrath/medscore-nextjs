@@ -58,7 +58,7 @@ export function DeleteFormDialogTrigger({
         <div className={cn("flex flex-col space-y-2")}>
           <AlertDialogAction
             onClick={handleDeleteForm}
-            className={cn("w-full bg-destructive text-white")}
+            className={cn("w-full bg-destructive/80 hover:bg-destructive/70 text-red-950")}
           >
             Delete
           </AlertDialogAction>

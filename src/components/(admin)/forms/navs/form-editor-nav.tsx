@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 export default function FormEditorNav() {
   const methods = useFormContext<FormResult>();
   return (
-    <div className={cn("fixed top-[57px] z-40 w-full")}>
+    <div className={cn("fixed top-[57px] h-16 z-40 w-full")}>
       <nav className="no-scrollbar  flex flex-row items-center justify-between overflow-y-hidden border-b bg-background p-2 px-4 drop-shadow-sm">
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Input

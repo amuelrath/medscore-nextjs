@@ -5,6 +5,8 @@ import {
 } from "@tanstack/react-query";
 import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
 import FormsHome from "@/components/(admin)/forms/home";
+import { cn } from "@/lib/utils";
+import { FormHomeNav } from "@/components/(admin)/forms/navs/form-home-nav";
 
 export default async function FormsPage() {
   // prefetch forms (just the id, title, program)
@@ -16,6 +18,7 @@ export default async function FormsPage() {
     },
   });
 
+
   await queryClient.prefetchQuery({
     queryKey: ["forms", "lite"],
     queryFn: () =>
@@ -26,7 +29,7 @@ export default async function FormsPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="lg:p-8 xs:px-4">
+      <div className="lg:px-8 xs:px-4 h-full">
         <FormsHome />
       </div>
     </HydrationBoundary>

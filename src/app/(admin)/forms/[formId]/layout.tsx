@@ -23,6 +23,7 @@ export default async function FormIdLayout({
   responses: ReactNode;
   params: { formId: string };
 }) {
+
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

@@ -13,6 +13,14 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
       lastOpenedAt: true,
     },
     with: {
+      tags: {
+        columns: {
+          formId: false,
+          color: true,
+          tag: true,
+          id: true,
+        },
+      },
       programs: {
         columns: {
           id: true,
@@ -25,9 +33,11 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
   });
 }
 
-export type FormsLiteResult = NonNullable<Awaited<ReturnType<typeof getAllFormsLite>>>;
+export type FormsLiteResult = NonNullable<
+  Awaited<ReturnType<typeof getAllFormsLite>>
+>;
 
-export async function getFormLiteById({ formId }: { formId: string, }) {
+export async function getFormLiteById({ formId }: { formId: string }) {
   return db.query.forms.findFirst({
     where: (f, { eq }) => eq(f.id, formId),
     columns: {
@@ -38,6 +48,14 @@ export async function getFormLiteById({ formId }: { formId: string, }) {
       lastOpenedAt: true,
     },
     with: {
+      tags: {
+        columns: {
+          formId: false,
+          color: true,
+          tag: true,
+          id: true,
+        },
+      },
       programs: {
         columns: {
           id: true,
@@ -50,4 +68,6 @@ export async function getFormLiteById({ formId }: { formId: string, }) {
   });
 }
 
-export type FormLiteResult = NonNullable<Awaited<ReturnType<typeof getFormLiteById>>>;
+export type FormLiteResult = NonNullable<
+  Awaited<ReturnType<typeof getFormLiteById>>
+>;

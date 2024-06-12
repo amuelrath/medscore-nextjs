@@ -165,6 +165,26 @@ export const usersOnProgramsRelations = relations(
   }),
 );
 
+export const formTags = pgTable("form_tags", {
+  id: uuid("id")
+    .notNull()
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  tag: text("tag").notNull(),
+  color: text("color").notNull().default("black"),
+  formId: uuid("form_id")
+    .notNull()
+    .references(() => forms.id, { onDelete: "cascade" }),
+});
+export type FormTag = typeof formTags.$inferSelect;
+export type NewFormTag = typeof formTags.$inferInsert;
+export const formTagRelations = relations(formTags, ({ one }) => ({
+  form: one(forms, {
+    fields: [formTags.formId],
+    references: [forms.id],
+  }),
+}));
+
 // MARK: Forms
 export const forms = pgTable("forms", {
   id: uuid("id")
@@ -191,6 +211,7 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   }),
   questions: many(questions),
   versions: many(formVersions),
+  tags: many(formTags),
 }));
 
 // MARK: Questions
@@ -269,7 +290,7 @@ export type MilestonesOnQuestion = typeof milestonesOnQuestions.$inferSelect;
 export type NewMilestoneOnQuestion = typeof milestonesOnQuestions.$inferInsert;
 export const milestonesOnQuestionsRelations = relations(
   milestonesOnQuestions,
-  ({ one, many }) => ({
+  ({ one }) => ({
     milestone: one(milestones, {
       fields: [milestonesOnQuestions.milestoneId],
       references: [milestones.id],
