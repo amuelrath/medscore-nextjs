@@ -9,18 +9,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-notepad hover:bg-primary/90",
+        default: "bg-primary text-white hover:bg-primary/90",
         "accent-secondary":
           "bg-accent-secondary text-notepad hover:bg-accent-secondary/90",
         foreground: "bg-foreground text-white hover:bg-foreground/90",
-        accent: "bg-accent text-notepad hover:bg-accent/90",
+        accent: "bg-accent text-background hover:bg-accent/90",
         icon: "items-center p-1 hover:text-white hover:bg-accent-secondary rounded-md transition-all",
         destructive: "bg-destructive text-background hover:bg-destructive/90",
         outline:
           "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-foreground/20 hover:text-accent-foreground",
         notepad: "bg-notepad text-black hover:bg-notepad/90",
         link: "text-primary underline-offset-4 hover:underline",
         emerald: "bg-emerald-500 text-primary hover:bg-emerald/90",
