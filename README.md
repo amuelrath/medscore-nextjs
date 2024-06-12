@@ -9,7 +9,7 @@ GME programs often struggle with the subjectivity of evaluations, difficulty in 
 * **Progress Tracking**: By integrating with ACGME milestones and CBME guidelines, MEDscore enables program directors to easily monitor resident progress and identify areas for improvement.
 * **Time-Consuming Administration**: MEDscore's streamlined workflow and automated grading features significantly reduce the time and effort required for evaluation administration, allowing program directors to focus on what matters most: resident development.
 
-## Seamless Integration with ACGME Milestones
+## Cutting Edge, Seamless Integration with ACGME Milestones
 MEDscore is designed to seamlessly integrate with ACGME milestones and CBME guidelines, ensuring that resident evaluations are directly tied to the competencies and expectations set forth by the ACGME. Our platform uses advanced technologies such as:
 
 * **Vector Databases**: MEDscore embeds all ACGME milestones into a vector database, enabling efficient and accurate mapping of evaluation questions to the relevant milestones.
