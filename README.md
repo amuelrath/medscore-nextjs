@@ -27,12 +27,14 @@ MEDscore has already demonstrated significant impact for GME programs that have 
 
 * **Program X**: By adopting MEDscore, Program X saved 2 months of grading time and reclaimed hundreds of hours previously spent on administrative tasks, allowing them to focus on improving program outcomes and preparing residents for independent practice.
 * **Program Y**: MEDscore's AI-powered insights helped Program Y identify previously unrecognized patterns in resident performance, enabling targeted interventions that resulted in a 20% improvement in overall program performance.
+* **Program Z**: Through the use of MEDscore's curriculum-level analytics enabled Program Z to improve their average milestone rating by nearly 80% through internal refactoring guided by actionable AI insight.
 
 ## Continuous Innovation and Future Developments
 At MEDscore, we are committed to continuously innovating and evolving our platform to meet the ever-changing needs of GME programs. Our upcoming features and roadmap items include:
 
 * **Community-Made Evaluations**: MEDscore will soon allow programs to share evaluations and benchmark performance across institutions, fostering collaboration and best practice sharing within the GME community.
 * **Advanced AI Capabilities**: We are constantly experimenting with new technologies to enhance our analytics and AI features, ensuring that MEDscore remains at the forefront of GME evaluation innovation.
+* **Autonomous Assessments**: With recent advancements in multi-modal Large Language Models (LLMs), capable of understanding audio and visual input, MEDscore seeks to automate Direct Observation Assessments.
 
 ## Why Choose MEDscore?
 MEDscore is the only AI-powered platform purpose-built for the unique needs of GME programs. Our commitment to seamless ACGME milestone integration, actionable insights, and continuous innovation sets us apart from generic evaluation solutions. By partnering with MEDscore, GME programs can elevate their evaluation processes, drive better outcomes for residents, and demonstrate their dedication to excellence in medical education.
