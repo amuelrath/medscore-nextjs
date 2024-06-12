@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MEDscore: Transforming Graduate Medical Education through AI
 
-## Getting Started
+MEDscore is a state-of-the-art web application that revolutionizes the evaluation process for graduate medical education (GME) programs. Built upon the foundation of ACGME milestones and competency-based medical education (CBME) guidelines, MEDscore streamlines resident and fellow evaluations, saving valuable time and resources while delivering insightful data on individual and program performance.
 
-First, run the development server:
+## Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Customizable Form Editor**: Easily create competency-based assessments tailored to any specialty using our intuitive form editor, designed specifically for the unique needs of GME.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Digital Evaluation Management**: Transition from paper-based evaluations to user-friendly, responsive webforms accessible on any device.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Personalized Resident Feedback**: Residents gain access to their profile and evaluation results, enhanced by a hybrid of AI-generated recommendations and Machine Learning models based on longitudinal performance data and evaluator feedback.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- **Advanced Analytics**: MEDscore's RAG (Retrieval Augmented Generation) powered analytics identify patterns in clinical competency and performance, providing actionable insights for individual residents and entire programs.
+  
+- **Individualized Learning Plans**: Effortlessly create comprehensive and learner-speficic plans for improving clinical competency.
 
-## Learn More
+- **Comprehensive Reporting**: Generate in-depth reports on program performance, pinpointing areas for curriculum improvement. Reports can be effortlessly submitted to the ACGME.
 
-To learn more about Next.js, take a look at the following resources:
+## Benefits
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Significant Time Savings**: MEDscore has proven to save months of exam scoring time, even for smaller programs. Imagine the potential impact on your institution.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- **Real-Time Results**: Eliminate lengthy waiting periods for evaluation results. MEDscore delivers immediate feedback to residents and program directors.
 
-## Deploy on Vercel
+- **Enhanced Efficiency**: Reclaim hundreds of hours previously spent on administrative tasks and logistics: focus on improving program outcomes and preparing students for individual medical practice.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Community Insights**: MEDscore's upcoming community-made evaluations feature will allow programs to share evaluations and benchmark performance across institutions. curriculums, resident demographics.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- **Addressing ACGME Challenges**: MEDscore actively works to mitigate common ACGME issues, such as "straight lining" in evaluations.
+
+## Why Choose MEDscore?
+
+While alternative solutions like Medhub and Medtrics provide basic evaluation functionality, MEDscore stands apart as a dedicated, AI-enriched platform designed specifically for GME. Our commitment to intuitive design, robust analytics, and community insights differentiates MEDscore from the competition.
+
+MEDscore caters to the needs of individual programs and large institutions alike, offering a powerful tool to elevate resident and fellow evaluations to new heights. Join the vanguard of GME evaluation with MEDscore.
+
+---
+
+To discover how MEDscore can transform your GME evaluation process, visit our website or reach out to our knowledgeable team today.
