@@ -53,13 +53,15 @@ export default function RootLayout({
             <body
               className={cn(
                 poppins.className,
-                "min-h-screen w-full bg-gradient-to-b from-background to-gray-200",
+                "min-h-screen w-full bg-gray-100",
               )}
             >
+
+
               <DotPattern
                 className={cn(
                   "[mask-image:radial-gradient(1000px_circle_at_center,white,transparent)]",
-                  "absolute inset-0 -z-20 opacity-50",
+                  "fixed inset-0 -z-20 opacity-50",
                 )}
               />
               {children}
