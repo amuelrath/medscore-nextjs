@@ -191,7 +191,7 @@ export function FormTags({
               )}
             />
             <div className={cn("flex w-full flex-row items-center space-x-4")}>
-              <Input placeholder={"Name..."} {...register(`tag`)} />
+              <Input placeholder={"Tag Description..."} {...register(`tag`)} />
               <Button>Add Tag</Button>
             </div>
           </form>
@@ -270,14 +270,14 @@ function TagColorSelector({
   };
 
   return (
-    <div className="flex flex-row space-x-2">
+    <div className="flex flex-row justify-center space-x-2">
       {colors.map((color) => (
         <div
           key={color.variant}
           onClick={() => handleClick(color.variant)}
           className={cn(
             color.bg,
-            "size-5 cursor-pointer rounded-full transition-all",
+            "size-6 cursor-pointer rounded-full transition-all",
             selectedColor === color.variant &&
               `scale-110 ring-2 ${color.ring} ring-offset-1`,
           )}
