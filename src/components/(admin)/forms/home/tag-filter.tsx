@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { FC, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 
 interface TagFilterProps {
   tags: string[];
@@ -14,32 +13,33 @@ export const TagFilter: FC<TagFilterProps> = ({
   onTagSelect,
   onTagRemove,
 }) => {
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
   const handleTagClick = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    if (selectedTag === tag) {
+      setSelectedTag(null);
       onTagRemove();
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      setSelectedTag(tag);
       onTagSelect(tag);
     }
   };
 
   return (
-      <div className={cn("space-x-1 items-center w-[512px]")} >
+    <div className={cn("w-[512px] items-center space-x-1")}>
       {tags.sort().map((tag) => (
         <Badge
           onClick={() => handleTagClick(tag)}
-          className={`cursor-pointer font-medium ${
-            selectedTags.includes(tag) ? "opacity-100" : "opacity-60"
-          }`}
+          className={cn("cursor-pointer font-medium", {
+            "opacity-100": selectedTag === tag,
+            "opacity-60": selectedTag !== tag,
+          })}
           key={tag}
           variant="default"
         >
           {tag}
         </Badge>
       ))}
-      </div>
+    </div>
   );
 };
