@@ -9,7 +9,6 @@ import {
   DialogTrigger,
   DialogHeader,
 } from "@/components/ui/dialog";
-import { useAllFormVersions } from "@/providers/all-form-versions-provider";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { SeeMoreButton } from "@/components/ui/see-more-button";
@@ -24,7 +23,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import dynamic from "next/dynamic";
-import { useFormScores } from "@/hooks/use-form-scores";
 import { CompetencyRadarChart } from "@/components/(admin)/forms/responses/competency-radar-chart";
 const DynamicScoreChart = dynamic(() =>
   import("@/components/(admin)/forms/responses/score-chart").then(

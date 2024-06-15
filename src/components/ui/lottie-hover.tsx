@@ -2,8 +2,28 @@
 
 import Lottie from "lottie-react";
 import { useEffect, useRef, useState } from "react";
+import { cva, VariantProps } from "class-variance-authority";
 
-export function LottieHover({ src }: { src: any }) {
+const lottieHoverVariants = cva("cursor-pointer", {
+  variants: {
+    size: {
+      xs: "size-5",
+      sm: "size-12",
+      md: "size-20",
+      lg: "w-36 h-36",
+    },
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
+
+interface LottieHoverProps extends VariantProps<typeof lottieHoverVariants> {
+  loop?: boolean;
+  src: any;
+}
+
+export function LottieHover({ src, size, loop=true }: LottieHoverProps) {
   const ref = useRef<any>(null);
   const [hover, setHover] = useState(false);
 
@@ -16,13 +36,15 @@ export function LottieHover({ src }: { src: any }) {
   }, [hover]);
 
   return (
-    <Lottie
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      animationData={src}
-      lottieRef={ref}
-      loop={true}
-      autoplay={true}
-    />
+    <div className={lottieHoverVariants({ size })}>
+      <Lottie
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        animationData={src}
+        lottieRef={ref}
+        loop={loop}
+        autoplay={true}
+      />
+    </div>
   );
 }

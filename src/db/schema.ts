@@ -171,7 +171,7 @@ export const formTags = pgTable("form_tags", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   tag: text("tag").notNull(),
-  color: text("color").notNull().default("black"),
+  variant: text("variant").notNull().default("black"),
   formId: uuid("form_id")
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),

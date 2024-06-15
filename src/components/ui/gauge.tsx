@@ -35,6 +35,7 @@ const gaugeChartClasses = cva("relative", {
   defaultVariants: {
     size: "md",
   },
+
 });
 
 const GaugeChart: FC<GaugeChartProps> = memo(
@@ -66,7 +67,7 @@ const GaugeChart: FC<GaugeChartProps> = memo(
         <m.div
           className={cn(
             gaugeChartClasses({ size }),
-            "drop-shadow-lg transition-all ease-in-out hover:scale-125",
+            "drop-shadow-xl transition-all ease-in-out hover:scale-125",
           )}
         >
           <svg viewBox="0 0 200 120" className="absolute inset-0">
@@ -88,7 +89,7 @@ const GaugeChart: FC<GaugeChartProps> = memo(
               d="M20,100 A60,60 0 0 1 180,100"
             />
           </svg>
-          <div className="absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light">
+          <div className={cn("absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light", size === "sm" && "mt-6")}>
             {icon}
           </div>
         </m.div>

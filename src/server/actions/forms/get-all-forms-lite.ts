@@ -16,7 +16,7 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
       tags: {
         columns: {
           formId: false,
-          color: true,
+          variant: true,
           tag: true,
           id: true,
         },
@@ -51,7 +51,7 @@ export async function getFormLiteById({ formId }: { formId: string }) {
       tags: {
         columns: {
           formId: false,
-          color: true,
+          variant: true,
           tag: true,
           id: true,
         },

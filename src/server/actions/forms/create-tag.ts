@@ -6,19 +6,19 @@ import { formTags } from "@/db/schema";
 
 export async function createTag({
   id,
-  color,
+  variant,
   tag,
   formId,
 }: {
   id: string;
-  color: ColorOption;
+  variant: ColorOption;
   tag: string;
   formId: string;
 }) {
   await db.insert(formTags).values({
     id,
     tag,
-    color,
+    variant,
     formId,
   });
 }

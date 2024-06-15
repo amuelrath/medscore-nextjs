@@ -16,23 +16,30 @@ const WaterfallAnimation: React.FC<WaterfallAnimationProps> = ({
 
   const animateChild = (child: React.ReactNode, index: number) => {
     if (isValidElement(child)) {
+      const enterTransition = {
+        duration: speed ?? 0.2,
+        delay: hasAnimatedRef.current ? 0 : index * 0.1,
+      };
+
+      const exitTransition = noExit
+        ? { duration: 0.2 }
+        : { duration: 0.2, delay: 0 };
+
       return (
         <m.div
           key={child.key || index}
+          className={"h-full"}
           layoutId={child.key || index.toString()}
           initial={{ opacity: 0, y: 20 }}
           exit={
             noExit
               ? { opacity: 0 }
-              : { opacity: 0, y: -20, transition: { duration: 0.2 } }
+              : { opacity: 0, y: -20, transition: exitTransition }
           }
           animate={
             hasAnimatedRef.current ? { opacity: 1, y: 0 } : { opacity: 1, y: 0 }
           }
-          transition={{
-            duration: speed ?? 0.2,
-            delay: hasAnimatedRef.current ? 0 : index * 0.1,
-          }}
+          transition={enterTransition}
           layout
         >
           {child}
@@ -45,6 +52,7 @@ const WaterfallAnimation: React.FC<WaterfallAnimationProps> = ({
   return (
     <LazyMotion strict features={domAnimation}>
       <AnimatePresence
+        mode={"popLayout"}
         onExitComplete={() => (hasAnimatedRef.current = !!noExit)}
       >
         {Children.map(children, animateChild)}

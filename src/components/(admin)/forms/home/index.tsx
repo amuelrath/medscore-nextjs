@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scrollbar } from "@radix-ui/react-scroll-area";
-import { random } from "lodash";
+import { random, uniq } from "lodash";
 import Image from "next/image";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormHomeNav } from "@/components/(admin)/forms/navs/form-home-nav";
@@ -25,13 +25,23 @@ export default function FormsHome() {
       }),
   });
 
-  const handleFilterChange = (value: string) => {
+  const handleSearchChange = (value: string) => {
     setSearch(value);
   };
 
+  const handleFilterChange = (value: string[]) => {
+    // ..
+  };
+
+  const tags = forms.flatMap((f) => f.tags);
+
   return (
     <>
-      <FormHomeNav onSearchChange={(value) => handleFilterChange(value)} />
+      <FormHomeNav
+        tags={tags}
+        onSearchChange={(value) => handleSearchChange(value)}
+        onFilterChange={(values: string[]) => handleFilterChange(values)}
+      />
       <div
         className={cn("no-scrollbar grid min-h-[79vh] grid-cols-7 gap-4 pb-16")}
       >
@@ -43,7 +53,7 @@ export default function FormsHome() {
         >
           <ScrollArea className={cn("h-[100%] pr-4")}>
             <Scrollbar />
-            <WaterfallAnimation>
+            <WaterfallAnimation noExit>
               {forms
                 .sort(
                   (a, b) =>
@@ -52,7 +62,9 @@ export default function FormsHome() {
                 )
                 .filter((f) => f.title.toLowerCase().includes(search || ""))
                 .map((form) => (
-                  <FormCard key={form.id} form={form} />
+                  <div key={form.id} className={cn("flex-1")}>
+                    <FormCard form={form} />
+                  </div>
                 ))}
             </WaterfallAnimation>
           </ScrollArea>
