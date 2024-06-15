@@ -161,13 +161,9 @@ export function FormTags({
 
   return (
     <>
-      <LazyMotion features={domAnimation}>
-        <AnimatePresence>
           {tags?.map((tag) => {
             return <FormTag key={tag.id} tag={tag} removeTag={removeTag} />;
           })}
-        </AnimatePresence>
-      </LazyMotion>
 
       <Popover>
         <PopoverTrigger>
@@ -235,7 +231,7 @@ function FormTag({
         size={"xs"}
         onMouseEnter={() => handleMouseEnter(tag.id)}
         onMouseLeave={handleMouseLeave}
-        onDoubleClick={() => removeTag(tag.id)}
+        onClick={() => removeTag(tag.id)}
       >
         <span
           className={cn(

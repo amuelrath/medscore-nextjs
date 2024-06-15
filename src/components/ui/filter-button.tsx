@@ -9,13 +9,16 @@ import {
 import { cn } from "@/lib/utils";
 import { ReactNode, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Tag } from "@/components/(admin)/forms/navs/form-home-nav";
+export interface Tag {
+  tag: string;
+  variant: string;
+}
 
 interface FilterProps {
   children: ReactNode;
 }
 
-export function Filter({ children }: FilterProps) {
+export function FilterPopover({ children }: FilterProps) {
   return (
     <Popover>
       <PopoverTrigger

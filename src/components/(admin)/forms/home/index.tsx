@@ -1,22 +1,27 @@
 "use client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
+import {
+  FormLiteResult,
+  getAllFormsLite,
+} from "@/server/actions/forms/get-all-forms-lite";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scrollbar } from "@radix-ui/react-scroll-area";
-import { random, uniq } from "lodash";
+import { random } from "lodash";
 import Image from "next/image";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
-import { FormHomeNav } from "@/components/(admin)/forms/navs/form-home-nav";
+import { FormHomeHeader } from "@/components/(admin)/forms/navs/form-home-header";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
 import ACGME_LOGO from "public/image/ACGME_Logo.jpg";
 import { BookOpenIcon, TelescopeIcon } from "lucide-react";
-import { useState } from "react";
+import { useFilter } from "@/hooks/useFilter";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 
 export default function FormsHome() {
-  const [search, setSearch] = useState<string>();
   const { data: forms } = useSuspenseQuery({
     queryKey: ["forms", "lite"],
     queryFn: () =>
@@ -25,47 +30,49 @@ export default function FormsHome() {
       }),
   });
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-  };
-
-  const handleFilterChange = (value: string[]) => {
-    // ..
-  };
-
   const tags = forms.flatMap((f) => f.tags);
+  const uniqueTags = [...new Set(tags.map((tag) => tag.tag))];
+
+  const orderedForms = forms.sort(
+    (a, b) =>
+      new Date(b.lastOpenedAt).getTime() - new Date(a.lastOpenedAt).getTime(),
+  );
+  const [filteredForms, setFilter, resetFilters, removeFilter] =
+    useFilter<FormLiteResult>(forms);
+
+
+  const handleFilter = (filters: Partial<Record<string, any>>, reset?: boolean) => {
+    setFilter(filters);
+  };
 
   return (
     <>
-      <FormHomeNav
-        tags={tags}
-        onSearchChange={(value) => handleSearchChange(value)}
-        onFilterChange={(values: string[]) => handleFilterChange(values)}
-      />
-      <div
-        className={cn("no-scrollbar grid min-h-[79vh] grid-cols-7 gap-4 pb-16")}
-      >
+      <div className="flex flex-row items-center space-x-3">
+        <FormHomeHeader />
+        <Input
+          placeholder="Search Forms..."
+          className={cn("w-64")}
+          onChange={(e) => handleFilter({ title: e.target.value })}
+        />
+        <TagFilter
+          tags={uniqueTags}
+          onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
+          onTagRemove={() => removeFilter("tags.tag")}
+        />
+      </div>
+      <div className="no-scrollbar grid min-h-[79vh] grid-cols-7 gap-4 pb-16">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={cn("flex h-full flex-col xs:col-span-7 lg:col-span-5")}
+          className="flex h-full flex-col xs:col-span-7 lg:col-span-5"
         >
           <ScrollArea className={cn("h-[100%] pr-4")}>
             <Scrollbar />
             <WaterfallAnimation noExit>
-              {forms
-                .sort(
-                  (a, b) =>
-                    new Date(b.lastOpenedAt).getTime() -
-                    new Date(a.lastOpenedAt).getTime(),
-                )
-                .filter((f) => f.title.toLowerCase().includes(search || ""))
-                .map((form) => (
-                  <div key={form.id} className={cn("flex-1")}>
-                    <FormCard form={form} />
-                  </div>
-                ))}
+              {filteredForms.map((form) => (
+                  <FormCard key={form.id} form={form} />
+              ))}
             </WaterfallAnimation>
           </ScrollArea>
         </motion.div>
