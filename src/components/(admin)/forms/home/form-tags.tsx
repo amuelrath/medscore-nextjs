@@ -18,7 +18,7 @@ import { createTag } from "@/server/actions/forms/create-tag";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
 import { v4 } from "uuid";
-import { m, AnimatePresence, domAnimation, LazyMotion } from "framer-motion";
+import { m } from "framer-motion";
 import { deleteTag } from "@/server/actions/forms/delete-tag";
 
 export type Color = {
@@ -161,9 +161,9 @@ export function FormTags({
 
   return (
     <>
-          {tags?.map((tag) => {
-            return <FormTag key={tag.id} tag={tag} removeTag={removeTag} />;
-          })}
+      {tags?.sort((a, b) => a.tag.localeCompare(b.tag)).map((tag) => {
+        return <FormTag key={tag.id} tag={tag} removeTag={removeTag} />;
+      })}
 
       <Popover>
         <PopoverTrigger>
@@ -227,7 +227,7 @@ function FormTag({
       <Badge
         // @ts-ignore
         variant={tag.variant}
-        className={cn(`group font-medium relative cursor-pointer`)}
+        className={cn(`group relative cursor-pointer font-medium`)}
         size={"xs"}
         onMouseEnter={() => handleMouseEnter(tag.id)}
         onMouseLeave={handleMouseLeave}
