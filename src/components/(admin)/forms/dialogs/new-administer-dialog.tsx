@@ -15,8 +15,6 @@ import { TimePicker } from "@/components/ui/time-picker";
 import { Button } from "@/components/ui/button";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
-import { DynamicLottieIconButton } from "@/components/ui/lottie-icon-button";
-import QUESTIONAIRE_ICON from "public/icons/wired-flat-967-questionnaire.json";
 import { Controller, useForm, useFormContext, useWatch } from "react-hook-form";
 import { getFullName } from "@/lib/getFullName";
 import { useMutation } from "@tanstack/react-query";
@@ -28,7 +26,7 @@ import { isSameDay } from "date-fns/isSameDay";
 import { toast } from "sonner";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import PEN from "public/icons/pencil-white.json";
+import PEN from "public/icons/pencil-teal.json";
 
 export function AdministerDialog() {
   const methods = useFormContext<FormResult>();
@@ -39,13 +37,13 @@ export function AdministerDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"foreground"} className={cn("w-36 opacity-40")}>
+        <Button variant={"accent-secondary"} className={cn("w-36")}>
           <div
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
             className={cn("flex flex-row items-center space-x-2")}>
             <LottieHover loop={false} isHovering={hovering} size={"sm"} src={PEN} />
-            <span>Administer</span>
+            <span className={"text-teal-900 font-semibold"}>Administer</span>
           </div>
         </Button>
       </DialogTrigger>
