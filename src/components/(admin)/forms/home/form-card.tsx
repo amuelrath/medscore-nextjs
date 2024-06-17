@@ -14,7 +14,7 @@ import {
 import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/dialogs/delete-evaluation-dialog";
 import { openForm } from "@/server/actions/forms/open-form";
 import { useRouter } from "next/navigation";
-import { formatDate } from "date-fns";
+import { formatDate, formatDistance } from "date-fns";
 import { FormTags } from "@/components/(admin)/forms/home/form-tags";
 
 export function FormCard({ form }: { form: FormLiteResult }) {
@@ -89,7 +89,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           </p>
           <p className={cn("flex flex-row items-center space-x-1")}>
             <HistoryIcon className={cn("text-neutral-300")} size={16} />
-            <span>{formatDate(form.lastOpenedAt, `EEEE, h:mmb`)}</span>
+            <span>{`${formatDistance(new Date(), form.lastOpenedAt)} ago`}</span>
           </p>
           <div className={cn("flex flex-row items-center space-x-1")}>
             <TagIcon className={cn("text-neutral-300")} size={16} />
