@@ -43,8 +43,8 @@ export const TagFilter: FC<TagFilterProps> = ({
         className="h-full w-full"
         onWheel={handleWheel}
       >
-        <div className="flex flex-row items-center space-x-1 p-2">
-          <AnimatePresence mode={"popLayout"}>
+        <div className="flex flex-row items-center space-x-1">
+          <AnimatePresence mode={"popLayout"} initial={false}>
             {tags.sort().map((tag) => (
               <motion.div
                 layout
@@ -75,7 +75,7 @@ export const TagFilter: FC<TagFilterProps> = ({
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar
         orientation="horizontal"
-        className="duration-[160ms] flex touch-none select-none bg-transparent p-0.5 transition-colors ease-out data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+        className="duration-[160ms] flex touch-none select-none bg-transparent transition-colors ease-out data-[orientation=horizontal] data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
       ></ScrollArea.Scrollbar>
       <ScrollArea.Corner className="bg-transparent" />
     </ScrollArea.Root>
