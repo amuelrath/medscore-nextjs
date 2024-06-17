@@ -14,7 +14,7 @@
     --popover-foreground: 222.2 84% 4.9%;
 
     --primary: 70 11% 11%;
-    --primary-foreground: 26 30% 25%;
+    --primary-foreground: 240 100% 99%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -96,5 +96,13 @@
   .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+  }
+}
+
+@layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
