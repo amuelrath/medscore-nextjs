@@ -40,7 +40,7 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
 
   return (
     <div
-      className={cn("sticky top-0 z-50 border-b-2 border-primary shadow-xl")}
+      className={cn("sticky top-0 z-50 border-b-2 border-primary")}
     >
       <div
         className={`flex flex-row items-center justify-between bg-foreground p-2`}
