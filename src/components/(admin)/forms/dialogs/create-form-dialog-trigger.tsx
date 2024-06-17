@@ -1,14 +1,12 @@
 "use client";
 import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-  AlertDialogHeader,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  DialogTrigger,
+  DialogHeader, DialogClose
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -26,10 +24,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createForm } from "@/server/actions/forms/create-form";
 import {
-  QueryClient,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 const createFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -71,17 +69,17 @@ export function CreateFormDialogTrigger({
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild={asChild}>{children}</AlertDialogTrigger>
-      <AlertDialogContent className={cn("rounded-md")}>
-        <AlertDialogHeader className={cn("flex text-start")}>
-          <AlertDialogTitle>
-            Create New Form
-            <AlertDialogDescription>
+    <Dialog>
+      <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
+      <DialogContent >
+        <DialogHeader className={cn("flex text-start")}>
+          <DialogTitle>
+            New Form
+          </DialogTitle>
+            <DialogDescription>
               Create a New Competency-Based Assessment.
-            </AlertDialogDescription>
-          </AlertDialogTitle>
-        </AlertDialogHeader>
+            </DialogDescription>
+        </DialogHeader>
         <form
           onSubmit={handleSubmit(handleCreateForm)}
           className={cn("space-y-4")}
@@ -124,17 +122,16 @@ export function CreateFormDialogTrigger({
               )}
             />
           </div>
-          <div className={cn("flex w-full flex-col space-y-2")}>
-            <AlertDialogAction
-              type={"submit"}
-              className={cn("bg-foreground text-background")}
-            >
+          <div className="flex flex-row items-center justify-end space-x-2">
+            <Button className="w-[100px]">
               Create
-            </AlertDialogAction>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            </Button>
+            <DialogClose asChild>
+              <Button variant={"secondary"}>Close</Button>
+            </DialogClose>
           </div>
         </form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
