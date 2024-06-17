@@ -10,7 +10,6 @@ import { AdministerDialog } from "@/components/(admin)/forms/dialogs/new-adminis
 import { LottieHover } from "@/components/ui/lottie-hover";
 import CALENDAR from 'public/icons/calendar-white.json'
 import { Button } from "@/components/ui/button";
-import PEN from "public/icons/pencil-white.json";
 import { useState } from "react";
 
 export default function FormEditorNav() {
@@ -19,11 +18,11 @@ export default function FormEditorNav() {
   const [hovering, setHovering] = useState<boolean>(false)
 
   return (
-    <div className={cn("fixed top-[57px] z-40 h-16 w-full")}>
-      <nav className="no-scrollbar  flex flex-row items-center justify-between overflow-y-hidden border-b bg-transparent backdrop-blur-sm p-2 px-4 shadow-md">
+    <div className={cn("fixed top-[65px] px-8 z-40 h-16 w-full")}>
+      <nav className="rounded-lg flex flex-row items-center justify-between border-2 border-opacity-10 border-blue-200 overflow-y-hidden border-b bg-blue-800 bg-opacity-5 backdrop-blur-lg p-2 px-4 shadow-md">
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Input
-            className={cn("text-xl font-semibold")}
+            className={cn("text-xl font-semibold bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
             defaultValue={form.title}
             {...methods.register("title")}
           />
@@ -34,7 +33,7 @@ export default function FormEditorNav() {
           <div className={cn("flex flex-row space-x-2")}>
 
             <AdministerDialog />
-            <Button variant={"foreground"} className={cn("w-36")}>
+            <Button variant={"foreground"} className={cn("w-36  opacity-40")}>
               <div
                 onMouseEnter={() => setHovering(true)}
                 onMouseLeave={() => setHovering(false)}
