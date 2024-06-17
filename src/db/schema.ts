@@ -411,6 +411,7 @@ export const formCodes = pgTable("form_codes", {
     .notNull()
     .references(() => formVersions.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 6 }).notNull(),
+  startsAt: timestamp("starts_at"),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   deletedAt: timestamp("deleted_at"),
