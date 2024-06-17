@@ -1,6 +1,5 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { AnalysisButton } from "@/components/(admin)/forms/responses/analysis-button";
 import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
 import { useFormContext } from "react-hook-form";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
@@ -8,7 +7,7 @@ import SaveFormButton from "@/components/(admin)/forms/editor/save-form-button";
 import { Input } from "@/components/ui/input";
 import { AdministerDialog } from "@/components/(admin)/forms/dialogs/new-administer-dialog";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import CALENDAR from 'public/icons/calendar-white.json'
+import CALENDAR from 'public/icons/calendar-teal.json'
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -22,28 +21,25 @@ export default function FormEditorNav() {
       <nav className="rounded-lg flex flex-row items-center justify-between border-2 border-opacity-10 border-blue-200 overflow-y-hidden border-b bg-blue-800 bg-opacity-5 backdrop-blur-lg p-2 px-4 shadow-md">
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Input
-            className={cn("text-xl font-semibold bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
+            className={cn("text-xl shadow-inner font-semibold bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
             defaultValue={form.title}
             {...methods.register("title")}
           />
           <DirectionAwareTabs />
           <SaveFormButton />
         </div>
-        <div className={cn("fixed right-2 top-[10px]")}>
           <div className={cn("flex flex-row space-x-2")}>
-
             <AdministerDialog />
-            <Button variant={"foreground"} className={cn("w-36  opacity-40")}>
+            <Button variant={"accent-secondary"} className={cn("w-36")}>
               <div
                 onMouseEnter={() => setHovering(true)}
                 onMouseLeave={() => setHovering(false)}
                 className={cn("flex flex-row items-center space-x-2")}>
                 <LottieHover loop={false} isHovering={hovering} size={"sm"} src={CALENDAR} />
-                <span>Manage</span>
+                <span className={cn("text-teal-900 font-semibold")}>Manage</span>
               </div>
             </Button>
           </div>
-        </div>
       </nav>
     </div>
   );
