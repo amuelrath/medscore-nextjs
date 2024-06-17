@@ -41,12 +41,12 @@ export default function QuestionCards() {
     }
   };
   return (
-    <ScrollArea className={cn("h-[83vh] pt-8")}>
+    <ScrollArea className={cn("h-[87vh]")}>
       <Scrollbar />
     <AnimatePresence>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className={cn("pb-[10rem] px-64")}
+        className={cn("pb-[10rem] pt-20 px-64")}
       >
         <div className={cn("space-y-4")}>
           {fields.map((item, index) => {
