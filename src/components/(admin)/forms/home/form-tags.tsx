@@ -48,16 +48,16 @@ export const tagColors: Color[] = [
     ring: "ring-yellow-500",
   },
   {
-    bg: "bg-emerald-600",
-    variant: "green",
-    ring: "ring-emerald-600",
+    bg: "bg-accent-secondary",
+    variant: "accent-secondary",
+    ring: "ring-teal-500",
   },
   {
     bg: "bg-accent",
     variant: "accent",
     ring: "ring-accent",
   },
-];
+] as const;
 
 export type ColorOption = (typeof tagColors)[number]["variant"];
 
@@ -68,7 +68,7 @@ const ZTagFormSchema = z.object({
     "white",
     "destructive",
     "yellow",
-    "green",
+    "accent-secondary",
     "accent",
   ]),
 });
