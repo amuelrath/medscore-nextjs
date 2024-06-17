@@ -24,6 +24,11 @@ const tabs = [
     href: "/dashboard",
   },
   {
+    id: "Evaluate",
+    label: "Evaluate",
+    href: "/evaluate",
+  },
+  {
     id: "forms",
     label: "Forms",
     href: "/forms",
@@ -37,10 +42,5 @@ const tabs = [
     id: "programs",
     label: "Programs",
     href: "/programs",
-  },
-  {
-    id: "resources",
-    label: "Resources",
-    href: "/resources",
   },
 ];
