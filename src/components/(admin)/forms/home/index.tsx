@@ -49,11 +49,14 @@ export default function FormsHome() {
 
   return (
     <>
-      <div className="flex flex-row items-center space-x-3">
+      <div className="fixed right-[0px] top-[65px] px-8 w-full z-40" >
+      <div className="flex flex-row justify-between rounded-lg items-center p-2 space-x-3 border-2 border-opacity-10 border-blue-200 overflow-y-hidden border-b bg-blue-800 bg-opacity-5 backdrop-blur-lg px-4 shadow-md">
         <FormHomeHeader />
+        <div className="flex flex-row items-center space-x-3">
+
         <Input
           placeholder="Search Forms..."
-          className={cn("w-64")}
+          className={cn("text-md w-64 bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
           onChange={(e) => handleFilter({ title: e.target.value })}
         />
         <TagFilter
@@ -61,15 +64,19 @@ export default function FormsHome() {
           onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
           onTagRemove={() => removeFilter("tags.tag")}
         />
+        </div>
+
       </div>
-      <div className="no-scrollbar grid min-h-[79vh] grid-cols-7 gap-4 pb-7">
+      </div>
+
+      <div className="no-scrollbar grid  pt-20 grid-cols-7 gap-4">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="flex h-full flex-col xs:col-span-7 lg:col-span-5"
         >
-          <ScrollArea className={cn("h-[575px] pr-4")}>
+          <ScrollArea className={cn("h-[560px] pr-4")}>
             <Scrollbar />
             <WaterfallAnimation noExit>
               {filteredForms.map((form) => (
