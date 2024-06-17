@@ -8,9 +8,9 @@ const lottieHoverVariants = cva("cursor-pointer", {
   variants: {
     size: {
       xs: "size-5",
-      sm: "size-12",
-      md: "size-20",
-      lg: "w-36 h-36",
+      sm: "size-8",
+      md: "size-12",
+      lg: "w-24 h-24",
     },
   },
   defaultVariants: {
@@ -21,25 +21,43 @@ const lottieHoverVariants = cva("cursor-pointer", {
 interface LottieHoverProps extends VariantProps<typeof lottieHoverVariants> {
   loop?: boolean;
   src: any;
+  isHovering?: boolean;
 }
 
-export function LottieHover({ src, size, loop=true }: LottieHoverProps) {
+export function LottieHover({
+                              isHovering,
+                              src,
+                              size,
+                              loop = true,
+                            }: LottieHoverProps) {
   const ref = useRef<any>(null);
-  const [hover, setHover] = useState(false);
+  const [internalHover, setInternalHover] = useState(false);
+
+  const hover = isHovering !== undefined ? isHovering : internalHover;
 
   useEffect(() => {
     if (hover) {
+      ref.current?.setDirection(1);
       ref.current?.play();
     } else {
-      ref.current?.stop();
+      ref.current?.setDirection(-1);
+      ref.current?.play();
+      const stopAnimation = () => {
+        if (ref.current?.currentFrame === 0) {
+          ref.current?.stop();
+        } else {
+          requestAnimationFrame(stopAnimation);
+        }
+      };
+      requestAnimationFrame(stopAnimation);
     }
   }, [hover]);
 
   return (
     <div className={lottieHoverVariants({ size })}>
       <Lottie
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
+        onMouseEnter={() => setInternalHover(true)}
+        onMouseLeave={() => setInternalHover(false)}
         animationData={src}
         lottieRef={ref}
         loop={loop}
