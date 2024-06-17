@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { SelectValue } from "@radix-ui/react-select";
-import { ReactNode } from "react";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,19 +26,17 @@ import { createForm } from "@/server/actions/forms/create-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
+import { LottieHover } from "@/components/ui/lottie-hover";
+import ADD from "public/icons/add-card-teal.json";
+import { useState } from "react";
 
 const createFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   program: z.string().min(1, { message: "Program is required" }),
 });
 
-export function CreateFormDialogTrigger({
-  children,
-  asChild,
-}: {
-  children: ReactNode;
-  asChild?: boolean;
-}) {
+export function CreateFormDialogTrigger() {
+  const [hovering, setHovering] = useState<boolean>(false)
   const {
     control,
     register,
@@ -69,7 +66,17 @@ export function CreateFormDialogTrigger({
 
   return (
     <Dialog>
-      <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        <Button className={cn("w-36 font-semibold")} variant={"accent-secondary"}>
+          <div
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={() => setHovering(false)}
+            className={cn("flex flex-row items-center space-x-2")}>
+            <LottieHover loop={false} isHovering={hovering} size={"sm"} src={ADD} />
+            <span className={cn("text-teal-900")}>New Form</span>
+          </div>
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader className={cn("flex text-start")}>
           <DialogTitle>New Form</DialogTitle>
