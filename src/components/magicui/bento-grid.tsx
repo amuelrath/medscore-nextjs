@@ -10,6 +10,7 @@ export interface BentoCardProps {
   className?: string;
   background?: ReactNode;
   Icon: any;
+  iconSize?: string
   description: string;
   href?: string;
   onClick?: () => void;
@@ -39,6 +40,7 @@ const BentoCard = ({
   className,
   background,
   Icon,
+  iconSize,
   description,
   cta,
   onClick,
@@ -60,7 +62,7 @@ const BentoCard = ({
   >
     <div className={cn("absolute top-0 h-full w-full")} >{background}</div>
     <div className="pointer-events-none z-10 flex transform-gpu flex-col gap-1 p-6 transition-all duration-300 group-hover:-translate-y-10">
-      <Icon className="h-12 w-12 origin-left transform-gpu text-neutral-700 transition-all duration-300 ease-in-out group-hover:scale-75" />
+      <Icon className={`${iconSize || "size-12"} origin-left transform-gpu text-neutral-700 transition-all duration-300 ease-in-out group-hover:scale-75` }/>
       <h3 className="text-xl font-semibold text-neutral-700 dark:text-neutral-300">
         {name}
       </h3>
