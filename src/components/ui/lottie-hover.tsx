@@ -25,11 +25,11 @@ interface LottieHoverProps extends VariantProps<typeof lottieHoverVariants> {
 }
 
 export function LottieHover({
-                              isHovering,
-                              src,
-                              size,
-                              loop = true,
-                            }: LottieHoverProps) {
+  isHovering,
+  src,
+  size,
+  loop = false,
+}: LottieHoverProps) {
   const ref = useRef<any>(null);
   const [internalHover, setInternalHover] = useState(false);
 
