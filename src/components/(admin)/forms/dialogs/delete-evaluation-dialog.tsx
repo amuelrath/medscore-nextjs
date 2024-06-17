@@ -2,21 +2,20 @@
 import { cn } from "@/lib/utils";
 import React, { ReactNode } from "react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Dialog, DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
 import { deleteForm } from "@/server/actions/forms/delete-form";
 import { toast } from "sonner";
 import {
   FormLiteResult,
 } from "@/server/actions/forms/get-all-forms-lite";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 export function DeleteFormDialogTrigger({
   form,
   children,
@@ -36,35 +35,33 @@ export function DeleteFormDialogTrigger({
   });
 
   const handleDeleteForm = async () => {
-    await deleteFormMutation.mutate({
-      formId: form.id,
+    deleteFormMutation.mutate({
+      formId: form.id
     });
     toast.success(`"${form.title}" deleted successfully`);
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
-      <AlertDialogContent className={cn("rounded-md")}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {`Delete "${form.title}" ?`}
-
-            <AlertDialogDescription>
+    <Dialog>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className={cn("rounded-md")}>
+        <DialogHeader>
+          <DialogTitle>
+            {`Delete "${form.title}"`}
+          </DialogTitle>
+            <DialogDescription>
               This action is irreversible. All data will be lost.
-            </AlertDialogDescription>
-          </AlertDialogTitle>
-        </AlertDialogHeader>
-        <div className={cn("flex flex-col space-y-2")}>
-          <AlertDialogAction
-            onClick={handleDeleteForm}
-            className={cn("w-full bg-destructive/80 hover:bg-destructive/70 text-red-950")}
-          >
+            </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-row items-center justify-end space-x-2">
+          <Button variant={"destructive"} className="w-[100px]">
             Delete
-          </AlertDialogAction>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          </Button>
+          <DialogClose asChild>
+            <Button variant={"secondary"}>Close</Button>
+          </DialogClose>
         </div>
-      </AlertDialogContent>
-    </AlertDialog>
+      </DialogContent>
+    </Dialog>
   );
 }
