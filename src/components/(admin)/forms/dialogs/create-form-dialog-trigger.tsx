@@ -5,7 +5,8 @@ import {
   DialogDescription,
   DialogTitle,
   DialogTrigger,
-  DialogHeader, DialogClose
+  DialogHeader,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,11 +24,9 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createForm } from "@/server/actions/forms/create-form";
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { FormErrorMessage } from "@/components/ui/form-error-message";
 
 const createFormSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -71,14 +70,12 @@ export function CreateFormDialogTrigger({
   return (
     <Dialog>
       <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
-      <DialogContent >
+      <DialogContent>
         <DialogHeader className={cn("flex text-start")}>
-          <DialogTitle>
-            New Form
-          </DialogTitle>
-            <DialogDescription>
-              Create a New Competency-Based Assessment.
-            </DialogDescription>
+          <DialogTitle>New Form</DialogTitle>
+          <DialogDescription>
+            Create a New Competency-Based Assessment.
+          </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit(handleCreateForm)}
@@ -91,7 +88,7 @@ export function CreateFormDialogTrigger({
               placeholder="Enter a Descriptive Title"
             />
             {errors.title && (
-              <span className="text-red-500">{errors.title.message}</span>
+              <FormErrorMessage message={errors.title.message} />
             )}
           </div>
           <div>
@@ -100,12 +97,9 @@ export function CreateFormDialogTrigger({
               control={control}
               name="program"
               rules={{ required: "Please select a program" }}
-              render={({
-                field: { value, onChange },
-                fieldState: { error },
-              }) => (
+              render={({ field }) => (
                 <>
-                  <Select value={value} onValueChange={onChange}>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select a Program" />
                     </SelectTrigger>
@@ -115,17 +109,15 @@ export function CreateFormDialogTrigger({
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  {error && (
-                    <span className="text-red-500">{error.message}</span>
+                  {errors.program && (
+                    <FormErrorMessage message={errors.program.message} />
                   )}
                 </>
               )}
             />
           </div>
           <div className="flex flex-row items-center justify-end space-x-2">
-            <Button className="w-[100px]">
-              Create
-            </Button>
+            <Button className="w-[100px]">Create</Button>
             <DialogClose asChild>
               <Button variant={"secondary"}>Close</Button>
             </DialogClose>
