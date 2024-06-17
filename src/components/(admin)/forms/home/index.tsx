@@ -15,11 +15,11 @@ import { FormHomeHeader } from "@/components/(admin)/forms/navs/form-home-header
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
 import ACGME_LOGO from "public/image/ACGME_Logo.jpg";
-import { BookOpenIcon, TelescopeIcon } from "lucide-react";
+import { BookOpenIcon, StarsIcon, TelescopeIcon } from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
+import { Button } from "@/components/ui/button";
 
 export default function FormsHome() {
   const { data: forms } = useSuspenseQuery({
@@ -38,10 +38,12 @@ export default function FormsHome() {
       new Date(b.lastOpenedAt).getTime() - new Date(a.lastOpenedAt).getTime(),
   );
   const [filteredForms, setFilter, resetFilters, removeFilter] =
-    useFilter<FormLiteResult>(forms);
+    useFilter<FormLiteResult>(orderedForms);
 
-
-  const handleFilter = (filters: Partial<Record<string, any>>, reset?: boolean) => {
+  const handleFilter = (
+    filters: Partial<Record<string, any>>,
+    reset?: boolean,
+  ) => {
     setFilter(filters);
   };
 
@@ -60,26 +62,26 @@ export default function FormsHome() {
           onTagRemove={() => removeFilter("tags.tag")}
         />
       </div>
-      <div className="no-scrollbar grid min-h-[79vh] grid-cols-7 gap-4 pb-16">
+      <div className="no-scrollbar grid min-h-[79vh] grid-cols-7 gap-4 pb-7">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
           className="flex h-full flex-col xs:col-span-7 lg:col-span-5"
         >
-          <ScrollArea className={cn("h-[100%] pr-4")}>
+          <ScrollArea className={cn("h-[575px] pr-4")}>
             <Scrollbar />
             <WaterfallAnimation noExit>
               {filteredForms.map((form) => (
-                  <FormCard key={form.id} form={form} />
+                <FormCard key={form.id} form={form} />
               ))}
             </WaterfallAnimation>
           </ScrollArea>
         </motion.div>
         <div
           className={cn(
-            "xs:col-span-7 md:col-span-7 md:grid md:grid-cols-2 md:gap-4 lg:col-span-2 lg:h-full lg:grid-cols-1",
-            "space-y-4 xs:space-y-4 md:space-y-0 lg:space-y-4",
+            "xs:col-span-7 md:col-span-7 md:grid md:grid-cols-2 md:gap-1 lg:col-span-2 lg:h-full lg:grid-cols-1",
+            "xs:space-y-1 md:space-y-0 lg:space-y-1",
           )}
         >
           {features.map((feature) => (
@@ -93,30 +95,42 @@ export default function FormsHome() {
 
 const features: BentoCardProps[] = [
   {
+    name: "Evaluate Students",
+    description: "Assess student performance in a competency-based assessment.",
+    Icon: StarsIcon,
+    iconSize: "size-8",
+    cta: (
+        <Button variant={"hide"}>Start Assessment</Button>
+    ),
+    className: "w-full h-full col-span-1 ",
+  },
+  {
     name: "Resources",
-    description:
-      "Access ACGME guidelines to create high-quality, competency-based assessments.",
+    description: "Access ACGME guidelines to create high-quality assessments.",
     Icon: BookOpenIcon,
     onClick: () => window.open("https://www.acgme.org/milestones/resources/"),
     cta: "Go to ACGME Resources",
-    className: "w-full lg:col-span-1 md:col-span-1",
+    className: "w-full lg:col-span-1 md:col-span-1 h-42",
+    iconSize: "size-6",
     background: (
       <Image
         className={cn(
-          "absolute left-[32%] top-[15%]  transition-all [mask-image:linear-gradient(to_top,transparent_27%,#000_100%)] group-hover:blur-sm",
+          "absolute left-[32%] top-[5px] transition-all [mask-image:linear-gradient(to_top,transparent_40%,#000_100%)] group-hover:blur-sm",
         )}
         src={ACGME_LOGO}
         alt={"ACGME Logo"}
-        height={256}
-        width={256}
+        height={150}
+        width={150}
       />
     ),
   },
+
   {
     name: "Explore",
     description: "Browse community-made assessments.",
     Icon: TelescopeIcon,
+    iconSize: "size-7",
     cta: "Explore Assessments",
-    className: "w-full h-48 col-span-1 ",
+    className: "w-full h-42 col-span-1 ",
   },
 ];
