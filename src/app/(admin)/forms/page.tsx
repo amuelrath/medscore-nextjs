@@ -27,7 +27,7 @@ export default async function FormsPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="lg:px-8 xs:px-4 h-full">
+      <div className="lg:px-8 xs:px-4 h-full no-scrollbar">
         <FormsHome />
       </div>
     </HydrationBoundary>
