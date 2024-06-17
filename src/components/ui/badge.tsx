@@ -18,6 +18,8 @@ const badgeVariants = cva(
         white: "border border-neutral-300 bg-background hover:bg-background/80",
         accent:
           "border-transparent bg-blue-400 text-blue-950 hover:bg-blue-400/90",
+        "accent-secondary":
+          "border-transparent bg-accent-secondary/90 text-teal-950 hover:bg-accent-secondary/80",
         yellow:
           "border-transparent bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90",
         green:
