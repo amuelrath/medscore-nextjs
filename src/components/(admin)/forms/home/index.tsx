@@ -11,7 +11,6 @@ import { Scrollbar } from "@radix-ui/react-scroll-area";
 import { random } from "lodash";
 import Image from "next/image";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
-import { FormHomeHeader } from "@/components/(admin)/forms/navs/form-home-header";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
 import ACGME_LOGO from "public/image/ACGME_Logo.jpg";
@@ -20,6 +19,7 @@ import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { Button } from "@/components/ui/button";
+import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
 
 export default function FormsHome() {
   const { data: forms } = useSuspenseQuery({
@@ -49,24 +49,31 @@ export default function FormsHome() {
 
   return (
     <>
-      <div className="fixed right-[0px] top-[65px] px-8 w-full z-40" >
-      <div className="flex flex-row justify-between rounded-lg items-center p-2 space-x-3 border-2 border-opacity-10 border-blue-200 overflow-y-hidden border-b bg-blue-800 bg-opacity-5 backdrop-blur-lg px-4 shadow-md">
-        <FormHomeHeader />
-        <div className="flex flex-row items-center space-x-3">
+      <div className="fixed right-[0px] top-[65px] h-16 px-8 w-full z-40" >
+        <div
+          className="flex flex-row justify-between rounded-lg items-center p-2 space-x-3 border-2 border-opacity-10 border-blue-200 overflow-y-hidden border-b bg-blue-800 bg-opacity-5 backdrop-blur-lg px-4 shadow-md">
+         <div className="flex flex-row space-x-4 items-center">
 
-        <Input
-          placeholder="Search Forms..."
-          className={cn("text-md w-64 bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
-          onChange={(e) => handleFilter({ title: e.target.value })}
-        />
-        <TagFilter
-          tags={uniqueTags}
-          onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
-          onTagRemove={() => removeFilter("tags.tag")}
-        />
+          <h3 className={cn("text-2xl align-middle font-bold text-neutral-700 xs:text-2xl")}>
+            My Forms
+          </h3>
+          <Input
+            placeholder="Search Forms..."
+            className={cn("text-md shadow-inner w-64 bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
+            onChange={(e) => handleFilter({ title: e.target.value })}
+          />
+         </div>
+          <div className="flex flex-row items-center space-x-3">
+
+            <TagFilter
+              tags={uniqueTags}
+              onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
+              onTagRemove={() => removeFilter("tags.tag")}
+            />
+            <CreateFormDialogTrigger />
+          </div>
+
         </div>
-
-      </div>
       </div>
 
       <div className="no-scrollbar grid  pt-20 grid-cols-7 gap-4">
