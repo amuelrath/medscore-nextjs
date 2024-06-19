@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { Button } from "@/components/ui/button";
 import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
+import { ActionGroup } from "@/components/ui/action-group";
 
 export default function FormsHome() {
   const { data: forms } = useSuspenseQuery({
@@ -49,22 +50,25 @@ export default function FormsHome() {
 
   return (
     <>
-      <div className="fixed right-[0px] top-[65px] h-16 px-8 w-full z-40" >
-        <div
-          className="flex flex-row justify-between rounded-lg items-center p-2 space-x-3 border-2 border-opacity-10 border-blue-200 overflow-y-hidden border-b bg-blue-800 bg-opacity-5 backdrop-blur-lg px-4 shadow-md">
-         <div className="flex flex-row space-x-4 items-center">
-
-          <h3 className={cn("text-2xl align-middle font-bold text-neutral-700 xs:text-2xl")}>
-            My Forms
-          </h3>
-          <Input
-            placeholder="Search Forms..."
-            className={cn("text-md shadow-inner w-64 bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
-            onChange={(e) => handleFilter({ title: e.target.value })}
-          />
-         </div>
+      <div className="fixed right-[0px] top-[65px] z-40 h-16 w-full px-8">
+        <ActionGroup className="flex flex-row justify-between">
+          <div className="flex flex-row items-center space-x-4">
+            <h3
+              className={cn(
+                "align-middle text-2xl font-bold text-neutral-700 xs:text-2xl",
+              )}
+            >
+              My Forms
+            </h3>
+            <Input
+              placeholder="Search Forms..."
+              className={cn(
+                "text-md w-64 bg-blue-950 bg-opacity-5 shadow-inner backdrop-blur-3xl",
+              )}
+              onChange={(e) => handleFilter({ title: e.target.value })}
+            />
+          </div>
           <div className="flex flex-row items-center space-x-3">
-
             <TagFilter
               tags={uniqueTags}
               onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
@@ -72,11 +76,9 @@ export default function FormsHome() {
             />
             <CreateFormDialogTrigger />
           </div>
-
-        </div>
+        </ActionGroup>
       </div>
-
-      <div className="no-scrollbar grid  pt-20 grid-cols-7 gap-4">
+      <div className="no-scrollbar grid  grid-cols-7 gap-4 pt-20">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,9 +115,7 @@ const features: BentoCardProps[] = [
     description: "Assess student performance in a competency-based assessment.",
     Icon: StarsIcon,
     iconSize: "size-8",
-    cta: (
-        <Button variant={"hide"}>Start Assessment</Button>
-    ),
+    cta: <Button variant={"hide"}>Start Assessment</Button>,
     className: "w-full h-full col-span-1 ",
   },
   {
