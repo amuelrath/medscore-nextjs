@@ -38,9 +38,11 @@ export function LottieHover({
   useEffect(() => {
     if (hover) {
       ref.current?.setDirection(1);
+      ref.current?.setSpeed(1)
       ref.current?.play();
     } else {
       ref.current?.setDirection(-1);
+      ref.current?.setSpeed(1.5)
       ref.current?.play();
       const stopAnimation = () => {
         if (ref.current?.currentFrame === 0) {
