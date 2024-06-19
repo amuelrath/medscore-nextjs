@@ -117,7 +117,7 @@ function DirectionAwareTabs({ className }: DirectionAwareTabsProps) {
           {activeTab === tab.id && (
             <motion.span
               layoutId={bubbleId || "direction-aware-tabs-bubble"}
-              className="absolute inset-0 z-10 border-b-2 border-accent"
+              className="absolute inset-0 z-10 border-b-2 border-accent-secondary"
               transition={{ type: "spring", bounce: 0.19, duration: 0.4 }}
             />
           )}
@@ -164,7 +164,7 @@ function DirectionAwareContent() {
         initial={false}
         animate={{ height: bounds.height }}
       >
-        <div className="p-1" ref={ref}>
+        <div ref={ref}>
           <AnimatePresence
             custom={direction}
             mode="popLayout"
