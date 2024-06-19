@@ -6,20 +6,20 @@ interface SectionProps {
   className?: string;
 }
 
-export const Section = forwardRef<HTMLElement, SectionProps>(
+export const Main = forwardRef<HTMLElement, SectionProps>(
   ({ children, className }, ref) => {
     return (
-      <section
+      <main
         ref={ref}
         className={cn(
-          "no-scrollbar xs:px-4 xs:pb-4 lg:px-4 lg:pb-0",
+          "flex-1 pt-20 no-scrollbar min-h-[89vh] mx-8",
           className,
         )}
       >
         {children}
-      </section>
+      </main>
     );
   },
 );
 
-Section.displayName = "Section";
+Main.displayName = "Main";
