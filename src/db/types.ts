@@ -50,26 +50,6 @@ export type QuestionVersionResult = Omit<
       options: {
         columns: { questionVersionId: false };
       };
-      milestones: {
-        columns: { questionVersionId: false; milestoneId: false };
-        with: {
-          milestone: {
-            columns: { sublevel: false; level: false; subcompetencyId: false };
-            with: {
-              subcompetencies: {
-                columns: {
-                  level: false;
-                  specialtyId: false;
-                  competencyId: false;
-                };
-                with: {
-                  competencies: true;
-                };
-              };
-            };
-          };
-        };
-      };
     }
   >,
   "formVersionId"
