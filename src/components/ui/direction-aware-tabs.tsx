@@ -4,11 +4,13 @@ import {
   createContext,
   useContext,
   useMemo,
-  useState, ReactElement
+  useState,
+  ReactElement,
 } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import useMeasure from "react-use-measure";
 import { cn } from "@/lib/utils";
+import { cva, VariantProps } from "class-variance-authority";
 
 type Tab = {
   id: number;
@@ -42,11 +44,9 @@ function DirectionAwareTabsProvider({
   bubbleId,
   children,
 }: DirectionAwareTabsProviderProps) {
-
   const [activeTab, setActiveTab] = useState<number>(0);
   const [direction, setDirection] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
-
 
   const contextValue = useMemo(
     () => ({
@@ -83,7 +83,114 @@ interface DirectionAwareTabsProps {
   className?: string;
 }
 
-function DirectionAwareTabs({ className }: DirectionAwareTabsProps) {
+const tabVariants = cva(
+  "font-medium relative flex items-center gap-2 rounded-full transition focus-visible:outline-none focus-visible:outline-1 focus-visible:ring-1",
+  {
+    variants: {
+      size: {
+        sm: "px-2.5 py-1 text-xs",
+        md: "px-3.5 py-1.5 text-sm",
+        lg: "px-4 py-2 text-base",
+      },
+      active: {
+        true: "text-foreground",
+        false: "text-foreground/80 hover:text-foreground/60",
+      },
+      variant: {
+        primary: "",
+        secondary: "rounded-md",
+      },
+    },
+    defaultVariants: {
+      size: "md",
+      active: false,
+      variant: "primary",
+    },
+  },
+);
+
+const motionSpanVariants = cva("absolute inset-0 z-10", {
+  variants: {
+    color: {
+      accent: "border-accent",
+      "accent-secondary": "border-accent-secondary",
+      outline: "border-neutral-600",
+      primary: "border-primary",
+      secondary: "border-secondary",
+      success: "border-success",
+      warning: "border-warning",
+      error: "border-error",
+      info: "border-info",
+    },
+    variant: {
+      primary: "border-b-2",
+      secondary: "rounded-md",
+    },
+  },
+  compoundVariants: [
+    {
+      variant: "secondary",
+      color: "accent",
+      class: "bg-accent/10",
+    },
+    {
+      variant: "secondary",
+      color: "accent-secondary",
+      class: "bg-accent-secondary/10",
+    },
+    {
+      variant: "secondary",
+      color: "outline",
+      class: "bg-neutral-600/10 border-b-2",
+    },
+    {
+      variant: "secondary",
+      color: "primary",
+      class: "bg-primary/10 border-b-2",
+    },
+    {
+      variant: "secondary",
+      color: "secondary",
+      class: "bg-secondary/10",
+    },
+    {
+      variant: "secondary",
+      color: "success",
+      class: "bg-success/10",
+    },
+    {
+      variant: "secondary",
+      color: "warning",
+      class: "bg-warning/10",
+    },
+    {
+      variant: "secondary",
+      color: "error",
+      class: "bg-error/10",
+    },
+    {
+      variant: "secondary",
+      color: "info",
+      class: "bg-info/10",
+    },
+  ],
+  defaultVariants: {
+    color: "accent-secondary",
+    variant: "primary",
+  },
+});
+interface DirectionAwareTabsProps
+  extends VariantProps<typeof tabVariants>,
+    VariantProps<typeof motionSpanVariants> {
+  className?: string;
+}
+
+function DirectionAwareTabs({
+  className,
+  size,
+  variant,
+  color,
+}: DirectionAwareTabsProps) {
   const { activeTab, setActiveTab, isAnimating, setDirection, tabs, bubbleId } =
     useDirectionAwareTabs();
 
@@ -106,22 +213,23 @@ function DirectionAwareTabs({ className }: DirectionAwareTabsProps) {
         <button
           key={tab.id}
           onClick={() => handleTabClick(tab.id)}
-          className={cn(
-            "text-accent-200 relative flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium transition focus-visible:outline-none focus-visible:outline-1 focus-visible:ring-1 sm:text-sm",
-            activeTab === tab.id
-              ? "text-foreground"
-              : "text-foreground/80 hover:text-foreground/60",
-          )}
+          className={tabVariants({
+            size,
+            active: activeTab === tab.id,
+            variant,
+          })}
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           {activeTab === tab.id && (
             <motion.span
               layoutId={bubbleId || "direction-aware-tabs-bubble"}
-              className="absolute inset-0 z-10 border-b-2 border-accent-secondary"
+              className={motionSpanVariants({
+                color,
+                variant,
+              })}
               transition={{ type: "spring", bounce: 0.19, duration: 0.4 }}
             />
           )}
-
           {tab.label}
         </button>
       ))}
@@ -160,11 +268,11 @@ function DirectionAwareContent() {
   return (
     <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}>
       <motion.div
-        className="relative mx-auto h-full w-full overflow-hidden"
+        className="absolute inset-0 flex flex-col overflow-hidden"
         initial={false}
-        animate={{ height: bounds.height }}
+        animate={{ height: bounds.height > 0 ? bounds.height : "100%" }}
       >
-        <div ref={ref}>
+        <div ref={ref} className="flex flex-grow flex-col">
           <AnimatePresence
             custom={direction}
             mode="popLayout"
@@ -179,6 +287,7 @@ function DirectionAwareContent() {
               custom={direction}
               onAnimationStart={() => setIsAnimating(true)}
               onAnimationComplete={() => setIsAnimating(false)}
+              className="flex flex-grow flex-col"
             >
               {content}
             </motion.div>
