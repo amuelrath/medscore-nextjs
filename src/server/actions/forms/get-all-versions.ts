@@ -39,30 +39,6 @@ export async function getAllVersions({ formId }: { formId: string }) {
               pointValue: true,
             },
           },
-          milestones: {
-            columns: { questionVersionId: false, milestoneId: false },
-            with: {
-              milestone: {
-                columns: {
-                  level: false,
-                  sublevel: false,
-                  subcompetencyId: false,
-                },
-                with: {
-                  subcompetencies: {
-                    columns: {
-                      level: false,
-                      specialtyId: false,
-                      competencyId: false,
-                    },
-                    with: {
-                      competencies: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
         },
       },
       responses: {
@@ -74,16 +50,6 @@ export async function getAllVersions({ formId }: { formId: string }) {
           evaluateeId: false,
         },
         with: {
-          answers: {
-            columns: {
-              id: true,
-              optionVersionId: true,
-              questionVersionId: true,
-              feedback: true,
-              createdAt: false,
-              responseId: false,
-            },
-          },
           creator: {
             columns: {
               id: true,

@@ -1,4 +1,4 @@
-import { relations, sql } from "drizzle-orm";
+import { relations, sql, max, eq, and, asc, avg, desc } from "drizzle-orm";
 import {
   pgTable,
   text,
@@ -14,6 +14,7 @@ import {
   varchar,
   AnyPgColumn,
   json,
+  pgView, numeric
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
 
@@ -249,7 +250,7 @@ export const options = pgTable("options", {
     .default(sql`gen_random_uuid()`),
   text: text("text"),
   position: integer("position").notNull(),
-  pointValue: decimal("point_value").default("0.0").notNull(),
+  pointValue: decimal("point_value", { precision: 10, scale: 2}).default("0.0").notNull(),
   questionId: uuid("question_id")
     .notNull()
     .references((): AnyPgColumn => questions.id, { onDelete: "cascade" }),
@@ -667,3 +668,55 @@ export const recommendedMilestoneRelations = relations(
     }),
   }),
 );
+
+export const studentResponseBaseView = pgView('student_response_base', {
+  responseId: uuid('response_id').primaryKey(),
+  userId: uuid('user_id'),
+  formVersionId: uuid('form_version_id'),
+  formId: uuid('form_id'),
+  formVersionTitle: text('form_version_title'),
+  evaluatorId: uuid('evaluator_id'),
+  createdAt: timestamp('created_at')
+}).existing();
+
+// View for user details
+export const userDetailsView = pgView('user_details', {
+  userId: uuid('user_id').primaryKey(),
+  firstName: text('first_name'),
+  lastName: text('last_name')
+}).existing();
+
+// View for question and milestone details
+export const questionMilestoneView = pgView('question_milestone', {
+  responseId: uuid('response_id'),
+  questionVersionId: uuid('question_version_id'),
+  questionText: text('question_text'),
+  selectedOptionVersionId: uuid('selected_option_version_id'),
+  milestoneId: uuid('milestone_id'),
+  milestoneName: text('milestone_name'),
+  milestoneLevel: integer('milestone_level'),
+  subcompetencyId: uuid('subcompetency_id'),
+  subcompetencyName: text('subcompetency_name'),
+  subcompetencyLevel: integer('subcompetency_level'),
+  competencyId: uuid('competency_id'),
+  competencyName: text('competency_name'),
+  pointsAvailable: numeric('points_available'),
+  pointsEarned: numeric('points_earned')
+}).existing();
+
+// Main view combining all data
+export const studentPerformanceView = pgView('student_performance', {
+  responseId: uuid('response_id').primaryKey(),
+  userId: uuid('user_id'),
+  formVersionId: uuid('form_version_id'),
+  formId: uuid('form_id'),
+  formVersionTitle: text('form_version_title'),
+  evaluatorId: uuid('evaluator_id'),
+  createdAt: timestamp('created_at'),
+  firstName: text('first_name'),
+  lastName: text('last_name'),
+  evaluatorFirstName: text('evaluator_first_name'),
+  evaluatorLastName: text('evaluator_last_name'),
+  totalPointsAvailable: numeric('total_points_available'),
+  totalPointsEarned: numeric('total_points_earned')
+}).existing();
