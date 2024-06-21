@@ -12,7 +12,7 @@ export const Main = forwardRef<HTMLElement, SectionProps>(
       <main
         ref={ref}
         className={cn(
-          "flex-1 pt-20 no-scrollbar min-h-[89vh] mx-8",
+          "flex-1 pt-36 no-scrollbar min-h-full mx-8",
           className,
         )}
       >
