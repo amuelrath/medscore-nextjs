@@ -57,15 +57,8 @@ export default function RootLayout({
               )}
             >
 
-
-              <DotPattern
-                className={cn(
-                  "[mask-image:radial-gradient(1000px_circle_at_center,white,transparent)]",
-                  "fixed inset-0 -z-20 opacity-50",
-                )}
-              />
-              {children}
-              <Toaster />
+            {children}
+            <Toaster />
             </body>
           </Provider>
         </StrictMode>
@@ -73,3 +66,5 @@ export default function RootLayout({
     </>
   );
 }
+
+
