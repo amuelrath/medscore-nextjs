@@ -12,7 +12,7 @@ import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
 import { EditorFormProvider } from "@/components/(admin)/forms/providers/editor-form-provider";
-import { Section } from "@/components/ui/section";
+import { Background } from "@/components/ui/background";
 
 
 export default async function FormIdLayout({
@@ -54,7 +54,7 @@ export default async function FormIdLayout({
     {
       id: 0,
       label: "Editor",
-      content: <Section>{editor}</Section>,
+      content: <>{editor}</>,
     },
     {
       id: 1,
@@ -68,7 +68,9 @@ export default async function FormIdLayout({
       <DirectionAwareTabsProvider tabs={tabs}>
         <EditorFormProvider defaultValues={form}>
           <FormEditorNav />
-          <DirectionAwareContent />
+          <div className="flex-grow">
+            <DirectionAwareContent />
+          </div>
         </EditorFormProvider>
       </DirectionAwareTabsProvider>
     </HydrationBoundary>
