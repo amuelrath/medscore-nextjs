@@ -78,6 +78,10 @@
   }
 }
 
+body {
+  overflow-y: hidden;
+}
+
 @layer base {
   * {
     @apply border-border;
