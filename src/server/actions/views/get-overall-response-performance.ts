@@ -6,7 +6,6 @@ import { eq } from "drizzle-orm";
 
 interface Params {
   formId: string;
-  evaluateeId: string;
 }
 
 // returns the overall score for a given form.
