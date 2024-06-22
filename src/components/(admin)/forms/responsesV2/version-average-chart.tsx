@@ -67,7 +67,7 @@ export function VersionAverageChart({
           <Line
             className={"drop-shadow-xl"}
             dataKey="y"
-            stroke="hsl(170, 79%, 39%)"
+            stroke="hsl(204, 95%, 43%)"
             strokeWidth={3.5}
           />
         </LineChart>
