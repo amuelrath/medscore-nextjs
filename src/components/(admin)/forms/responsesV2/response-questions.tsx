@@ -12,7 +12,7 @@ export function ResponseQuestions() {
   const questions = selectedVersion.questions;
 
   return (
-    <ScrollArea className="mt-12 h-[86.5vh] overflow-y-hidden px-4">
+    <ScrollArea className="mt-12 pb-32 h-[88.5vh] overflow-y-hidden px-4">
       <ul>
         {questions
           .sort((a, b) => a.position - b.position)
