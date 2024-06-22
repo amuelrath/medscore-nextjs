@@ -11,7 +11,7 @@ import {
 import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ResponseCard } from "@/components/(admin)/forms/responsesV2/response-card";
-import { VersionSelectChart } from "@/components/(admin)/forms/responsesV2/version-average-chart";
+import { VersionAverageChart } from "@/components/(admin)/forms/responsesV2/version-average-chart";
 import { formatDate } from "date-fns";
 
 interface Grouped<T> {
@@ -22,6 +22,10 @@ export function InfoSidebar() {
   const { versions, selectedResponseId, setSelectedResponseId } =
     useResponseContext();
 
+  if (!versions || versions.length === 0) {
+    return <div>This form hasn&apos;t been administered yet.</div>;
+  }
+
   // Flatten all responses from all versions
   const allResponses = versions.flatMap((version) =>
     version.responses.map((response) => ({
@@ -30,9 +34,11 @@ export function InfoSidebar() {
     })),
   );
 
+  if (!allResponses) return <>No Responses to this Form</>
+
   // Group responses by formVersionId
   const groupedResponses: Grouped<(typeof allResponses)[0]> =
-    allResponses.reduce(
+    allResponses?.reduce(
       (groups, response) => {
         const responseKey = response.formVersionId;
         return {
@@ -60,7 +66,7 @@ export function InfoSidebar() {
 
   return (
     <ResponseSidebar>
-      <VersionSelectChart formId={versions[0].formId} />
+      <VersionAverageChart formId={versions[0]?.formId} />
       <ScrollArea className="h-[54vh]">
         {sortedVersionIds.map((versionId) => {
           const versionResponses = groupedResponses[versionId];
