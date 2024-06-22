@@ -49,6 +49,18 @@ export type QuestionVersionResult = Omit<
     {
       options: {
         columns: { questionVersionId: false };
+        with: {
+          answers: {
+            columns: {
+              id: true;
+              questionVersionId: false;
+              optionVersionId: true;
+              feedback: true;
+              createdAt: false;
+              responseId: true;
+            };
+          };
+        };
       };
     }
   >,
