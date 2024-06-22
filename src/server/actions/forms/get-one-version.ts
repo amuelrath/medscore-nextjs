@@ -34,6 +34,17 @@ export async function getOneVersion(formVersionId: string) {
         },
         with: {
           options: {
+            with: {
+              answers: {
+                columns: {
+                  id: true,
+                  optionVersionId: true,
+                  feedback: true,
+                  questionVersionId: false,
+                  responseId: true,
+                },
+              },
+            },
             columns: {
               questionVersionId: false,
               id: true,
