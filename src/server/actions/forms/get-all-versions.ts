@@ -12,31 +12,22 @@ export async function getAllVersions({ formId }: { formId: string }) {
       programId: false,
     },
     with: {
-      code: {
-        columns: {
-          code: true,
-          createdAt: true,
-          expiresAt: false,
-          formVersionId: false,
-          id: true,
-        },
-      },
       questions: {
         columns: {
-          formVersionId: false,
           id: true,
           position: true,
           text: true,
-          feedback: true,
+          formVersionId: false,
+          feedback: true
         },
         with: {
           options: {
             columns: {
-              questionVersionId: false,
               id: true,
               text: true,
               position: true,
-              pointValue: true,
+              pointValue: false,
+              questionVersionId: false,
             },
           },
         },
@@ -47,27 +38,37 @@ export async function getAllVersions({ formId }: { formId: string }) {
           formVersionId: true,
           createdAt: true,
           creatorId: false,
-          evaluateeId: false,
+          evaluateeId: false
         },
         with: {
           creator: {
             columns: {
               id: true,
+              firstName: true,
+              lastName: true,
               password: false,
               role: true,
-              lastName: true,
-              firstName: true,
-              email: false,
+              email: false
             },
           },
           evaluatee: {
             columns: {
               id: true,
+              firstName: true,
+              lastName: true,
               password: false,
               role: true,
-              lastName: true,
-              firstName: true,
-              email: false,
+              email: false
+            },
+          },
+          answers: {
+            columns: {
+              id: true,
+              optionVersionId: true,
+              questionVersionId: true,
+              createdAt: false,
+              responseId: false,
+              feedback: true,
             },
           },
         },
