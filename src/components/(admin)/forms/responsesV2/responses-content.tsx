@@ -32,7 +32,7 @@ export function ResponsesContent() {
     },
     {
       id: 1,
-      label: "Details",
+      label: "Performance",
       content: <div>nothing</div>,
     },
   ];
