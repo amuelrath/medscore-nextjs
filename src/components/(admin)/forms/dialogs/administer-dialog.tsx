@@ -8,7 +8,6 @@ import {
   DialogHeader,
   DialogClose,
 } from "@/components/ui/dialog";
-import { AnimateChangeInHeight } from "@/components/ui/animate-change-in-height";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { TimePicker } from "@/components/ui/time-picker";
@@ -47,7 +46,6 @@ export function AdministerDialog() {
           </div>
         </Button>
       </DialogTrigger>
-      <AnimateChangeInHeight>
         <DialogContent
           onOpenAutoFocus={(e) => e.preventDefault()}
           onCloseAutoFocus={(e) => e.preventDefault()}
@@ -64,7 +62,6 @@ export function AdministerDialog() {
           </DialogHeader>
           <AdministerForm />
         </DialogContent>
-      </AnimateChangeInHeight>
     </Dialog>
   );
 }
