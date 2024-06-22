@@ -1,5 +1,4 @@
 "use client";
-
 import {
   FormVersionsResult,
   getAllVersions,
@@ -8,11 +7,13 @@ import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
 type TResponseContext = {
-  versions: FormVersionsResult;
+  versions: FormVersionsResult | undefined;
   selectedResponseId: string | undefined;
   setSelectedResponseId: (id: string | undefined) => void;
   selectedResponse: FormVersionsResult[0]["responses"][0] | undefined;
   selectedVersion: FormVersionsResult[0] | undefined;
+  isLoading: boolean;
+  error: Error | null;
 };
 
 const ResponseContext = createContext<TResponseContext | undefined>(undefined);
@@ -34,7 +35,11 @@ export function ResponseProvider({
   formId: string;
   children: ReactNode;
 }) {
-  const { data: versions } = useSuspenseQuery({
+  const {
+    data: versions,
+    isLoading,
+    error,
+  } = useSuspenseQuery({
     queryKey: ["all-versions", formId],
     queryFn: () => getAllVersions({ formId }),
   });
@@ -44,7 +49,7 @@ export function ResponseProvider({
   >(undefined);
 
   const { selectedResponse, selectedVersion } = useMemo(() => {
-    if (!selectedResponseId)
+    if (!selectedResponseId || !versions)
       return { selectedResponse: undefined, selectedVersion: undefined };
 
     for (const version of versions) {
@@ -66,8 +71,17 @@ export function ResponseProvider({
       setSelectedResponseId,
       selectedResponse,
       selectedVersion,
+      isLoading,
+      error,
     }),
-    [versions, selectedResponseId, selectedResponse, selectedVersion],
+    [
+      versions,
+      selectedResponseId,
+      selectedResponse,
+      selectedVersion,
+      isLoading,
+      error,
+    ],
   );
 
   return (
