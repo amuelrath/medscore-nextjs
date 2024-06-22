@@ -5,7 +5,7 @@ import { useFormContext } from "react-hook-form";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import SaveFormButton from "@/components/(admin)/forms/editor/save-form-button";
 import { Input } from "@/components/ui/input";
-import { AdministerDialog } from "@/components/(admin)/forms/dialogs/new-administer-dialog";
+import { AdministerDialog } from "@/components/(admin)/forms/dialogs/administer-dialog";
 import { LottieHover } from "@/components/ui/lottie-hover";
 import CALENDAR from 'public/icons/calendar-teal.json'
 import { Button } from "@/components/ui/button";
