@@ -61,7 +61,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   return (
     <div
       className={cn(
-        "group mb-4 flex select-none flex-row justify-between rounded bg-white p-2 drop-shadow-md transition-colors hover:bg-background",
+        "group mb-4 flex select-none flex-row justify-between rounded bg-white p-2 border border-neutral-200 transition-colors hover:bg-background",
       )}
     >
       <div
