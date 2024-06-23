@@ -14,7 +14,6 @@ import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
 import { EditorFormProvider } from "@/components/(admin)/forms/providers/editor-form-provider";
 import { Background } from "@/components/ui/background";
 
-
 export default async function FormIdLayout({
   editor,
   responses,
@@ -24,7 +23,6 @@ export default async function FormIdLayout({
   responses: ReactNode;
   params: { formId: string };
 }) {
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -64,15 +62,13 @@ export default async function FormIdLayout({
   ];
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <DirectionAwareTabsProvider tabs={tabs}>
-        <EditorFormProvider defaultValues={form}>
-          <FormEditorNav />
-          <div className="flex-grow">
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <DirectionAwareTabsProvider tabs={tabs}>
+          <EditorFormProvider defaultValues={form}>
+            <FormEditorNav />
             <DirectionAwareContent />
-          </div>
-        </EditorFormProvider>
-      </DirectionAwareTabsProvider>
-    </HydrationBoundary>
+          </EditorFormProvider>
+        </DirectionAwareTabsProvider>
+      </HydrationBoundary>
   );
 }
