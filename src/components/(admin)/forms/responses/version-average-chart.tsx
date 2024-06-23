@@ -10,18 +10,16 @@ import {
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { getOverallResponsePerformance } from "@/server/actions/views/get-overall-response-performance";
-import { StudentPerformanceView } from "@/db/schema";
+import {
+  getLongitudinalFormScores,
+  TLongitudinalFormScores,
+} from "@/server/actions/views/get-longitudinal-form-scores";
 import { formatDate } from "date-fns";
 
-export function VersionAverageChart({
-  formId,
-}: {
-  formId: string
-}) {
+export function VersionAverageChart({ formId }: { formId: string }) {
   const { data: view } = useQuery({
     queryKey: ["performance-view", formId],
-    queryFn: () => getOverallResponsePerformance({ formId }),
+    queryFn: () => getLongitudinalFormScores({ formId }),
     enabled: !!formId,
   });
 
@@ -144,7 +142,7 @@ interface AggregatedData {
 }
 
 function transformStudentPerformanceData(
-  data: StudentPerformanceView[] | undefined,
+  data: TLongitudinalFormScores | undefined,
 ): AggregatedData[] | undefined {
   if (!data) return undefined;
 
@@ -157,7 +155,7 @@ function transformStudentPerformanceData(
       acc[item.formVersionId].push(item);
       return acc;
     },
-    {} as Record<string, StudentPerformanceView[]>,
+    {} as Record<string, TLongitudinalFormScores>,
   );
 
   // Step 2 & 3: Order by createdAt and transform

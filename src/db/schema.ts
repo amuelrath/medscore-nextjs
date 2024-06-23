@@ -692,6 +692,8 @@ export const userDetailsView = pgView("user_details", {
 
 // View for question and milestone details
 export const questionMilestoneView = pgView("question_milestone", {
+  formVersionId: uuid("form_version_id").notNull(),
+  createdAt: timestamp("created_at").notNull(),
   responseId: uuid("response_id").notNull(),
   questionVersionId: uuid("question_version_id").notNull(),
   questionText: text("question_text").notNull(),
@@ -709,21 +711,6 @@ export const questionMilestoneView = pgView("question_milestone", {
 }).existing();
 
 // Main view combining all data
-export type StudentPerformanceView = {
-  responseId: string;
-  userId: string;
-  formVersionId: string;
-  formId: string;
-  formVersionTitle: string;
-  evaluatorId: string;
-  createdAt: Date;
-  firstName: string;
-  lastName: string;
-  evaluatorFirstName: string;
-  evaluatorLastName: string;
-  totalPointsAvailable: string;
-  totalPointsEarned: string;
-};
 export const studentPerformanceView = pgView("student_performance", {
   responseId: uuid("response_id").primaryKey().notNull(),
   userId: uuid("user_id").notNull(),

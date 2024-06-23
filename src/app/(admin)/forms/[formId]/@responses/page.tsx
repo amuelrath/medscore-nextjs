@@ -5,7 +5,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getAllVersions } from "@/server/actions/forms/get-all-versions";
-import { getOverallResponsePerformance } from "@/server/actions/views/get-overall-response-performance";
+import { getLongitudinalFormScores } from "@/server/actions/views/get-longitudinal-form-scores";
 
 // TODO - ISR
 export default async function ResponsesPage({
@@ -30,7 +30,7 @@ export default async function ResponsesPage({
   // prefetch the form versions
   await queryClient.prefetchQuery({
     queryKey: ["performance", params.formId],
-    queryFn: () => getOverallResponsePerformance({ formId: params.formId }),
+    queryFn: () => getLongitudinalFormScores({ formId: params.formId }),
   });
 
   return (
