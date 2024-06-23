@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 const config = {
+  mode: "jit",
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -105,7 +106,7 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontSize: {
-        "2xs": ["0.7rem", { lineHeight: "1rem"}],
+        "2xs": ["0.7rem", { lineHeight: "1rem" }],
         "3xl": ["1.875rem", { lineHeight: "2.25rem" }],
       },
       backgroundSize: {
@@ -115,9 +116,24 @@ const config = {
         "pos-0": "0% 0%",
         "pos-100": "100% 100%",
       },
+      backdropFilter: {
+        none: "none",
+        blur: "blur(20px)",
+      },
+    },
+    variants: {
+      extend: {
+        backdropFilter: ["hover", "focus"],
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/forms"),
+    require("@tailwindcss/aspect-ratio"),
+    require("@tailwindcss/typography"),
+    require("tailwindcss-filters"),
+  ],
 } satisfies Config;
 
 export default config;
