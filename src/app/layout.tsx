@@ -5,7 +5,7 @@ import Provider from "@/server/provider";
 import { ReactNode, StrictMode } from "react";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/utils";
-import DotPattern from "@/components/magicui/dot-pattern";
+import { Background } from "@/components/ui/background";
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "auto",
@@ -56,9 +56,8 @@ export default function RootLayout({
                 "min-h-screen w-full bg-gray-100",
               )}
             >
-
-            {children}
-            <Toaster />
+              <Background variant="green">{children}</Background>
+              <Toaster />
             </body>
           </Provider>
         </StrictMode>
@@ -66,5 +65,3 @@ export default function RootLayout({
     </>
   );
 }
-
-
