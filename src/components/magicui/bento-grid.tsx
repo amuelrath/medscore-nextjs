@@ -52,7 +52,7 @@ const BentoCard = ({
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
     className={cn(
-      "group relative col-span-3 flex flex-col justify-end overflow-hidden rounded select-none",
+      "group relative col-span-3 flex flex-col justify-end overflow-hidden rounded-md select-none",
       // light styles
       "bg-white [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)]",
       // dark styles
