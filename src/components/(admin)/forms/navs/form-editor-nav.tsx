@@ -10,7 +10,7 @@ import { LottieHover } from "@/components/ui/lottie-hover";
 import CALENDAR from 'public/icons/calendar-teal.json'
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { ActionGroup } from "@/components/ui/action-group";
+import { Glass } from "@/components/ui/glass";
 
 export default function FormEditorNav() {
   const methods = useFormContext<FormResult>();
@@ -19,7 +19,7 @@ export default function FormEditorNav() {
 
   return (
     <div className={cn("fixed top-[65px] px-8 z-40 h-16 w-full")}>
-      <ActionGroup className="flex flex-row justify-between">
+      <Glass className="flex flex-row justify-between">
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Input
             className={cn("text-xl shadow-inner font-semibold bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
@@ -41,7 +41,7 @@ export default function FormEditorNav() {
               </div>
             </Button>
           </div>
-      </ActionGroup>
+      </Glass>
 
     </div>
   );
