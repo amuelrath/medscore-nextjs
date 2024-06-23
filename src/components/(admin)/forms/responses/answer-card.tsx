@@ -1,10 +1,12 @@
 "use client";
-import { Card } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NotebookIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FormVersionsResult } from "@/db/types";
 import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
+import { Glass } from "@/components/ui/glass";
+import { useState } from "react";
+import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 
 export function AnswerCard({
   question,
@@ -12,13 +14,19 @@ export function AnswerCard({
   question: FormVersionsResult[0]["questions"][0];
 }) {
   const { selectedResponse } = useResponseContext();
+  const [commentsOpen, setCommentsOpen] = useState<boolean>(question.feedback)
 
   const selectedOptionId = selectedResponse?.answers.find(
     (a) => a.questionVersionId === question.id,
   )?.optionVersionId;
 
+  const evaluatorFeedback = selectedResponse?.answers.find((a) => a.questionVersionId === question.id)?.feedback
+
   return (
-    <Card className={cn("text-md group w-full space-y-4 p-4")}>
+    <Glass
+      intensity={"xl"}
+      className={cn("text-md group w-full space-y-4 rounded-lg p-4")}
+    >
       <div className="flex flex-row items-center justify-between space-x-2 px-2">
         <div className="flex flex-row items-center space-x-2">
           <p className="font-bold">{question.position}.</p>
@@ -33,7 +41,7 @@ export function AnswerCard({
         )}
       </div>
       <RadioGroup disabled={!selectedResponse}>
-        <div className="flex w-full flex-col space-y-1">
+        <div className="flex w-full flex-col space-y-2">
           {question.options
             ?.sort((a, b) => a.position - b.position)
             .map(({ id, text }) => (
@@ -45,6 +53,9 @@ export function AnswerCard({
               >
                 <RadioGroupItem
                   id={id}
+                  className={
+                    cn("bg-blue-950 bg-opacity-5 p-3 rounded-md shadow-inner backdrop-blur-3xl", selectedOptionId !== id && "border-inherit")
+                  }
                   label={text || ""}
                   disabled={!selectedResponse}
                   value={id}
@@ -54,6 +65,9 @@ export function AnswerCard({
             ))}
         </div>
       </RadioGroup>
-    </Card>
+      {evaluatorFeedback && (
+      <AutosizeTextarea disabled={!!selectedResponse} value={evaluatorFeedback}  minHeight={30} placeholder="Comments/Feedback" className={cn("no-scrollbar bg-blue-950 bg-opacity-5 p-3 rounded-md shadow-inner backdrop-blur-3xl disabled:cursor-default disabled:opacity-100 disabled:resize-none")}/>
+      )}
+    </Glass>
   );
 }
