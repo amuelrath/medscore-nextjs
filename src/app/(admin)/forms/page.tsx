@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-query";
 import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
 import FormsHome from "@/components/(admin)/forms/home";
-import { Background } from "@/components/ui/background";
 
 export default async function FormsPage() {
   // prefetch forms (just the id, title, program)
@@ -17,7 +16,6 @@ export default async function FormsPage() {
     },
   });
 
-
   await queryClient.prefetchQuery({
     queryKey: ["forms", "lite"],
     queryFn: () =>
@@ -28,9 +26,11 @@ export default async function FormsPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="lg:px-8 xs:px-4 h-full no-scrollbar">
+      <div className="fixed right-60 top-44 -z-10">
+
+      </div>
+      <div className="no-scrollbar relative h-full xs:px-4 lg:px-8">
         <FormsHome />
-        <Background color={"hsl(222.2, 47.4%, 75%)"} />
       </div>
     </HydrationBoundary>
   );
