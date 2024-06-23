@@ -22,6 +22,7 @@ import { useSubcompetenciesSuspenseQuery } from "@/hooks/queries/useSubcompetenc
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scrollbar } from "@radix-ui/react-scroll-area";
 import { Main } from "@/components/ui/main";
+import { Glass } from "@/components/ui/glass";
 
 export default function QuestionCards() {
   const { control, register, getValues, handleSubmit } =
@@ -45,13 +46,13 @@ export default function QuestionCards() {
     <Main>
       <div className="grid grid-cols-9 gap-2">
         <div className="col-span-full">
-          <ScrollArea className={cn("-mt-20 w-full h-[91vh]")}>
+          <ScrollArea className={cn("-mt-20 w-full h-[91vh] backdrop-blur-3xl")}>
             <Scrollbar />
             <AnimatePresence>
               <div className="col-start-3 col-span-5 mx-auto max-w-3xl">
                 <form
                   onSubmit={handleSubmit(onSubmit)}
-                  className={cn("pb-[10rem] pt-16")}
+                  className={cn("pb-[10rem] pt-[72px]")}
                 >
                   {fields.map((item, index) => {
                     // because react-hook-form also has an Id prop which gets taken by 'item'
@@ -71,7 +72,7 @@ export default function QuestionCards() {
                         transition={{ duration: 0.2, delay: index * 0.01 }}
                         className="my-4"
                       >
-                        <Card className={cn(`group space-y-2 p-4`)}>
+                        <Glass intensity={"xl"} className={cn(`group space-y-2 p-4`)}>
                           <div className={cn("flex flex-row justify-between")}>
                             <div className={cn("flex items-center space-x-2")}>
                               <p className={cn("font-bold")}>{item.position}.</p>
@@ -110,7 +111,7 @@ export default function QuestionCards() {
                               type="text"
                               {...register(`questions.${index}.text`)}
                               placeholder="Question"
-                              className={cn("p-2")}
+                              className={cn("p-2 bg-opacity-5 shadow-inner backdrop-blur-3xl bg-blue-950")}
                             />
 
                             <SelectMilestoneDialogTrigger
@@ -122,7 +123,7 @@ export default function QuestionCards() {
                           <OptionList
                             {...{ nestIndex: index, control, register }}
                           />
-                        </Card>
+                        </Glass>
                       </motion.div>
                     );
                   })}
