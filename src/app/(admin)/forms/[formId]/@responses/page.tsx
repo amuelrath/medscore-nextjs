@@ -1,11 +1,10 @@
-import { ResponsesV2 } from "@/components/(admin)/forms/responsesV2";
+import { Responses } from "../../../../../components/(admin)/forms/responses";
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
 import { getAllVersions } from "@/server/actions/forms/get-all-versions";
-import { Background } from "@/components/ui/background";
 import { getOverallResponsePerformance } from "@/server/actions/views/get-overall-response-performance";
 
 // TODO - ISR
@@ -36,8 +35,9 @@ export default async function ResponsesPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <Background color={"hsl(204, 95%, 73%)"} />
-      <ResponsesV2 formId={params.formId} />
+      <Responses formId={params.formId} />
     </HydrationBoundary>
   );
 }
+
+
