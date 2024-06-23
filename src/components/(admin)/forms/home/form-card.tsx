@@ -14,8 +14,9 @@ import {
 import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/dialogs/delete-evaluation-dialog";
 import { openForm } from "@/server/actions/forms/open-form";
 import { useRouter } from "next/navigation";
-import { formatDate, formatDistance } from "date-fns";
+import { formatDistance } from "date-fns";
 import { FormTags } from "@/components/(admin)/forms/home/form-tags";
+import { Glass } from "@/components/ui/glass";
 
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
@@ -59,9 +60,13 @@ export function FormCard({ form }: { form: FormLiteResult }) {
     });
   };
   return (
-    <div
+    <Glass
+      shadow={"none"}
+      padding={"md"}
+      rounded={"sm"}
+      intensity={"lg"}
       className={cn(
-        "group mb-4 flex select-none flex-row justify-between rounded bg-white p-2 border border-neutral-200 transition-colors hover:bg-background",
+        "group mb-4 flex select-none flex-row justify-between rounded-xl transition-all hover:bg-opacity-60",
       )}
     >
       <div
@@ -84,15 +89,18 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           )}
         >
           <p className={cn("flex flex-row items-center space-x-1 ")}>
-            <GraduationCapIcon className={cn("text-neutral-300")} size={16} />
+            <GraduationCapIcon
+              className={cn("text-neutral-400/90")}
+              size={16}
+            />
             <span className={cn("hover:underline")}>{form.programs.name}</span>
           </p>
           <p className={cn("flex flex-row items-center space-x-1")}>
-            <HistoryIcon className={cn("text-neutral-300")} size={16} />
+            <HistoryIcon className={cn("text-neutral-400/90")} size={16} />
             <span>{`${formatDistance(new Date(), form.lastOpenedAt)} ago`}</span>
           </p>
           <div className={cn("flex flex-row items-center space-x-1")}>
-            <TagIcon className={cn("text-neutral-300")} size={16} />
+            <TagIcon className={cn("text-neutral-400/90")} size={16} />
             <FormTags tags={form.tags} formId={form.id} />
           </div>
         </div>
@@ -119,6 +127,6 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           </Button>
         </DeleteFormDialogTrigger>
       </div>
-    </div>
+    </Glass>
   );
 }
