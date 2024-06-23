@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getOverallResponsePerformance } from "@/server/actions/views/get-overall-response-performance";
 import { StudentPerformanceView } from "@/db/schema";
 import { formatDate } from "date-fns";
