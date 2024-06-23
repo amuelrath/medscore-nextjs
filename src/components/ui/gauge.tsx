@@ -27,7 +27,7 @@ const gaugeChartClasses = cva("relative", {
   variants: {
     size: {
       xs: "w-20 h-10",
-      sm: "w-40 h-20",
+      sm: "w-28 h-20",
       md: "w-60 h-30",
       lg: "w-80 h-40",
     },
@@ -67,14 +67,14 @@ const GaugeChart: FC<GaugeChartProps> = memo(
         <m.div
           className={cn(
             gaugeChartClasses({ size }),
-            "drop-shadow-xl transition-all ease-in-out hover:scale-125",
+            "transition-all ease-in-out",
           )}
         >
           <svg viewBox="0 0 200 120" className="absolute inset-0">
             <path
               className={bgStrokeColor}
               strokeWidth={20}
-              strokeLinecap="butt"
+              strokeLinecap="round"
               fill="none"
               d="M20,100 A60,60 0 0 1 180,100"
             />
@@ -84,7 +84,7 @@ const GaugeChart: FC<GaugeChartProps> = memo(
               transition={{ duration: 0.5, ease: "easeOut" }}
               className={pathColor}
               strokeWidth={20}
-              strokeLinecap="butt"
+              strokeLinecap="round"
               fill="none"
               d="M20,100 A60,60 0 0 1 180,100"
             />
