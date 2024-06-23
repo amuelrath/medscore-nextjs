@@ -1,10 +1,10 @@
-"use client";
 import React, { useEffect, useRef, useState } from "react";
 
 interface CounterProps {
   value: number;
   duration?: number;
   className?: string;
+  type?: "percent" | "number";
 }
 
 const easeOutCubic = (t: number, b: number, c: number, d: number) => {
@@ -14,10 +14,11 @@ const easeOutCubic = (t: number, b: number, c: number, d: number) => {
 };
 
 const Counter: React.FC<CounterProps> = ({
-  value,
-  duration = 1,
-  className,
-}) => {
+                                           value,
+                                           duration = 1,
+                                           className,
+                                           type = "number"
+                                         }) => {
   const [count, setCount] = useState(0);
   const animationIdRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -53,9 +54,15 @@ const Counter: React.FC<CounterProps> = ({
     };
   }, [value, duration]);
 
+  const formatCount = () => {
+    const fixedCount = count.toFixed(type === "percent" ? 0 : 1);
+    const paddedCount = fixedCount.toString().padStart(2, "0");
+    return type === "percent" ? `${paddedCount}%` : paddedCount;
+  };
+
   return (
     <div className={className}>
-      {count.toFixed(1).toString().padStart(2, "0")}
+      {formatCount()}
     </div>
   );
 };
