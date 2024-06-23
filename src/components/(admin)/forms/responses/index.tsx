@@ -1,8 +1,8 @@
 import { Main } from "@/components/ui/main";
 import { ResponseProvider} from "@/components/(admin)/forms/providers/response-provider";
-import { ResponsesContent } from "@/components/(admin)/forms/responsesV2/responses-content";
+import { ResponsesContent } from "@/components/(admin)/forms/responses/responses-content";
 
-export function ResponsesV2({ formId }: { formId: string }) {
+export function Responses({ formId }: { formId: string }) {
   return (
     <Main>
       <ResponseProvider formId={formId}>
