@@ -34,7 +34,9 @@ const RadioGroupItem = React.forwardRef<
       ref={ref}
       {...props}
     >
-      <div className={cn("relative items-center space-x-2 transition-colors hover:bg-gray-50 border-2 w-full flex flex-row justify-start rounded-md p-3 data-[state='checked']:border-accent-secondary data-[state='unchecked']:border-gray-100")}>
+      <div className={cn("relative items-center space-x-2 transition-colors border-2 w-full flex flex-row justify-start rounded-md p-3 data-[state='checked']:border-accent-secondary data-[state='unchecked']:border-gray-100",
+      "hover:none",
+        className)}>
         <div
           className={
             "relative aspect-square size-4 origin-center rounded-full border border-accent-foreground bg-accent-secondary shadow-inner transition-all"
