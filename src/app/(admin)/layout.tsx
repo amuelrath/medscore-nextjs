@@ -2,9 +2,8 @@ import { TopNav } from "@/components/ui/top-nav";
 import { cn } from "@/lib/utils";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ReactNode } from "react";
-import { Background } from "@/components/ui/background";
 
-export default async function RootLayout({
+export default async function AppLayout({
   children,
 }: Readonly<{
   children: ReactNode;
