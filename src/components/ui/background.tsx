@@ -1,20 +1,32 @@
-import { cn } from "@/lib/utils";
-import { CSSProperties } from "react";
+import React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+const backgroundVariants = cva("fixed w-full h-full bg-opacity-50", {
+  variants: {
+    variant: {
+      default: "bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300",
+      blue: "bg-gradient-to-br from-neutral-200  from-[50%] to-accent/20",
+      green:
+        "bg-gradient-to-br from-neutral-200 from-[70%] to-accent-secondary",
+      red: "bg-gradient-to-br from-neutral-200 from-[50%] to-destructive",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
-interface BackgroundProps {
-  color?: string;
-  className?: string;
-}
+type BackgroundProps = VariantProps<typeof backgroundVariants> & {
+  children: React.ReactNode;
+};
 
-export function Background({ color = "hsl(170, 79%, 39%)", className }: BackgroundProps) {
+export const Background: React.FC<BackgroundProps> = ({
+  children,
+  variant,
+}) => {
   return (
-    <div
-      className={cn(
-        "absolute inset-0 -z-10 bg-white",
-        "[background:radial-gradient(125%_125%_at_60%_5%,#f4f4f5_65%,var(--bg-color)_100%)]",
-        className
-      )}
-      style={{ "--bg-color": color } as CSSProperties}
-    />
+    <div className="relative min-h-screen overflow-hidden">
+      <div className={backgroundVariants({ variant })}></div>
+      <div className="relative z-10 ">{children}</div>
+    </div>
   );
-}
+};
