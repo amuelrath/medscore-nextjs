@@ -692,20 +692,20 @@ export const userDetailsView = pgView("user_details", {
 
 // View for question and milestone details
 export const questionMilestoneView = pgView("question_milestone", {
-  responseId: uuid("response_id"),
-  questionVersionId: uuid("question_version_id"),
-  questionText: text("question_text"),
-  selectedOptionVersionId: uuid("selected_option_version_id"),
-  milestoneId: uuid("milestone_id"),
-  milestoneName: text("milestone_name"),
-  milestoneLevel: integer("milestone_level"),
-  subcompetencyId: uuid("subcompetency_id"),
-  subcompetencyName: text("subcompetency_name"),
-  subcompetencyLevel: integer("subcompetency_level"),
-  competencyId: uuid("competency_id"),
-  competencyName: text("competency_name"),
-  pointsAvailable: numeric("points_available"),
-  pointsEarned: numeric("points_earned"),
+  responseId: uuid("response_id").notNull(),
+  questionVersionId: uuid("question_version_id").notNull(),
+  questionText: text("question_text").notNull(),
+  selectedOptionVersionId: uuid("selected_option_version_id").notNull(),
+  milestoneId: uuid("milestone_id").notNull(),
+  milestoneName: text("milestone_name").notNull(),
+  milestoneLevel: integer("milestone_level").notNull(),
+  subcompetencyId: uuid("subcompetency_id").notNull(),
+  subcompetencyName: text("subcompetency_name").notNull(),
+  subcompetencyLevel: integer("subcompetency_level").notNull(),
+  competencyId: uuid("competency_id").notNull(),
+  competencyName: text("competency_name").notNull(),
+  pointsAvailable: numeric("points_available").notNull(),
+  pointsEarned: numeric("points_earned").notNull(),
 }).existing();
 
 // Main view combining all data
