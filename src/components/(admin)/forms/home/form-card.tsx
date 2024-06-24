@@ -61,12 +61,12 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   };
   return (
     <Glass
-      shadow={"none"}
+      shadow={"sm"}
       padding={"md"}
       rounded={"sm"}
-      intensity={"lg"}
+      intensity={"xl"}
       className={cn(
-        "group mb-4 flex select-none flex-row justify-between rounded-xl transition-all hover:bg-opacity-60",
+        "group mb-4 border-none flex select-none flex-row justify-between rounded-xl transition-all hover:bg-opacity-60",
       )}
     >
       <div
