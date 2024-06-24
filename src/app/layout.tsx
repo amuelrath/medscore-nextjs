@@ -50,12 +50,7 @@ export default function RootLayout({
       <html lang="en">
         <StrictMode>
           <Provider>
-            <body
-              className={cn(
-                poppins.className,
-                "min-h-screen w-full bg-gray-100",
-              )}
-            >
+            <body className={cn(poppins.className)}>
               <Background variant="green">{children}</Background>
               <Toaster />
             </body>
