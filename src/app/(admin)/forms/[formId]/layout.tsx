@@ -10,9 +10,8 @@ import {
 } from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
-import FormEditorNav from "@/components/(admin)/forms/navs/form-editor-nav";
+import { FormEditorNav } from "@/components/(admin)/forms/editor/form-editor-nav";
 import { EditorFormProvider } from "@/components/(admin)/forms/providers/editor-form-provider";
-import { Background } from "@/components/ui/background";
 
 export default async function FormIdLayout({
   editor,
@@ -66,7 +65,9 @@ export default async function FormIdLayout({
         <DirectionAwareTabsProvider tabs={tabs}>
           <EditorFormProvider defaultValues={form}>
             <FormEditorNav />
+            <div className={"mt-32"} >
             <DirectionAwareContent />
+            </div>
           </EditorFormProvider>
         </DirectionAwareTabsProvider>
       </HydrationBoundary>
