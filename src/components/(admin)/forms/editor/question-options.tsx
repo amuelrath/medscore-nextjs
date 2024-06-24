@@ -6,10 +6,10 @@ import { v4 } from "uuid";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { TFormRelate } from "@/db/types";
+import { FormResult, TFormRelate } from "@/db/types";
 import { FC } from "react";
 import { DataIntegrityAlert } from "@/components/(admin)/forms/editor/data-integrity-dialog";
-import { useDataIntegrityDialog } from "@/components/(admin)/forms/editor/data-integrity-dialog/use-data-integrity-dialog";
+import { useDataIntegrityAlert } from "@/components/(admin)/forms/editor/data-integrity-dialog/use-data-integrity-dialog";
 
 interface OptionListProps {
   questionIndex: number;
@@ -28,12 +28,14 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
   const {
     showWarning,
     setShowWarning,
-    pendingChange,
-    handleValueChange,
     handleConfirmEdit,
     handleCancelEdit,
-  } = useDataIntegrityDialog({
+    getFieldProps,
+  } = useDataIntegrityAlert<TFormRelate>({
     isAdministered,
+    setValue,
+    getValues,
+    cooldownPeriod: 10000,
   });
 
   const handleAddOption = () => {
@@ -44,38 +46,6 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
       position: fields.length + 1,
       pointValue: "0",
     });
-  };
-
-  const handlePointValueChange = (
-    index: number,
-    newValue: string,
-    oldValue: string,
-  ) => {
-    const shouldApply = handleValueChange(index, newValue, oldValue);
-    if (shouldApply) {
-      applyPointValueChange(index, newValue);
-    }
-  };
-
-  const applyPointValueChange = (index: number, value: string) => {
-    setValue(`questions.${questionIndex}.options.${index}.pointValue`, value, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  };
-
-  const onConfirmEdit = () => {
-    const result = handleConfirmEdit();
-    if (result) {
-      applyPointValueChange(result.index, result.newValue);
-    }
-  };
-
-  const onCancelEdit = () => {
-    handleCancelEdit();
-    if (pendingChange) {
-      applyPointValueChange(pendingChange.index, pendingChange.oldValue);
-    }
   };
 
   return (
@@ -94,6 +64,9 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
                   {...register(
                     `questions.${questionIndex}.options.${index}.text`,
                   )}
+                  {...getFieldProps(
+                    `questions.${questionIndex}.options.${index}.text`,
+                  )}
                   placeholder="Option text"
                   className="flex-grow bg-blue-950 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
                 />
@@ -103,16 +76,12 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
                   render={({ field }) => (
                     <Input
                       {...field}
+                      {...getFieldProps(
+                        `questions.${questionIndex}.options.${index}.pointValue`,
+                      )}
                       type="number"
                       placeholder="Points"
                       className="w-20 bg-blue-950 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
-                      onChange={(e) =>
-                        handlePointValueChange(
-                          index,
-                          e.target.value,
-                          field.value,
-                        )
-                      }
                     />
                   )}
                 />
@@ -154,8 +123,8 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
       <DataIntegrityAlert
         showWarning={showWarning}
         setShowWarning={setShowWarning}
-        handleCancelEdit={onCancelEdit}
-        handleConfirmEdit={onConfirmEdit}
+        handleCancelEdit={handleCancelEdit}
+        handleConfirmEdit={handleConfirmEdit}
       />
     </>
   );
