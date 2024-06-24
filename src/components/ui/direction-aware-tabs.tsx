@@ -5,7 +5,6 @@ import {
   useContext,
   useMemo,
   useState,
-  ReactElement,
 } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import useMeasure from "react-use-measure";
@@ -266,9 +265,9 @@ function DirectionAwareContent() {
   };
 
   return (
-    <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.2 }}>
+    <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}>
       <motion.div
-        className="absolute inset-0 flex flex-col overflow-hidden"
+        className="flex flex-col"
         initial={false}
         animate={{ height: bounds.height > 0 ? bounds.height : "100%" }}
       >
