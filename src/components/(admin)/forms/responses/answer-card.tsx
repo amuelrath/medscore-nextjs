@@ -1,73 +1,158 @@
 "use client";
+
+import { useState, useRef, useEffect } from "react";
+import { Controller, Control } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NotebookIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FormVersionsResult } from "@/db/types";
-import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
 import { Glass } from "@/components/ui/glass";
-import { useState } from "react";
-import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
+import {
+  AutosizeTextarea,
+  AutosizeTextAreaRef,
+} from "@/components/ui/autosize-text-area";
+
+type Option = {
+  id: string;
+  position: number;
+  text: string | null;
+};
+
+type AnswerCardProps = {
+  id: string;
+  position: number;
+  text?: string | null;
+  options?: Option[];
+  control?: Control<any>;
+  name?: string;
+  feedbackName?: string;
+  feedbackRequired?: boolean;
+  selectedOptionId?: string;
+  feedback?: string;
+  additionalInfo?: React.ReactNode;
+  renderOptions?: (options: Option[]) => React.ReactNode;
+  renderAdditionalInfo?: (props: any) => React.ReactNode;
+};
 
 export function AnswerCard({
-  question,
-}: {
-  question: FormVersionsResult[0]["questions"][0];
-}) {
-  const { selectedResponse } = useResponseContext();
-  const [commentsOpen, setCommentsOpen] = useState<boolean>(question.feedback)
+  position,
+  text,
+  options = [],
+  control,
+  name,
+  feedbackName,
+  feedbackRequired = false,
+  selectedOptionId,
+  feedback,
+  additionalInfo,
+  renderOptions,
+  renderAdditionalInfo,
+}: AnswerCardProps) {
+  const [showFeedback, setShowFeedback] = useState(feedbackRequired);
+  const feedbackRef = useRef<AutosizeTextAreaRef>(null);
+  const isInput = !!control && !!name;
 
-  const selectedOptionId = selectedResponse?.answers.find(
-    (a) => a.questionVersionId === question.id,
-  )?.optionVersionId;
+  useEffect(() => {
+    if (showFeedback && feedbackRef.current) {
+      feedbackRef.current.textArea.focus();
+    }
+  }, [showFeedback]);
 
-  const evaluatorFeedback = selectedResponse?.answers.find((a) => a.questionVersionId === question.id)?.feedback
+  const handleNotebookClick = () => {
+    setShowFeedback((prev) => !prev);
+  };
+
+  const renderOptionItems = (options: Option[]) => (
+    <div className="flex w-full flex-col space-y-2">
+      {options
+        .sort((a, b) => a.position - b.position)
+        .map(({ id, text }) => (
+          <div
+            key={id}
+            className="relative flex select-none items-center justify-start space-x-1 transition-all hover:bg-gray-100"
+          >
+            <RadioGroupItem
+              id={id}
+              className="rounded-md bg-blue-950 bg-opacity-5 p-3 shadow-inner backdrop-blur-3xl"
+              label={text || ""}
+              value={id}
+              disabled={!isInput}
+            />
+          </div>
+        ))}
+    </div>
+  );
+
+  const renderFeedbackArea = () => {
+    const commonProps = {
+      minHeight: 30,
+      placeholder: "Comments/Feedback",
+      rows: 1,
+      className:
+        "no-scrollbar rounded-md bg-blue-950 bg-opacity-5 p-3 shadow-inner backdrop-blur-3xl",
+    };
+
+    return isInput ? (
+      <Controller
+        name={feedbackName!}
+        control={control}
+        render={({ field }) => (
+          <AutosizeTextarea {...field} {...commonProps} ref={feedbackRef} />
+        )}
+      />
+    ) : (
+      <AutosizeTextarea
+        ref={feedbackRef}
+        disabled
+        value={feedback}
+        {...commonProps}
+        className={cn(
+          commonProps.className,
+          "disabled:cursor-default disabled:resize-none disabled:opacity-100",
+        )}
+      />
+    );
+  };
 
   return (
     <Glass
-      intensity={"xl"}
-      className={cn("text-md group w-full space-y-4 rounded-lg p-4")}
+      intensity="xl"
+      className="text-md selct-none group w-full space-y-3 rounded-xl p-4"
     >
-      <div className="flex flex-row items-center justify-between space-x-2 px-2">
-        <div className="flex flex-row items-center space-x-2">
-          <p className="font-bold">{question.position}.</p>
-          <p className="">{question.text}</p>
+      <div className="flex flex-col space-y-2">
+        <div className="flex flex-row items-center justify-between">
+          <p className="font-bold select-none">{position}.</p>
+          {isInput && !feedbackRequired && (
+            <NotebookIcon
+              className="cursor-pointer text-current transition-opacity hover:opacity-50"
+              strokeWidth={1.5}
+              size={20}
+              onClick={handleNotebookClick}
+            />
+          )}
         </div>
-        {!selectedResponse && (
-          <NotebookIcon
-            className="text-current opacity-0 transition-opacity group-hover:opacity-100"
-            strokeWidth={1.5}
-            size={20}
-          />
-        )}
+        <p className="text-wrap select-none pl-1 font-medium">{text}</p>
       </div>
-      <RadioGroup disabled={!selectedResponse}>
-        <div className="flex w-full flex-col space-y-2">
-          {question.options
-            ?.sort((a, b) => a.position - b.position)
-            .map(({ id, text }) => (
-              <div
-                key={id}
-                className={cn(
-                  "relative flex select-none items-center justify-start space-x-1 rounded-sm transition-all hover:bg-gray-100",
-                )}
-              >
-                <RadioGroupItem
-                  id={id}
-                  className={
-                    cn("bg-blue-950 bg-opacity-5 p-3 rounded-md shadow-inner backdrop-blur-3xl", selectedOptionId !== id && "border-inherit")
-                  }
-                  label={text || ""}
-                  disabled={!selectedResponse}
-                  value={id}
-                  checked={selectedOptionId === id}
-                />
-              </div>
-            ))}
-        </div>
-      </RadioGroup>
-      {evaluatorFeedback && (
-      <AutosizeTextarea disabled={!!selectedResponse} value={evaluatorFeedback}  minHeight={30} placeholder="Comments/Feedback" className={cn("no-scrollbar bg-blue-950 bg-opacity-5 p-3 rounded-md shadow-inner backdrop-blur-3xl disabled:cursor-default disabled:opacity-100 disabled:resize-none")}/>
+      {isInput ? (
+        <Controller
+          name={name!}
+          control={control}
+          render={({ field }) => (
+            <RadioGroup onValueChange={field.onChange} value={field.value}>
+              {renderOptions
+                ? renderOptions(options)
+                : renderOptionItems(options)}
+            </RadioGroup>
+          )}
+        />
+      ) : (
+        <RadioGroup disabled value={selectedOptionId}>
+          {renderOptions ? renderOptions(options) : renderOptionItems(options)}
+        </RadioGroup>
       )}
+      {(showFeedback || (!isInput && feedback)) && renderFeedbackArea()}
+      {!isInput &&
+        renderAdditionalInfo &&
+        renderAdditionalInfo({ feedback, additionalInfo })}
     </Glass>
   );
 }
