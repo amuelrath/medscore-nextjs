@@ -1,11 +1,7 @@
-// forms/[formId]/@editor/page.tsx
-import QuestionCards from "@/components/(admin)/forms/editor/questions";
-import { Background } from "@/components/ui/background";
+import { QuestionCardList } from "@/components/(admin)/forms/editor/question-card-list";
 
 export default function EditorPage() {
   return (
-    <div className="relative min-h-full">
-      <QuestionCards />
-    </div>
+      <QuestionCardList />
   );
 }
