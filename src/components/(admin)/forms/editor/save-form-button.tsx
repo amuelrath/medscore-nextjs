@@ -33,6 +33,7 @@ export default function SaveFormButton() {
     }
   }, [changeQueue]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdateChangeQueue = useCallback(
     debounce((formData: TFormRelate) => {
       setChangeQueue((prevQueue) => [...prevQueue, formData]);
@@ -53,7 +54,7 @@ export default function SaveFormButton() {
 
   useEffect(() => {
     if (changeQueue.length > 0 && !loading) {
-      handleSave();
+      handleSave().then(() => null);
     }
   }, [changeQueue, loading, handleSave]);
 
