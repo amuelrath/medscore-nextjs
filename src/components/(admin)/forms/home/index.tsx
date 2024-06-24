@@ -9,11 +9,9 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scrollbar } from "@radix-ui/react-scroll-area";
 import { random } from "lodash";
-import Image from "next/image";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
-import ACGME_LOGO from "public/image/ACGME_Logo.jpg";
 import { BookOpenIcon, StarsIcon, TelescopeIcon } from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
@@ -50,8 +48,8 @@ export default function FormsHome() {
 
   return (
     <>
-      <div className="fixed right-[0px] top-[65px] z-40 h-16 w-full px-8">
-        <Glass padding={"md"} className="flex flex-row justify-between">
+      <div className="fixed right-[0px] top-16 z-40 h-16 w-full px-8">
+        <Glass padding={"none"} className="flex flex-row p-1 px-8 h-16 justify-between">
           <div className="flex flex-row items-center space-x-4">
             <h3
               className={cn(
@@ -78,7 +76,7 @@ export default function FormsHome() {
           </div>
         </Glass>
       </div>
-      <div className="no-scrollbar grid  grid-cols-7 gap-4 pt-24">
+      <div className="mt-36 grid grid-cols-7">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
           animate={{ opacity: 1, y: 0 }}
