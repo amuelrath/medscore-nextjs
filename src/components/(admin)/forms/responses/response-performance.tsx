@@ -3,7 +3,7 @@ import { COMPETENCIES } from "@/db/constants";
 import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
 import { getFullName } from "@/lib/getFullName";
 import { Glass } from "@/components/ui/glass";
-import { NoResponseSelected } from "@/components/(admin)/forms/responses/no-response-selected";
+import { NoResponseSelected } from "@/components/(admin)/forms/responses/errors/no-response-selected";
 import { SeeMoreButton } from "@/components/ui/see-more-button";
 import { LottieHover } from "@/components/ui/lottie-hover";
 import ICS from "public/icons/ics-bubbles-icon.json";
