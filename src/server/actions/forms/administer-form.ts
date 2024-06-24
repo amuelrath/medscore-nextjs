@@ -3,10 +3,6 @@ import { db } from "@/db";
 import {
   formCodes,
   formCodesOnUsers,
-  formVersions,
-  milestoneOnQuestionVersions,
-  optionVersions,
-  questionVersions,
 } from "@/db/schema";
 
 export async function administerForm({
@@ -25,18 +21,6 @@ export async function administerForm({
 
   const form = await db.query.forms.findFirst({
     where: (f, { eq }) => eq(f.id, formId),
-    with: {
-      questions: {
-        with: {
-          options: true,
-          milestones: {
-            with: {
-              milestone: true,
-            },
-          },
-        },
-      },
-    },
   });
 
   if (!form) {
@@ -44,69 +28,13 @@ export async function administerForm({
     throw new Error("Form not found!");
   }
 
-  try {
-    // deep copy the form
-    const formCopy = await db
-      .insert(formVersions)
-      .values({
-        formId: form.id,
-        title: form.title,
-        createdAt: new Date(),
-        programId: form.programId,
-      })
-      .returning();
-
-    if (!formCopy) {
-      console.error("Form did not copy!");
-    }
-
-    // copy the questions and their associated options and milestones
-    const copiedQuestions = await Promise.all(
-      form.questions.map(async (q) => {
-        const questionCopy = await db
-          .insert(questionVersions)
-          .values({
-            formVersionId: formCopy[0].id,
-            text: q.text,
-            feedback: q.feedback,
-            position: q.position,
-          })
-          .returning();
-
-        if (!questionCopy) {
-          console.error("Question did not copy!");
-          throw new Error("Question did not copy!");
-        }
-
-        await Promise.all([
-          // copy the options
-          ...q.options.map((o) =>
-            db.insert(optionVersions).values({
-              questionVersionId: questionCopy[0].id,
-              text: o.text,
-              pointValue: o.pointValue,
-              position: o.position,
-            }),
-          ),
-          // copy the milestones
-          ...q.milestones.map((m) =>
-            db.insert(milestoneOnQuestionVersions).values({
-              questionVersionId: questionCopy[0].id,
-              milestoneId: m.milestoneId,
-            }),
-          ),
-        ]);
-
-        return questionCopy[0];
-      }),
-    );
-
     // create the form code
     const formCode = await db
       .insert(formCodes)
       .values({
-        formVersionId: formCopy[0].id,
+        formId: form.id,
         code,
+        startsAt,
         expiresAt,
       })
       .returning();
@@ -125,8 +53,4 @@ export async function administerForm({
       code: formCode[0].code,
       expiresAt: formCode[0].expiresAt,
     };
-  } catch (error) {
-    console.error("Error in administerForm:", error);
-    throw error;
-  }
 }
