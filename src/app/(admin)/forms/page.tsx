@@ -26,9 +26,6 @@ export default async function FormsPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="fixed right-60 top-44 -z-10">
-
-      </div>
       <div className="no-scrollbar relative h-full xs:px-4 lg:px-8">
         <FormsHome />
       </div>
