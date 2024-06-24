@@ -13,11 +13,10 @@ import {
   foreignKey,
   varchar,
   AnyPgColumn,
-  json,
-  pgView,
-  numeric,
+  json, pgView
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
+import { pgMaterializedView } from "drizzle-orm/pg-core/view";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
 
@@ -60,7 +59,6 @@ export const subcompetencyRelations = relations(
       references: [specialties.id],
     }),
     milestones: many(milestones),
-    competencyPerformanceSummaries: many(competencyPerformanceSummaries),
   }),
 );
 
@@ -120,7 +118,6 @@ export const programRelations = relations(programs, ({ one, many }) => ({
   }),
   users: many(usersOnPrograms),
   forms: many(forms),
-  formVersions: many(formVersions),
 }));
 
 // MARK: Users
@@ -139,7 +136,6 @@ export type NewUser = typeof users.$inferInsert;
 export const userRelations = relations(users, ({ many }) => ({
   programs: many(usersOnPrograms),
   forms: many(forms),
-  competencyPerformanceSummaries: many(competencyPerformanceSummaries),
 }));
 
 // MARK: Users On Programs
@@ -201,7 +197,7 @@ export const forms = pgTable("forms", {
   creatorId: uuid("creator_id").references((): AnyPgColumn => users.id),
 });
 export type Form = typeof forms.$inferSelect;
-export type Newform = typeof forms.$inferInsert;
+export type NewForm = typeof forms.$inferInsert;
 export const formRelations = relations(forms, ({ one, many }) => ({
   programs: one(programs, {
     fields: [forms.programId],
@@ -212,7 +208,6 @@ export const formRelations = relations(forms, ({ one, many }) => ({
     references: [users.id],
   }),
   questions: many(questions),
-  versions: many(formVersions),
   tags: many(formTags),
 }));
 
@@ -223,10 +218,8 @@ export const questions = pgTable("questions", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   text: text("text"),
-  simpleDescription: text("simple_description"),
   feedback: boolean("feedback").notNull().default(false),
   position: integer("position").notNull(),
-  metadata: json("metadata"),
   formId: uuid("form_id")
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
@@ -265,6 +258,7 @@ export const optionRelations = relations(options, ({ one, many }) => ({
     fields: [options.questionId],
     references: [questions.id],
   }),
+  answers: many(answers)
 }));
 
 // MARK:  Milestones On Questions
@@ -310,9 +304,7 @@ export const responses = pgTable("responses", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formVersionId: uuid("form_version_id")
-    .notNull()
-    .references(() => formVersions.id, { onDelete: "cascade" }),
+  formCodeId: uuid("form_code_id").notNull().references(() => formCodes.id, { onDelete: 'cascade'}),
   creatorId: uuid("creator_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
@@ -324,7 +316,6 @@ export const responses = pgTable("responses", {
 export type Response = DateToString<typeof responses.$inferSelect>;
 export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
-  // connect to form version
   creator: one(users, {
     fields: [responses.creatorId],
     references: [users.id],
@@ -334,53 +325,19 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
     fields: [responses.evaluateeId],
     references: [users.id],
   }),
-  formVersions: one(formVersions, {
-    fields: [responses.formVersionId],
-    references: [formVersions.id],
+  formCode: one(formCodes, {
+    fields: [responses.formCodeId],
+    references: [formCodes.id],
   }),
-  competencyScores: many(competencyScores),
 }));
-
-// COMPETENCY SCORES
-export const competencyScores = pgTable("competency_scores", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  responseId: uuid("response_id")
-    .notNull()
-    .references(() => responses.id, { onDelete: "cascade" }),
-  competencyId: uuid("competency_id")
-    .notNull()
-    .references(() => competencies.id),
-  score: text("score").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-export type CompetencyScore = typeof competencyScores.$inferSelect;
-export type NewCompetencyScore = typeof competencyScores.$inferInsert;
-export const competencyScoreRelations = relations(
-  competencyScores,
-  ({ one }) => ({
-    response: one(responses, {
-      fields: [competencyScores.responseId],
-      references: [responses.id],
-    }),
-    competency: one(competencies, {
-      fields: [competencyScores.competencyId],
-      references: [competencies.id],
-    }),
-  }),
-);
 
 // MARK: Answers
 export const answers = pgTable("answers", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  questionVersionId: uuid("question_version_id")
-    .notNull()
-    .references(() => questionVersions.id, { onDelete: "cascade" }),
-  optionVersionId: uuid("option_version_id").references(
-    () => optionVersions.id,
+  optionId: uuid("option_id").references(
+    () => options.id,
     { onDelete: "cascade" },
   ),
   responseId: uuid("response_id")
@@ -392,13 +349,9 @@ export const answers = pgTable("answers", {
 export type Answer = DateToString<typeof answers.$inferSelect>;
 export type NewAnswer = typeof answers.$inferInsert;
 export const answerRelations = relations(answers, ({ one, many }) => ({
-  optionVersion: one(optionVersions, {
-    fields: [answers.optionVersionId],
-    references: [optionVersions.id],
-  }),
-  questionVersions: one(questionVersions, {
-    fields: [answers.questionVersionId],
-    references: [questionVersions.id],
+  option: one(options, {
+    fields: [answers.optionId],
+    references: [options.id],
   }),
   response: one(responses, {
     fields: [answers.responseId],
@@ -411,9 +364,9 @@ export const formCodes = pgTable("form_codes", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formVersionId: uuid("form_version_id")
+  formId: uuid("form_id")
     .notNull()
-    .references(() => formVersions.id, { onDelete: "cascade" }),
+    .references(() => forms.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 6 }).notNull(),
   startsAt: timestamp("starts_at"),
   expiresAt: timestamp("expires_at").notNull(),
@@ -423,11 +376,12 @@ export const formCodes = pgTable("form_codes", {
 export type FormCode = typeof formCodes.$inferSelect;
 export type NewFormCode = typeof formCodes.$inferInsert;
 export const formCodeRelations = relations(formCodes, ({ one, many }) => ({
-  form: one(formVersions, {
-    fields: [formCodes.formVersionId],
-    references: [formVersions.id],
+  form: one(forms, {
+    fields: [formCodes.formId],
+    references: [forms.id],
   }),
   usersWithCode: many(formCodesOnUsers),
+  responses: many(responses)
 }));
 
 // MARK: Form Codes on Users
@@ -466,179 +420,6 @@ export const formCodesOnUsersRelations = relations(
   }),
 );
 
-// MARK: Form Versions
-export const formVersions = pgTable("form_versions", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  formId: uuid("form_id")
-    .notNull()
-    .references(() => forms.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  programId: uuid("program_id")
-    .notNull()
-    .references(() => programs.id),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
-export type FormVersion = typeof formVersions.$inferSelect;
-export type NewFormVersion = typeof formVersions.$inferInsert;
-export const formVersionRelations = relations(
-  formVersions,
-  ({ one, many }) => ({
-    form: one(forms, {
-      fields: [formVersions.formId],
-      references: [forms.id],
-    }),
-    questions: many(questionVersions),
-    code: one(formCodes, {
-      fields: [formVersions.id],
-      references: [formCodes.formVersionId],
-    }),
-    usersWithCode: many(formCodesOnUsers),
-    program: one(programs, {
-      fields: [formVersions.programId],
-      references: [programs.id],
-    }),
-    responses: many(responses),
-    competencyPerformanceSummaries: many(competencyPerformanceSummaries),
-  }),
-);
-
-// MARK: Question Versions
-export const questionVersions = pgTable("question_versions", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  formVersionId: uuid("form_version_id")
-    .notNull()
-    .references(() => formVersions.id, { onDelete: "cascade" }),
-  text: text("text"),
-  feedback: boolean("feedback").notNull(),
-  position: integer("position").notNull(),
-});
-export type QuestionVersion = typeof questionVersions.$inferSelect;
-export type NewQuestionVersion = typeof questionVersions.$inferInsert;
-export const questionVersionRelations = relations(
-  questionVersions,
-  ({ one, many }) => ({
-    formVersion: one(formVersions, {
-      fields: [questionVersions.formVersionId],
-      references: [formVersions.id],
-    }),
-    options: many(optionVersions),
-    milestones: many(milestoneOnQuestionVersions),
-    answers: many(answers),
-  }),
-);
-
-// MARK: Option Versions
-export const optionVersions = pgTable("option_versions", {
-  id: uuid("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  questionVersionId: uuid("question_version_id")
-    .notNull()
-    .references(() => questionVersions.id, { onDelete: "cascade" }),
-  text: text("text"),
-  position: integer("position").notNull(),
-  pointValue: decimal("point_value").notNull(),
-});
-export type OptionVersion = typeof optionVersions.$inferSelect;
-export type NewOptionVersion = typeof optionVersions.$inferInsert;
-export const optionVersionRelations = relations(
-  optionVersions,
-  ({ one, many }) => ({
-    question: one(questionVersions, {
-      fields: [optionVersions.questionVersionId],
-      references: [questionVersions.id],
-    }),
-    answers: many(answers),
-  }),
-);
-
-// MARK: Milestones On Question Versions
-export const milestoneOnQuestionVersions = pgTable(
-  "milestones_on_questions_versions",
-  {
-    questionVersionId: uuid("question_version_id")
-      .notNull()
-      .references(() => questionVersions.id, { onDelete: "cascade" }),
-    milestoneId: uuid("milestone_id")
-      .notNull()
-      .references(() => milestones.id),
-  },
-  (table) => {
-    return {
-      id: primaryKey({
-        columns: [table.questionVersionId, table.milestoneId],
-      }),
-    };
-  },
-);
-export type MilestoneOnQuestionVersion =
-  typeof milestoneOnQuestionVersions.$inferSelect;
-export type NewMilestoneOnQuestionVersion =
-  typeof milestoneOnQuestionVersions.$inferInsert;
-export const milestoneOnQuestionVersionRelations = relations(
-  milestoneOnQuestionVersions,
-  ({ one }) => ({
-    question: one(questionVersions, {
-      fields: [milestoneOnQuestionVersions.questionVersionId],
-      references: [questionVersions.id],
-    }),
-    milestone: one(milestones, {
-      fields: [milestoneOnQuestionVersions.milestoneId],
-      references: [milestones.id],
-    }),
-  }),
-);
-
-export const competencyPerformanceSummaries = pgTable(
-  "competency_performance_summaries",
-  {
-    evaluateeId: uuid("evaluatee_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    formVersionId: uuid("form_version_id")
-      .notNull()
-      .references(() => formVersions.id, { onDelete: "cascade" }),
-    competencyId: uuid("competency_id")
-      .notNull()
-      .references(() => competencies.id),
-    strengths: text("strengths"),
-    weaknesses: text("weaknesses"),
-    feedback: text("feedback"),
-  },
-  (table) => {
-    return {
-      id: primaryKey({
-        columns: [table.evaluateeId, table.formVersionId, table.competencyId],
-      }),
-    };
-  },
-);
-export type CompetencyPerformanceSummary =
-  typeof competencyPerformanceSummaries.$inferSelect;
-export type NewCompetencyPerformanceSummary =
-  typeof competencyPerformanceSummaries.$inferInsert;
-export const competencyPerformanceSummaryRelations = relations(
-  competencyPerformanceSummaries,
-  ({ one }) => ({
-    evaluatee: one(users, {
-      fields: [competencyPerformanceSummaries.evaluateeId],
-      references: [users.id],
-    }),
-    formVersion: one(formVersions, {
-      fields: [competencyPerformanceSummaries.formVersionId],
-      references: [formVersions.id],
-    }),
-    competency: one(competencies, {
-      fields: [competencyPerformanceSummaries.competencyId],
-      references: [competencies.id],
-    }),
-  }),
-);
-
 export const recommendedMilestones = pgTable(
   "recommended_milestones",
   {
@@ -673,56 +454,25 @@ export const recommendedMilestoneRelations = relations(
   }),
 );
 
-export const studentResponseBaseView = pgView("student_response_base", {
-  responseId: uuid("response_id").primaryKey(),
-  userId: uuid("user_id"),
-  formVersionId: uuid("form_version_id"),
-  formId: uuid("form_id"),
-  formVersionTitle: text("form_version_title"),
-  evaluatorId: uuid("evaluator_id"),
-  createdAt: timestamp("created_at"),
-}).existing();
-
-// View for user details
-export const userDetailsView = pgView("user_details", {
-  userId: uuid("user_id").primaryKey(),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-}).existing();
-
-// View for question and milestone details
-export const questionMilestoneView = pgView("question_milestone", {
-  formVersionId: uuid("form_version_id").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  responseId: uuid("response_id").notNull(),
-  questionVersionId: uuid("question_version_id").notNull(),
-  questionText: text("question_text").notNull(),
-  selectedOptionVersionId: uuid("selected_option_version_id").notNull(),
-  milestoneId: uuid("milestone_id").notNull(),
-  milestoneName: text("milestone_name").notNull(),
-  milestoneLevel: integer("milestone_level").notNull(),
-  subcompetencyId: uuid("subcompetency_id").notNull(),
-  subcompetencyName: text("subcompetency_name").notNull(),
-  subcompetencyLevel: integer("subcompetency_level").notNull(),
-  competencyId: uuid("competency_id").notNull(),
-  competencyName: text("competency_name").notNull(),
-  pointsAvailable: numeric("points_available").notNull(),
-  pointsEarned: numeric("points_earned").notNull(),
-}).existing();
-
-// Main view combining all data
-export const studentPerformanceView = pgView("student_performance", {
-  responseId: uuid("response_id").primaryKey().notNull(),
-  userId: uuid("user_id").notNull(),
-  formVersionId: uuid("form_version_id").notNull(),
+export const responsesView = pgMaterializedView("responses_view", {
   formId: uuid("form_id").notNull(),
-  formVersionTitle: text("form_version_title").notNull(),
+  formCodeId: uuid("form_code_id").notNull(),
+  formCodeCreatedAt: timestamp("form_code_created_at").notNull(),
+  responseId: uuid("response_id").notNull(),
   evaluatorId: uuid("evaluator_id").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  evaluatorFirstName: text("evaluator_first_name").notNull(),
-  evaluatorLastName: text("evaluator_last_name").notNull(),
-  totalPointsAvailable: numeric("total_points_available").notNull(),
-  totalPointsEarned: numeric("total_points_earned").notNull(),
-}).existing();
+  evaluatorFullName: text("evaluator_full_name").notNull(),
+  evaluateeId: uuid("evaluatee_id").notNull(),
+  evaluateeFullName: text("evaluatee_full_name").notNull(),
+  questionId: uuid("question_id").notNull(),
+  selectedOptionId: uuid("selected_option_id").notNull(),
+  evaluatorFeedback: text("evaluator_feedback"),
+  milestoneId: uuid("milestone_id"),
+  milestoneDescription: text("milestone_description"),
+  subcompetencyId: uuid("subcompetency_id"),
+  subcompetencyName: text("subcompetency_name"),
+  competencyId: uuid("competency_id"),
+  competencyName: text("competency_name"),
+  pointsEarned: decimal("point_value", { precision: 10, scale: 2 }),
+  pointsAvailable: decimal("point_value", { precision: 10, scale: 2 })
+}).existing()
+
