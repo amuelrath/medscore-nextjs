@@ -40,10 +40,10 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
 
   return (
     <div
-      className={cn("sticky top-0 z-50 border-b-2 border-primary")}
+      className={cn("fixed w-full top-0 z-50")}
     >
       <div
-        className={`flex flex-row items-center justify-between bg-foreground p-2`}
+        className={`flex flex-row items-center justify-between bg-foreground/90 shadow-xl backdrop-blur-xl p-2`}
       >
         <div className={cn("flex flex-row items-center space-x-2")}>
           <Image priority src={logo} alt="logo" className={cn("size-10")} />
