@@ -1,5 +1,4 @@
 "use client";
-import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ResponseCard } from "@/components/(admin)/forms/responses/response-card";
 import { VersionAverageChart } from "@/components/(admin)/forms/responses/version-average-chart";
@@ -9,21 +8,13 @@ interface Grouped<T> {
   [key: string]: T[];
 }
 
+type InfoSidebarProps = {
+
+}
+
 export function InfoSidebar() {
-  const { versions, selectedResponseId, setSelectedResponseId } =
-    useResponseContext();
-
-  if (!versions || versions.length === 0) {
-    return <div>this error is impossible to see.</div>;
-  }
-
   // Flatten all responses from all versions
-  const allResponses = versions.flatMap((version) =>
-    version.responses.map((response) => ({
-      ...response,
-      versionTitle: version.title,
-    })),
-  );
+  const allResponses = form.responses
 
   if (!allResponses) return <>No Responses to this Form</>;
 
@@ -57,13 +48,13 @@ export function InfoSidebar() {
 
   return (
     <Glass className="col-span-2">
-      <VersionAverageChart formId={versions[0]?.formId} />
+      <VersionAverageChart formId={form.id} />
       <ScrollArea className="h-[52vh]">
         {sortedVersionIds.map((versionId) => {
-          const versionResponses = groupedResponses[versionId];
-          const versionTitle = versionResponses[0].versionTitle; // TODO allow user to change title of a form version?
+          const responseGroups = groupedResponses[versionId];
+          const versionTitle = responseGroups[0].versionTitle; // TODO allow user to change title of a form version?
           const versionDate = formatDate(
-            versionResponses[0].createdAt,
+            responseGroups[0].createdAt,
             "MMMM d, yyyy",
           );
 
@@ -73,7 +64,7 @@ export function InfoSidebar() {
               <h3 className="mb-1 mt-4 text-center text-xl font-extrabold text-neutral-700 drop-shadow-lg">
                 {versionDate}
               </h3>
-              {versionResponses
+              {responseGroups
                 .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
                 .map((response) => (
                   <div className="px-4" key={response.id}>
