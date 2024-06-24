@@ -1,58 +1,44 @@
 "use server";
 
 import { db } from "@/db";
-import { formCodes, formVersions } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { formCodes } from "@/db/schema";
+import { and, eq, isNull, sql } from "drizzle-orm";
+import { dateToSQLDate } from "@/lib/date-to-sql-date";
+
+type CancelAdministerFormResult = {
+  success: boolean;
+  message: string;
+};
+
 export async function cancelAdministerForm({
-  formId,
+  formCodeId,
 }: {
-  formId: string | undefined;
-}) {
-  // grab all versions of this form
-  if (!formId) throw new Error("Form Id is required");
-  const allVersions = await db.query.formVersions.findMany({
-    where: (fv, { eq }) => eq(fv.formId, formId),
-    with: {
-      code: true,
-    },
-  });
-
-  // find all codes for this form
-  const allCodes = allVersions
-    .flatMap((fv) => fv.code)
-    .filter((c) => c !== null && c !== undefined);
-
-  // get the most recent code
-  const newestCode = allCodes.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  )[0];
-
-
-  if (newestCode) {
-    // check if the form has been responded to
-    const response = await db.query.responses.findFirst({
-      where: (r, { eq }) => eq(r.formVersionId, newestCode.formVersionId),
-    });
-
-    // if it has no responses, delete the form version
-    if (!response) {
-      await db
-        .delete(formVersions)
-        .where(eq(formVersions.id, newestCode.formVersionId));
-
-      // also delete the code itself
-      return db.delete(formCodes).where(eq(formCodes.formVersionId, newestCode.id));
-    }
-
-
-    // deactivate the form code if there are responses
+  formCodeId: string;
+}): Promise<CancelAdministerFormResult> {
+  try {
+    const now = dateToSQLDate(new Date());
     await db
       .update(formCodes)
       .set({
         deletedAt: new Date(),
       })
-      .where(eq(formCodes.id, newestCode.id));
+      .where(
+        and(
+          eq(formCodes.id, formCodeId),
+          isNull(formCodes.deletedAt),
+          sql`${formCodes.expiresAt} > ${now}::timestamp`,
+        ),
+      );
+
+    return {
+      success: true,
+      message: "Form administration cancelled successfully.",
+    };
+  } catch (error) {
+    console.error("Error cancelling form administration:", error);
+    return {
+      success: false,
+      message: "An error occurred while cancelling form administration.",
+    };
   }
-
-
 }
