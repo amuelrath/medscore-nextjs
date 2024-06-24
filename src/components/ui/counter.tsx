@@ -14,11 +14,11 @@ const easeOutCubic = (t: number, b: number, c: number, d: number) => {
 };
 
 const Counter: React.FC<CounterProps> = ({
-                                           value,
-                                           duration = 1,
-                                           className,
-                                           type = "number"
-                                         }) => {
+  value,
+  duration = 1,
+  className,
+  type = "number",
+}) => {
   const [count, setCount] = useState(0);
   const animationIdRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
@@ -60,11 +60,7 @@ const Counter: React.FC<CounterProps> = ({
     return type === "percent" ? `${paddedCount}%` : paddedCount;
   };
 
-  return (
-    <div className={className}>
-      {formatCount()}
-    </div>
-  );
+  return <div className={className}>{formatCount()}</div>;
 };
 
 export default Counter;
