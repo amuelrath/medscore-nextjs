@@ -1,36 +1,71 @@
 "use server";
 import { db } from "@/db";
-import { TResponseSchema } from "@/db/types";
 import { responses, answers } from "@/db/schema";
 
-export async function submitResponse(response: TResponseSchema) {
-  const creatorId = response.creatorId; // TODO Replace with actual user Id
-  const evaluateeId = response.evaluateeId;
-  const formVersionId = response.formVersionId;
+type Answer = {
+  optionId: string;
+  feedback?: string | undefined;
+};
 
-  if (!creatorId) throw new Error("No CreatorId found!")
-  if (!evaluateeId) throw new Error("No EvaluateeId found!")
-  if (!formVersionId) throw new Error("No FormVersionId found!")
+type Response = {
+  answers: Answer[];
+  formCodeId: string;
+  evaluateeId: string;
+  evaluatorId: string;
+};
 
-  return db.transaction(async (tx) => {
-    // create the response object
-    const responseQuery = await tx
-      .insert(responses)
-      .values({
-        formVersionId,
-        creatorId,
-        evaluateeId,
-      })
-      .returning();
+function validateResponse(response: Response): void {
+  const {
+    evaluatorId,
+    evaluateeId,
+    formCodeId,
+    answers: responseAnswers,
+  } = response;
 
-    // now create the answer objects
-    for (let answer of response.answers) {
-      await tx.insert(answers).values({
-        questionVersionId: answer.questionVersionId,
-        optionVersionId: answer.optionVersionId,
-        responseId: responseQuery[0].id,
+  if (!evaluatorId) throw new Error("No CreatorId found!");
+  if (!evaluateeId) throw new Error("No EvaluateeId found!");
+  if (!formCodeId) throw new Error("No FormCodeId found!");
+  if (!responseAnswers || responseAnswers.length === 0)
+    throw new Error("No answers provided!");
+}
+
+export async function submitResponse(response: Response) {
+  validateResponse(response);
+
+  const {
+    evaluatorId: creatorId,
+    evaluateeId,
+    formCodeId,
+    answers: responseAnswers,
+  } = response;
+
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [newResponse] = await tx
+        .insert(responses)
+        .values({
+          formCodeId,
+          creatorId,
+          evaluateeId,
+        })
+        .returning();
+
+      if (!newResponse) throw new Error("Failed to create response");
+
+      const answerInserts = responseAnswers.map((answer) => ({
+        optionId: answer.optionId,
+        responseId: newResponse.id,
         feedback: answer.feedback,
-      });
-    }
-  });
+      }));
+
+      await tx.insert(answers).values(answerInserts);
+
+      return { responseId: newResponse.id };
+    });
+
+    return { success: true, ...result };
+  } catch (error) {
+    console.error("Error in submitResponse:", error);
+    throw error; // Re-throw the error to be handled by the caller
+  }
 }
