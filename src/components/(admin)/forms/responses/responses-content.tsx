@@ -1,5 +1,4 @@
 "use client";
-import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
 import { ResponseQuestions } from "@/components/(admin)/forms/responses/response-questions";
 import { InfoSidebar } from "@/components/(admin)/forms/responses/info-sidebar";
 import {
@@ -9,20 +8,12 @@ import {
 } from "@/components/ui/direction-aware-tabs";
 import { Glass } from "@/components/ui/glass";
 import { ResponsePerformance } from "@/components/(admin)/forms/responses/response-performance";
-import { FormNotAdministered } from "@/components/(admin)/forms/responses/form-not-administered";
+import { FormNotAdministered } from "@/components/(admin)/forms/responses/errors/form-not-administered";
 
 export function ResponsesContent() {
-  const { isLoading, error, versions } = useResponseContext();
 
-  if (isLoading) {
-    return;
-  }
 
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  if (!versions || versions.length === 0) {
+  if (!responses || responses.length === 0) {
     return <FormNotAdministered />;
   }
 
