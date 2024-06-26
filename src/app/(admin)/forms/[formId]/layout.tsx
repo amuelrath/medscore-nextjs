@@ -1,17 +1,8 @@
 import { ReactNode } from "react";
-import {
-  DirectionAwareContent,
-  DirectionAwareTabsProvider,
-} from "@/components/ui/direction-aware-tabs";
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from "@tanstack/react-query";
-import { getFormById } from "@/server/actions/forms/get-form-by-id";
-import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
-import { FormEditorNav } from "@/components/(admin)/forms/editor/form-editor-nav";
-import { EditorFormProvider } from "@/components/(admin)/forms/providers/editor-form-provider";
+import { FormContextWrapper } from "@/components/(admin)/forms/editor/form-context-wrapper";
+import { fetchFormData } from "@/fetchers/form-data-fetcher";
+import { FormLayout } from "@/components/(admin)/forms/form-layout";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
 export default async function FormIdLayout({
   editor,
@@ -22,54 +13,16 @@ export default async function FormIdLayout({
   responses: ReactNode;
   params: { formId: string };
 }) {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 1000 * 60 * 60, // 3 minutes
-      },
-    },
-  });
+  const { form, queryClient } = await fetchFormData(params.formId);
 
-  // Fetch form and subcompetencies data
-  const [form] = await Promise.all([
-    queryClient.fetchQuery({
-      queryKey: ["form", params.formId],
-      queryFn: () =>
-        getFormById({
-          formId: params.formId,
-          userId: process.env.NEXT_PUBLIC_DEV_USER_ID as string,
-        }),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ["subcompetencies", params.formId],
-      queryFn: () => getSubcompetencies({ formId: params.formId }),
-      staleTime: 1000 * 60 * 60 * 24, // 1 day
-    }),
-  ]);
-
-  const tabs = [
-    {
-      id: 0,
-      label: "Editor",
-      content: <>{editor}</>,
-    },
-    {
-      id: 1,
-      label: "Responses",
-      content: <>{responses}</>,
-    },
-  ];
+  if (!form)
+    throw new Error("Error fetching this form! Please try again momentarily.");
 
   return (
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <DirectionAwareTabsProvider tabs={tabs}>
-          <EditorFormProvider defaultValues={form}>
-            <FormEditorNav />
-            <div className={"mt-32"} >
-            <DirectionAwareContent />
-            </div>
-          </EditorFormProvider>
-        </DirectionAwareTabsProvider>
-      </HydrationBoundary>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <FormContextWrapper defaultValues={form}>
+        <FormLayout editor={editor} responses={responses} />
+      </FormContextWrapper>
+    </HydrationBoundary>
   );
 }
