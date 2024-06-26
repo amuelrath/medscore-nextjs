@@ -1,7 +1,4 @@
-import { QuestionCardList } from "@/components/(admin)/forms/editor/question-card-list";
-
-export default function EditorPage() {
-  return (
-      <QuestionCardList />
-  );
+import { FormBuilder } from "@/components/(admin)/forms/editor/form-builder";
+export default async function EditorPage() {
+  return <FormBuilder />;
 }
