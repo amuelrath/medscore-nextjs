@@ -1,33 +1,36 @@
-'use client'
-import { FC, useState } from "react";
+"use client";
+import {  useState } from "react";
 import { cn } from "@/lib/utils";
-import { useFormContext } from "react-hook-form";
-import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Glass } from "@/components/ui/glass";
-import SaveFormButton from "@/components/(admin)/forms/editor/save-form-button";
+import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-button";
 import { AdministerDialog } from "@/components/(admin)/forms/dialogs/administer-dialog";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import CALENDAR from 'public/icons/calendar-teal.json';
+import CALENDAR from "public/icons/calendar-teal.json";
+import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
+import { useFormContext } from "react-hook-form";
+import { useSaveContext } from "@/components/(admin)/forms/editor/save-context";
 
-export const FormEditorNav: FC = () => {
-  const methods = useFormContext<FormResult>();
-  const form = methods.getValues();
+export const FormEditorNav = () => {
+  const { getValues, register } = useFormContext<TFormSchema>();
+  const title = getValues(`title`);
   const [hovering, setHovering] = useState<boolean>(false);
-
+  const { isSaving } = useSaveContext()
   return (
-    <div className={cn("fixed top-16 z-50 px-8 w-full")}>
-      <Glass className="flex flex-row z-50 justify-between items-center h-16 px-8">
-        <div className={cn("flex flex-row items-center space-x-2 z-50 ")}>
+    <div className={cn("fixed top-16 z-50 w-full px-8")}>
+      <Glass className="z-50 flex h-16 flex-row items-center justify-between px-8">
+        <div className={cn("z-50 flex flex-row items-center space-x-2 ")}>
           <Input
-            className={cn("text-xl shadow-inner font-semibold bg-blue-950 bg-opacity-5 backdrop-blur-3xl")}
-            defaultValue={form.title}
-            {...methods.register("title")}
+            className={cn(
+              "bg-blue-950 bg-opacity-5 text-xl font-semibold shadow-inner backdrop-blur-3xl",
+            )}
+            defaultValue={title}
+            {...register("title")}
           />
           <DirectionAwareTabs />
-          <SaveFormButton />
+          <SaveFormButton  isSaving={isSaving} />
         </div>
         <div className={cn("flex flex-row space-x-2")}>
           <AdministerDialog />
@@ -37,8 +40,13 @@ export const FormEditorNav: FC = () => {
               onMouseLeave={() => setHovering(false)}
               className={cn("flex flex-row items-center space-x-2")}
             >
-              <LottieHover loop={false} isHovering={hovering} size="sm" src={CALENDAR} />
-              <span className={cn("text-teal-900 font-semibold")}>Manage</span>
+              <LottieHover
+                loop={false}
+                isHovering={hovering}
+                size="sm"
+                src={CALENDAR}
+              />
+              <span className={cn("font-semibold text-teal-900")}>Manage</span>
             </div>
           </Button>
         </div>
@@ -46,4 +54,3 @@ export const FormEditorNav: FC = () => {
     </div>
   );
 };
-
