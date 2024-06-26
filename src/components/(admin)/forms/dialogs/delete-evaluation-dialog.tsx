@@ -54,7 +54,7 @@ export function DeleteFormDialogTrigger({
             </DialogDescription>
         </DialogHeader>
         <div className="flex flex-row items-center justify-end space-x-2">
-          <Button variant={"destructive"} className="w-[100px]">
+          <Button onClick={handleDeleteForm} variant={"destructive"} className="w-[100px]">
             Delete
           </Button>
           <DialogClose asChild>
