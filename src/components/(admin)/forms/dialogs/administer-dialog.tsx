@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils";
 import { TimePicker } from "@/components/ui/time-picker";
 import { Button } from "@/components/ui/button";
 import MultipleSelector from "@/components/ui/multiple-selector";
-import { FormResult } from "@/server/actions/forms/get-form-by-id";
+import {  getFormById } from "@/server/actions/forms/get-form-by-id";
 import { Controller, useForm, useFormContext, useWatch } from "react-hook-form";
 import { getFullName } from "@/lib/getFullName";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { administerForm } from "@/server/actions/forms/administer-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,12 +26,12 @@ import { toast } from "sonner";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { LottieHover } from "@/components/ui/lottie-hover";
 import PEN from "public/icons/pencil-teal.json";
+import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 
 export function AdministerDialog() {
-  const methods = useFormContext<FormResult>();
-  const form = methods.getValues();
-
-  const [hovering, setHovering] = useState<boolean>(false)
+  const { getValues } = useFormContext<TFormSchema>();
+  const form = getValues();
+  const [hovering, setHovering] = useState<boolean>(false);
 
   return (
     <Dialog>
@@ -40,28 +40,34 @@ export function AdministerDialog() {
           <div
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
-            className={cn("flex flex-row items-center space-x-2")}>
-            <LottieHover loop={false} isHovering={hovering} size={"sm"} src={PEN} />
-            <span className={"text-teal-900 font-semibold"}>Administer</span>
+            className={cn("flex flex-row items-center space-x-2")}
+          >
+            <LottieHover
+              loop={false}
+              isHovering={hovering}
+              size={"sm"}
+              src={PEN}
+            />
+            <span className={"font-semibold text-teal-900"}>Administer</span>
           </div>
         </Button>
       </DialogTrigger>
-        <DialogContent
-          onOpenAutoFocus={(e) => e.preventDefault()}
-          onCloseAutoFocus={(e) => e.preventDefault()}
-          className={cn("z-50 flex min-w-[530px] flex-col items-start")}
-        >
-          <DialogHeader className="w-full">
-            <DialogTitle className="w-full truncate">
-              Administer &quot;{form.title}&quot;
-            </DialogTitle>
-            <DialogDescription>
-              Start or schedule the administration of this assessment.
-            </DialogDescription>
-            <hr />
-          </DialogHeader>
-          <AdministerForm />
-        </DialogContent>
+      <DialogContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        className={cn("z-50 flex min-w-[530px] flex-col items-start")}
+      >
+        <DialogHeader className="w-full">
+          <DialogTitle className="w-full truncate">
+            Administer &quot;{form.title}&quot;
+          </DialogTitle>
+          <DialogDescription>
+            Start or schedule the administration of this assessment.
+          </DialogDescription>
+          <hr />
+        </DialogHeader>
+        <AdministerForm formId={form.id} />
+      </DialogContent>
     </Dialog>
   );
 }
@@ -103,18 +109,23 @@ type TAdministerForm = z.infer<typeof ZAdministerForm>;
  *    groups show up as small buttons so the user can
  *    quickly select a group(s) of students.
  */
-function AdministerForm() {
+function AdministerForm({ formId }: { formId: string }) {
   // form state
   const [formCode, setFormCode] = useState<
     { code: string; expiresAt: Date } | undefined
   >(undefined);
 
-  // get the form values
-  const methods = useFormContext<FormResult>();
-  const form = methods.getValues();
+  // grab the formId
+  const userId = process.env.NEXT_PUBLIC_DEV_USER_ID!;
+
+  // get the form values from the query cache
+  const { data: form } = useSuspenseQuery({
+    queryKey: ["form", formId],
+    queryFn: () => getFormById({ formId, userId }),
+  });
 
   // get the possible students
-  const studentOptions = form.programs.users
+  const studentOptions = form?.programs.users
     .filter((u) => u.user.role === "STUDENT")
     .map((s) => ({
       value: s.user.id,
@@ -130,7 +141,7 @@ function AdministerForm() {
   } = useForm<TAdministerForm>({
     resolver: zodResolver(ZAdministerForm),
     defaultValues: {
-      formId: form.id,
+      formId: form?.id || "",
       studentIds: [],
       startDate: new Date(),
       startTime: new Date(),
@@ -173,7 +184,7 @@ function AdministerForm() {
         expiresAt,
       });
       toast.success(
-        `"${form.title}" was ${isSameDay(watchedStartDate, new Date()) ? "administered" : "scheduled"} successfully.`,
+        `"${form?.title}" was ${isSameDay(watchedStartDate, new Date()) ? "administered" : "scheduled"} successfully.`,
       );
       setFormCode(result);
       reset();
@@ -251,7 +262,7 @@ function AdministerForm() {
                   value={field.value.map((value) => ({
                     value,
                     label:
-                      studentOptions.find((s) => s.value === value)?.label ||
+                      studentOptions?.find((s) => s.value === value)?.label ||
                       "",
                   }))}
                   onChange={(options) => {
