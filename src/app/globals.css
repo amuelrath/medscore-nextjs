@@ -80,6 +80,11 @@
 
 body {
   overflow-y: hidden;
+
+}
+
+input {
+  border: none;
 }
 
 @layer base {
