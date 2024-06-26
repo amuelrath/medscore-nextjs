@@ -41,7 +41,7 @@ export type TQuestionRelate = InferResultType<
   }
 >;
 
-export type TSubcompetencyRelate = InferResultType<
+export type SubcompetencyResult = InferResultType<
   "subcompetencies",
   { competencies: true; milestones: true }
 >;
