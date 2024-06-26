@@ -161,9 +161,11 @@ export function FormTags({
 
   return (
     <>
-      {tags?.sort((a, b) => a.tag.localeCompare(b.tag)).map((tag) => {
-        return <FormTag key={tag.id} tag={tag} removeTag={removeTag} />;
-      })}
+      {tags
+        ?.sort((a, b) => a.tag.localeCompare(b.tag))
+        .map((tag) => {
+          return <FormTag key={tag.id} tag={tag} removeTag={removeTag} />;
+        })}
 
       <Popover>
         <PopoverTrigger>
@@ -191,7 +193,11 @@ export function FormTags({
               )}
             />
             <div className={cn("flex w-full flex-row items-center space-x-4")}>
-              <Input placeholder={"Tag Description..."} {...register(`tag`)} />
+              <Input
+                placeholder={"Tag Description..."}
+                className="bg-blue-800 shadow-inner bg-opacity-5 backdrop-blur-3xl"
+                {...register(`tag`)}
+              />
               <Button>Add Tag</Button>
             </div>
           </form>
