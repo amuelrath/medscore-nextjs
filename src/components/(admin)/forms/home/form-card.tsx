@@ -1,6 +1,8 @@
 "use client";
 import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  QueryClient,
+} from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -12,7 +14,6 @@ import {
   TrashIcon,
 } from "lucide-react";
 import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/dialogs/delete-evaluation-dialog";
-import { openForm } from "@/server/actions/forms/open-form";
 import { useRouter } from "next/navigation";
 import { formatDistance } from "date-fns";
 import { FormTags } from "@/components/(admin)/forms/home/form-tags";
@@ -20,36 +21,9 @@ import { Glass } from "@/components/ui/glass";
 
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
-  const queryClient = useQueryClient();
-
-  const openMutation = useMutation({
-    mutationFn: openForm,
-    onSettled: () => {
-      queryClient.setQueryData<FormLiteResult[]>(
-        ["forms", "lite"],
-        (oldData) => {
-          if (oldData) {
-            return oldData.map((f) => {
-              if (f.id === form.id) {
-                return {
-                  ...f,
-                  lastOpenedAt: new Date(),
-                };
-              }
-              return f;
-            });
-          }
-          return oldData;
-        },
-      );
-      router.push(`/forms/${form.id}`);
-    },
-  });
-
+  const queryClient = new QueryClient();
   const handleClick = async () => {
-    openMutation.mutate({
-      formId: form.id,
-    });
+    router.push(`/forms/${form.id}`);
   };
 
   const handleHover = async (formId: string) => {
@@ -66,7 +40,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
       rounded={"sm"}
       intensity={"xl"}
       className={cn(
-        "group mb-4 border-none flex select-none flex-row justify-between rounded-xl transition-all hover:bg-opacity-60",
+        "group mb-4 flex select-none flex-row justify-between rounded-xl border-none transition-all hover:bg-opacity-60",
       )}
     >
       <div
