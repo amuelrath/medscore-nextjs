@@ -6,7 +6,7 @@ const glassVariants = cva(
   "backdrop-filter backdrop-blur border border-opacity-18 bg-opacity-20 shadow-lg",
   {
     variants: {
-      color: {
+      glassColor: {
         default: "bg-white border-white",
         blue: "bg-blue-100 border-blue-200",
         green: "bg-green-100 border-green-200",
@@ -39,7 +39,7 @@ const glassVariants = cva(
       },
     },
     defaultVariants: {
-      color: "default",
+      glassColor: "default",
       intensity: "md",
       rounded: "xl",
       shadow: "md",
@@ -50,19 +50,18 @@ const glassVariants = cva(
 
 type GlassVariantProps = VariantProps<typeof glassVariants>;
 
-export interface GlassProps extends GlassVariantProps {
+export interface GlassProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "color">,
+    GlassVariantProps {
   children?: React.ReactNode;
   className?: string;
 }
 
-export const Glass = React.forwardRef<
-  HTMLDivElement,
-  GlassProps & React.HTMLAttributes<HTMLDivElement>
->(
+export const Glass = React.forwardRef<HTMLDivElement, GlassProps>(
   (
     {
       children,
-      color,
+      glassColor,
       intensity,
       rounded,
       shadow,
@@ -80,7 +79,7 @@ export const Glass = React.forwardRef<
           WebkitBackdropFilter: "blur(12px)", // For Safari support
         }}
         className={twMerge(
-          glassVariants({ color, intensity, rounded, shadow, padding }),
+          glassVariants({ glassColor, intensity, rounded, shadow, padding }),
           className,
         )}
         {...props}
