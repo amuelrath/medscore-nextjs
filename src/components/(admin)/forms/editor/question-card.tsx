@@ -2,11 +2,11 @@ import { FC } from "react";
 import { motion } from "framer-motion";
 import { Glass } from "@/components/ui/glass";
 import { Input } from "@/components/ui/input";
-import { Trash2Icon, CopyIcon } from "lucide-react";
+import { Trash2Icon, CopyIcon, MilestoneIcon } from "lucide-react";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { Control, Controller, UseFieldArrayRemove } from "react-hook-form";
-import { MilestoneMultiselect } from "@/components/(admin)/forms/editor/milestone-multiselect";
+import { Control, UseFieldArrayRemove } from "react-hook-form";
+import { cn } from "@/lib/utils";
 
 interface QuestionCardProps {
   question: TFormSchema["questions"][0];
@@ -14,6 +14,8 @@ interface QuestionCardProps {
   index: number;
   removeQuestion: UseFieldArrayRemove;
   duplicateQuestion: () => void;
+  isSelected: boolean;
+  selectQuestion: () => void;
 }
 
 export const QuestionCard: FC<QuestionCardProps> = ({
@@ -22,6 +24,8 @@ export const QuestionCard: FC<QuestionCardProps> = ({
   control,
   removeQuestion,
   duplicateQuestion,
+  isSelected,
+  selectQuestion,
 }) => {
   return (
     <motion.div
@@ -29,21 +33,23 @@ export const QuestionCard: FC<QuestionCardProps> = ({
       layoutId={`question-${question.id}`}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2, delay: index * 0.01 }}
-      className="my-4"
+      className="mx-2 my-4"
     >
-      <Glass intensity="xl" className="group space-y-3 p-4">
+      <Glass
+        intensity="xl"
+        className={cn(
+          "group space-y-3 p-4 transition-all",
+          isSelected && "ring ring-accent-secondary",
+        )}
+      >
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center space-x-4">
             <p className="font-bold">{index + 1}.</p>
-            <Controller
-              name={`questions.${index}.milestoneIds`}
-              control={control}
-              render={({ field }) => (
-                <MilestoneMultiselect
-                  value={field.value}
-                  onChange={field.onChange}
-                  defaultValues={question.milestoneIds}
-                />
+            <MilestoneIcon
+              onClick={selectQuestion}
+              className={cn(
+                "size-4 cursor-pointer transition-colors",
+                isSelected ? "text-accent" : "hover:text-accent",
               )}
             />
           </div>

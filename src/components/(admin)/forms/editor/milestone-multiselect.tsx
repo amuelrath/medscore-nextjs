@@ -1,27 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import {
-  CheckCircle,
-  MilestoneIcon,
-  ChevronRight,
-  ChevronDown,
-} from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
-import { COMPETENCIES } from "@/db/constants";
+import { FC } from "react";
+import { CheckCircle, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import { useFormContext } from "react-hook-form";
 
 interface Competency {
   id: string;
@@ -55,7 +36,7 @@ interface CompetencyCardProps {
   onMilestoneToggle: (id: string) => void;
 }
 
-const CompetencyCard: React.FC<CompetencyCardProps> = ({
+export const CompetencyCard: FC<CompetencyCardProps> = ({
   competency,
   subcompetencies,
   openCompetencyId,
@@ -66,41 +47,43 @@ const CompetencyCard: React.FC<CompetencyCardProps> = ({
   onMilestoneToggle,
 }) => {
   const isOpen = openCompetencyId === competency.id;
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen && ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [isOpen]);
 
   return (
-    <motion.div
-      layout={"position"}
-      ref={ref}
-      className="border-offset-2 mb-2 w-full rounded-lg border-2 border-gray-400 p-2"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Button
-        variant="hide"
-        className="w-full justify-between p-2 text-sm font-semibold"
-        onClick={() => setOpenCompetencyId(isOpen ? null : competency.id)}
+    <div className="mb-2 w-full">
+      <motion.div
+        layout="position"
+        className={cn(
+          "border-offset-2 w-full rounded-lg border-2 p-2 transition-all ",
+          isOpen
+            ? "sticky top-0 z-10 border-accent/10 bg-accent shadow-sm"
+            : "border-accent/10 bg-accent/10 shadow-inner",
+        )}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.3 }}
       >
-        {competency.name}
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {isOpen ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
+        <Button
+          variant="hide"
+          className={cn(
+            "w-full justify-between p-2 text-sm font-semibold",
+            isOpen ? " text-white" : "text-gray-700",
           )}
-        </motion.div>
-      </Button>
+          onClick={() => setOpenCompetencyId(isOpen ? null : competency.id)}
+        >
+          {competency.name}
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {isOpen ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </motion.div>
+        </Button>
+      </motion.div>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -126,7 +109,7 @@ const CompetencyCard: React.FC<CompetencyCardProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 
@@ -138,7 +121,7 @@ interface SubcompetencyCardProps {
   onMilestoneToggle: (id: string) => void;
 }
 
-const SubcompetencyCard: React.FC<SubcompetencyCardProps> = ({
+export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
   subcompetency,
   openSubcompetencyId,
   setOpenSubcompetencyId,
@@ -146,43 +129,45 @@ const SubcompetencyCard: React.FC<SubcompetencyCardProps> = ({
   onMilestoneToggle,
 }) => {
   const isOpen = openSubcompetencyId === subcompetency.id;
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isOpen && ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [isOpen]);
 
   return (
-    <motion.div
-      layout={"preserve-aspect"}
-      ref={ref}
-      className={cn(
-        "border-offset-2 w-full rounded-lg border-2 border-gray-300 p-2",
-      )}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Button
-        variant="hide"
-        className="w-full justify-between p-1 text-xs font-medium"
-        onClick={() => setOpenSubcompetencyId(isOpen ? null : subcompetency.id)}
+    <div className="w-full px-1">
+      <motion.div
+        layout="position"
+        className={cn(
+          "border-offset-2 w-full rounded-lg border-2 p-2",
+          isOpen
+            ? "sticky top-16 z-20 border-[#99D6FF] bg-[#E6F3FF]"
+            : "border-gray-200 bg-blue-50 backdrop-blur-3xl",
+        )}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{ duration: 0.2 }}
       >
-        {subcompetency.level}: {subcompetency.name}
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {isOpen ? (
-            <ChevronDown className="h-3 w-3" />
-          ) : (
-            <ChevronRight className="h-3 w-3" />
+        <Button
+          variant="hide"
+          className={cn(
+            "w-full justify-between p-1 text-xs font-medium",
+            isOpen ? "text-[#1A365D]" : "text-gray-600",
           )}
-        </motion.div>
-      </Button>
+          onClick={() =>
+            setOpenSubcompetencyId(isOpen ? null : subcompetency.id)
+          }
+        >
+          {subcompetency.level}: {subcompetency.name}
+          <motion.div
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {isOpen ? (
+              <ChevronDown className="h-3 w-3" />
+            ) : (
+              <ChevronRight className="h-3 w-3" />
+            )}
+          </motion.div>
+        </Button>
+      </motion.div>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -206,155 +191,63 @@ const SubcompetencyCard: React.FC<SubcompetencyCardProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
+
+export const MilestoneCard: FC<MilestoneCardProps> = ({
+  milestone,
+  isSelected,
+  onToggle,
+}) => (
+  <div className="px-3">
+    <motion.div
+      layout
+      className={cn(
+        "w-full cursor-pointer rounded-lg border p-2 transition-all",
+        isSelected
+          ? "border-[#0066CC] bg-[#E6F3FF]"
+          : "border-gray-200 hover:border-[#99D6FF]",
+      )}
+      onClick={onToggle}
+      whileTap={{ scale: 0.98 }}
+    >
+      <div className="flex items-center justify-between">
+        <span
+          className={cn(
+            "text-xs font-medium",
+            isSelected ? "text-[#1A365D]" : "text-gray-700",
+          )}
+        >
+          {milestone.name}
+        </span>
+        <AnimatePresence>
+          {isSelected && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CheckCircle className="h-3 w-3 text-[#0066CC]" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+      <p
+        className={cn(
+          "mt-1 text-xs",
+          isSelected ? "text-[#1A365D]" : "text-gray-600",
+        )}
+      >
+        {milestone.description}
+      </p>
+    </motion.div>
+  </div>
+);
 
 interface MilestoneCardProps {
   milestone: Milestone;
   isSelected: boolean;
   onToggle: () => void;
 }
-
-const MilestoneCard: React.FC<MilestoneCardProps> = ({
-  milestone,
-  isSelected,
-  onToggle,
-}) => (
-  <motion.div
-    layout
-    className={cn(
-      "w-full cursor-pointer rounded-lg border p-2 transition-all",
-      isSelected
-        ? "border-primary bg-primary/10"
-        : "border-gray-200 hover:border-primary/50",
-    )}
-    onClick={onToggle}
-    whileTap={{ scale: 0.98 }}
-  >
-    <div className="flex items-center justify-between">
-      <span className="text-xs font-medium">{milestone.name}</span>
-      <AnimatePresence>
-        {isSelected && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <CheckCircle className="h-3 w-3 text-primary" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-    <p className="mt-1 text-xs text-gray-600">{milestone.description}</p>
-  </motion.div>
-);
-
-interface MilestoneMultiselectProps {
-  value?: string[] | undefined;
-  onChange?: (selectedMilestoneIds: string[]) => void;
-  defaultValues?: string[];
-}
-
-export function MilestoneMultiselect({
-  value,
-  onChange,
-  defaultValues = [],
-}: MilestoneMultiselectProps) {
-  const { getValues } = useFormContext();
-  const formId = getValues(`id`);
-  const { data: subcompetencies } = useSuspenseQuery({
-    queryKey: ["subcompetencies", formId],
-    queryFn: () => getSubcompetencies({ formId }),
-  });
-
-  const [openCompetencyId, setOpenCompetencyId] = useState<string | null>(null);
-  const [openSubcompetencyId, setOpenSubcompetencyId] = useState<string | null>(
-    null,
-  );
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (defaultValues.length > 0 && value?.length === 0) {
-      if (onChange) {
-        onChange(defaultValues);
-      }
-    }
-  }, [defaultValues, value, onChange]);
-
-  const handleMilestoneToggle = (milestoneId: string) => {
-    const updatedMilestones = value?.includes(milestoneId)
-      ? value.filter((id) => id !== milestoneId)
-      : [...(value || []), milestoneId];
-    if (onChange) {
-      onChange(updatedMilestones);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full justify-between"
-        >
-          <span>{value?.length} milestones selected</span>
-          <MilestoneIcon className="h-4 w-4" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="flex max-h-[650px] flex-col space-y-2 sm:max-w-[425px] md:min-w-[800px]">
-        <DialogHeader>
-          <DialogTitle>Milestones</DialogTitle>
-          <DialogDescription>
-            Select milestones for this question.
-          </DialogDescription>
-        </DialogHeader>
-        <RecommendedMilestone />
-        <ScrollArea className="h-[80vh] px-4">
-          <div className="flex w-full flex-col items-start space-y-4 pb-4">
-            {Object.values(COMPETENCIES).map((competency) => (
-              <CompetencyCard
-                key={competency.id}
-                competency={competency}
-                subcompetencies={subcompetencies}
-                openCompetencyId={openCompetencyId}
-                setOpenCompetencyId={setOpenCompetencyId}
-                openSubcompetencyId={openSubcompetencyId}
-                setOpenSubcompetencyId={setOpenSubcompetencyId}
-                selectedMilestoneIds={value || []}
-                onMilestoneToggle={handleMilestoneToggle}
-              />
-            ))}
-          </div>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-const RecommendedMilestone: React.FC = () => {
-  return (
-    <motion.div
-      className="mb-6 w-full rounded-lg bg-primary/10 p-2 text-center"
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <p className="mb-2 text-sm font-bold text-primary">Recommended</p>
-      <p className="text-lg font-bold">PC 1.1.1</p>
-      <div className="mt-2 flex justify-center space-x-2">
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Badge variant="secondary" className="text-xs">
-            Accept
-          </Badge>
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Badge variant="outline" className="text-xs">
-            See Why
-          </Badge>
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-};

@@ -1,22 +1,32 @@
 "use client";
-import { useCallback } from "react";
+
+import { useCallback, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Main } from "@/components/ui/main";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { QuestionCard } from "@/components/(admin)/forms/editor/question-card";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "lucide-react";
 import { v4 } from "uuid";
+import { useScrollToQuestion } from "@/components/(admin)/forms/editor/hooks/use-scroll-to-question";
+import { InlineMilestoneMultiselect } from "@/components/(admin)/forms/editor/inline-milestone-input";
+import LetterPullup from "@/components/ui/letter-pull-up";
+import { Button } from "@/components/ui/button";
 
 export function FormBuilder() {
-  const { control, getValues } = useFormContext<TFormSchema>()
+  const [selectedQuestionId, setSelectedQuestionId] = useState<
+    string | undefined
+  >(undefined);
+  const { control, getValues, setValue } = useFormContext<TFormSchema>();
+
+  const { containerRef, questionRefs } = useScrollToQuestion({
+    selectedQuestionId,
+  });
 
   const {
     fields: questions,
     append: addQuestion,
     remove: removeQuestion,
-    update,
   } = useFieldArray({
     control,
     name: "questions",
@@ -51,33 +61,96 @@ export function FormBuilder() {
     [getValues, addQuestion],
   );
 
+  const handleQuestionClick = useCallback((id: string) => {
+    setSelectedQuestionId((prevId) => (prevId === id ? undefined : id));
+  }, []);
+
+  const selectedQuestionIndex = questions.findIndex(
+    (q) => q.id === selectedQuestionId,
+  );
+
+  // Effect to update form context when selected question changes
+  useEffect(() => {
+    if (selectedQuestionId) {
+      const selectedQuestion = questions.find(
+        (q) => q.id === selectedQuestionId,
+      );
+      if (selectedQuestion) {
+        setValue(
+          `questions.${selectedQuestionIndex}.milestoneIds`,
+          selectedQuestion.milestoneIds,
+        );
+      }
+    }
+  }, [selectedQuestionId, questions, selectedQuestionIndex, setValue]);
+
   return (
-    <Main>
-      <ScrollArea className="h-[82.2vh]">
-        <form  className="mx-auto max-w-3xl pb-52">
-          <AnimatePresence>
-            {questions.map((q, index) => (
-              <QuestionCard
-                key={q.id}
-                index={index}
-                question={q}
-                removeQuestion={removeQuestion}
-                duplicateQuestion={() => handleDuplicateQuestion(index)}
-                control={control}
-              />
-            ))}
-          </AnimatePresence>
-          <motion.div layout className="mt-4 flex justify-center">
-            <motion.div
-              layoutId="add-question"
-              className="cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white"
-              onClick={handleAddQuestion}
-            >
-              <PlusCircleIcon />
+    <Main className="flex flex-row gap-4">
+      <motion.div
+        className="border-opacity-18 mt-4 h-[95%] rounded-xl bg-card/40 border-white border shadow-lg ring-[2.8px] ring-accent-secondary backdrop-blur backdrop-filter"
+        initial={{ width: 0, opacity: 0 }}
+        animate={{
+          width: selectedQuestionId ? "45%" : 0,
+          opacity: selectedQuestionId ? 1 : 0,
+        }}
+        transition={{ duration: 0.35, ease: "easeInOut" }}
+      >
+        {selectedQuestionId && selectedQuestionIndex !== -1 && (
+          <div className="px-4 pb-4 pt-1">
+            <div className="flex flex-row w-full items-center justify-between" >
+            <LetterPullup delay={0.01} key={selectedQuestionIndex} words={`Question ${selectedQuestionIndex + 1}`}/>
+              <Button onClick={() => setSelectedQuestionId(undefined)} className="bg-transparent" variant={"outline"} >Done</Button>
+            </div>
+            <InlineMilestoneMultiselect
+              control={control}
+              name={`questions.${selectedQuestionIndex}.milestoneIds`}
+              questionId={selectedQuestionId}
+            />
+          </div>
+        )}
+      </motion.div>
+      <div className="flex flex-grow justify-center">
+        <div
+          ref={containerRef}
+          className="no-scrollbar h-[82.2vh] w-full max-w-3xl overflow-y-auto"
+        >
+          <form className="mx-auto pb-52">
+            <AnimatePresence>
+              {questions.map((q, index) => (
+                <motion.div
+                  key={q.id}
+                  layout
+                  // @ts-expect-error WATCH THIS MIGHT CAUSE ISSUES
+                  ref={(el) => (questionRefs.current[q.id] = el)}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -50 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <QuestionCard
+                    index={index}
+                    question={q}
+                    removeQuestion={removeQuestion}
+                    duplicateQuestion={() => handleDuplicateQuestion(index)}
+                    control={control}
+                    selectQuestion={() => handleQuestionClick(q.id)}
+                    isSelected={selectedQuestionId === q.id}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            <motion.div layout className="mt-4 flex justify-center">
+              <motion.div
+                layoutId="add-question"
+                className="cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white"
+                onClick={handleAddQuestion}
+              >
+                <PlusCircleIcon />
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </form>
-      </ScrollArea>
+          </form>
+        </div>
+      </div>
     </Main>
   );
 }
