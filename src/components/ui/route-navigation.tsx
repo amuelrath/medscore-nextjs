@@ -41,7 +41,7 @@ export function RouteNavigation({ tabs, withoutTabs }: Props) {
         className={`flex h-full flex-col items-center border-r border-neutral-300 bg-gray-950 py-2`}
       >
         <div
-          className={cn("flex flex-col items-center p-2 text-gray-300")}
+          className={cn("flex select-none flex-col items-center p-2 text-gray-300")}
         >
           <h3 className={cn("flex flex-row")}>
             <p className={cn("text-lg font-bold ")}>MED</p>
@@ -49,7 +49,7 @@ export function RouteNavigation({ tabs, withoutTabs }: Props) {
           </h3>
         </div>
         {!withoutTabs && (
-          <div className={cn("flex flex-col items-center space-y-2")}>
+          <div className={cn("flex select-none flex-col items-center space-y-2")}>
             {tabs.map((tab) => (
               <div
                 key={tab.id}

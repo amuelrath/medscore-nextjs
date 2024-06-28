@@ -12,13 +12,12 @@ import { random } from "lodash";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
-import { BookOpenIcon, ClipboardPlusIcon, StarsIcon, TelescopeIcon } from "lucide-react";
+import { BookOpenIcon, ClipboardPlusIcon,  TelescopeIcon } from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { Button } from "@/components/ui/button";
 import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
-import { Glass } from "@/components/ui/glass";
 
 export default function FormsHome() {
   const { data: forms } = useSuspenseQuery({
@@ -36,12 +35,11 @@ export default function FormsHome() {
     (a, b) =>
       new Date(b.lastOpenedAt).getTime() - new Date(a.lastOpenedAt).getTime(),
   );
-  const [filteredForms, setFilter, resetFilters, removeFilter] =
+  const [filteredForms, setFilter, _, removeFilter] =
     useFilter<FormLiteResult>(orderedForms);
 
   const handleFilter = (
     filters: Partial<Record<string, any>>,
-    reset?: boolean,
   ) => {
     setFilter(filters);
   };
@@ -83,7 +81,7 @@ export default function FormsHome() {
           transition={{ duration: 0.3 }}
           className="flex flex-col xs:col-span-7 lg:col-span-5"
         >
-          <ScrollArea className={cn("h-[650px] px-4")}>
+          <ScrollArea className={cn("h-[650px] pr-4")}>
             <Scrollbar />
             <WaterfallAnimation noExit>
               {filteredForms.map((form) => (

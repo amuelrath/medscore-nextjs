@@ -35,7 +35,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   return (
     <div
       className={cn(
-        "group mb-4 flex select-none bg-card p-4 border border-neutral-200  flex-row justify-between rounded-xl transition-all",
+        "group mb-4 flex select-none bg-card p-3 border-2 border-white  flex-row justify-between rounded-xl transition-all",
         "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_2px_rgba(0,0,0,.05),0_3px_5px_rgba(0,0,0,.05)]"
       )}
     >
