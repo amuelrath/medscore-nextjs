@@ -12,7 +12,7 @@ import { random } from "lodash";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
-import { BookOpenIcon, StarsIcon, TelescopeIcon } from "lucide-react";
+import { BookOpenIcon, ClipboardPlusIcon, StarsIcon, TelescopeIcon } from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
@@ -505,7 +505,7 @@ const features: BentoCardProps[] = [
   {
     name: "Evaluate Students",
     description: "Assess student performance in a competency-based assessment.",
-    Icon: StarsIcon,
+    Icon: ClipboardPlusIcon,
     background: <Doctors />,
     iconSize: "size-8",
     cta: <Button variant={"hide"}>Start Assessment</Button>,
@@ -518,7 +518,7 @@ const features: BentoCardProps[] = [
     onClick: () => window.open("https://www.acgme.org/milestones/resources/"),
     cta: "Go to ACGME Resources",
     className: "w-full h-full",
-    iconSize: "size-6",
+    iconSize: "size-8",
     background: (
      <Books />
     ),
@@ -528,7 +528,7 @@ const features: BentoCardProps[] = [
     name: "Explore",
     description: "Browse community-made assessments.",
     Icon: TelescopeIcon,
-    iconSize: "size-7",
+    iconSize: "size-8",
     cta: "Explore Assessments",
     className: "w-full h-full ",
   },
