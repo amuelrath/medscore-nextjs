@@ -5,11 +5,10 @@ import Image from "next/image";
 import logo from "public/mark@2x.png";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { preload } from "react-dom";
 
 interface Tab {
   id: string;
-  label: string;
+  label: string | ReactNode;
   icon?: ReactNode;
   href: string;
 }
@@ -18,11 +17,10 @@ interface Tab {
 interface Props {
   tabs: Tab[];
   defaultValue?: string;
-  icons?: boolean;
   withoutTabs?: boolean;
 }
 
-export function TopNav({ tabs, icons, withoutTabs }: Props) {
+export function RouteNavigation({ tabs, withoutTabs }: Props) {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(pathname);
   const router = useRouter();
@@ -39,31 +37,22 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
   }, [pathname, tabs]);
 
   return (
-    <div
-      className={cn("fixed w-full top-0 z-50")}
-    >
+    <nav>
       <div
-        className={`flex flex-row items-center justify-between bg-foreground/90 shadow-xl backdrop-blur-xl p-2`}
+        className={`flex h-full flex-col items-center bg-[#011627] py-3 border-r border-neutral-300`}
       >
-        <div className={cn("flex flex-row items-center space-x-2")}>
-          <Image priority src={logo} alt="logo" className={cn("size-10")} />
+        <div className={cn("mb-4 p-2 flex flex-col items-center")}>
+          <Image priority src={logo} alt="logo" width={30} height={30} />
           <h3 className={cn("flex flex-row")}>
-            <p className={cn("text-xl font-bold text-accent")}>
-              MED
-            </p>
-            <p
-              className={cn("text-xl font-light text-destructive")}
-            >
-              score
-            </p>
+            <p className={cn("text-sm font-bold text-accent")}>MED</p>
+            <p className={cn("text-sm font-light text-destructive")}>score</p>
           </h3>
         </div>
         {!withoutTabs && (
-          <div className={cn("flex flex-row items-center space-x-2")}>
+          <div className={cn("flex flex-col items-center space-y-2")}>
             {tabs.map((tab) => (
               <div
                 key={tab.id}
-                onMouseEnter={() => preload(`http://localhost:3000${tab.href}`)}
                 role="button"
                 onClick={() => {
                   setActiveTab(tab.id);
@@ -71,27 +60,30 @@ export function TopNav({ tabs, icons, withoutTabs }: Props) {
                 }}
                 className={`${
                   activeTab === tab.id ? "" : "hover:text-white/70"
-                } relative z-20 rounded-full px-3 py-1.5 text-sm font-medium tracking-wider text-white transition focus-visible:outline-2`}
+                } relative z-20 rounded-full w-full py-1.5 text-xs font-medium tracking-wider text-white transition focus-visible:outline-2`}
                 style={{ WebkitTapHighlightColor: "transparent" }}
               >
                 {activeTab === tab.id && (
                   <motion.span
                     layoutId="bubble"
-                    className="mix-blend absolute inset-0 -z-10 bg-accent mix-blend-exclusion"
-                    style={{ borderRadius: 9999 }}
+                    className="mix-blend absolute inset-0 -z-10 bg-accent-secondary mix-blend-exclusion"
+                    style={{ borderRadius: 5 }}
                     transition={{
                       type: "spring",
                       bounce: 0.1,
-                      duration: 0.4,
+                      duration: 0.3,
                     }}
                   />
                 )}
-                {icons ? tab.icon : tab.label}
+                <div className={cn("flex flex-col w-full text-white items-center justify-center space-y-1 transition-all duration-300", activeTab === tab.id && "text-teal-950")}>
+                  <div className="size-6">{tab.icon}</div>
+                  <p className={cn("text-2xs font-semibold")}>{tab.label}</p>
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
-    </div>
+    </nav>
   );
 }

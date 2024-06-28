@@ -48,8 +48,8 @@ export default function FormsHome() {
 
   return (
     <>
-      <div className="fixed right-[0px] top-16 z-40 h-16 w-full px-8">
-        <Glass padding={"none"} className="flex flex-row p-1 px-8 h-16 justify-between">
+      <div className="h-16 w-full">
+        <div className="flex flex-row border-b bg-card border-neutral-300 p-1 px-8 h-16 justify-between">
           <div className="flex flex-row items-center space-x-4">
             <h3
               className={cn(
@@ -74,16 +74,16 @@ export default function FormsHome() {
             />
             <CreateFormDialogTrigger />
           </div>
-        </Glass>
+        </div>
       </div>
-      <div className="mt-36 grid grid-cols-7">
+      <div className="grid grid-cols-7 h-full p-4 ">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex h-full flex-col xs:col-span-7 lg:col-span-5"
+          className="flex flex-col xs:col-span-7 lg:col-span-5"
         >
-          <ScrollArea className={cn("h-[560px] pr-4")}>
+          <ScrollArea className={cn("h-[650px] px-4")}>
             <Scrollbar />
             <WaterfallAnimation noExit>
               {filteredForms.map((form) => (
@@ -94,8 +94,7 @@ export default function FormsHome() {
         </motion.div>
         <div
           className={cn(
-            "xs:col-span-7 md:col-span-7 md:grid md:grid-cols-2 md:gap-1 lg:col-span-2 lg:h-full lg:grid-cols-1",
-            "xs:space-y-1 md:space-y-0 lg:space-y-1",
+            "flex flex-col space-y-3 w-full col-span-2 pb-6",
           )}
         >
           {features.map((feature) => (
@@ -510,7 +509,7 @@ const features: BentoCardProps[] = [
     background: <Doctors />,
     iconSize: "size-8",
     cta: <Button variant={"hide"}>Start Assessment</Button>,
-    className: "w-full h-full col-span-1 ",
+    className: "w-full h-full",
   },
   {
     name: "Resources",
@@ -518,7 +517,7 @@ const features: BentoCardProps[] = [
     Icon: BookOpenIcon,
     onClick: () => window.open("https://www.acgme.org/milestones/resources/"),
     cta: "Go to ACGME Resources",
-    className: "w-full lg:col-span-1 md:col-span-1 h-42",
+    className: "w-full h-full",
     iconSize: "size-6",
     background: (
      <Books />
@@ -531,6 +530,6 @@ const features: BentoCardProps[] = [
     Icon: TelescopeIcon,
     iconSize: "size-7",
     cta: "Explore Assessments",
-    className: "w-full h-42 col-span-1 ",
+    className: "w-full h-full ",
   },
 ];

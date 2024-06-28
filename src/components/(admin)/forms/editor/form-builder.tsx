@@ -98,8 +98,11 @@ export function FormBuilder() {
         {selectedQuestionId && selectedQuestionIndex !== -1 && (
           <div className="px-4 pb-4 pt-1">
             <div className="flex flex-row w-full items-center justify-between" >
+              <div>
             <LetterPullup delay={0.01} key={selectedQuestionIndex} words={`Question ${selectedQuestionIndex + 1}`}/>
-              <Button onClick={() => setSelectedQuestionId(undefined)} className="bg-transparent" variant={"outline"} >Done</Button>
+                display selected milestones as tags here, with option to quick delete`
+              </div>
+              <Button onClick={() => setSelectedQuestionId(undefined)} className="bg-transparent" variant={"outline"} >Close</Button>
             </div>
             <InlineMilestoneMultiselect
               control={control}
@@ -112,7 +115,7 @@ export function FormBuilder() {
       <div className="flex flex-grow justify-center">
         <div
           ref={containerRef}
-          className="no-scrollbar h-[82.2vh] w-full max-w-3xl overflow-y-auto"
+          className="no-scrollbar h-[93vh] w-full max-w-3xl overflow-y-auto"
         >
           <form className="mx-auto pb-52">
             <AnimatePresence>

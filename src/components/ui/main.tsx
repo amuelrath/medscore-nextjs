@@ -12,7 +12,7 @@ export const Main = forwardRef<HTMLElement, SectionProps>(
       <main
         ref={ref}
         className={cn(
-          "w-full xs:px-2 md:px-8",
+          "",
           className,
         )}
       >

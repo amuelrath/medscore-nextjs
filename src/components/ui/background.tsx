@@ -6,7 +6,7 @@ const backgroundVariants = cva("fixed w-full h-full bg-opacity-50", {
       default: "bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300",
       blue: "bg-gradient-to-br from-neutral-200  from-[50%] to-accent/20",
       green:
-        "bg-gradient-to-br from-neutral-200 from-[70%] to-accent-secondary",
+        "bg-gradient-to-br from-neutral-100 from-[70%] to-accent-secondary",
       red: "bg-gradient-to-br from-neutral-200 from-[50%] to-destructive",
     },
   },

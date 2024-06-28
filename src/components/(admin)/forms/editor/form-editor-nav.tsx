@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Glass } from "@/components/ui/glass";
 import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-button";
 import { AdministerDialog } from "@/components/(admin)/forms/dialogs/administer-dialog";
 import { LottieHover } from "@/components/ui/lottie-hover";
@@ -19,9 +18,8 @@ export const FormEditorNav = () => {
   const [hovering, setHovering] = useState<boolean>(false);
   const { isSaving } = useSaveContext()
   return (
-    <div className={cn("fixed top-16 z-50 w-full px-8")}>
-      <Glass className="z-50 flex h-16 flex-row items-center justify-between px-8">
-        <div className={cn("z-50 flex flex-row items-center space-x-2 ")}>
+      <div className="flex h-16 border-b border-neutral-300 bg-card w-full flex-row items-center justify-between px-8">
+        <div className={cn("flex flex-row items-center space-x-2 ")}>
           <Input
             className={cn(
               "bg-blue-950 bg-opacity-5 text-xl font-semibold shadow-inner backdrop-blur-3xl",
@@ -50,7 +48,6 @@ export const FormEditorNav = () => {
             </div>
           </Button>
         </div>
-      </Glass>
-    </div>
+      </div>
   );
 };

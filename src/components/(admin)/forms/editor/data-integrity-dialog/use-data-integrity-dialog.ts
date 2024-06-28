@@ -32,16 +32,20 @@ export const useDataIntegrityAlert = <T extends FieldValues>({
   const cooldownTimers = useRef<Record<string, number>>({});
   const originalValues = useRef<Record<string, any>>({});
 
-  // Initialize originalValues with current form values
   useEffect(() => {
     const currentValues = getValues();
     Object.keys(currentValues).forEach((key) => {
       originalValues.current[key] = currentValues[key as Path<T>];
     });
+    console.log("Initial values:", originalValues.current);
   }, [getValues]);
 
   const handleValueChange = useCallback(
     (name: Path<T>, newValue: any) => {
+      console.log(`handleValueChange called for ${name}`);
+      console.log("Previous value:", originalValues.current[name]);
+      console.log("New value:", newValue);
+
       if (isAdministered && !cooldownTimers.current[name]) {
         if (!(name in originalValues.current)) {
           originalValues.current[name] = getValues(name);
@@ -52,9 +56,15 @@ export const useDataIntegrityAlert = <T extends FieldValues>({
           newValue,
           originalValue: originalValues.current[name],
         });
+        console.log("Pending change set:", {
+          name,
+          newValue,
+          originalValue: originalValues.current[name],
+        });
         return false;
       } else {
         setValue(name, newValue, { shouldValidate: true, shouldDirty: true });
+        console.log("Value set without warning");
         return true;
       }
     },
@@ -63,22 +73,26 @@ export const useDataIntegrityAlert = <T extends FieldValues>({
 
   const handleConfirmEdit = useCallback(() => {
     if (pendingChange) {
+      console.log("Confirming edit:", pendingChange);
       setValue(pendingChange.name, pendingChange.newValue, {
         shouldValidate: true,
         shouldDirty: true,
       });
+      console.log("After setValue, new form values:", getValues());
 
       // Set cooldown timer
       cooldownTimers.current[pendingChange.name] = window.setTimeout(() => {
         delete cooldownTimers.current[pendingChange.name];
+        console.log(`Cooldown ended for ${pendingChange.name}`);
       }, cooldownPeriod);
     }
     setShowWarning(false);
     setPendingChange(null);
-  }, [pendingChange, setValue, cooldownPeriod]);
+  }, [pendingChange, setValue, getValues, cooldownPeriod]);
 
   const handleCancelEdit = useCallback(() => {
     if (pendingChange) {
+      console.log("Cancelling edit:", pendingChange);
       setValue(pendingChange.name, pendingChange.originalValue, {
         shouldValidate: true,
         shouldDirty: true,
@@ -88,15 +102,29 @@ export const useDataIntegrityAlert = <T extends FieldValues>({
     setPendingChange(null);
   }, [pendingChange, setValue]);
 
-  const getFieldProps = useCallback(
+  const registerIntegrity = useCallback(
     (name: Path<T>) => ({
-      onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
+      onChange: (e: React.ChangeEvent<HTMLInputElement> | any[] | any) => {
+        console.log(`onChange triggered for ${name}`);
+        let newValue;
+        if (Array.isArray(e)) {
+          newValue = e;
+        } else if (e && typeof e === "object" && "target" in e) {
+          newValue = e.target.value;
+        } else {
+          newValue = e;
+        }
+        console.log("New value in onChange:", newValue);
         handleValueChange(name, newValue);
       },
       onBlur: () => {
+        console.log(`onBlur triggered for ${name}`);
         if (!pendingChange) {
           originalValues.current[name] = getValues(name);
+          console.log(
+            "Original value updated on blur:",
+            originalValues.current[name],
+          );
         }
       },
     }),
@@ -109,6 +137,6 @@ export const useDataIntegrityAlert = <T extends FieldValues>({
     pendingChange,
     handleConfirmEdit,
     handleCancelEdit,
-    getFieldProps,
+    registerIntegrity,
   };
 };

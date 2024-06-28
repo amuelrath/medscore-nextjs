@@ -17,7 +17,6 @@ import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/dialogs/dele
 import { useRouter } from "next/navigation";
 import { formatDistance } from "date-fns";
 import { FormTags } from "@/components/(admin)/forms/home/form-tags";
-import { Glass } from "@/components/ui/glass";
 
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
@@ -34,13 +33,10 @@ export function FormCard({ form }: { form: FormLiteResult }) {
     });
   };
   return (
-    <Glass
-      shadow={"sm"}
-      padding={"md"}
-      rounded={"sm"}
-      intensity={"xl"}
+    <div
       className={cn(
-        "group mb-4 flex select-none flex-row justify-between rounded-xl border-none transition-all hover:bg-opacity-60",
+        "group mb-4 flex select-none bg-card p-4 border border-neutral-200  flex-row justify-between rounded-xl transition-all",
+        "[box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_2px_rgba(0,0,0,.05),0_3px_5px_rgba(0,0,0,.05)]"
       )}
     >
       <div
@@ -101,6 +97,6 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           </Button>
         </DeleteFormDialogTrigger>
       </div>
-    </Glass>
+    </div>
   );
 }
