@@ -2,7 +2,7 @@ import { FC } from "react";
 import { CheckCircle, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion";
 
 interface Competency {
   id: string;
@@ -50,65 +50,67 @@ export const CompetencyCard: FC<CompetencyCardProps> = ({
 
   return (
     <div className="mb-2 w-full">
-      <motion.div
-        layout="position"
-        className={cn(
-          "border-offset-2 w-full rounded-lg border-2 p-2 transition-all ",
-          isOpen
-            ? "sticky top-0 z-10 border-accent/10 bg-accent shadow-sm"
-            : "border-accent/10 bg-accent/10 shadow-inner",
-        )}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Button
-          variant="hide"
+      <LazyMotion features={domAnimation}>
+        <m.div
+          layout="position"
           className={cn(
-            "w-full justify-between p-2 text-sm font-semibold",
-            isOpen ? " text-white" : "text-gray-700",
+            "border-offset-2 w-full rounded-lg border-2 p-2 transition-all ",
+            isOpen
+              ? "sticky top-0 z-10 bg-accent "
+              : "bg-background ",
           )}
-          onClick={() => setOpenCompetencyId(isOpen ? null : competency.id)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          {competency.name}
-          <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
+          <Button
+            variant="hide"
+            className={cn(
+              "w-full justify-between p-2 text-sm font-semibold",
+              isOpen ? " text-white" : "text-gray-700",
             )}
-          </motion.div>
-        </Button>
-      </motion.div>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mt-2 space-y-2"
+            onClick={() => setOpenCompetencyId(isOpen ? null : competency.id)}
           >
-            {subcompetencies
-              .filter((sub) => sub.competencyId === competency.id)
-              .sort((a, b) => a.level - b.level)
-              .map((subcompetency) => (
-                <SubcompetencyCard
-                  key={subcompetency.id}
-                  subcompetency={subcompetency}
-                  openSubcompetencyId={openSubcompetencyId}
-                  setOpenSubcompetencyId={setOpenSubcompetencyId}
-                  selectedMilestoneIds={selectedMilestoneIds}
-                  onMilestoneToggle={onMilestoneToggle}
-                />
-              ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {competency.name}
+            <m.div
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {isOpen ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </m.div>
+          </Button>
+        </m.div>
+        <AnimatePresence>
+          {isOpen && (
+            <m.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="mt-2 space-y-2"
+            >
+              {subcompetencies
+                .filter((sub) => sub.competencyId === competency.id)
+                .sort((a, b) => a.level - b.level)
+                .map((subcompetency) => (
+                  <SubcompetencyCard
+                    key={subcompetency.id}
+                    subcompetency={subcompetency}
+                    openSubcompetencyId={openSubcompetencyId}
+                    setOpenSubcompetencyId={setOpenSubcompetencyId}
+                    selectedMilestoneIds={selectedMilestoneIds}
+                    onMilestoneToggle={onMilestoneToggle}
+                  />
+                ))}
+            </m.div>
+          )}
+        </AnimatePresence>
+      </LazyMotion>
     </div>
   );
 };
@@ -132,13 +134,13 @@ export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
 
   return (
     <div className="w-full px-1">
-      <motion.div
+      <m.div
         layout="position"
         className={cn(
           "border-offset-2 w-full rounded-lg border-2 p-2",
           isOpen
-            ? "sticky top-16 z-20 border-[#99D6FF] bg-[#E6F3FF]"
-            : "border-gray-200 bg-blue-50 backdrop-blur-3xl",
+            ? "sticky top-16 z-20 bg-accent/80"
+            : "bg-background",
         )}
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -149,14 +151,14 @@ export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
           variant="hide"
           className={cn(
             "w-full justify-between p-1 text-xs font-medium",
-            isOpen ? "text-[#1A365D]" : "text-gray-600",
+            isOpen ? "text-white" : "text-gray-600",
           )}
           onClick={() =>
             setOpenSubcompetencyId(isOpen ? null : subcompetency.id)
           }
         >
           {subcompetency.level}: {subcompetency.name}
-          <motion.div
+          <m.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.3 }}
           >
@@ -165,12 +167,12 @@ export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
             ) : (
               <ChevronRight className="h-3 w-3" />
             )}
-          </motion.div>
+          </m.div>
         </Button>
-      </motion.div>
+      </m.div>
       <AnimatePresence>
         {isOpen && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -188,7 +190,7 @@ export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
                   onToggle={() => onMilestoneToggle(milestone.id)}
                 />
               ))}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -201,7 +203,7 @@ export const MilestoneCard: FC<MilestoneCardProps> = ({
   onToggle,
 }) => (
   <div className="px-3">
-    <motion.div
+    <m.div
       layout
       className={cn(
         "w-full cursor-pointer rounded-lg border p-2 transition-all",
@@ -223,14 +225,14 @@ export const MilestoneCard: FC<MilestoneCardProps> = ({
         </span>
         <AnimatePresence>
           {isSelected && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
               transition={{ duration: 0.2 }}
             >
               <CheckCircle className="h-3 w-3 text-[#0066CC]" />
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
@@ -242,7 +244,7 @@ export const MilestoneCard: FC<MilestoneCardProps> = ({
       >
         {milestone.description}
       </p>
-    </motion.div>
+    </m.div>
   </div>
 );
 
