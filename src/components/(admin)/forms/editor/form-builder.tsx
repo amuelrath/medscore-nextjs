@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion";
 import { Main } from "@/components/ui/main";
 import { QuestionCard } from "@/components/(admin)/forms/editor/question-card";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
@@ -9,9 +9,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "lucide-react";
 import { v4 } from "uuid";
 import { useScrollToQuestion } from "@/components/(admin)/forms/editor/hooks/use-scroll-to-question";
-import { InlineMilestoneMultiselect } from "@/components/(admin)/forms/editor/inline-milestone-input";
-import LetterPullup from "@/components/ui/letter-pull-up";
-import { Button } from "@/components/ui/button";
+import { MilestoneMenu } from "@/components/(admin)/forms/editor/milestone-menu";
 
 export function FormBuilder() {
   const [selectedQuestionId, setSelectedQuestionId] = useState<
@@ -78,82 +76,67 @@ export function FormBuilder() {
       if (selectedQuestion) {
         setValue(
           `questions.${selectedQuestionIndex}.milestoneIds`,
-          selectedQuestion.milestoneIds,
+          getValues(`questions.${selectedQuestionIndex}.milestoneIds`),
         );
       }
     }
-  }, [selectedQuestionId, questions, selectedQuestionIndex, setValue]);
+  }, [selectedQuestionId, questions, selectedQuestionIndex, setValue, getValues]);
 
   return (
     <Main className="flex flex-row gap-4">
-      <motion.div
-        className="border-opacity-18 mt-4 h-[95%] rounded-xl bg-card/40 border-white border shadow-lg ring-[2.8px] ring-accent-secondary backdrop-blur backdrop-filter"
-        initial={{ width: 0, opacity: 0 }}
-        animate={{
-          width: selectedQuestionId ? "45%" : 0,
-          opacity: selectedQuestionId ? 1 : 0,
-        }}
-        transition={{ duration: 0.35, ease: "easeInOut" }}
-      >
-        {selectedQuestionId && selectedQuestionIndex !== -1 && (
-          <div className="px-4 pb-4 pt-1">
-            <div className="flex flex-row w-full items-center justify-between" >
-              <div>
-            <LetterPullup delay={0.01} key={selectedQuestionIndex} words={`Question ${selectedQuestionIndex + 1}`}/>
-                display selected milestones as tags here, with option to quick delete`
-              </div>
-              <Button onClick={() => setSelectedQuestionId(undefined)} className="bg-transparent" variant={"outline"} >Close</Button>
-            </div>
-            <InlineMilestoneMultiselect
-              control={control}
-              name={`questions.${selectedQuestionIndex}.milestoneIds`}
-              questionId={selectedQuestionId}
-            />
-          </div>
-        )}
-      </motion.div>
-      <div className="flex flex-grow justify-center">
-        <div
-          ref={containerRef}
-          className="no-scrollbar h-[93vh] w-full max-w-3xl overflow-y-auto"
-        >
-          <form className="mx-auto pb-52">
-            <AnimatePresence>
-              {questions.map((q, index) => (
-                <motion.div
-                  key={q.id}
-                  layout
-                  // @ts-expect-error WATCH THIS MIGHT CAUSE ISSUES
-                  ref={(el) => (questionRefs.current[q.id] = el)}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                  transition={{ duration: 0.3 }}
+      <LazyMotion features={domAnimation}>
+        <MilestoneMenu
+          control={control}
+          selectedQuestionIndex={selectedQuestionIndex}
+          open={!!selectedQuestionId}
+          onClose={() => setSelectedQuestionId(undefined)}
+        />
+        <div className="flex flex-grow justify-center">
+          <div
+            ref={containerRef}
+            className="no-scrollbar h-[93vh] w-full max-w-3xl overflow-y-scroll"
+          >
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="mx-auto pb-52"
+            >
+              <AnimatePresence>
+                {questions.map((q, index) => (
+                  <m.div
+                    key={q.id}
+                    layout
+                    // @ts-expect-error WATCH THIS MIGHT CAUSE ISSUES
+                    ref={(el) => (questionRefs.current[q.id] = el)}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -50 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <QuestionCard
+                      index={index}
+                      question={q}
+                      removeQuestion={removeQuestion}
+                      duplicateQuestion={() => handleDuplicateQuestion(index)}
+                      control={control}
+                      selectQuestion={() => handleQuestionClick(q.id)}
+                      isSelected={selectedQuestionId === q.id}
+                    />
+                  </m.div>
+                ))}
+              </AnimatePresence>
+              <m.div layout className="mt-4 flex justify-center">
+                <m.div
+                  layoutId="add-question"
+                  className="cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white"
+                  onClick={handleAddQuestion}
                 >
-                  <QuestionCard
-                    index={index}
-                    question={q}
-                    removeQuestion={removeQuestion}
-                    duplicateQuestion={() => handleDuplicateQuestion(index)}
-                    control={control}
-                    selectQuestion={() => handleQuestionClick(q.id)}
-                    isSelected={selectedQuestionId === q.id}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            <motion.div layout className="mt-4 flex justify-center">
-              <motion.div
-                layoutId="add-question"
-                className="cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white"
-                onClick={handleAddQuestion}
-              >
-                <PlusCircleIcon />
-              </motion.div>
-            </motion.div>
-          </form>
+                  <PlusCircleIcon />
+                </m.div>
+              </m.div>
+            </form>
+          </div>
         </div>
-      </div>
+      </LazyMotion>
     </Main>
   );
 }
