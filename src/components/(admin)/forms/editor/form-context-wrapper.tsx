@@ -3,7 +3,6 @@ import { ReactNode, useMemo } from "react";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { useFormBuilder } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { FormProvider } from "react-hook-form";
-import { SaveContextProvider } from "@/components/(admin)/forms/editor/save-context";
 
 export const FormContextWrapper = ({
   children,
@@ -21,13 +20,9 @@ export const FormContextWrapper = ({
     [defaultValues],
   );
 
-  const { methods, isSaving } = useFormBuilder(transformedDefaultValues);
+  const { methods } = useFormBuilder(transformedDefaultValues);
 
-  return (
-    <FormProvider {...methods}>
-      <SaveContextProvider isSaving={isSaving}>{children}</SaveContextProvider>
-    </FormProvider>
-  );
+  return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
 const transform = (questions: FormResult["questions"]) => {
