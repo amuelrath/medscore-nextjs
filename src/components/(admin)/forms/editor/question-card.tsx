@@ -1,12 +1,12 @@
 import { FC } from "react";
-import { motion } from "framer-motion";
-import { Glass } from "@/components/ui/glass";
+import { m } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Trash2Icon, CopyIcon, MilestoneIcon } from "lucide-react";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { Control, UseFieldArrayRemove } from "react-hook-form";
 import { cn } from "@/lib/utils";
+import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
 
 interface QuestionCardProps {
   question: TFormSchema["questions"][0];
@@ -28,18 +28,17 @@ export const QuestionCard: FC<QuestionCardProps> = ({
   selectQuestion,
 }) => {
   return (
-    <motion.div
+    <m.div
       layout="position"
       layoutId={`question-${question.id}`}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2, delay: index * 0.01 }}
       className="mx-2 my-4"
     >
-      <Glass
-        intensity="xl"
+      <div
         className={cn(
-          "group space-y-3 p-4 transition-all",
-          isSelected && "ring ring-accent-secondary",
+          "group bg-card rounded-xl border-2 border-white shadow-md space-y-3 p-4 transition-all",
+          isSelected && "ring ring-accent",
         )}
       >
         <div className="flex flex-row items-center justify-between">
@@ -52,6 +51,7 @@ export const QuestionCard: FC<QuestionCardProps> = ({
                 isSelected ? "text-accent" : "hover:text-accent",
               )}
             />
+            <MilestoneBadges questionIndex={index} />
           </div>
           <div className="flex space-x-4">
             <button
@@ -76,12 +76,12 @@ export const QuestionCard: FC<QuestionCardProps> = ({
             type="text"
             {...control.register(`questions.${index}.text`)}
             placeholder="Question"
-            className="bg-blue-950 bg-opacity-10 p-2 shadow-inner backdrop-blur-3xl"
+            className="bg-blue-950 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
           />
         </div>
 
         <OptionList questionIndex={index} />
-      </Glass>
-    </motion.div>
+      </div>
+    </m.div>
   );
 };
