@@ -43,7 +43,6 @@ export async function getFormById({
               milestone: {
                 columns: {
                   id: true,
-                  simpleDescription: false,
                   name: true,
                   sublevel: true,
                   level: true,
