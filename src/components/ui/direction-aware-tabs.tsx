@@ -1,12 +1,12 @@
 "use client";
+import { ReactNode, createContext, useContext, useMemo, useState } from "react";
 import {
-  ReactNode,
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
-import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+  AnimatePresence,
+  MotionConfig,
+  m,
+  LazyMotion,
+  domAnimation,
+} from "framer-motion";
 import useMeasure from "react-use-measure";
 import { cn } from "@/lib/utils";
 import { cva, VariantProps } from "class-variance-authority";
@@ -220,14 +220,16 @@ function DirectionAwareTabs({
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           {activeTab === tab.id && (
-            <motion.span
-              layoutId={bubbleId || "direction-aware-tabs-bubble"}
-              className={motionSpanVariants({
-                color,
-                variant,
-              })}
-              transition={{ type: "spring", bounce: 0.19, duration: 0.4 }}
-            />
+            <LazyMotion features={domAnimation}>
+              <m.span
+                layoutId={bubbleId || "direction-aware-tabs-bubble"}
+                className={motionSpanVariants({
+                  color,
+                  variant,
+                })}
+                transition={{ type: "spring", bounce: 0.19, duration: 0.4 }}
+              />
+            </LazyMotion>
           )}
           {tab.label}
         </button>
@@ -236,7 +238,7 @@ function DirectionAwareTabs({
   );
 }
 
-function DirectionAwareContent() {
+function DirectionAwareContent({ className }: { className?: string }) {
   const { activeTab, isAnimating, setIsAnimating, direction, tabs } =
     useDirectionAwareTabs();
   const [ref, bounds] = useMeasure();
@@ -265,35 +267,37 @@ function DirectionAwareContent() {
   };
 
   return (
-    <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}>
-      <motion.div
-        className="flex flex-col"
-        initial={false}
-        animate={{ height: bounds.height > 0 ? bounds.height : "100%" }}
-      >
-        <div ref={ref} className="flex flex-grow flex-col">
-          <AnimatePresence
-            custom={direction}
-            mode="popLayout"
-            onExitComplete={() => setIsAnimating(false)}
-          >
-            <motion.div
-              key={activeTab}
-              variants={variants}
-              initial="initial"
-              animate="active"
-              exit="exit"
+    <LazyMotion features={domAnimation}>
+      <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}>
+        <m.div
+          className={cn("flex flex-col", className)}
+          initial={false}
+          animate={{ height: bounds.height > 0 ? bounds.height : "100%" }}
+        >
+          <div ref={ref} className="flex flex-grow flex-col">
+            <AnimatePresence
               custom={direction}
-              onAnimationStart={() => setIsAnimating(true)}
-              onAnimationComplete={() => setIsAnimating(false)}
-              className="flex flex-grow flex-col"
+              mode="popLayout"
+              onExitComplete={() => setIsAnimating(false)}
             >
-              {content}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </motion.div>
-    </MotionConfig>
+              <m.div
+                key={activeTab}
+                variants={variants}
+                initial="initial"
+                animate="active"
+                exit="exit"
+                custom={direction}
+                onAnimationStart={() => setIsAnimating(true)}
+                onAnimationComplete={() => setIsAnimating(false)}
+                className="flex flex-grow flex-col"
+              >
+                {content}
+              </m.div>
+            </AnimatePresence>
+          </div>
+        </m.div>
+      </MotionConfig>
+    </LazyMotion>
   );
 }
 
