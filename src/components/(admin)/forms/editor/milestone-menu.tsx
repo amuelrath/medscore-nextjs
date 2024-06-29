@@ -34,7 +34,7 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
       {selectedQuestionIndex !== -1 && (
         <div className="px-4">
           <Tabs defaultValue="milestones">
-            <div className="flex w-full flex-row items-center justify-between">
+            <div className="flex w-full py-3 flex-row items-center justify-between">
               <LetterPullup
                 delay={0.005}
                 key={selectedQuestionIndex}
@@ -52,7 +52,7 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
             <TabsList>
               <TabsTrigger value="milestones">Milestones</TabsTrigger>
               <TabsTrigger value="suggested">Suggested</TabsTrigger>
-              <TabsTrigger value="custom">Custom</TabsTrigger>
+              <TabsTrigger value="custom">Objectives</TabsTrigger>
             </TabsList>
             <TabsContent value="milestones">
               <InlineMilestoneMultiselect

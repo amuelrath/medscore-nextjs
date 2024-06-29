@@ -6,22 +6,7 @@ import { generateObject } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { recommendedMilestones } from "@/db/schema";
 import { db } from "@/db";
-
-interface QueryIndexResult {
-  matches: {
-    id: string;
-    score: number;
-    values: []; // will never be defined,
-    sparseValues: undefined; // will never be defined
-    metadata: {
-      subcompetencyId: string;
-    };
-  }[];
-  namespace: string;
-  usage: {
-    readUnits: number;
-  };
-}
+import { eq } from "drizzle-orm";
 
 // function to get the best matching subcompetencyIds given a question
 export async function getIndexMatches({ text }: { text: string }) {
@@ -44,7 +29,7 @@ export async function getIndexMatches({ text }: { text: string }) {
 
   return index.query({
     vector: embedding,
-    topK: 3,
+    topK: 4,
     includeMetadata: true,
     includeValues: false,
   });
@@ -79,11 +64,12 @@ export async function pickBestMilestone({
   });
 
   const prompt = `
-  You are an expert in medical education and assessment. Your task is to select the most appropriate milestone for a given Competency Based Assessment question and provide a concise, insightful justification.
+  You are an expert in graduate medical education and assessment. Your task is to select the most appropriate milestone for a given OSCE (Objective Structured Clinical Exam) question and provide a concise, insightful justification.
 
     Context:
-  - Competency Based Assessment Title: ${formTitle}
-    - Competency Based Assessment Question: ${question?.text}
+  - OSCE: ${formTitle}
+    - OSCE: ${question?.text}
+    - An OSCE is used to evaluate medical resident/fellow clinical competency. OSCEs will take place in a clinical encounter between the doctor (the evaluatee) and their patient. OSCE forms are filled out by Residency/Fellowship program faculty.
 
     Available Milestones:
     ${milestones
@@ -98,7 +84,7 @@ export async function pickBestMilestone({
       .join("\n")}
 
 Instructions:
-1. Carefully read the Competency Based Assessment's title and question.
+1. Carefully read the OSCE's title and question.
 2. Review each provided milestone, considering its name, description, and level.
 3. Select the milestone that best matches the skills, knowledge, or behaviors being assessed in the OSCE question.
 4. Provide a brief, insightful justification for your selection, focusing on the key connection between the OSCE question and the chosen milestone.
@@ -155,6 +141,12 @@ Remember, your goal is to provide a clear, concise, and insightful connection be
   });
   const { milestoneId, confidenceScore, justification } = ai.object;
 
+  // delete the old rec
+  await db
+    .delete(recommendedMilestones)
+    .where(eq(recommendedMilestones.questionId, question?.id || ""));
+
+  // add the new one
   return db
     .insert(recommendedMilestones)
     .values({
@@ -162,14 +154,6 @@ Remember, your goal is to provide a clear, concise, and insightful connection be
       score: confidenceScore,
       justification,
       questionId: question?.id || "",
-    })
-    .onConflictDoUpdate({
-      target: [recommendedMilestones.id],
-      set: {
-        milestoneId,
-        justification,
-        score: confidenceScore,
-      },
     })
     .returning();
 }

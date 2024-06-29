@@ -20,7 +20,7 @@ export const FormEditorNav = () => {
       <div className={cn("flex flex-row items-center space-x-2 ")}>
         <Input
           className={cn(
-            "bg-blue-950 bg-opacity-5 text-xl font-semibold shadow-inner backdrop-blur-3xl",
+            "bg-blue-950 bg-opacity-5 text-xl font-semibold shadow-inner",
           )}
           defaultValue={title}
           {...register("title")}

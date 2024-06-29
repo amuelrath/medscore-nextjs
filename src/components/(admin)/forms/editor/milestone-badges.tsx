@@ -66,7 +66,7 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
                   </Badge>
                 </m.div>
               </TooltipTrigger>
-              <TooltipContent className="flex w-72 flex-col space-y-1 text-wrap bg-zinc-200">
+              <TooltipContent className="flex w-80 flex-col space-y-1 text-wrap bg-zinc-50">
                 <p className="font-semibold">{ms.name}</p>
                 <p>{ms.description}</p>
               </TooltipContent>
