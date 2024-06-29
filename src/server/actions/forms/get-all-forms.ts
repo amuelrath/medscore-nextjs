@@ -36,7 +36,6 @@ export async function getAllForms({ userId }: { userId: string }) {
               milestone: {
                 columns: {
                   id: true,
-                  simpleDescription: false,
                   name: true,
                   sublevel: true,
                   level: true,
