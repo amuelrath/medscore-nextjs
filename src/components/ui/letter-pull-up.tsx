@@ -7,12 +7,24 @@ interface LetterPullupProps {
   className?: string;
   words: string;
   delay?: number;
+  size?:
+    | "2xs"
+    | "xs"
+    | "sm"
+    | "md"
+    | "lg"
+    | "xl"
+    | "2xl"
+    | "3xl"
+    | "4xl"
+    | "5xl";
 }
 
 export default function LetterPullup({
   className,
   words,
   delay,
+  size = "2xl",
 }: LetterPullupProps) {
   const letters = words.split("");
 
@@ -37,7 +49,7 @@ export default function LetterPullup({
           animate="animate"
           custom={i}
           className={cn(
-            "font-display text-center text-4xl font-bold tracking-[-0.02em] text-black drop-shadow-sm dark:text-white md:text-4xl md:leading-[5rem]",
+            `font-display text-center text-${size} font-bold tracking-[-0.02em] text-black drop-shadow-sm dark:text-white md:leading-[5rem]`,
             className,
           )}
         >
