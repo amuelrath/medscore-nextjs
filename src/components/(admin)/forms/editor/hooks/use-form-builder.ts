@@ -1,9 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { autosaveForm } from "@/server/actions/forms/autosave-form";
 import { isEqual } from "lodash";
+import { useAtom } from "jotai";
+import { isSavingAtom } from "../atoms";
 
 export const ZFormSchema = z.object({
   id: z.string(),
@@ -34,7 +36,7 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
     resolver: zodResolver(ZFormSchema),
     defaultValues: initialData,
   });
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useAtom(isSavingAtom);
   const previousStateRef = useRef<TFormSchema | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const latestFormDataRef = useRef<TFormSchema | null>(null);
