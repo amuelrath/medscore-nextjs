@@ -13,12 +13,30 @@ import {
   foreignKey,
   varchar,
   AnyPgColumn,
-  json, pgView
+  json,
+  pgView,
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
 import { pgMaterializedView } from "drizzle-orm/pg-core/view";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
+
+export const behaviors = pgTable("behaviors", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  description: text("description").notNull(),
+  subcompetencyId: uuid("subcompetency_id")
+    .notNull()
+    .references(() => subcompetencies.id),
+});
+export const Behvaior = typeof behaviors.$inferSelect;
+export const behvaiorRelations = relations(behaviors, ({ one }) => ({
+  subcompetency: one(subcompetencies, {
+    fields: [behaviors.subcompetencyId],
+    references: [subcompetencies.id],
+  }),
+}));
 
 // MARK: Competencies
 export const competencies = pgTable("competencies", {
@@ -59,6 +77,7 @@ export const subcompetencyRelations = relations(
       references: [specialties.id],
     }),
     milestones: many(milestones),
+    behaviors: many(behaviors),
   }),
 );
 
@@ -69,7 +88,6 @@ export const milestones = pgTable("milestones", {
     .default(sql`gen_random_uuid()`),
   name: text("name").notNull(), // eg PC 1.2.3
   description: text("description").notNull(), // eg "demonstrates knowledge of patient care"
-  simpleDescription: text("simple_description").notNull(),
   level: smallint("level").notNull(), // eg 2
   sublevel: smallint("sublevel").notNull(), // eg 3
   subcompetencyId: uuid("subcompetency_id")
@@ -258,7 +276,7 @@ export const optionRelations = relations(options, ({ one, many }) => ({
     fields: [options.questionId],
     references: [questions.id],
   }),
-  answers: many(answers)
+  answers: many(answers),
 }));
 
 // MARK:  Milestones On Questions
@@ -304,7 +322,9 @@ export const responses = pgTable("responses", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formCodeId: uuid("form_code_id").notNull().references(() => formCodes.id, { onDelete: 'cascade'}),
+  formCodeId: uuid("form_code_id")
+    .notNull()
+    .references(() => formCodes.id, { onDelete: "cascade" }),
   creatorId: uuid("creator_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
@@ -336,10 +356,9 @@ export const answers = pgTable("answers", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  optionId: uuid("option_id").references(
-    () => options.id,
-    { onDelete: "cascade" },
-  ),
+  optionId: uuid("option_id").references(() => options.id, {
+    onDelete: "cascade",
+  }),
   responseId: uuid("response_id")
     .notNull()
     .references(() => responses.id, { onDelete: "cascade" }),
@@ -381,7 +400,7 @@ export const formCodeRelations = relations(formCodes, ({ one, many }) => ({
     references: [forms.id],
   }),
   usersWithCode: many(formCodesOnUsers),
-  responses: many(responses)
+  responses: many(responses),
 }));
 
 // MARK: Form Codes on Users
@@ -420,24 +439,19 @@ export const formCodesOnUsersRelations = relations(
   }),
 );
 
-export const recommendedMilestones = pgTable(
-  "recommended_milestones",
-  {
-    questionId: uuid("question_id")
-      .notNull()
-      .references(() => questions.id, { onDelete: "cascade" }),
-    milestoneId: uuid("milestone_id")
-      .notNull()
-      .references(() => milestones.id),
-    justification: text("justification").notNull(),
-    score: text("score").notNull(),
-  },
-  (table) => {
-    return {
-      id: primaryKey({ columns: [table.questionId, table.milestoneId] }),
-    };
-  },
-);
+export const recommendedMilestones = pgTable("recommended_milestones", {
+  id: uuid(`id`)
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  questionId: uuid("question_id")
+    .notNull()
+    .references(() => questions.id, { onDelete: "cascade" }),
+  milestoneId: uuid("milestone_id")
+    .notNull()
+    .references(() => milestones.id),
+  justification: text("justification").notNull(),
+  score: integer("score").notNull(),
+});
 export type RecommendedMilestone = typeof recommendedMilestones.$inferSelect;
 export type NewRecommendedMilestone = typeof recommendedMilestones.$inferInsert;
 export const recommendedMilestoneRelations = relations(
@@ -473,6 +487,5 @@ export const responsesView = pgMaterializedView("responses_view", {
   competencyId: uuid("competency_id"),
   competencyName: text("competency_name"),
   pointsEarned: decimal("point_value", { precision: 10, scale: 2 }),
-  pointsAvailable: decimal("point_value", { precision: 10, scale: 2 })
-}).existing()
-
+  pointsAvailable: decimal("point_value", { precision: 10, scale: 2 }),
+}).existing();
