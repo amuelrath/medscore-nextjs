@@ -1,20 +1,21 @@
 "use server";
 import { db } from "@/db";
-import {
-  formCodes,
-  formCodesOnUsers,
-} from "@/db/schema";
+import { formCodes, formCodesOnUsers } from "@/db/schema";
 
 export async function administerForm({
+  isDirectObservation,
   formId,
   userIds,
   expiresAt,
   startsAt,
+  title,
 }: {
+  isDirectObservation?: boolean;
   formId: string | undefined;
   userIds: string[];
-  startsAt?: Date
+  startsAt?: Date;
   expiresAt: Date;
+  title: string;
 }) {
   if (!formId) throw new Error("Form Id is required");
   const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -28,29 +29,30 @@ export async function administerForm({
     throw new Error("Form not found!");
   }
 
-    // create the form code
-    const formCode = await db
-      .insert(formCodes)
-      .values({
-        formId: form.id,
-        code,
-        startsAt,
-        expiresAt,
-      })
-      .returning();
+  // create the form code
+  const formCode = await db
+    .insert(formCodes)
+    .values({
+      formId: form.id,
+      code,
+      title,
+      startsAt,
+      expiresAt,
+      isDirectObservation,
+    })
+    .returning();
 
-    // link the form code to the users
-    await Promise.all(
-      userIds.map((u) =>
-        db.insert(formCodesOnUsers).values({
-          formCodeId: formCode[0].id,
-          userId: u,
-        }),
-      ),
-    );
+  // link the form code to the users
+  await Promise.all(
+    userIds.map((u) =>
+      db.insert(formCodesOnUsers).values({
+        formCodeId: formCode[0].id,
+        userId: u,
+      }),
+    ),
+  );
 
-    return {
-      code: formCode[0].code,
-      expiresAt: formCode[0].expiresAt,
-    };
+  return {
+    ...formCode[0],
+  };
 }
