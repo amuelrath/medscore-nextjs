@@ -17,7 +17,7 @@ export async function getEvaluationForm({ formCodeId }: { formCodeId: string }) 
     const formCode = await db.query.formCodes.findFirst({
       where: and(
         eq(formCodes.id, formCodeId),
-        isNull(formCodes.deletedAt),
+        isNull(formCodes.canceledAt),
         sql`${formCodes.expiresAt} > ${now}::timestamp`,
         sql`${formCodes.startsAt} <= ${now}::timestamp`
       ),
