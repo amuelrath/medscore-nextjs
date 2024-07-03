@@ -12,17 +12,13 @@ import { random } from "lodash";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
-import {
-  BookOpenIcon,
-  ClipboardPlusIcon,
-  EyeIcon,
-  TelescopeIcon,
-} from "lucide-react";
+import { BookOpenIcon, ClipboardPlusIcon, EyeIcon } from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { Button } from "@/components/ui/button";
 import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
+import { StartObservationDialog } from "@/components/(admin)/forms/dialogs/start-observation-dialog";
 
 export default function FormsHome() {
   const { data: forms } = useSuspenseQuery({
@@ -660,7 +656,7 @@ const features: BentoCardProps[] = [
     Icon: EyeIcon,
     background: <Survey />,
     iconSize: "size-8",
-    cta: "Begin Observation",
+    cta: <StartObservationDialog>Start Observation</StartObservationDialog>,
     className: "w-full h-full ",
   },
   {
