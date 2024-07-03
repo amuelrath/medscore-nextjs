@@ -22,6 +22,8 @@ interface LottieHoverProps extends VariantProps<typeof lottieHoverVariants> {
   loop?: boolean;
   src: any;
   isHovering?: boolean;
+  inSpeed?: number
+  outSpeed?: number
 }
 
 export function LottieHover({
@@ -29,6 +31,8 @@ export function LottieHover({
   src,
   size,
   loop = false,
+  inSpeed=1,
+  outSpeed=1.5
 }: LottieHoverProps) {
   const ref = useRef<any>(null);
   const [internalHover, setInternalHover] = useState(false);
@@ -38,11 +42,11 @@ export function LottieHover({
   useEffect(() => {
     if (hover) {
       ref.current?.setDirection(1);
-      ref.current?.setSpeed(1)
+      ref.current?.setSpeed(inSpeed)
       ref.current?.play();
     } else {
       ref.current?.setDirection(-1);
-      ref.current?.setSpeed(1.5)
+      ref.current?.setSpeed(outSpeed)
       ref.current?.play();
       const stopAnimation = () => {
         if (ref.current?.currentFrame === 0) {
@@ -53,7 +57,7 @@ export function LottieHover({
       };
       requestAnimationFrame(stopAnimation);
     }
-  }, [hover]);
+  }, [hover, inSpeed, outSpeed]);
 
   return (
     <div className={lottieHoverVariants({ size })}>
