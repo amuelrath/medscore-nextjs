@@ -33,7 +33,7 @@ export function DatePicker({ className, disabled, value, onChange }: DatePickerP
           disabled={disabled}
           variant={"outline"}
           className={cn(
-            "w-[250px] justify-start text-left font-normal",
+            "w-[250px] bg-blue-800/5 shadow-inner justify-start text-left font-normal",
             !value && "text-muted-foreground",
             className
           )}
