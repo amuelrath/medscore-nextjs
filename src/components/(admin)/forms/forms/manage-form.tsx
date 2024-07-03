@@ -67,7 +67,7 @@ export function ManageContent() {
       )}
       {pastFormCodes.length > 0 && (
         <div>
-          <h3 className="text-md font-semibold">Past</h3>
+          <h3 className="text-md font-semibold">Previous</h3>
           <div className="space-y-2">
             {pastFormCodes.map((fc) => (
               <ScheduleCard
@@ -129,9 +129,14 @@ function ScheduleCard({ formCode, users, active }: ScheduleCardProps) {
             <Badge
               size="xs"
               variant="outline"
-              className={cn( getDurationBadgeColor())}
+              className={cn( getDurationBadgeColor(), "text-2xs space-x-0.5 px-[8px] border-none py-[2.5px] font-normal")}
             >
-              {differenceInHours(endDate, startDate || new Date())}h
+             <p className="font-medium" >
+              {differenceInHours(endDate, startDate || new Date())}
+             </p>
+             <p className="font-light">
+               hours
+             </p>
             </Badge>
           </div>
         </div>
