@@ -68,11 +68,11 @@ export function AnswerCard({
         .map(({ id, text }) => (
           <div
             key={id}
-            className="relative flex select-none items-center justify-start space-x-1 transition-all hover:bg-gray-100"
+            className="relative flex select-none items-center justify-start space-x-1 transition-all hover:bg-teal-50"
           >
             <RadioGroupItem
               id={id}
-              className="rounded-md bg-blue-950 bg-opacity-5 p-3 shadow-inner backdrop-blur-3xl"
+              className="rounded-md bg-blue-800 bg-opacity-5 p-3 shadow-inner"
               label={text || ""}
               value={id}
               disabled={!isInput}
@@ -88,7 +88,7 @@ export function AnswerCard({
       placeholder: "Comments/Feedback",
       rows: 1,
       className:
-        "no-scrollbar rounded-md bg-blue-950 bg-opacity-5 p-3 shadow-inner backdrop-blur-3xl",
+        "no-scrollbar rounded-md bg-blue-800/5 p-3 shadow-inner",
     };
 
     return isInput ? (
@@ -107,16 +107,15 @@ export function AnswerCard({
         {...commonProps}
         className={cn(
           commonProps.className,
-          "disabled:cursor-default disabled:resize-none disabled:opacity-100",
+          "disabled:cursor-default bg-blue-800/5 shadow-inner disabled:resize-none disabled:opacity-100",
         )}
       />
     );
   };
 
   return (
-    <Glass
-      intensity="xl"
-      className="text-md selct-none group w-full space-y-3 rounded-xl p-4"
+    <div
+      className="text-md shadow-md border border-white selct-none bg-card group w-full space-y-3 rounded-xl p-4"
     >
       <div className="flex flex-col space-y-2">
         <div className="flex flex-row items-center justify-between">
@@ -153,6 +152,6 @@ export function AnswerCard({
       {!isInput &&
         renderAdditionalInfo &&
         renderAdditionalInfo({ feedback, additionalInfo })}
-    </Glass>
+    </div>
   );
 }
