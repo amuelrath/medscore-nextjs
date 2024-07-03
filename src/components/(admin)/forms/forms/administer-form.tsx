@@ -155,7 +155,7 @@ export function AdministerForm() {
       className="flex h-full w-full flex-col justify-between"
     >
       <div className="space-y-2">
-        <p className="text-md font-semibold">Administration Title</p>
+        <p className="text-md font-semibold">Title</p>
         <Input
           {...register(`title`)}
           className="bg-blue-800/5 shadow-inner"
@@ -165,7 +165,7 @@ export function AdministerForm() {
       </div>
 
       <div className="space-y-2">
-        <p className="text-md font-semibold">Administration Date</p>
+        <p className="text-md font-semibold">Date</p>
         <div className="flex flex-row space-x-4">
           <Controller
             name="startDate"
@@ -242,7 +242,7 @@ export function AdministerForm() {
 
       <div className="flex justify-end">
         <Button className="w-[100px]">
-          {isSameDay(watchedStartDate, new Date()) ? "Administer" : "Schedule"}
+          {isSameDay(watchedStartDate, new Date()) ? "Start" : "Schedule"}
         </Button>
       </div>
     </form>
