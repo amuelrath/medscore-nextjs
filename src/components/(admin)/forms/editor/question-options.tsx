@@ -41,7 +41,7 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
                   `questions.${questionIndex}.options.${index}.text`,
                 )}
                 placeholder="Option"
-                className="flex-grow bg-blue-950 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
+                className="flex-grow bg-blue-800 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
               />
               <Controller
                 name={`questions.${questionIndex}.options.${index}.pointValue`}
@@ -51,7 +51,7 @@ export const OptionList: FC<OptionListProps> = ({ questionIndex }) => {
                     {...field}
                     type="number"
                     placeholder="Points"
-                    className="w-14 bg-blue-950 bg-opacity-5 p-2 text-center shadow-inner backdrop-blur-3xl"
+                    className="w-14 bg-blue-800 bg-opacity-5 p-2 text-center shadow-inner backdrop-blur-3xl"
                   />
                 )}
               />
