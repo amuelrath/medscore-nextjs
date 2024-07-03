@@ -11,6 +11,11 @@ export async function getFormById({
 }) {
   return db.query.forms.findFirst({
     with: {
+      formCodes: {
+        with: {
+          usersWithCode: true
+        }
+      },
       programs: {
         with: {
           users: {
