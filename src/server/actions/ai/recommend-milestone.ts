@@ -92,26 +92,27 @@ Instructions:
 Your response should be in JSON format with the following structure:
 {
   "milestoneId": "The ID of the selected milestone",
-  "justification": "A single, concise sentence (15-25 words) explaining the core reason this milestone is the best match. Focus on the specific skill or behavior being assessed and its importance.",
-  "confidenceScore": "A number from 0-10 indicating your confidence that the chosen milestone is an accurate match."
+  "justification": "A single, concise sentence (15-30 words) explaining the core reason this milestone is the best match to this OSCE question. Focus on the specific skill or behavior being assessed in the question and its importance.",
+  "confidenceScore": "A number from 0-10 indicating your confidence that the chosen milestone is an accurate match. Overall, your confidence scores should map to a normal distribution."
 }
 
 Important Notes:
 - Your justification should be a single, impactful sentence that captures the essence of why this milestone is the best match.
-- Avoid restating the milestone or OSCE question. Instead, explain the key skill or behavior being assessed and its significance.
+- Avoid restating the milestone or OSCE question. Instead, explain the key skill or behavior being assessed and its significance as it relates to the question.
 - Use active voice and precise language to convey your point clearly and concisely.
 - Consider the level of the milestone in relation to the complexity of the OSCE question.
 - Milestones are categorized by level:
-  - Level 1: Novice resident/fellow, brand new to the specialty
-  - Level 2: Advanced beginner, performs some tasks with limited autonomy
-  - Level 3: Competent resident/fellow, performs common tasks autonomously
+  - Level 1: Novice resident/fellow, brand new to the specialty 
+  - Level 2: Advanced beginner, performs some tasks with limited autonomy 
+  - Level 3: Competent resident/fellow, performs common tasks autonomously 
   - Level 4: Proficient resident/fellow
-  - Level 5: Expert resident/fellow, exceeds peers
+  - Level 5: Expert resident/fellow, exceeds peers 
 
-Example of a good justification:
+Examples of a good justification:
 "Open-ended questioning is crucial for generating comprehensive differential diagnoses in acute presentations."
+"Palpating the patient's nine lymph nodes displays intermediate anatomical knowledge and allows for more a more accurate differential." 
 
-Remember, your goal is to provide a clear, concise, and insightful connection between the OSCE question and the chosen milestone.
+Remember, your goal is to provide a clear, concise, and insightful connection between the question and the chosen milestone.
   `;
 
   const schema = z.object({
@@ -123,14 +124,14 @@ Remember, your goal is to provide a clear, concise, and insightful connection be
     justification: z
       .string()
       .describe(
-        "A very brief explanation of why the chosen milestone is the best match.",
+        "A very brief explanation of why the chosen milestone is the best match for the OSCE question.",
       ),
     confidenceScore: z
       .number()
       .min(0)
       .max(10)
       .describe(
-        "A number from 0-10 indicating your confidence in the chosen milestone being an accurate match.",
+        "A number from 0-10 indicating your confidence in the chosen milestone being an accurate match. Most of your scores should fall in the range of 6-8.",
       ),
   });
 
