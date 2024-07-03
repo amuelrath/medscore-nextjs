@@ -15,9 +15,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectValue
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { SelectValue } from "@radix-ui/react-select";
 import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +36,7 @@ const createFormSchema = z.object({
 });
 
 export function CreateFormDialogTrigger() {
-  const [hovering, setHovering] = useState<boolean>(false)
+  const [hovering, setHovering] = useState<boolean>(false);
   const {
     control,
     register,
@@ -67,12 +67,21 @@ export function CreateFormDialogTrigger() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className={cn("w-36 font-semibold")} variant={"accent-secondary"}>
+        <Button
+          className={cn("w-36 font-semibold")}
+          variant={"accent-secondary"}
+        >
           <div
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
-            className={cn("flex flex-row items-center space-x-2")}>
-            <LottieHover loop={false} isHovering={hovering} size={"sm"} src={ADD} />
+            className={cn("flex flex-row items-center space-x-2")}
+          >
+            <LottieHover
+              loop={false}
+              isHovering={hovering}
+              size={"sm"}
+              src={ADD}
+            />
             <span className={cn("text-teal-900")}>New Form</span>
           </div>
         </Button>
@@ -93,6 +102,7 @@ export function CreateFormDialogTrigger() {
             <Input
               {...register("title")}
               placeholder="Enter a Descriptive Title"
+              className="bg-blue-800/5 shadow-inner"
             />
             {errors.title && (
               <FormErrorMessage message={errors.title.message} />
@@ -107,7 +117,7 @@ export function CreateFormDialogTrigger() {
               render={({ field }) => (
                 <>
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-blue-800/5 shadow-inner">
                       <SelectValue placeholder="Select a Program" />
                     </SelectTrigger>
                     <SelectContent>
