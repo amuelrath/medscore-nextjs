@@ -1,6 +1,7 @@
 "use server";
 import { db } from "@/db";
-import { responses, answers } from "@/db/schema";
+import { responses, answers, formCodes } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 type Answer = {
   optionId: string;
@@ -41,6 +42,19 @@ export async function submitResponse(response: Response) {
 
   try {
     const result = await db.transaction(async (tx) => {
+      // First, check if the form code is a direct observation
+      const formCode = await tx.query.formCodes.findFirst({
+        where: (fc, { eq }) => eq(fc.id, formCodeId),
+      });
+
+      // If it's a direct observation, update the canceledAt field
+      if (formCode?.isDirectObservation) {
+        await tx
+          .update(formCodes)
+          .set({ canceledAt: new Date() })
+          .where(eq(formCodes.id, formCode.id));
+      }
+
       const [newResponse] = await tx
         .insert(responses)
         .values({
