@@ -1,3 +1,4 @@
+"use client";
 import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,11 +69,8 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
   }, [handleSave]);
 
   useEffect(() => {
-    const subscription = methods.watch((formData, { name, type }) => {
-      console.log(`Change detected: ${name}, type: ${type}`);
-
+    const subscription = methods.watch((formData) => {
       if (!isEqual(formData, previousStateRef.current)) {
-        console.log("Change detected, scheduling save");
         latestFormDataRef.current = formData as TFormSchema;
         previousStateRef.current = JSON.parse(JSON.stringify(formData));
 
@@ -87,8 +85,6 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
         } else {
           debouncedSave();
         }
-      } else {
-        console.log("No change detected in form data");
       }
     });
 
