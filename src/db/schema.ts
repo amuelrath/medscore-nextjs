@@ -227,6 +227,7 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   }),
   questions: many(questions),
   tags: many(formTags),
+  formCodes: many(formCodes)
 }));
 
 // MARK: Questions
@@ -317,6 +318,7 @@ export const milestonesOnQuestionsRelations = relations(
     }),
   }),
 );
+
 // MARK: Responses
 export const responses = pgTable("responses", {
   id: uuid("id")
@@ -387,10 +389,12 @@ export const formCodes = pgTable("form_codes", {
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 6 }).notNull(),
+  title: text("title"),
   startsAt: timestamp("starts_at"),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  deletedAt: timestamp("deleted_at"),
+  canceledAt: timestamp("canceled_at"),
+  isDirectObservation: boolean("is_direct_observation").notNull().default(false)
 });
 export type FormCode = typeof formCodes.$inferSelect;
 export type NewFormCode = typeof formCodes.$inferInsert;
