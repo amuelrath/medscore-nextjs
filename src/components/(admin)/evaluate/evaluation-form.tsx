@@ -8,10 +8,8 @@ import { AnswerCard } from "@/components/(admin)/forms/responses/answer-card";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { submitResponse } from "@/server/actions/responses/submit-response";
 import { toast } from "sonner";
-import { useEffect} from "react";
-import { Main } from "@/components/ui/main";
+import { useEffect } from "react";
 import { EvaluateNav } from "@/components/(admin)/evaluate/evaluate-nav";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface EvaluationFormProps {
   formCodeId: string;
@@ -56,7 +54,6 @@ export function EvaluationForm({ formCodeId }: EvaluationFormProps) {
 
   const {
     control,
-    watch,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
@@ -76,7 +73,7 @@ export function EvaluationForm({ formCodeId }: EvaluationFormProps) {
       submitResponse({
         formCodeId,
         evaluatorId: "cf8b381f-1956-4c56-acf3-cf7517b20b92",
-        evaluateeId: "3abe0f2e-0b2e-4e23-9761-97e4b39897c6",
+        evaluateeId: "3abe0f2e-0b2e-4e23-9761-97e4b39897c6", // TODO FIXME
         answers: data.answers,
       }),
     onSuccess: () => {
@@ -101,7 +98,10 @@ export function EvaluationForm({ formCodeId }: EvaluationFormProps) {
 
   const totalQuestions = answers.length;
   const completedQuestions = answers.filter(
-    answer => answer.optionId && (!evaluation?.form?.questions[answers.indexOf(answer)]?.feedback || answer.feedback)
+    (answer) =>
+      answer.optionId &&
+      (!evaluation?.form?.questions[answers.indexOf(answer)]?.feedback ||
+        answer.feedback),
   ).length;
 
   const onSubmit = (data: TEvaluationForm) => {
@@ -117,7 +117,7 @@ export function EvaluationForm({ formCodeId }: EvaluationFormProps) {
   }
 
   return (
-    <>
+    <div className="flex flex-col w-full">
       <EvaluateNav
         formTitle={evaluation?.form?.title || ""}
         evaluatorName={"Austin Muelrath"}
@@ -125,11 +125,11 @@ export function EvaluationForm({ formCodeId }: EvaluationFormProps) {
         totalQuestions={totalQuestions}
         completedQuestions={completedQuestions}
       />
-      <Main>
-        <ScrollArea className={"h-[89vh] mt-20"}>
+      <div className="flex flex-grow justify-center">
+        <div className="no-scrollbar h-[93vh] w-full max-w-3xl overflow-y-scroll">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="mx-auto lg:max-w-3xl xs:max-w-5xl space-y-4 mt-16 pb-32"
+            className="mx-auto space-y-4 pb-52  p-4 "
           >
             {evaluation.form?.questions
               .sort((a, b) => a.position - b.position)
@@ -174,8 +174,8 @@ export function EvaluationForm({ formCodeId }: EvaluationFormProps) {
                 : "Submit Evaluation"}
             </button>
           </form>
-        </ScrollArea>
-      </Main>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }
