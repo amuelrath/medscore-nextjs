@@ -1,8 +1,6 @@
 "use client";
 import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
-import {
-  QueryClient,
-} from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,8 +33,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   return (
     <div
       className={cn(
-        "group mb-4 flex select-none bg-card p-3 border shadow-sm border-neutral-200 flex-row justify-between rounded-xl transition-all",
-
+        "group mb-4 flex select-none flex-row justify-between rounded-xl border border-neutral-200 bg-card p-3 shadow-sm transition-all",
       )}
     >
       <div
@@ -48,7 +45,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           <p
             onMouseEnter={() => handleHover(form.id)}
             onClick={handleClick}
-            className={cn("cursor-pointer text-lg font-semibold")}
+            className={cn("cursor-pointer text-lg font-medium")}
           >
             {form.title}
           </p>
