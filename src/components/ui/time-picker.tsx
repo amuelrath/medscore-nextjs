@@ -14,8 +14,8 @@ export const TimePicker: FC<TimeInputProps> = ({
   value,
   onChange,
 }) => {
-  const hourRef = useRef<HTMLInputElement>(null)
-  const minuteRef = useRef<HTMLInputElement>(null)
+  const hourRef = useRef<HTMLInputElement>(null);
+  const minuteRef = useRef<HTMLInputElement>(null);
   const [time, setTime] = useState(value || new Date());
   const [isAM, setIsAM] = useState(time.getHours() < 12);
 
@@ -67,15 +67,14 @@ export const TimePicker: FC<TimeInputProps> = ({
   const getDisplayHours = () => {
     const hours = time.getHours();
     if (hours === 1) {
-      return "1"
+      return "1";
     }
     return hours % 12 === 0 ? "12" : (hours % 12).toString().padStart(2, "0");
   };
 
   const getDisplayMinutes = () => {
-    return time.getMinutes().toString().padStart(2, "0")
+    return time.getMinutes().toString().padStart(2, "0");
   };
-
 
   // QOL
   const handleInputAutoClear = (ref: RefObject<HTMLInputElement>) => {
@@ -84,22 +83,16 @@ export const TimePicker: FC<TimeInputProps> = ({
     }
   };
 
-
-
-
   useEffect(() => {
     if (hourRef.current) {
       const hourValue = hourRef.current.value;
       if (hourValue.length === 1 && hourValue <= "09") {
         if (minuteRef.current) {
-            minuteRef.current.focus()
+          minuteRef.current.focus();
         }
       }
 
-      if (
-        hourValue.length === 2 &&
-        (hourValue >= "01" && hourValue <= "12")
-      ) {
+      if (hourValue.length === 2 && hourValue >= "01" && hourValue <= "12") {
         if (minuteRef.current) {
           minuteRef.current.focus();
         }
@@ -107,9 +100,8 @@ export const TimePicker: FC<TimeInputProps> = ({
     }
   }, [hourRef.current?.value]);
 
-
   return (
-    <div className="flex flex-row items-center space-x-1 rounded-lg border border-slate-200 p-1">
+    <div className="flex flex-row items-center space-x-1 rounded-md border border-slate-200 bg-blue-800/5 p-[3px] shadow-inner">
       <input
         autoFocus={false}
         autoComplete={"off"}
@@ -117,7 +109,7 @@ export const TimePicker: FC<TimeInputProps> = ({
         onClick={() => handleInputAutoClear(hourRef)}
         disabled={disabled}
         className={cn(
-          "h-8 w-9 rounded-md border-none bg-background p-0 text-center text-sm tracking-widest transition-colors focus-visible:bg-slate-100 focus:outline-transparent",
+          "h-8 w-9 rounded-md border-none bg-transparent p-0 text-center text-sm tracking-widest transition-colors focus:outline-transparent focus-visible:bg-slate-100",
         )}
         type="number"
         placeholder="--"
@@ -135,7 +127,7 @@ export const TimePicker: FC<TimeInputProps> = ({
         ref={minuteRef}
         disabled={disabled}
         className={cn(
-          "text-sm focus:ring-none h-8 w-9 rounded-md border-none bg-background p-0 text-center tracking-widest transition-colors focus-visible:bg-slate-100 focus:outline-transparent",
+          "focus:ring-none h-8 w-9 rounded-md border-none bg-transparent p-0 text-center text-sm tracking-widest transition-colors focus:outline-transparent focus-visible:bg-slate-100",
         )}
         type="number"
         onClick={() => handleInputAutoClear(minuteRef)}
@@ -147,7 +139,7 @@ export const TimePicker: FC<TimeInputProps> = ({
       />
       <Button
         type={"button"}
-        className={cn("w-8 transition-all")}
+        className={cn("w-8 bg-blue-950/5 hover:bg-blue-900/5 transition-all")}
         variant={"secondary"}
         size={"xs"}
         onClick={handleAMPMClick}
