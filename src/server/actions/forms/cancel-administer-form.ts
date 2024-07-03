@@ -17,18 +17,38 @@ export async function cancelAdministerForm({
 }): Promise<CancelAdministerFormResult> {
   try {
     const now = dateToSQLDate(new Date());
-    await db
-      .update(formCodes)
-      .set({
-        deletedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(formCodes.id, formCodeId),
-          isNull(formCodes.deletedAt),
-          sql`${formCodes.expiresAt} > ${now}::timestamp`,
-        ),
-      );
+
+    // Check if the form code has any responses
+    const hasResponses = await db.query.responses.findFirst({
+      where: (r, { eq }) => eq(r.formCodeId, formCodeId),
+    });
+
+    if (hasResponses) {
+      // If there are responses, set the canceledAt property
+      await db
+        .update(formCodes)
+        .set({
+          canceledAt: new Date(),
+        })
+        .where(
+          and(
+            eq(formCodes.id, formCodeId),
+            isNull(formCodes.canceledAt),
+            sql`${formCodes.expiresAt} > ${now}::timestamp`,
+          ),
+        );
+    } else {
+      // If there are no responses, delete the form code
+      await db
+        .delete(formCodes)
+        .where(
+          and(
+            eq(formCodes.id, formCodeId),
+            isNull(formCodes.canceledAt),
+            sql`${formCodes.expiresAt} > ${now}::timestamp`,
+          ),
+        );
+    }
 
     return {
       success: true,
