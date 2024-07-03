@@ -23,7 +23,7 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
 }) => {
   return (
     <m.div
-      className="border-opacity-18 mt-4 h-[93%] rounded-xl border border-white bg-card shadow-lg ring-[2.8px] ring-accent"
+      className="border-opacity-18 mt-4 h-[94%] rounded-xl border border-white bg-card shadow-lg ring-[2.8px] ring-accent"
       initial={{ width: 0, opacity: 0 }}
       animate={{
         width: open ? "45%" : 0,
