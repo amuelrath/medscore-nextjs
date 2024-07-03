@@ -76,7 +76,7 @@ export const QuestionCard: FC<QuestionCardProps> = ({
             type="text"
             {...control.register(`questions.${index}.text`)}
             placeholder="Question"
-            className="bg-blue-950 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
+            className="bg-blue-800 bg-opacity-5 p-2 shadow-inner backdrop-blur-3xl"
           />
         </div>
 
