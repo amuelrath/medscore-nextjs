@@ -28,6 +28,27 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
           specialtyId: true,
           description: false,
         },
+        with: {
+          users: {
+            columns: {
+              userId: false,
+              programId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  role: false,
+                  password: false,
+                  email: false,
+                  lastName: true,
+                  firstName: true
+                },
+                // todo somehow get only the users whose role is "STUDENT"
+              }
+            }
+          }
+        }
       },
     },
   });
