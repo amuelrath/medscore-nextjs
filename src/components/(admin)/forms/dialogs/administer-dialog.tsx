@@ -38,19 +38,19 @@ export function AdministerDialog() {
           </div>
         </Button>
       </DialogTrigger>
-      <DialogContent className="z-50 flex h-[550px] min-w-[800px] flex-col items-start">
+      <DialogContent className="z-50 flex h-[500px] min-w-[650px] flex-col items-start">
         <DialogHeader className="w-full">
           <DialogTitle className="w-full">Manage Assessment</DialogTitle>
           <DialogDescription>
             Collect responses and manage administrations of this assessment.
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="manage" className="w-full">
+        <Tabs defaultValue="administer" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="administer">Administer</TabsTrigger>
             <TabsTrigger value="manage">Manage</TabsTrigger>
           </TabsList>
-          <div className="h-full px-4">
+          <div className="h-full px-2">
             <TabsContent className="h-full" value="administer">
               <AdministerForm />
             </TabsContent>
