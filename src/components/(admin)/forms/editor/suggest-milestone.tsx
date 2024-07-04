@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { LazyMotion, m, domAnimation } from "framer-motion";
+import { addTrainingData } from "@/server/actions/ml/add-training-data";
+import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
 
 export function SuggestMilestone({
   selectedQuestionIndex,
@@ -57,12 +59,16 @@ export function SuggestMilestone({
     },
   });
 
+  const createTrainingData = useMutation({
+    mutationFn: addTrainingData,
+  });
+
   return (
     <LazyMotion features={domAnimation}>
       <m.div
-      initial={{ opacity: 0}}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
       >
         <Controller
           name={`questions.${selectedQuestionIndex}.milestoneIds`}
@@ -151,15 +157,41 @@ export function SuggestMilestone({
                   )}
                 </div>
                 {recData && recommendedMilestone && (
-                  <div>
+                  <div className="flex flex-col space-y-2">
+                    <div className="flex flex-row items-center justify-center space-x-2">
+                      <Button
+                        variant="emerald"
+                        className="w-16"
+                        onClick={() =>
+                          createTrainingData.mutate({
+                            recommendationId: recData.id,
+                            isPositive: true,
+                          })
+                        }
+                      >
+                        <ThumbsUpIcon />
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          createTrainingData.mutate({
+                            recommendationId: recData.id,
+                            isPositive: false,
+                          })
+                        }
+                        variant="destructive"
+                        className="w-16"
+                      >
+                        <ThumbsDownIcon />
+                      </Button>
+                    </div>
                     <div>
                       <p className="mt-8 text-xl font-semibold">
                         Why {recommendedMilestone.name} ?
                       </p>
+                      <p className="text-md font-light">
+                        {recData.justification}
+                      </p>
                     </div>
-                    <p className="text-md font-light">
-                      {recData.justification}
-                    </p>
                   </div>
                 )}
               </div>

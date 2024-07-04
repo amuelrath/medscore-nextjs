@@ -227,7 +227,7 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   }),
   questions: many(questions),
   tags: many(formTags),
-  formCodes: many(formCodes)
+  formCodes: many(formCodes),
 }));
 
 // MARK: Questions
@@ -394,7 +394,9 @@ export const formCodes = pgTable("form_codes", {
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   canceledAt: timestamp("canceled_at"),
-  isDirectObservation: boolean("is_direct_observation").notNull().default(false)
+  isDirectObservation: boolean("is_direct_observation")
+    .notNull()
+    .default(false),
 });
 export type FormCode = typeof formCodes.$inferSelect;
 export type NewFormCode = typeof formCodes.$inferInsert;
@@ -493,3 +495,67 @@ export const responsesView = pgMaterializedView("responses_view", {
   pointsEarned: decimal("point_value", { precision: 10, scale: 2 }),
   pointsAvailable: decimal("point_value", { precision: 10, scale: 2 }),
 }).existing();
+
+// TRAINING DATA FOR COMPETENCIES
+export const competencyEnum = pgEnum("competency", [
+  "ICS",
+  "PC",
+  "PBLI",
+  "PROF",
+  "MK",
+  "SBP",
+]);
+
+export const questionClassifications = pgTable("question_classifications", {
+  id: uuid("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  recommendationId: uuid("recommendation_id")
+    .notNull()
+    .references(() => recommendedMilestones.id),
+  question: text("question").notNull(),
+  competency: competencyEnum("competency").notNull(),
+  subcompetencyLevel: integer("subcompetency").notNull(),
+  milestoneLevel: integer("level").notNull(), // Column (typically 1-5)
+  milestoneSublevel: integer("sublevel").notNull(), // Position within the column
+  classification: integer("classification").notNull(),
+  isPositiveClassification: boolean("is_positive_classification").notNull(),
+});
+
+export type QuestionClassification =
+  typeof questionClassifications.$inferSelect;
+export type NewQuestionClassification =
+  typeof questionClassifications.$inferInsert;
+
+export const questionClassificationRelations = relations(
+  questionClassifications,
+  ({ one }) => ({
+    recommendation: one(recommendedMilestones, {
+      fields: [questionClassifications.recommendationId],
+      references: [recommendedMilestones.id],
+    }),
+  }),
+);
+
+// Helper function to generate classification number
+export function generateClassification(
+  competency: keyof typeof CompetencyNumbers,
+  subcompetency: number,
+  level: number,
+  sublevel: number,
+): number {
+  const competencyNumber = CompetencyNumbers[competency];
+  return (
+    competencyNumber * 1000000 + subcompetency * 10000 + level * 100 + sublevel
+  );
+}
+
+// CompetencyNumbers
+export const CompetencyNumbers = {
+  ICS: 1,
+  PC: 2,
+  PBLI: 3,
+  PROF: 4,
+  MK: 5,
+  SBP: 6,
+} as const;
