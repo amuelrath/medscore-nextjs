@@ -27,7 +27,7 @@ export function ManageContent() {
   const allUsersInProgram = formResult.programs.users.map((u) => u.user);
 
   const pastFormCodes = allFormCodes.filter(
-    (fc) => new Date(fc.expiresAt) < now,
+    (fc) => new Date(fc.expiresAt) < now || fc.canceledAt,
   );
   const scheduledFormCodes = allFormCodes.filter(
     (fc) => fc.startsAt && new Date(fc.startsAt) > now,
@@ -36,7 +36,8 @@ export function ManageContent() {
     (fc) =>
       fc.startsAt &&
       new Date(fc.startsAt) <= now &&
-      new Date(fc.expiresAt) > now,
+      new Date(fc.expiresAt) > now &&
+      !fc.canceledAt,
   );
 
   return (
@@ -129,14 +130,15 @@ function ScheduleCard({ formCode, users, active }: ScheduleCardProps) {
             <Badge
               size="xs"
               variant="outline"
-              className={cn( getDurationBadgeColor(), "text-2xs space-x-0.5 px-[8px] border-none py-[2.5px] font-normal")}
+              className={cn(
+                getDurationBadgeColor(),
+                "space-x-0.5 border-none px-[8px] py-[2.5px] text-2xs font-normal",
+              )}
             >
-             <p className="font-medium" >
-              {differenceInHours(endDate, startDate || new Date())}
-             </p>
-             <p className="font-light">
-               hours
-             </p>
+              <p className="font-medium">
+                {differenceInHours(endDate, startDate || new Date())}
+              </p>
+              <p className="font-light">hours</p>
             </Badge>
           </div>
         </div>

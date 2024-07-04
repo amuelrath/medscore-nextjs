@@ -6,7 +6,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { FormResult, getFormById } from "@/server/actions/forms/get-form-by-id";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { administerForm } from "@/server/actions/forms/administer-form";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const ZStartObservationSchema = z.object({
   evaluateeId: z.string().min(1, { message: "Select an evaluatee." }),
@@ -160,8 +160,135 @@ export function NotInEditorForm() {
       getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
-  // TODO implement observation notes option
-  // user must pick form ( or observation notes ), then pick resident
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
-  return <>not in editor</>;
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<TStartObservationSchema>({
+    resolver: zodResolver(ZStartObservationSchema),
+    defaultValues: {
+      formId: "",
+      evaluateeId: "",
+      evaluatorId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+    },
+  });
+
+  const { mutate, isPending, data } = useMutation({
+    mutationFn: administerForm,
+    onSuccess: (newFormCode) => {
+      queryClient.setQueryData(
+        ["form", newFormCode.formId],
+        (oldData: FormResult | undefined) => {
+          if (!oldData) return oldData;
+          return {
+            ...oldData,
+            formCodes: [...oldData.formCodes, newFormCode],
+          };
+        },
+      );
+    },
+  });
+
+  const selectedFormId = useWatch({ control, name: "formId" });
+  const [students, setStudents] = useState<any[]>([]);
+
+  // Update students when selectedFormId changes
+  useEffect(() => {
+    if (selectedFormId) {
+      const selectedForm = allForms.find((f) => f.id === selectedFormId);
+      if (selectedForm) {
+        const formStudents = selectedForm.programs.users.flatMap((u) => u.user).filter(u => u.role === "STUDENT");
+        setStudents(formStudents);
+      }
+    } else {
+      setStudents([]);
+    }
+  }, [selectedFormId, allForms]);
+
+  const submitForm = (data: TStartObservationSchema) => {
+    const now = new Date();
+    mutate({
+      formId: data.formId,
+      title: "Direct Observation",
+      isDirectObservation: true,
+      startsAt: addMinutes(now, -0.5),
+      expiresAt: addHours(now, 2),
+      userIds: [data.evaluateeId],
+    });
+  };
+
+  useEffect(() => {
+    if (data) {
+      router.push(`/evaluate/${data?.id}`);
+    }
+  }, [router, data]);
+
+  return (
+    <form
+      autoFocus={false}
+      autoComplete="off"
+      onSubmit={handleSubmit(submitForm)}
+      className="flex flex-col space-y-6"
+    >
+      <div className="space-y-2">
+        <p className="text-md font-semibold">Assessment</p>
+        <Controller
+          name="formId"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger type="button">
+                <SelectValue placeholder="Select Assessment" />
+              </SelectTrigger>
+              <SelectContent>
+                {allForms?.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>
+                    {f.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.formId && <FormErrorMessage message={errors.formId.message} />}
+      </div>
+      <div className="space-y-2">
+        <p className="text-md font-semibold">Evaluatee</p>
+        <Controller
+          name="evaluateeId"
+          control={control}
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger type="button">
+                <SelectValue placeholder="Select Student" />
+              </SelectTrigger>
+              <SelectContent>
+                {students.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {getFullName(s)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.evaluateeId && (
+          <FormErrorMessage message={errors.evaluateeId.message} />
+        )}
+      </div>
+      <div className="flex justify-end space-x-2 ">
+        <Button disabled={isPending} className="w-[100px]">
+          Start
+        </Button>
+        <DialogClose asChild>
+          <Button variant="outline" type="button">
+            Cancel
+          </Button>
+        </DialogClose>
+      </div>
+    </form>
+  );
 }

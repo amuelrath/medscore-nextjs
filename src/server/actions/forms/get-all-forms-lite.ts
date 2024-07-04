@@ -38,7 +38,7 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
               user: {
                 columns: {
                   id: true,
-                  role: false,
+                  role: true,
                   password: false,
                   email: false,
                   lastName: true,
