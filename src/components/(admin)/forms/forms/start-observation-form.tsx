@@ -84,12 +84,17 @@ export function InEditorForm({ formId }: { formId: string }) {
     },
   });
 
+  // only allow user to pick the resident
+  const students = formResult?.programs.users
+    .flatMap((u) => u.user)
+    .filter((u) => u.role === "STUDENT");
+
   const submitForm = (data: TStartObservationSchema) => {
     // create a direct observation formCode
     const now = new Date();
     mutate({
       formId,
-      title: "Direct Observation",
+      title: `Direct Observation of ${getFullName(students!.find((s) => s.id === data.evaluateeId)!)}`, // zod will throw errors for us
       isDirectObservation: true,
       startsAt: addMinutes(now, -0.5),
       expiresAt: addHours(now, 2),
@@ -102,11 +107,6 @@ export function InEditorForm({ formId }: { formId: string }) {
       router.push(`/evaluate/${data?.id}`);
     }
   }, [router, data]);
-
-  // only allow user to pick the resident
-  const students = formResult?.programs.users
-    .flatMap((u) => u.user)
-    .filter((u) => u.role === "STUDENT");
 
   return (
     <form
@@ -200,7 +200,9 @@ export function NotInEditorForm() {
     if (selectedFormId) {
       const selectedForm = allForms.find((f) => f.id === selectedFormId);
       if (selectedForm) {
-        const formStudents = selectedForm.programs.users.flatMap((u) => u.user).filter(u => u.role === "STUDENT");
+        const formStudents = selectedForm.programs.users
+          .flatMap((u) => u.user)
+          .filter((u) => u.role === "STUDENT");
         setStudents(formStudents);
       }
     } else {

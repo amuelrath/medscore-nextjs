@@ -333,6 +333,7 @@ export const responses = pgTable("responses", {
   evaluateeId: uuid("evaluatee_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  duration: integer("duration").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 export type Response = DateToString<typeof responses.$inferSelect>;

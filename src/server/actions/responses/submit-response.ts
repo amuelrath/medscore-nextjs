@@ -13,6 +13,7 @@ type Response = {
   formCodeId: string;
   evaluateeId: string;
   evaluatorId: string;
+  duration: number; // seconds
 };
 
 function validateResponse(response: Response): void {
@@ -21,11 +22,13 @@ function validateResponse(response: Response): void {
     evaluateeId,
     formCodeId,
     answers: responseAnswers,
+    duration,
   } = response;
 
   if (!evaluatorId) throw new Error("No CreatorId found!");
   if (!evaluateeId) throw new Error("No EvaluateeId found!");
   if (!formCodeId) throw new Error("No FormCodeId found!");
+  if (!duration) throw new Error("No duration found!");
   if (!responseAnswers || responseAnswers.length === 0)
     throw new Error("No answers provided!");
 }
@@ -38,6 +41,7 @@ export async function submitResponse(response: Response) {
     evaluateeId,
     formCodeId,
     answers: responseAnswers,
+    duration,
   } = response;
 
   try {
@@ -61,6 +65,7 @@ export async function submitResponse(response: Response) {
           formCodeId,
           creatorId,
           evaluateeId,
+          duration,
         })
         .returning();
 

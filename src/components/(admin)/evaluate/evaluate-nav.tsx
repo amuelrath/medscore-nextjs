@@ -1,7 +1,9 @@
+"use client";
 import { Progress } from "@/components/ui/progress";
 import Counter from "@/components/ui/counter";
 import { Stopwatch } from "@/components/ui/stopwatch";
 import { cn } from "@/lib/utils";
+import { Controller, useFormContext } from "react-hook-form";
 
 interface EvaluateNavProps {
   formTitle: string;
@@ -23,6 +25,8 @@ export function EvaluateNav({
       ? Math.round((completedQuestions / totalQuestions) * 100)
       : 0;
 
+  const { control } = useFormContext<any>();
+
   return (
     <div className="flex h-16 w-full flex-row items-center justify-between border-b border-accent-secondary bg-card px-8">
       <div className={cn("flex w-full flex-row items-center justify-between")}>
@@ -35,15 +39,26 @@ export function EvaluateNav({
               className="mt-1 h-2 w-full max-w-[200px]"
               value={progressPercentage}
             />
+
             <Counter
-              className="font-light proportional-nums max-w-1"
+              className="max-w-1 font-light proportional-nums"
               value={progressPercentage}
               type="percent"
             />
           </div>
         </div>
         <div className="flex items-center justify-center">
-          <Stopwatch className="text-3xl " />
+          <Controller
+            control={control}
+            name="duration"
+            render={({ field }) => (
+              <Stopwatch
+                className="text-3xl"
+                onChange={field.onChange}
+                value={field.value}
+              />
+            )}
+          />
         </div>
         <div className="flex flex-col items-end justify-center">
           <p className="font-medium text-neutral-700">{evaluateeName}</p>

@@ -21,14 +21,23 @@ export default async function EvaluateFormPage({
   });
 
   // prefetch the evaluation form
-  await queryClient.prefetchQuery({
+  const evaluation = await queryClient.fetchQuery({
     queryKey: ["evaluation-form", formCodeId],
     queryFn: () => getEvaluationForm({ formCodeId }),
   });
 
+  const getEvaluateeId = () => {
+    if (!evaluation || !evaluation.form)
+      throw new Error("Error fetching form code.");
+    if (evaluation.form.formCodes[0].isDirectObservation) {
+      return evaluation.form.formCodes[0].usersWithCode[0].user.id;
+    }
+    return "";
+  };
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <EvaluationForm formCodeId={formCodeId} />
+      <EvaluationForm formCodeId={formCodeId} evaluateeId={getEvaluateeId()} />
     </HydrationBoundary>
   );
 }

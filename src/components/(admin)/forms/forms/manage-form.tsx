@@ -41,14 +41,14 @@ export function ManageContent() {
   );
 
   return (
-    <div className="no-scrollbar h-[55vh] w-full overflow-y-scroll">
+    <div className="no-scrollbar h-[46vh] w-full overflow-y-scroll">
       {activeFormCode && (
         <div className="mb-4">
           <h3 className="text-md font-semibold">Active</h3>
           <ScheduleCard
             formCode={activeFormCode}
             users={allUsersInProgram}
-            active
+            status="active"
           />
         </div>
       )}
@@ -61,6 +61,7 @@ export function ManageContent() {
                 key={fc.id}
                 formCode={fc}
                 users={allUsersInProgram}
+                status="scheduled"
               />
             ))}
           </div>
@@ -75,6 +76,7 @@ export function ManageContent() {
                 key={fc.id}
                 formCode={fc}
                 users={allUsersInProgram}
+                status="previous"
               />
             ))}
           </div>
@@ -87,10 +89,10 @@ export function ManageContent() {
 interface ScheduleCardProps {
   formCode: FormResult["formCodes"][number];
   users: FormResult["programs"]["users"][number]["user"][];
-  active?: boolean;
+  status: "active" | "scheduled" | "previous";
 }
 
-function ScheduleCard({ formCode, users, active }: ScheduleCardProps) {
+function ScheduleCard({ formCode, users, status }: ScheduleCardProps) {
   const assignedUsers = formCode.usersWithCode
     .map((uc) => users.find((u) => u.id === uc.userId))
     .filter((u): u is NonNullable<typeof u> => u !== undefined);
@@ -111,7 +113,7 @@ function ScheduleCard({ formCode, users, active }: ScheduleCardProps) {
         <div className="flex-grow space-y-1.5">
           <div className="flex flex-row items-center space-x-2">
             <p> {formCode.title || "Untitled Administration"}</p>
-            {active && (
+            {status === "active" && (
               <span className=" size-2 animate-pulse rounded-full bg-destructive" />
             )}
           </div>
@@ -127,19 +129,21 @@ function ScheduleCard({ formCode, users, active }: ScheduleCardProps) {
               />
               <p>{formatDate(startDate || new Date(), "MM/dd/yyyy, h:mm a")}</p>
             </div>
-            <Badge
-              size="xs"
-              variant="outline"
-              className={cn(
-                getDurationBadgeColor(),
-                "space-x-0.5 border-none px-[8px] py-[2.5px] text-2xs font-normal",
-              )}
-            >
-              <p className="font-medium">
-                {differenceInHours(endDate, startDate || new Date())}
-              </p>
-              <p className="font-light">hours</p>
-            </Badge>
+            {status !== "active" && (
+              <Badge
+                size="xs"
+                variant="outline"
+                className={cn(
+                  getDurationBadgeColor(),
+                  "space-x-0.5 border-none px-[8px] py-[2.5px] text-2xs font-normal",
+                )}
+              >
+                <p className="font-medium">
+                  {differenceInHours(endDate, startDate || new Date())}
+                </p>
+                <p className="font-light">hours</p>
+              </Badge>
+            )}
           </div>
         </div>
         <div className="flex space-x-2">
