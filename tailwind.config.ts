@@ -31,6 +31,8 @@ const config = {
         pbli: "hsl(var(--pbli))",
         mk: "hsl(var(--mk))",
         "accent-secondary": "hsl(var(--accent-secondary))",
+        "accent-secondary-background":
+          "hsl(var(--accent-secondary-background))",
         notepad: "hsl(var(--notepad))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
