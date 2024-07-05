@@ -52,7 +52,6 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
             <TabsList>
               <TabsTrigger value="milestones">Milestones</TabsTrigger>
               <TabsTrigger value="suggested">Suggested</TabsTrigger>
-              <TabsTrigger value="custom">Objectives</TabsTrigger>
             </TabsList>
             <TabsContent value="milestones">
               <InlineMilestoneMultiselect
@@ -65,7 +64,6 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
                 selectedQuestionIndex={selectedQuestionIndex}
               />
             </TabsContent>
-            <TabsContent value="custom">custom</TabsContent>
           </Tabs>
         </div>
       )}

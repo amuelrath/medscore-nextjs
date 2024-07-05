@@ -6,7 +6,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { getFormById } from "@/server/actions/forms/get-form-by-id";
+import { FormResult, getFormById } from "@/server/actions/forms/get-form-by-id";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import { pickBestMilestone } from "@/server/actions/ai/recommend-milestone";
 import { LottieHover } from "@/components/ui/lottie-hover";
@@ -19,6 +19,7 @@ import { useState } from "react";
 import { LazyMotion, m, domAnimation } from "framer-motion";
 import { addTrainingData } from "@/server/actions/ml/add-training-data";
 import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
+import { toast } from "sonner";
 
 export function SuggestMilestone({
   selectedQuestionIndex,
@@ -59,10 +60,6 @@ export function SuggestMilestone({
     },
   });
 
-  const createTrainingData = useMutation({
-    mutationFn: addTrainingData,
-  });
-
   return (
     <LazyMotion features={domAnimation}>
       <m.div
@@ -94,8 +91,8 @@ export function SuggestMilestone({
             };
 
             return (
-              <div className="space-y-2">
-                <div className="flex h-32 select-none flex-col justify-center rounded-xl border border-accent-secondary bg-accent-secondary/20 p-2 text-center">
+              <div className="space-y-4">
+                <div className="bg-accent-secondary-background relative flex h-32 select-none flex-col justify-center rounded-xl border border-accent-secondary p-2 text-center">
                   <p className="text-2xl font-bold tracking-wider text-teal-950">
                     {recommendedMilestone?.name || (
                       <p className="text-xl font-semibold tracking-normal">
@@ -111,6 +108,15 @@ export function SuggestMilestone({
                   <p className="text-sm font-light text-teal-950">
                     {recommendedMilestone?.description}
                   </p>
+                  {recData && (
+                    <FeedbackButtonGroup
+                      formId={formId}
+                      recommendationId={recData.id}
+                      isPositiveClassification={
+                        recData.isPositiveClassification
+                      }
+                    />
+                  )}
                 </div>
                 <div className="flex justify-center space-x-2">
                   <Button
@@ -158,32 +164,6 @@ export function SuggestMilestone({
                 </div>
                 {recData && recommendedMilestone && (
                   <div className="flex flex-col space-y-2">
-                    <div className="flex flex-row items-center justify-center space-x-2">
-                      <Button
-                        variant="emerald"
-                        className="w-16"
-                        onClick={() =>
-                          createTrainingData.mutate({
-                            recommendationId: recData.id,
-                            isPositive: true,
-                          })
-                        }
-                      >
-                        <ThumbsUpIcon />
-                      </Button>
-                      <Button
-                        onClick={() =>
-                          createTrainingData.mutate({
-                            recommendationId: recData.id,
-                            isPositive: false,
-                          })
-                        }
-                        variant="destructive"
-                        className="w-16"
-                      >
-                        <ThumbsDownIcon />
-                      </Button>
-                    </div>
                     <div>
                       <p className="mt-8 text-xl font-semibold">
                         Why {recommendedMilestone.name} ?
@@ -200,5 +180,119 @@ export function SuggestMilestone({
         />
       </m.div>
     </LazyMotion>
+  );
+}
+
+function FeedbackButtonGroup({
+  formId,
+  recommendationId,
+  isPositiveClassification,
+}: {
+  formId: string;
+  recommendationId: string;
+  isPositiveClassification: boolean | null;
+}) {
+  const queryClient = useQueryClient();
+
+  const createTrainingData = useMutation({
+    mutationFn: addTrainingData,
+    onMutate: async (variables) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["form", formId] });
+
+      // Snapshot the previous value
+      const previousData = queryClient.getQueryData<FormResult>([
+        "form",
+        formId,
+      ]);
+
+      // Optimistically update to the new value
+      queryClient.setQueryData<FormResult>(["form", formId], (oldData) => {
+        if (!oldData) return oldData;
+
+        const updatedQuestions = oldData.questions.map((question) => ({
+          ...question,
+          recommendedMilestone:
+            question.recommendedMilestone?.id === recommendationId
+              ? {
+                  ...question.recommendedMilestone,
+                  isPositiveClassification: variables.isPositiveClassification,
+                }
+              : question.recommendedMilestone,
+        }));
+
+        return { ...oldData, questions: updatedQuestions };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousData) {
+        queryClient.setQueryData<FormResult>(
+          ["form", formId],
+          context.previousData,
+        );
+      }
+      toast.error("Oops! Something went wrong.");
+    },
+  });
+
+  const isClassified = isPositiveClassification !== null;
+  const isPending = createTrainingData.isPending;
+
+  return (
+    <div
+      className={cn(
+        "bg-accent-secondary-background absolute -bottom-3 right-4 flex flex-row items-center justify-center rounded-lg border border-accent-secondary",
+        (isClassified || isPending) && "select-none",
+      )}
+    >
+      <Button
+        variant="hide"
+        size="xs"
+        className={cn(
+          "text-teal-950 disabled:opacity-100",
+          (isPositiveClassification === true ||
+            (isPending &&
+              createTrainingData.variables?.isPositiveClassification ===
+                true)) &&
+            "text-emerald-500",
+          !isClassified && !isPending && "hover:text-emerald-500",
+        )}
+        onClick={() =>
+          createTrainingData.mutate({
+            recommendationId,
+            isPositiveClassification: true,
+          })
+        }
+        disabled={isClassified || isPending}
+      >
+        <ThumbsUpIcon size={12} />
+      </Button>
+      <Button
+        onClick={() =>
+          createTrainingData.mutate({
+            recommendationId,
+            isPositiveClassification: false,
+          })
+        }
+        variant="hide"
+        size="xs"
+        className={cn(
+          "scale-x-[-1] text-teal-950 disabled:opacity-100",
+          (isPositiveClassification === false ||
+            (isPending &&
+              createTrainingData.variables?.isPositiveClassification ===
+                false)) &&
+            "text-destructive",
+          !isClassified && !isPending && "hover:text-destructive",
+        )}
+        disabled={isClassified || isPending}
+      >
+        <ThumbsDownIcon size={12} />
+      </Button>
+    </div>
   );
 }

@@ -8,18 +8,21 @@ import {
   questionClassifications,
   recommendedMilestones,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 export async function addTrainingData({
   recommendationId,
-  isPositive,
+  isPositiveClassification,
 }: {
   recommendationId: string;
-  isPositive: boolean;
+  isPositiveClassification: boolean;
 }) {
   // get the recommendation
   const recData = await db.query.recommendedMilestones.findFirst({
-    where: eq(recommendedMilestones.id, recommendationId),
+    where: and(
+      eq(recommendedMilestones.id, recommendationId),
+      isNull(recommendedMilestones.isPositiveClassification),
+    ),
     with: {
       question: {
         columns: {
@@ -63,7 +66,7 @@ export async function addTrainingData({
   });
   if (!recData)
     throw new Error(
-      `Couldn't find a recommendation of the id "${recommendationId}"`,
+      `Couldn't find a recommendation of the id "${recommendationId} or it was already added."`,
     );
   if (!recData.question.text)
     throw new Error("Aborting: Question text is empty.");
@@ -83,27 +86,25 @@ export async function addTrainingData({
 
   // extract the milestone with relations and question text
   const trainingData: NewQuestionClassification = {
-    recommendationId,
     question,
     competency,
     subcompetencyLevel,
     milestoneLevel,
     milestoneSublevel,
     classification,
-    isPositiveClassification: isPositive,
+    isPositiveClassification,
   };
 
-  // first ensure this question hasn't already been added
-  const isAlreadyAdded = await db.query.questionClassifications.findFirst({
-    where: eq(questionClassifications.recommendationId, recommendationId),
-  });
-
-  if (isAlreadyAdded)
-    return console.log("Question is already used in training data.");
-
-  // add the training data into the db
   try {
-    await db.insert(questionClassifications).values(trainingData);
+    await db.transaction(async (tx) => {
+      // add the training data into the db
+      await tx.insert(questionClassifications).values(trainingData);
+      // update the rec to reflect that feedback was submitted
+      await tx
+        .update(recommendedMilestones)
+        .set({ isPositiveClassification })
+        .where(eq(recommendedMilestones.id, recommendationId));
+    });
     console.log("Added training data.");
   } catch (error) {
     return console.error("Error inserting classification into db: ", error);

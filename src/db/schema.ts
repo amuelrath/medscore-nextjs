@@ -458,6 +458,7 @@ export const recommendedMilestones = pgTable("recommended_milestones", {
     .references(() => milestones.id),
   justification: text("justification").notNull(),
   score: integer("score").notNull(),
+  isPositiveClassification: boolean("is_positive_classification")
 });
 export type RecommendedMilestone = typeof recommendedMilestones.$inferSelect;
 export type NewRecommendedMilestone = typeof recommendedMilestones.$inferInsert;
@@ -511,9 +512,6 @@ export const questionClassifications = pgTable("question_classifications", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  recommendationId: uuid("recommendation_id")
-    .notNull()
-    .references(() => recommendedMilestones.id),
   question: text("question").notNull(),
   competency: competencyEnum("competency").notNull(),
   subcompetencyLevel: integer("subcompetency").notNull(),
@@ -528,15 +526,6 @@ export type QuestionClassification =
 export type NewQuestionClassification =
   typeof questionClassifications.$inferInsert;
 
-export const questionClassificationRelations = relations(
-  questionClassifications,
-  ({ one }) => ({
-    recommendation: one(recommendedMilestones, {
-      fields: [questionClassifications.recommendationId],
-      references: [recommendedMilestones.id],
-    }),
-  }),
-);
 
 // Helper function to generate classification number
 export function generateClassification(
