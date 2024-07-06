@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
@@ -11,11 +11,14 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-white hover:bg-primary/90",
         "accent-secondary":
-          "bg-accent-secondary text-teal-800 hover:bg-accent-secondary/90",
+          "bg-accent-secondary text-teal-950 hover:bg-accent-secondary/90",
+        "accent-secondary-background":
+          "bg-accent-secondary-background text-teal-950 border border-accent-secondary hover:bg-accent-secondary-background/90",
         foreground: "bg-foreground text-white hover:bg-foreground/90",
         accent: "bg-accent text-background hover:bg-accent/90",
         icon: "items-center p-1 hover:text-white hover:bg-accent-secondary rounded-md transition-all",
-        destructive: "bg-destructive text-red-950 font-semibold hover:bg-destructive/90",
+        destructive:
+          "bg-destructive text-red-950 font-semibold hover:bg-destructive/90",
         outline:
           "border border-input bg-background hover:bg-slate-200 hover:text-accent-foreground",
         secondary:
