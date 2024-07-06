@@ -11,4 +11,3 @@ export async function getAllResponses({ formId }: { formId: string }) {
 }
 
 export type AllResponsesResult = Awaited<ReturnType<typeof getAllResponses>>;
-export type OneResponseResult = AllResponsesResult[0];
