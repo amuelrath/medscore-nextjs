@@ -11,7 +11,7 @@ export async function verifyCode({ code }: { code: string }) {
       },
     },
     where: (f, { and, isNull, eq }) =>
-      and(eq(f.code, code), isNull(f.deletedAt)),
+      and(eq(f.code, code), isNull(f.canceledAt)),
   });
 
   if (!dataFromFormCode) throw new Error("Code not found.");

@@ -1,6 +1,6 @@
 import TRENDING_UP from "public/icons/system-solid-160-trending-up.json";
 import TRENDING_DOWN from "public/icons/system-solid-159-trending-down.json";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import Lottie from "lottie-react";
 import Counter from "@/components/ui/counter";
 

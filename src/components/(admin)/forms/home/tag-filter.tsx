@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { FC, useState, useRef } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 

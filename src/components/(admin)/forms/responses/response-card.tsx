@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { StarIcon, TrashIcon, UploadIcon } from "lucide-react";
 
 interface ResponseCardProps {

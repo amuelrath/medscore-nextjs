@@ -1,7 +1,7 @@
 import { LazyMotion, m, domAnimation } from "framer-motion";
 import { cva } from "class-variance-authority";
 import { FC, memo, ReactNode } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 
 interface GaugeChartProps {
   value: number;

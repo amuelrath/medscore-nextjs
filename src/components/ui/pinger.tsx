@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { cva, VariantProps } from "class-variance-authority";
 
 const pingerVariants = cva("rounded-full", {

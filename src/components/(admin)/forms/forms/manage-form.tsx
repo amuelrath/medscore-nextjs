@@ -1,7 +1,7 @@
 "use client";
 import { differenceInHours, formatDate } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { CalendarClockIcon, Edit2, UsersRoundIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormResult, getFormById } from "@/server/actions/forms/get-form-by-id";

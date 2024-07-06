@@ -1,7 +1,7 @@
 // MultiSelect.tsx
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import Select, { ActionMeta, ClassNamesConfig, MultiValue } from "react-select";
 
 type Option = unknown;

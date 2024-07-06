@@ -2,7 +2,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { FormLiteResult, getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scrollbar } from "@radix-ui/react-scroll-area";
 import { random } from "lodash";
@@ -46,7 +46,7 @@ export default function FormsHome() {
   return (
     <>
       <div className="h-16 w-full">
-        <div className="flex h-16 flex-row justify-between border-b border-accent-secondary bg-card p-1 px-8">
+        <div className="flex h-16 flex-row justify-between border-b border-accent-secondary bg-card p-1 px-3">
           <div className="flex flex-row items-center space-x-4">
             <h3
               className={cn(

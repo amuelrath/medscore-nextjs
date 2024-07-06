@@ -1,5 +1,5 @@
 "use client";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
 import { Input } from "@/components/ui/input";
 import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-button";
@@ -17,8 +17,8 @@ export const FormEditorNav = () => {
   const [isSaving] = useAtom(isSavingAtom);
 
   return (
-    <div className="flex h-16 w-full flex-row items-center justify-between border-b border-accent-secondary bg-card px-8">
-      <div className={cn("flex flex-row items-center space-x-2 ")}>
+    <div className="flex h-16 w-full flex-row items-center justify-between border-b border-accent-secondary bg-card px-3">
+      <div className={cn("flex flex-row items-center space-x-2")}>
         <Input
           className={cn("bg-blue-800/5 text-xl font-semibold shadow-inner")}
           defaultValue={title}

@@ -2,7 +2,7 @@
 import { Progress } from "@/components/ui/progress";
 import Counter from "@/components/ui/counter";
 import { Stopwatch } from "@/components/ui/stopwatch";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Controller, useFormContext } from "react-hook-form";
 
 interface EvaluateNavProps {

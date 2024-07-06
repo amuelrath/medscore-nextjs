@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, ReactNode, ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 
 interface Tab {
   id: string;
@@ -35,7 +35,7 @@ export function RouteNavigation({ tabs }: Props) {
   return (
     <nav>
       <div
-        className={`flex h-full flex-col items-center border-r border-accent-secondary bg-card p-3`}
+        className={`flex min-h-screen flex-col items-center border-r border-accent-secondary bg-card p-3`}
       >
         <div className="fixed bottom-3 left-[68px] z-50">
           <div className={cn("flex select-none flex-row text-gray-600")}>

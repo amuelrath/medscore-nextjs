@@ -1,6 +1,6 @@
 "use client";
 import { ChangeEvent, FC, useState, useEffect, useRef, RefObject } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Button } from "@/components/ui/button";
 
 interface TimeInputProps {

@@ -10,7 +10,7 @@ import { submitResponse } from "@/server/actions/responses/submit-response";
 import { AnswerCard } from "@/components/(admin)/forms/responses/answer-card";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { EvaluateNav } from "@/components/(admin)/evaluate/evaluate-nav";
-import { getFullName } from "@/lib/getFullName";
+import { getFullName } from "@/lib/helpers/getFullName";
 
 interface EvaluationFormProps {
   formCodeId: string;

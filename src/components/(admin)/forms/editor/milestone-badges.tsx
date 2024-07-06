@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { TrashIcon } from "lucide-react";
 import { m, LazyMotion, domAnimation } from "framer-motion";
 import { useState } from "react";

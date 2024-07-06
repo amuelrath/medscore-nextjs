@@ -3,7 +3,7 @@
 import { db } from "@/db";
 import { formCodes } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
-import { dateToSQLDate } from "@/lib/date-to-sql-date";
+import { dateToSQLDate } from "@/lib/helpers/date-to-sql-date";
 
 type CancelAdministerFormResult = {
   success: boolean;

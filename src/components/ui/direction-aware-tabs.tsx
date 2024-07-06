@@ -8,7 +8,7 @@ import {
   domAnimation,
 } from "framer-motion";
 import useMeasure from "react-use-measure";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { cva, VariantProps } from "class-variance-authority";
 
 type Tab = {

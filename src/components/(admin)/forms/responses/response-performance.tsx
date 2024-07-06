@@ -1,7 +1,7 @@
 import React, { Suspense } from "react";
 import { COMPETENCIES } from "@/db/constants";
 import { useResponseContext } from "@/components/(admin)/forms/providers/response-provider";
-import { getFullName } from "@/lib/getFullName";
+import { getFullName } from "@/lib/helpers/getFullName";
 import { Glass } from "@/components/ui/glass";
 import { NoResponseSelected } from "@/components/(admin)/forms/responses/errors/no-response-selected";
 import { SeeMoreButton } from "@/components/ui/see-more-button";
@@ -17,7 +17,7 @@ import Counter from "@/components/ui/counter";
 import { uniq } from "lodash";
 import { getPerformanceByForm } from "@/server/actions/views/get-question-performance-by-milestone";
 import GaugeChart from "@/components/ui/gauge";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { LineChart, ResponsiveContainer } from "recharts";
 
 const competencyIcons = {

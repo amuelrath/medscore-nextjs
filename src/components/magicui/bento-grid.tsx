@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { ArrowRightIcon } from "lucide-react";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";

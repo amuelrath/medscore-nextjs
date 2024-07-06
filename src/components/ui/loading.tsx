@@ -4,7 +4,7 @@ import Lottie from "lottie-react";
 import { useRef } from "react";
 import LOADING_ICON from "public/icons/system-regular-720-spinner-half-circles.json";
 import { cva, VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 
 const loadingStyles = cva("flex items-center justify-center", {
   variants: {

@@ -5,7 +5,7 @@ import { forwardRef, useEffect } from "react";
 import { Command as CommandPrimitive, useCommandState } from "cmdk";
 import { X } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,

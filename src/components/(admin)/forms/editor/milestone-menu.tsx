@@ -2,12 +2,21 @@ import { FC } from "react";
 import { m } from "framer-motion";
 import { Control } from "react-hook-form";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { InlineMilestoneMultiselect } from "@/components/(admin)/forms/editor/inline-milestone-input";
 import LetterPullup from "@/components/ui/letter-pull-up";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsTrigger, TabsContent, TabsList } from "@/components/ui/tabs";
-import { SuggestMilestone } from "@/components/(admin)/forms/editor/suggest-milestone";
+import dynamic from "next/dynamic";
 
+const DynamicSuggestMilestone = dynamic(() =>
+  import("@/components/(admin)/forms/editor/suggest-milestone").then(
+    (mod) => mod.SuggestMilestone,
+  ),
+);
+const DynamicInlineMilestoneMultiselect = dynamic(() =>
+  import("@/components/(admin)/forms/editor/inline-milestone-input").then(
+    (mod) => mod.InlineMilestoneMultiselect,
+  ),
+);
 interface MilestoneMenuProps {
   selectedQuestionIndex: number;
   open: boolean;
@@ -34,7 +43,7 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
       {selectedQuestionIndex !== -1 && (
         <div className="px-4">
           <Tabs defaultValue="milestones">
-            <div className="flex w-full py-3 flex-row items-center justify-between">
+            <div className="flex w-full flex-row items-center justify-between py-3">
               <LetterPullup
                 delay={0.005}
                 key={selectedQuestionIndex}
@@ -54,13 +63,13 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
               <TabsTrigger value="suggested">Suggested</TabsTrigger>
             </TabsList>
             <TabsContent value="milestones">
-              <InlineMilestoneMultiselect
+              <DynamicInlineMilestoneMultiselect
                 control={control}
                 name={`questions.${selectedQuestionIndex}.milestoneIds`}
               />
             </TabsContent>
             <TabsContent value="suggested">
-              <SuggestMilestone
+              <DynamicSuggestMilestone
                 selectedQuestionIndex={selectedQuestionIndex}
               />
             </TabsContent>

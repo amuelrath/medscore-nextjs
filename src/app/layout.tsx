@@ -4,7 +4,7 @@ import { Toaster } from "sonner";
 import Provider from "@/server/provider";
 import { ReactNode, StrictMode } from "react";
 import { Poppins } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Background } from "@/components/ui/background";
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],

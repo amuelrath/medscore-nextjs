@@ -2,7 +2,7 @@
 import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
 import { QueryClient } from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Button } from "@/components/ui/button";
 import {
   EditIcon,

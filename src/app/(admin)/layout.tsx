@@ -15,7 +15,7 @@ export default async function AppLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className="flex flex-row min-h-screen">
+    <div className="flex flex-row">
       <RouteNavigation tabs={tabs} />
       <ReactQueryDevtools />
       {children}

@@ -1,6 +1,6 @@
 "use client";
 import Lottie from "lottie-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { CSSProperties, useEffect, useRef } from "react";
 interface LottiePlayerProps {
   icon: any;

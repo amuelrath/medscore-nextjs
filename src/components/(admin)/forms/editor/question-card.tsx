@@ -5,7 +5,7 @@ import { Trash2Icon, CopyIcon, MilestoneIcon } from "lucide-react";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { Control, UseFieldArrayRemove } from "react-hook-form";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
 
 interface QuestionCardProps {

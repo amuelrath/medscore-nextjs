@@ -9,7 +9,9 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { PlusCircleIcon } from "lucide-react";
 import { v4 } from "uuid";
 import { useScrollToQuestion } from "@/components/(admin)/forms/editor/hooks/use-scroll-to-question";
-import { MilestoneMenu } from "@/components/(admin)/forms/editor/milestone-menu";
+import dynamic from "next/dynamic";
+
+const DynamicMilestoneMenu = dynamic(() => import("@/components/(admin)/forms/editor/milestone-menu").then((mod) => mod.MilestoneMenu))
 
 export function FormBuilder() {
   const [selectedQuestionId, setSelectedQuestionId] = useState<
@@ -85,7 +87,7 @@ export function FormBuilder() {
   return (
     <Main className="flex flex-row gap-4">
       <LazyMotion features={domAnimation}>
-        <MilestoneMenu
+        <DynamicMilestoneMenu
           control={control}
           selectedQuestionIndex={selectedQuestionIndex}
           open={!!selectedQuestionId}

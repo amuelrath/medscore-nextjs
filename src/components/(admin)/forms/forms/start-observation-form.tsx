@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getFullName } from "@/lib/getFullName";
+import { getFullName } from "@/lib/helpers/getFullName";
 import { Button } from "@/components/ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { administerForm } from "@/server/actions/forms/administer-form";

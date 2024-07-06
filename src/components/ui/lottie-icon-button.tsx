@@ -1,6 +1,6 @@
 "use client";
 import Lottie from "lottie-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";

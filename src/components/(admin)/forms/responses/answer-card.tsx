@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Controller, Control } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { NotebookIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { Glass } from "@/components/ui/glass";
 import {
   AutosizeTextarea,

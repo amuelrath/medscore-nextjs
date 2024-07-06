@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { CheckCircle, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion";
 
 interface Competency {
