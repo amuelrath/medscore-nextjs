@@ -92,12 +92,12 @@ Instructions:
 Your response should be in JSON format with the following structure:
 {
   "milestoneId": "The ID of the selected milestone",
-  "justification": "A single, concise sentence (15-30 words) explaining the core reason this milestone is the best match to this OSCE question. Focus on the specific skill or behavior being assessed in the question and its importance.",
+  "justification": "A single, concise sentence (30-40 words) explaining the core reason this milestone is the best match to this OSCE question. Focus on the specific skill or behavior being assessed in the question and its importance as it relates to the milestone. You must form a relation between the milestone and the question.",
   "confidenceScore": "A number from 0-10 indicating your confidence that the chosen milestone is an accurate match. Overall, your confidence scores should map to a normal distribution."
 }
 
 Important Notes:
-- Your justification should be a single, impactful sentence that captures the essence of why this milestone is the best match.
+- Your justification should be a single, impactful sentence that captures the essence of why this milestone is the best match as it relates to the question.
 - Avoid restating the milestone or OSCE question. Instead, explain the key skill or behavior being assessed and its significance as it relates to the question.
 - Use active voice and precise language to convey your point clearly and concisely.
 - Consider the level of the milestone in relation to the complexity of the OSCE question.
