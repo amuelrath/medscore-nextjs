@@ -14,7 +14,7 @@ import CIRCLE_ARROW from "public/icons/circle-arrow.json";
 import LOADING from "public/icons/three-dots-navy.json";
 import Lottie from "lottie-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/helpers/utils";
 import { useState } from "react";
 import { LazyMotion, m, domAnimation } from "framer-motion";
 import { addTrainingData } from "@/server/actions/ml/add-training-data";
@@ -91,8 +91,8 @@ export function SuggestMilestone({
             };
 
             return (
-              <div className="space-y-4">
-                <div className="bg-accent-secondary-background relative flex h-32 select-none flex-col justify-center rounded-xl border border-accent-secondary p-2 text-center">
+              <div >
+                <div className="relative flex h-36 pb-2  flex-col justify-center rounded-xl border border-accent-secondary bg-accent-secondary-background p-2 text-center">
                   <p className="text-2xl font-bold tracking-wider text-teal-950">
                     {recommendedMilestone?.name || (
                       <p className="text-xl font-semibold tracking-normal">
@@ -117,27 +117,23 @@ export function SuggestMilestone({
                       }
                     />
                   )}
-                </div>
-                <div className="flex justify-center space-x-2">
+                <div className="absolute -bottom-3.5 right-20 flex justify-center space-x-1.5">
                   <Button
-                    variant="hide"
+                    size="xs"
+                    variant="accent-secondary-background"
                     onClick={handleSuggestClick}
                     disabled={isPending}
                     onMouseEnter={() => setHovering(true)}
                     onMouseLeave={() => setHovering(false)}
                     className={cn(
-                      "flex w-full items-center justify-center space-x-2 rounded-md bg-accent/60 px-4 py-2 text-white hover:bg-accent/50 disabled:opacity-100",
+                      "flex items-center h-7 rounded-lg text-xs transition-all justify-center space-x-2 border border-accent-secondary px-4 py-2 text-white hover:bg-accent-secondary disabled:opacity-100",
                     )}
                   >
                     {isPending ? (
-                      <Lottie
-                        animationData={LOADING}
-                        loop
-                        className="size-16"
-                      />
+                      <Lottie animationData={LOADING} loop className="size-8" />
                     ) : (
-                      <div className="flex flex-row space-x-2">
-                        <span className="font-bold text-blue-950">
+                      <div className="flex flex-row space-x-2 items-center">
+                        <span className="font-bold text-teal-950">
                           {recData ? "Regenerate" : "Suggest"} Milestone
                         </span>
                         <LottieHover
@@ -150,25 +146,27 @@ export function SuggestMilestone({
                   </Button>
                   {recData && (
                     <Button
-                      variant="accent-secondary"
+                      size="xs"
+                      variant={isAlreadyAccepted ? "accent-secondary-background" : "accent-secondary" }
                       onClick={handleAcceptClick}
-                      className={cn(
-                        "flex w-full items-center justify-center space-x-2 font-bold transition-all",
-                        isAlreadyAccepted &&
-                          "select-none bg-gray-400 text-gray-800 opacity-70 hover:bg-gray-400 hover:text-gray-800",
+                      className={cn("w-20 font-semibold disabled:opacity-100" ,
+                        isAlreadyAccepted ? "select-none" :
+                          "border border-teal-950",
                       )}
+                      disabled={isAlreadyAccepted}
                     >
                       {isAlreadyAccepted ? "Accepted" : "Accept"}
                     </Button>
                   )}
                 </div>
+                </div>
                 {recData && recommendedMilestone && (
                   <div className="flex flex-col space-y-2">
                     <div>
-                      <p className="mt-8 text-xl font-semibold">
+                      <p className="mt-6 text-lg font-semibold">
                         Why {recommendedMilestone.name} ?
                       </p>
-                      <p className="text-md font-light">
+                      <p className="text-sm font-light">
                         {recData.justification}
                       </p>
                     </div>
@@ -245,7 +243,7 @@ function FeedbackButtonGroup({
   return (
     <div
       className={cn(
-        "bg-accent-secondary-background absolute -bottom-3 right-4 flex flex-row items-center justify-center rounded-lg border border-accent-secondary",
+        "absolute -bottom-3.5 right-4 flex flex-row items-center justify-center rounded-lg border border-accent-secondary bg-accent-secondary-background",
         (isClassified || isPending) && "select-none",
       )}
     >
@@ -258,8 +256,8 @@ function FeedbackButtonGroup({
             (isPending &&
               createTrainingData.variables?.isPositiveClassification ===
                 true)) &&
-            "text-emerald-500",
-          !isClassified && !isPending && "hover:text-emerald-500",
+            "text-blue-500",
+          !isClassified && !isPending && "hover:text-blue-500",
         )}
         onClick={() =>
           createTrainingData.mutate({
@@ -267,7 +265,7 @@ function FeedbackButtonGroup({
             isPositiveClassification: true,
           })
         }
-        disabled={isClassified || isPending}
+        disabled={isPending}
       >
         <ThumbsUpIcon size={12} />
       </Button>
@@ -289,7 +287,7 @@ function FeedbackButtonGroup({
             "text-destructive",
           !isClassified && !isPending && "hover:text-destructive",
         )}
-        disabled={isClassified || isPending}
+        disabled={isPending}
       >
         <ThumbsDownIcon size={12} />
       </Button>
