@@ -52,19 +52,19 @@ export function FormCard({ form }: { form: FormLiteResult }) {
             <Button
               onMouseEnter={() => handleHover(form.id)}
               onClick={handleClick}
-              variant="ghost"
+              variant="hide"
               size="xs"
               className="opacity-0 transition-opacity group-hover:opacity-100"
             >
-              <EditIcon size={16} className="text-neutral-500" />
+              <EditIcon size={16} className="text-neutral-700" />
             </Button>
             <DeleteFormDialogTrigger form={form}>
               <Button
-                variant="ghost"
+                variant="hide"
                 size="xs"
                 className="opacity-0 transition-opacity group-hover:opacity-100"
               >
-                <TrashIcon size={16} className="text-red-500" />
+                <TrashIcon size={16} className="text-destructive" />
               </Button>
             </DeleteFormDialogTrigger>
           </div>
