@@ -34,7 +34,7 @@ export function StartObservationDialog({
     <Dialog>
       <DialogTrigger asChild>
         {isInEditor ? (
-          <Button variant="accent-secondary">
+          <Button size="xs" variant="accent-secondary">
             <div
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}
@@ -45,7 +45,7 @@ export function StartObservationDialog({
                 outSpeed={1}
                 loop={false}
                 isHovering={hovering}
-                size="sm"
+                size="xs"
                 src={EYE}
               />
               <span className="font-semibold text-teal-900">
