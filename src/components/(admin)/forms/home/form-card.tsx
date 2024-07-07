@@ -19,6 +19,7 @@ import { FormTags } from "@/components/(admin)/forms/home/form-tags";
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
   const queryClient = new QueryClient();
+
   const handleClick = async () => {
     router.push(`/forms/${form.id}`);
   };
@@ -30,70 +31,60 @@ export function FormCard({ form }: { form: FormLiteResult }) {
         getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
     });
   };
+
   return (
     <div
       className={cn(
-        "group mb-4 flex select-none flex-row justify-between rounded-xl border border-neutral-200 bg-card p-3 shadow-sm transition-all",
+        "group flex flex-col h-28 space-y-1 rounded-xl border border-neutral-300 bg-white p-4 shadow-sm transition-all hover:shadow-md",
       )}
     >
-      <div
-        className={cn(
-          "group flex w-full flex-col items-stretch justify-center ",
-        )}
-      >
-        <div className={cn("flex w-full flex-row")}>
+        <div className="flex flex-row items-start justify-between">
           <p
             onMouseEnter={() => handleHover(form.id)}
             onClick={handleClick}
-            className={cn("cursor-pointer text-lg font-medium")}
+            className={cn(
+              "cursor-pointer text-md truncate font-semibold text-neutral-800 transition-colors hover:text-accent",
+            )}
           >
             {form.title}
           </p>
-        </div>
-        <div
-          className={cn(
-            "flex w-full flex-row truncate text-sm text-neutral-500 sm:space-x-2 md:space-x-4",
-          )}
-        >
-          <p className={cn("flex flex-row items-center space-x-1 ")}>
-            <GraduationCapIcon
-              className={cn("text-neutral-400/90")}
-              size={16}
-            />
-            <span className={cn("hover:underline")}>{form.programs.name}</span>
-          </p>
-          <p className={cn("flex flex-row items-center space-x-1")}>
-            <HistoryIcon className={cn("text-neutral-400/90")} size={16} />
-            <span>{`${formatDistance(new Date(), form.lastOpenedAt)} ago`}</span>
-          </p>
-          <div className={cn("flex flex-row items-center space-x-1")}>
-            <TagIcon className={cn("text-neutral-400/90")} size={16} />
-            <FormTags tags={form.tags} formId={form.id} />
+          <div className="flex space-x-1">
+            <Button
+              onMouseEnter={() => handleHover(form.id)}
+              onClick={handleClick}
+              variant="ghost"
+              size="xs"
+              className="opacity-0 transition-opacity group-hover:opacity-100"
+            >
+              <EditIcon size={16} className="text-neutral-500" />
+            </Button>
+            <DeleteFormDialogTrigger form={form}>
+              <Button
+                variant="ghost"
+                size="xs"
+                className="opacity-0 transition-opacity group-hover:opacity-100"
+              >
+                <TrashIcon size={16} className="text-red-500" />
+              </Button>
+            </DeleteFormDialogTrigger>
           </div>
         </div>
-      </div>
-      <div className={cn("flex flex-row items-center space-x-2")}>
-        <Button
-          onMouseEnter={() => handleHover(form.id)}
-          onClick={handleClick}
-          variant={"foreground"}
-          size={"sm"}
-          className={cn("opacity-0 transition-opacity group-hover:opacity-100")}
-        >
-          <EditIcon />
-        </Button>
-        <DeleteFormDialogTrigger form={form}>
-          <Button
-            variant={"link"}
-            size={"sm"}
-            className={cn(
-              "opacity-0 transition-opacity group-hover:opacity-100",
-            )}
-          >
-            <TrashIcon />
-          </Button>
-        </DeleteFormDialogTrigger>
-      </div>
+
+        <div className="flex items-center space-x-2 text-xs text-neutral-500">
+          <div className="flex items-center space-x-1">
+            <GraduationCapIcon size={12} />
+            <span className="hover:underline">{form.programs.name}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <HistoryIcon size={12} />
+            <span>{`${formatDistance(new Date(), form.lastOpenedAt)} ago`}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-1 pt-2 text-xs text-neutral-600">
+          <TagIcon size={10} />
+          <FormTags tags={form.tags} formId={form.id} />
+        </div>
     </div>
   );
 }

@@ -17,8 +17,8 @@ const WaterfallAnimation: React.FC<WaterfallAnimationProps> = ({
   const animateChild = (child: React.ReactNode, index: number) => {
     if (isValidElement(child)) {
       const enterTransition = {
-        duration: speed ?? 0.2,
-        delay: hasAnimatedRef.current ? 0 : index * 0.1,
+        duration:  0.2,
+        delay: hasAnimatedRef.current ? 0 : index * (speed || 0.1),
       };
 
       const exitTransition = noExit

@@ -170,13 +170,13 @@ export function FormTags({
       <Popover>
         <PopoverTrigger>
           <Badge
-            size={"md"}
-            variant={"opaque"}
+            size={"sm"}
+            variant="secondary"
             className={cn(
               "group mt-0.5 cursor-pointer border opacity-0 transition-all focus:grayscale group-hover:opacity-100",
             )}
           >
-            <PlusIcon size={15} />
+            <PlusIcon size={13} />
           </Badge>
         </PopoverTrigger>
         <PopoverContent className={cn("flex w-96 flex-col ")}>
@@ -233,8 +233,7 @@ function FormTag({
       <Badge
         // @ts-ignore
         variant={tag.variant}
-        className={cn(`group relative cursor-pointer font-medium`)}
-        size={"xs"}
+        className={cn(`group relative cursor-pointer text-2xs font-medium bg-opacity-70 py-1`)}
         onMouseEnter={() => handleMouseEnter(tag.id)}
         onMouseLeave={handleMouseLeave}
         onClick={() => removeTag(tag.id)}

@@ -1,6 +1,9 @@
 "use client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { FormLiteResult, getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
+import {
+  FormLiteResult,
+  getAllFormsLite,
+} from "@/server/actions/forms/get-all-forms-lite";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/helpers/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,7 +12,12 @@ import { random } from "lodash";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
-import { BookOpenIcon, CalendarIcon, ClipboardPlusIcon, EyeIcon } from "lucide-react";
+import {
+  BookOpenIcon,
+  CalendarIcon,
+  ClipboardPlusIcon,
+  EyeIcon,
+} from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
@@ -45,34 +53,10 @@ export default function FormsHome() {
 
   return (
     <main>
-        <div className="flex h-12 w-full flex-row justify-between bg-card/50 border-b border-neutral-300 p-1 pl-4 pr-2">
-          <div className="flex flex-row items-center space-x-4">
-            <h3
-              className={cn(
-                "text-2xl font-bold text-neutral-700",
-              )}
-            >
-              My Forms
-            </h3>
-            <Input
-              size="sm"
-              placeholder="Search Forms..."
-              className={cn(
-                "w-64 text-sm",
-              )}
-              onChange={(e) => handleFilter({ title: e.target.value })}
-            />
-          </div>
-          <div className="flex flex-row items-center space-x-3">
-            <TagFilter
-              tags={uniqueTags}
-              onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
-              onTagRemove={() => removeFilter("tags.tag")}
-            />
-            <CreateFormDialogTrigger />
-          </div>
-        </div>
-        <hr className="h-[1px] w-full bg-neutral-300"/>
+      <div className="flex h-12 w-full flex-row items-center justify-between border-b border-neutral-300 bg-card/50 p-1 pl-4 pr-2">
+        <CreateFormDialogTrigger />
+      </div>
+      <hr className="h-[1px] w-full bg-neutral-300" />
       <div className="grid h-full grid-cols-5 p-4 ">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
@@ -80,16 +64,39 @@ export default function FormsHome() {
           transition={{ duration: 0.3 }}
           className="col-span-3 flex flex-col"
         >
+          <div className="flex flex-row mb-2 items-center space-x-4">
+            <h3 className={cn("text-2xl font-bold text-neutral-700")}>
+              My Forms
+            </h3>
+            <Input
+              size="sm"
+              placeholder="Search Forms..."
+              className={cn("w-64 text-sm")}
+              onChange={(e) => handleFilter({ title: e.target.value })}
+            />
+            <div className="flex flex-row items-center space-x-3">
+              <TagFilter
+                tags={uniqueTags}
+                onTagSelect={(tag) => setFilter({ "tags.tag": tag })}
+                onTagRemove={() => removeFilter("tags.tag")}
+              />
+            </div>
+          </div>
           <ScrollArea className={cn("h-[650px] pr-4")}>
+
             <Scrollbar />
-            <WaterfallAnimation noExit>
+              <div className="grid grid-cols-2 gap-2 pb-32" >
+            <WaterfallAnimation  speed={0.02} noExit>
               {filteredForms.map((form) => (
                 <FormCard key={form.id} form={form} />
               ))}
             </WaterfallAnimation>
+              </div>
           </ScrollArea>
         </motion.div>
-        <div className={cn("col-span-2 flex w-full flex-col space-y-3 pl-2 pb-24")}>
+        <div
+          className={cn("col-span-2 flex w-full flex-col space-y-3 pb-36 pl-2")}
+        >
           {features.map((feature) => (
             <BentoCard key={feature.name} {...feature} />
           ))}

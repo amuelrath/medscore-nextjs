@@ -57,7 +57,7 @@ export const TagFilter: FC<TagFilterProps> = ({
                 <Badge
                   onClick={() => handleTagClick(tag)}
                   className={cn(
-                    "cursor-pointer truncate bg-blue-900 font-medium text-blue-950 text-opacity-50 backdrop-blur-2xl hover:bg-blue-900/20",
+                    "cursor-pointer border border-neutral-300 truncate bg-blue-900 font-medium text-blue-950 text-opacity-50 backdrop-blur-2xl hover:bg-blue-900/20",
                     {
                       "bg-opacity-25": selectedTag === tag,
                       "bg-opacity-5": selectedTag !== tag,
