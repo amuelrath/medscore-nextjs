@@ -476,10 +476,12 @@ export const recommendedMilestoneRelations = relations(
   }),
 );
 
+// todo add duration
 export const responsesView = pgMaterializedView("responses_view", {
   formId: uuid("form_id").notNull(),
   formCodeId: uuid("form_code_id").notNull(),
   formCodeCreatedAt: timestamp("form_code_created_at").notNull(),
+  responseCreatedAt: timestamp("response_created_at").notNull(),
   responseId: uuid("response_id").notNull(),
   evaluatorId: uuid("evaluator_id").notNull(),
   evaluatorFullName: text("evaluator_full_name").notNull(),
@@ -494,6 +496,6 @@ export const responsesView = pgMaterializedView("responses_view", {
   subcompetencyName: text("subcompetency_name"),
   competencyId: uuid("competency_id"),
   competencyName: text("competency_name"),
-  pointsEarned: decimal("point_value", { precision: 10, scale: 2 }),
-  pointsAvailable: decimal("point_value", { precision: 10, scale: 2 }),
+  pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
+  pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
 }).existing();
