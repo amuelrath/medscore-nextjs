@@ -28,9 +28,7 @@ export async function startDirectObservation({
   });
 
   try {
-    const result = await db.transaction(async (trx) => {
-      console.log("Transaction started");
-
+    return await db.transaction(async (trx) => {
       const formCode = await administerForm({
         title,
         startsAt,
@@ -39,26 +37,16 @@ export async function startDirectObservation({
         formId,
         isDirectObservation: true,
       });
-      console.log("Form code created:", formCode);
 
       const { id: formCodeId } = formCode;
 
-      console.log("Attempting to create response with:", {
-        formCodeId,
-        creatorId,
-        evaluateeId: userIds[0],
-      });
       const response = await trx
         .insert(responses)
         .values({ formCodeId, creatorId, evaluateeId: userIds[0] })
         .returning();
-      console.log("Response created:", response);
 
       return { response: response[0], formCode };
     });
-
-    console.log("Transaction completed successfully:", result);
-    return result;
   } catch (error) {
     console.error("Error in startDirectObservation:", error);
     throw error;
