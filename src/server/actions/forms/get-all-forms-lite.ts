@@ -1,8 +1,11 @@
 "use server";
 
 import { db } from "@/db";
+import { dateToSQLDate } from "@/lib/helpers/date-to-sql-date";
+import { sql } from "drizzle-orm";
 
 export async function getAllFormsLite({ userId }: { userId: string }) {
+  const now = dateToSQLDate(new Date());
   return db.query.forms.findMany({
     where: (f, { eq }) => eq(f.creatorId, userId),
     columns: {
@@ -12,7 +15,22 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
       creatorId: false,
       lastOpenedAt: true,
     },
+    // TODO maybe fetch this sep. ? this is used in only the upcoming assessments card
     with: {
+      formCodes: {
+        where: (fc, { and, isNull }) =>
+          and(sql`${fc.startsAt} > ${now}::timestamp`, isNull(fc.canceledAt)),
+        columns: {
+          formId: false,
+          title: true,
+          id: true,
+          createdAt: false,
+          code: false,
+          isDirectObservation: false,
+          startsAt: true,
+          expiresAt: true,
+        },
+      },
       tags: {
         columns: {
           formId: false,
@@ -42,13 +60,13 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
                   password: false,
                   email: false,
                   lastName: true,
-                  firstName: true
+                  firstName: true,
                 },
                 // todo somehow get only the users whose role is "STUDENT"
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       },
     },
   });
