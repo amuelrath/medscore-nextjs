@@ -1,7 +1,7 @@
 export const Books = () => {
   return (
     <div
-      className="absolute group-hover:scale-110 origin-left duration-500 ease-in-out left-[30%] top-0 transition-all [mask-image:linear-gradient(to_top,transparent_45%,#000_100%)] group-hover:blur-sm">
+      className="absolute group-hover:scale-110 origin-center duration-500 ease-in-out left-[15%] top-2 transition-all [mask-image:linear-gradient(to_top,transparent_45%,#000_100%)] group-hover:blur-sm">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="400"

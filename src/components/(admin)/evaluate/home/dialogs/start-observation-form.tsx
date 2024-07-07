@@ -21,9 +21,9 @@ import {
 import { getFullName } from "@/lib/helpers/getFullName";
 import { Button } from "@/components/ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { administerForm } from "@/server/actions/forms/administer-form";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { startDirectObservation } from "@/server/actions/evaluate/start-direct-observation";
 
 const ZStartObservationSchema = z.object({
   evaluateeId: z.string().min(1, { message: "Select an evaluatee." }),
@@ -67,9 +67,9 @@ export function InEditorForm({ formId }: { formId: string }) {
     },
   });
 
-  const { mutate, isPending, data } = useMutation({
-    mutationFn: administerForm,
-    onSuccess: (newFormCode) => {
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: startDirectObservation,
+    onSuccess: (result) => {
       queryClient.setQueryData(
         ["form", formId],
         (oldData: FormResult | undefined) => {
@@ -77,7 +77,7 @@ export function InEditorForm({ formId }: { formId: string }) {
 
           return {
             ...oldData,
-            formCodes: [...oldData.formCodes, newFormCode],
+            formCodes: [...oldData.formCodes, result.formCode],
           };
         },
       );
@@ -89,24 +89,20 @@ export function InEditorForm({ formId }: { formId: string }) {
     .flatMap((u) => u.user)
     .filter((u) => u.role === "STUDENT");
 
-  const submitForm = (data: TStartObservationSchema) => {
-    // create a direct observation formCode
+  const submitForm = async (data: TStartObservationSchema) => {
+    // create a direct observation formCode and response
     const now = new Date();
-    mutate({
+    await mutateAsync({
       formId,
       title: `Direct Observation of ${getFullName(students!.find((s) => s.id === data.evaluateeId)!)}`, // zod will throw errors for us
-      isDirectObservation: true,
-      startsAt: addMinutes(now, -0.5),
+      startsAt: addMinutes(now, -3),
       expiresAt: addHours(now, 2),
       userIds: [data.evaluateeId],
+      creatorId: process.env.NEXT_PUBLIC_DEV_USER_ID!, // TODO FIXME
+    }).then((result) => {
+      router.push(`/evaluate/${result.response.id}`);
     });
   };
-
-  useEffect(() => {
-    if (data) {
-      router.push(`/evaluate/${data?.id}`);
-    }
-  }, [router, data]);
 
   return (
     <form
@@ -177,15 +173,15 @@ export function NotInEditorForm() {
   });
 
   const { mutate, isPending, data } = useMutation({
-    mutationFn: administerForm,
-    onSuccess: (newFormCode) => {
+    mutationFn: startDirectObservation,
+    onSuccess: (result) => {
       queryClient.setQueryData(
-        ["form", newFormCode.formId],
+        ["form", result.formCode.formId],
         (oldData: FormResult | undefined) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            formCodes: [...oldData.formCodes, newFormCode],
+            formCodes: [...oldData.formCodes, result.formCode],
           };
         },
       );
@@ -214,17 +210,17 @@ export function NotInEditorForm() {
     const now = new Date();
     mutate({
       formId: data.formId,
-      title: "Direct Observation",
-      isDirectObservation: true,
+      title: `Direct Observation of ${getFullName(students.find((s) => s.id === data.evaluateeId)!)}`,
       startsAt: addMinutes(now, -0.5),
       expiresAt: addHours(now, 2),
       userIds: [data.evaluateeId],
+      creatorId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
     });
   };
 
   useEffect(() => {
-    if (data) {
-      router.push(`/evaluate/${data?.id}`);
+    if (data && data.response) {
+      router.push(`/evaluate/${data.response.id}`);
     }
   }, [router, data]);
 

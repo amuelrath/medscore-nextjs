@@ -1,8 +1,12 @@
 import { z } from "zod";
 import { Controller, useForm, useFormContext, useWatch } from "react-hook-form";
-import { TFormRelate } from "@/db/types";
+import { FormResult, TFormRelate } from "@/db/types";
 import { useState } from "react";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { getFullName } from "@/lib/helpers/getFullName";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,13 +102,30 @@ export function AdministerForm() {
       endTime: new Date(),
     },
   });
+
+  const queryClient = useQueryClient();
+
   const watchedStartDate = useWatch({
     control,
     name: "startDate",
   });
+
   // for the initial submit
   const administerMutation = useMutation({
     mutationFn: administerForm,
+    onSuccess: (result) => {
+      queryClient.setQueryData(
+        ["form", formId],
+        (oldData: FormResult | undefined) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            formCodes: [...oldData.formCodes, result],
+          };
+        },
+      );
+    },
   });
 
   const submitForm = async (data: TAdministerForm) => {

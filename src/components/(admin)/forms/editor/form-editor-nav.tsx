@@ -8,7 +8,7 @@ import { useFormContext } from "react-hook-form";
 import { useAtom } from "jotai";
 import { isSavingAtom } from "./atoms";
 import { AdministerDialog } from "@/components/(admin)/forms/dialogs/administer-dialog";
-import { StartObservationDialog } from "@/components/(admin)/forms/dialogs/start-observation-dialog";
+import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
 
 export const FormEditorNav = () => {
   const { getValues, register } = useFormContext<TFormSchema>();

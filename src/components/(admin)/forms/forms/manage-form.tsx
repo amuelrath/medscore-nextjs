@@ -2,12 +2,18 @@
 import { differenceInHours, formatDate } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/helpers/utils";
-import { CalendarClockIcon, Edit2, UsersRoundIcon } from "lucide-react";
+import {
+  CalendarClockIcon,
+  Edit2,
+  KeyIcon,
+  UsersRoundIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FormResult, getFormById } from "@/server/actions/forms/get-form-by-id";
 import { useFormContext } from "react-hook-form";
 import { TFormRelate } from "@/db/types";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export function ManageContent() {
   const { getValues } = useFormContext<TFormRelate>();
@@ -108,18 +114,23 @@ function ScheduleCard({ formCode, users, status }: ScheduleCardProps) {
   };
 
   return (
-    <div className="rounded-xl border bg-card p-3 transition-all hover:shadow-sm">
-      <div className="flex items-center justify-between">
-        <div className="flex-grow space-y-1.5">
+    <div className="rounded-xl border bg-card p-3">
+      <div className="flex flex-row items-center justify-between">
+        <div className="space-y-1.5">
           <div className="flex flex-row items-center space-x-2">
             <p> {formCode.title || "Untitled Administration"}</p>
             {status === "active" && (
-              <span className=" size-2 animate-pulse rounded-full bg-destructive" />
+              <span className=" size-2 animate-pulse rounded-full bg-accent-secondary" />
             )}
+            <div className="flex space-x-2">
+              <Button variant="ghost" size="icon">
+                <Edit2 className="size-3" />
+              </Button>
+            </div>
           </div>
           <div className="flex flex-row items-center space-x-3 text-xs text-neutral-500">
             <div className="flex select-none flex-row items-center space-x-2">
-              <UsersRoundIcon className={cn("text-neutral-400/90")} size={16} />
+            <UsersRoundIcon className={cn("text-neutral-400/90")} size={16} />
               <p>{assignedUsers.length}</p>
             </div>
             <div className="flex flex-row items-center space-x-2">
@@ -135,7 +146,7 @@ function ScheduleCard({ formCode, users, status }: ScheduleCardProps) {
                 variant="outline"
                 className={cn(
                   getDurationBadgeColor(),
-                  "space-x-0.5 border-none px-[8px] py-[2.5px] text-2xs font-normal",
+                  "space-x-0.5 border-none px-[8px] py-[2.5px] text-2xs font-normal"
                 )}
               >
                 <p className="font-medium">
@@ -145,12 +156,26 @@ function ScheduleCard({ formCode, users, status }: ScheduleCardProps) {
               </Badge>
             )}
           </div>
+
         </div>
-        <div className="flex space-x-2">
-          <Button variant="ghost" size="icon">
-            <Edit2 className="h-4 w-4" />
-          </Button>
-        </div>
+
+        {status === "active" && (
+          <div
+            className="flex p-2 border border-accent-secondary hover:bg-accent-secondary-background/70 transition-all bg-accent-secondary-background rounded-lg flex-row items-center space-x-2">
+            <KeyIcon className="size-5 text-teal-800" />
+            <p
+              onClick={() =>
+                navigator.clipboard
+                  .writeText(formCode.code.toString())
+                  .then(() => toast.info("Copied to clipboard!"))
+              }
+              className="select-none text-teal-950 cursor-pointer text-xl font-semibold tracking-widest"
+            >
+              {formCode.code}
+            </p>
+          </div>
+        )}
+
       </div>
     </div>
   );

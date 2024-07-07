@@ -11,7 +11,7 @@ export interface BentoCardProps {
   background?: ReactNode;
   Icon: any;
   iconSize?: string
-  description: string;
+  description?: string;
   href?: string;
   onClick?: () => void;
   cta: ReactNode | string;

@@ -1,11 +1,11 @@
 export const Survey = () => {
   return (
     <div
-      className="absolute left-[40%] top-0 group-hover:scale-110 transition-all duration-500 ease-in-out [mask-image:linear-gradient(to_top,transparent_55%,#000_100%)] origin-left group-hover:blur-sm">
+      className="absolute left-[20%] top-8 group-hover:scale-110 transition-all origin-left duration-500 ease-in-out [mask-image:linear-gradient(to_top,transparent_50%,#000_100%)] group-hover:blur-sm">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         data-name="Layer 1"
-        width="500"
+        width="600"
         height="400"
         viewBox="0 0 724.34614 519"
         xmlnsXlink="http://www.w3.org/1999/xlink"

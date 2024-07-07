@@ -9,13 +9,13 @@ import { random } from "lodash";
 import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
-import { BookOpenIcon, ClipboardPlusIcon, EyeIcon } from "lucide-react";
+import { BookOpenIcon, CalendarIcon, ClipboardPlusIcon, EyeIcon } from "lucide-react";
 import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { Button } from "@/components/ui/button";
 import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
-import { StartObservationDialog } from "@/components/(admin)/forms/dialogs/start-observation-dialog";
+import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
 import { Books } from "@/components/illustrations/books";
 import { Survey } from "@/components/illustrations/survey";
 import { Doctors } from "@/components/illustrations/doctors";
@@ -49,7 +49,7 @@ export default function FormsHome() {
           <div className="flex flex-row items-center space-x-4">
             <h3
               className={cn(
-                "text-2xl font-light",
+                "text-2xl font-bold text-neutral-700",
               )}
             >
               My Forms
@@ -101,22 +101,11 @@ export default function FormsHome() {
 
 const features: BentoCardProps[] = [
   {
-    name: "Evaluate Students",
-    description: "Assess student performance in a competency-based assessment.",
-    Icon: ClipboardPlusIcon,
-    background: <Doctors />,
+    name: "Upcoming Assessments",
+    Icon: CalendarIcon,
     iconSize: "size-8",
     cta: <Button variant={"hide"}>Begin Assessment</Button>,
-    className: "w-full h-full",
-  },
-  {
-    name: "Direct Observation",
-    description: "Assess student performance in live clinical encounters",
-    Icon: EyeIcon,
-    background: <Survey />,
-    iconSize: "size-8",
-    cta: <StartObservationDialog>Start Observation</StartObservationDialog>,
-    className: "w-full h-full ",
+    className: "w-full h-[60%]",
   },
   {
     name: "Resources",
@@ -124,7 +113,7 @@ const features: BentoCardProps[] = [
     Icon: BookOpenIcon,
     onClick: () => window.open("https://www.acgme.org/milestones/resources/"),
     cta: "Go to ACGME Resources",
-    className: "w-full h-full",
+    className: "w-full h-[40%]",
     iconSize: "size-8",
     background: <Books />,
   },

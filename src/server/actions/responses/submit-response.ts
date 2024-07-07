@@ -9,8 +9,8 @@ type Answer = {
 };
 
 type Response = {
+  id: string;
   answers: Answer[];
-  formCodeId: string;
   evaluateeId: string;
   evaluatorId: string;
   duration: number; // seconds
@@ -20,14 +20,12 @@ function validateResponse(response: Response): void {
   const {
     evaluatorId,
     evaluateeId,
-    formCodeId,
     answers: responseAnswers,
     duration,
   } = response;
 
   if (!evaluatorId) throw new Error("No CreatorId found!");
   if (!evaluateeId) throw new Error("No EvaluateeId found!");
-  if (!formCodeId) throw new Error("No FormCodeId found!");
   if (!duration) throw new Error("No duration found!");
   if (!responseAnswers || responseAnswers.length === 0)
     throw new Error("No answers provided!");
@@ -36,19 +34,19 @@ function validateResponse(response: Response): void {
 export async function submitResponse(response: Response) {
   validateResponse(response);
 
-  const {
-    evaluatorId: creatorId,
-    evaluateeId,
-    formCodeId,
-    answers: responseAnswers,
-    duration,
-  } = response;
+  const { answers: responseAnswers, duration } = response;
 
   try {
     const result = await db.transaction(async (tx) => {
-      // First, check if the form code is a direct observation
+      // first get the response
+      const currentResponse = await tx.query.responses.findFirst({
+        where: eq(responses.id, response.id),
+      });
+      if (!currentResponse) throw new Error("Response does not exist.");
+
+      // then, check if the form code is a direct observation
       const formCode = await tx.query.formCodes.findFirst({
-        where: (fc, { eq }) => eq(fc.id, formCodeId),
+        where: (fc, { eq }) => eq(fc.id, currentResponse.formCodeId),
       });
 
       // If it's a direct observation, update the canceledAt field
@@ -59,17 +57,15 @@ export async function submitResponse(response: Response) {
           .where(eq(formCodes.id, formCode.id));
       }
 
-      const [newResponse] = await tx
-        .insert(responses)
-        .values({
-          formCodeId,
-          creatorId,
-          evaluateeId,
-          duration,
-        })
-        .returning();
+      const newResponse = await tx.query.responses.findFirst({
+        where: eq(responses.id, response.id),
+      });
+      if (!newResponse) throw new Error("Couldn't fetch the response!");
 
-      if (!newResponse) throw new Error("Failed to create response");
+      await tx
+        .update(responses)
+        .set({ duration })
+        .where(eq(responses.id, newResponse.id));
 
       const answerInserts = responseAnswers.map((answer) => ({
         optionId: answer.optionId,

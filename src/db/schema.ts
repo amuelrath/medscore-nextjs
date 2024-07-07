@@ -331,9 +331,8 @@ export const responses = pgTable("responses", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   evaluateeId: uuid("evaluatee_id")
-    .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  duration: integer("duration").notNull(),
+  duration: integer("duration"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 export type Response = DateToString<typeof responses.$inferSelect>;
@@ -390,8 +389,8 @@ export const formCodes = pgTable("form_codes", {
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
   code: varchar("code", { length: 6 }).notNull(),
-  title: text("title"),
-  startsAt: timestamp("starts_at"),
+  title: text("title").notNull(),
+  startsAt: timestamp("starts_at").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   canceledAt: timestamp("canceled_at"),

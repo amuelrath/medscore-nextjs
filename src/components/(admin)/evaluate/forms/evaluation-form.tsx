@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
 import { submitResponse } from "@/server/actions/responses/submit-response";
@@ -11,23 +11,16 @@ import { AnswerCard } from "@/components/(admin)/evaluate/forms/answer-card";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { EvaluateNav } from "@/components/(admin)/evaluate/forms/evaluate-nav";
 import { getFullName } from "@/lib/helpers/getFullName";
+import { useRouter } from "next/navigation";
 
 interface EvaluationFormProps {
-  formCodeId: string;
-  evaluateeId: string;
+  responseId: string;
 }
 
-export function EvaluationForm({
-  formCodeId,
-  evaluateeId,
-}: EvaluationFormProps) {
-  const {
-    data: evaluation,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["evaluation-form", formCodeId],
-    queryFn: () => getEvaluationForm({ formCodeId }),
+export function EvaluationForm({ responseId }: EvaluationFormProps) {
+  const { data: evaluation } = useSuspenseQuery({
+    queryKey: ["evaluation-form", responseId],
+    queryFn: () => getEvaluationForm({ responseId }),
   });
 
   const ZEvaluationFormSchema = z.object({
@@ -41,12 +34,12 @@ export function EvaluationForm({
       .refine(
         (answers) => {
           if (!evaluation) return false;
-          if (answers.length !== evaluation.form?.questions.length)
+          if (answers.length !== evaluation?.form.questions.length)
             return false;
           return answers.every(
             (answer, index) =>
               answer.optionId !== "" &&
-              (!evaluation.form?.questions[index].feedback || answer.feedback),
+              (!evaluation?.form.questions[index].feedback || answer.feedback),
           );
         },
         {
@@ -63,7 +56,7 @@ export function EvaluationForm({
     resolver: zodResolver(ZEvaluationFormSchema),
     defaultValues: {
       answers:
-        evaluation?.form?.questions.map(() => ({
+        evaluation?.form.questions.map(() => ({
           optionId: "",
           feedback: "",
         })) || [],
@@ -79,18 +72,21 @@ export function EvaluationForm({
   } = methods;
 
   const getEvaluatee = () => {
-    if (!evaluation || !evaluation.form) throw new Error("No form!");
+    if (!evaluation || !evaluation) throw new Error("No form!");
     if (evaluation.form.formCodes[0]) {
+      // in the query we only get the form code for this particular response
       return evaluation.form.formCodes[0].usersWithCode.find(
-        (u) => u.user.id === evaluateeId,
+        (u) => u.user.id === evaluation.response.evaluateeId,
       )?.user;
     }
   };
 
+  const router = useRouter();
+
   const submitMutation = useMutation({
     mutationFn: (data: TEvaluationForm) =>
       submitResponse({
-        formCodeId,
+        id: responseId,
         evaluatorId: "cf8b381f-1956-4c56-acf3-cf7517b20b92",
         evaluateeId: getEvaluatee()?.id || "", // TODO FIXME
         answers: data.answers,
@@ -98,6 +94,7 @@ export function EvaluationForm({
       }),
     onSuccess: () => {
       toast.success("Response submitted successfully!");
+      router.push(`/evaluate`);
       reset();
     },
     onError: () => {
@@ -120,7 +117,7 @@ export function EvaluationForm({
   const completedQuestions = answers.filter(
     (answer) =>
       answer.optionId &&
-      (!evaluation?.form?.questions[answers.indexOf(answer)]?.feedback ||
+      (!evaluation?.form.questions[answers.indexOf(answer)]?.feedback ||
         answer.feedback),
   ).length;
 
@@ -128,19 +125,11 @@ export function EvaluationForm({
     submitMutation.mutate(data);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error || !evaluation) {
-    return <div>Error loading evaluation form</div>;
-  }
-
   return (
     <FormProvider {...methods}>
       <div className="flex w-full flex-col">
         <EvaluateNav
-          formTitle={evaluation?.form?.title || ""}
+          formTitle={evaluation?.form.title || ""}
           evaluatorName={"Austin Muelrath"}
           evaluateeName={getFullName(getEvaluatee() || {})}
           totalQuestions={totalQuestions}
@@ -152,7 +141,7 @@ export function EvaluationForm({
               onSubmit={handleSubmit(onSubmit)}
               className="mx-auto space-y-4 p-4 pb-52"
             >
-              {evaluation.form?.questions
+              {evaluation?.form.questions
                 .sort((a, b) => a.position - b.position)
                 .map((question, index) => (
                   <div key={question.id}>

@@ -1,6 +1,7 @@
 "use server";
 import { db } from "@/db";
 import { formCodes, formCodesOnUsers } from "@/db/schema";
+import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 export async function administerForm({
   isDirectObservation,
@@ -9,13 +10,15 @@ export async function administerForm({
   expiresAt,
   startsAt,
   title,
+  tx=db
 }: {
   isDirectObservation?: boolean;
   formId: string | undefined;
   userIds: string[];
-  startsAt?: Date;
+  startsAt: Date;
   expiresAt: Date;
   title: string;
+  tx?:  PostgresJsDatabase<typeof import("C:/Users/Austin Muelrath/medscore-nextjs/src/db/schema")>
 }) {
   if (!formId) throw new Error("Form Id is required");
   const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -30,7 +33,7 @@ export async function administerForm({
   }
 
   // create the form code
-  const formCode = await db
+  const insertFormCode = await tx
     .insert(formCodes)
     .values({
       formId: form.id,
@@ -42,17 +45,40 @@ export async function administerForm({
     })
     .returning();
 
+  // this is inefficient but i want to get joins
+  const formCode = await tx.query.formCodes.findFirst({
+    where: (fc, { eq }) => eq(fc.id, insertFormCode[0].id),
+    with: {
+      usersWithCode: {
+        with: {
+          user: {
+            columns: {
+              id: true,
+              firstName: true,
+              email: false,
+              password: false,
+              role: true,
+              lastName: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!formCode) throw new Error("Error refetching formcode");
+
   // link the form code to the users
   await Promise.all(
     userIds.map((u) =>
-      db.insert(formCodesOnUsers).values({
-        formCodeId: formCode[0].id,
+      tx.insert(formCodesOnUsers).values({
+        formCodeId: formCode.id,
         userId: u,
       }),
     ),
   );
 
   return {
-    ...formCode[0],
+    ...formCode,
   };
 }

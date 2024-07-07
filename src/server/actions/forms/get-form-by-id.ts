@@ -1,4 +1,4 @@
-'use server'
+"use server";
 import { db } from "@/db";
 export type NonNullable<T> = T extends null | undefined ? never : T;
 
@@ -13,8 +13,21 @@ export async function getFormById({
     with: {
       formCodes: {
         with: {
-          usersWithCode: true
-        }
+          usersWithCode: {
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  firstName: true,
+                  email: false,
+                  password: false,
+                  role: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+        },
       },
       programs: {
         with: {

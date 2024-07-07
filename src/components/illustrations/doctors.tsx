@@ -1,7 +1,7 @@
 export const Doctors = () => {
   return (
     <div
-      className="absolute left-[30%] group-hover:scale-110 origin-left duration-500 ease-in-out pt-0 top-0 transition-all group-hover:blur-sm">
+      className="absolute left-[8%] group-hover:scale-110 origin-center duration-500 ease-in-out pt-0 top-4 transition-all group-hover:blur-sm">
       <div className="relative -top-3 [mask-image:linear-gradient(to_top,transparent_50%,#000_100%)]">
         <svg
           xmlns="http://www.w3.org/2000/svg"

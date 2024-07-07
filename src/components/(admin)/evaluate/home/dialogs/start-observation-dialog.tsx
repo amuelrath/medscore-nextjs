@@ -6,12 +6,16 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import EYE from "public/icons/eye-teal.json";
-import { ReactNode, useState } from "react";
-import { InEditorForm, NotInEditorForm } from "@/components/(admin)/forms/forms/start-observation-form";
+import { ReactNode, Suspense, useState } from "react";
+import {
+  InEditorForm,
+  NotInEditorForm,
+} from "@/components/(admin)/evaluate/home/dialogs/start-observation-form";
+import Loading from "@/components/ui/loading";
 
 // if the dialog has a formId in props, then we know we are in the editor
 // if not, then we must alter the form so that we can select the form
@@ -67,9 +71,10 @@ export function StartObservationDialog({
             Assess students on-demand in live clinical encounters.
           </DialogDescription>
         </DialogHeader>
-        {isInEditor ? <InEditorForm formId={formId} /> : <NotInEditorForm />}
+        <Suspense fallback={<Loading />}>
+          {isInEditor ? <InEditorForm formId={formId} /> : <NotInEditorForm />}
+        </Suspense>
       </DialogContent>
     </Dialog>
   );
 }
-

@@ -9,9 +9,9 @@ import { EvaluationForm } from "@/components/(admin)/evaluate/forms/evaluation-f
 export default async function EvaluateFormPage({
   params,
 }: {
-  params: { formCodeId: string };
+  params: { responseId: string };
 }) {
-  const { formCodeId } = params;
+  const { responseId } = params;
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -21,23 +21,15 @@ export default async function EvaluateFormPage({
   });
 
   // prefetch the evaluation form
-  const evaluation = await queryClient.fetchQuery({
-    queryKey: ["evaluation-form", formCodeId],
-    queryFn: () => getEvaluationForm({ formCodeId }),
+  await queryClient.prefetchQuery({
+    queryKey: ["evaluation-form", responseId],
+    queryFn: () => getEvaluationForm({ responseId }),
   });
 
-  const getEvaluateeId = () => {
-    if (!evaluation || !evaluation.form)
-      throw new Error("Error fetching form code.");
-    if (evaluation.form.formCodes[0].isDirectObservation) {
-      return evaluation.form.formCodes[0].usersWithCode[0].user.id;
-    }
-    return "";
-  };
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <EvaluationForm formCodeId={formCodeId} evaluateeId={getEvaluateeId()} />
+      <EvaluationForm responseId={responseId} />
     </HydrationBoundary>
   );
 }

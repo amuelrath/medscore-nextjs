@@ -4,6 +4,7 @@ import Counter from "@/components/ui/counter";
 import { Stopwatch } from "@/components/ui/stopwatch";
 import { cn } from "@/lib/helpers/utils";
 import { Controller, useFormContext } from "react-hook-form";
+import { SectionHeader } from "@/components/ui/section-header";
 
 interface EvaluateNavProps {
   formTitle: string;
@@ -28,20 +29,20 @@ export function EvaluateNav({
   const { control } = useFormContext<any>();
 
   return (
-    <div className="flex h-16 w-full flex-row items-center justify-between border-b border-accent-secondary bg-card px-8">
+    <SectionHeader className="flex-row items-center px-4">
       <div className={cn("flex w-full flex-row items-center justify-between")}>
         <div className="flex flex-col items-start justify-center">
-          <h3 className="text-2xl font-bold text-neutral-700 xs:text-2xl">
+          <h3 className="text-xl font-bold text-neutral-700 ">
             {formTitle}
           </h3>
-          <div className="flex w-full flex-row items-center space-x-2 text-sm">
+          <div className="flex w-44 flex-row items-center space-x-2 text-sm">
             <Progress
               className="mt-1 h-2 w-full max-w-[200px]"
               value={progressPercentage}
             />
 
             <Counter
-              className="max-w-1 font-light proportional-nums"
+              className="max-w-1 font-light text-xs proportional-nums"
               value={progressPercentage}
               type="percent"
             />
@@ -60,11 +61,11 @@ export function EvaluateNav({
             )}
           />
         </div>
-        <div className="flex flex-col items-end justify-center">
+        <div className="flex flex-col items-end text-sm justify-center">
           <p className="font-medium text-neutral-700">{evaluateeName}</p>
           <p className="text-neutral-400">{evaluatorName}</p>
         </div>
       </div>
-    </div>
+    </SectionHeader>
   );
 }
