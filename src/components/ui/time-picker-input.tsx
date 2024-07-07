@@ -9,9 +9,7 @@ import {
   getDateByType,
   setDateByType,
 } from "@/lib/helpers/time-picker-utils";
-import { Label } from "@/components/ui/label";
 import { Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export interface TimePickerInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -123,7 +121,6 @@ const TimePickerInput = React.forwardRef<
           onKeyDown?.(e);
           handleKeyDown(e);
         }}
-        {...props}
       />
     );
   },
