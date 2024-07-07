@@ -2,7 +2,7 @@ export function FormNotAdministered() {
   return (
     <div className="items center flex h-full w-full flex-col items-center justify-center space-y-6">
       <div className="flex flex-col items-center">
-        <p className="text-2xl font-bold">
+        <p className="text-lg font-bold">
           This form hasn&apos;t been administered yet.
         </p>
         <p className="text-sm font-normal">
@@ -12,8 +12,8 @@ export function FormNotAdministered() {
       <svg
         className=""
         xmlns="http://www.w3.org/2000/svg"
-        width="600.79999"
-        height="400.06565"
+        width="200.79999"
+        height="100.06565"
         viewBox="0 0 735.79999 447.06565"
         xmlnsXlink="http://www.w3.org/1999/xlink"
       >

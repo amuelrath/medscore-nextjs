@@ -17,14 +17,15 @@ export const FormEditorNav = () => {
   const [isSaving] = useAtom(isSavingAtom);
 
   return (
-    <div className="flex h-16 w-full flex-row items-center justify-between border-b border-accent-secondary bg-card px-3">
+    <div className="flex h-12 w-full bg-card/50 border-b border-neutral-300 p-1 flex-row items-center justify-between px-2">
       <div className={cn("flex flex-row items-center space-x-2")}>
         <Input
-          className={cn("bg-blue-800/5 text-xl font-semibold shadow-inner")}
+          size="sm"
+          className={cn("text-xl border border-neutral-300 hover:border-neutral-600 font-medium w-64")}
           defaultValue={title}
           {...register("title")}
         />
-        <DirectionAwareTabs />
+        <DirectionAwareTabs size="sm" />
         <SaveFormButton isSaving={isSaving} />
       </div>
       <div className={cn("flex flex-row space-x-2")}>

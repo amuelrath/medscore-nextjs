@@ -18,8 +18,8 @@ export const FormLayout: FC<FormLayoutProps> = ({ editor, responses }) => {
 
   return (
     <DirectionAwareTabsProvider tabs={tabs}>
-      <div className="flex flex-col w-full" >
-      <FormEditorNav />
+      <div className="flex w-full flex-col">
+        <FormEditorNav />
         <DirectionAwareContent />
       </div>
     </DirectionAwareTabsProvider>

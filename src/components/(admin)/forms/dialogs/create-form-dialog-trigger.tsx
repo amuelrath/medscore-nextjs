@@ -68,7 +68,8 @@ export function CreateFormDialogTrigger() {
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className={cn("w-36 font-semibold")}
+          size="xs"
+          className={cn("font-semibold")}
           variant={"accent-secondary"}
         >
           <div
@@ -79,7 +80,7 @@ export function CreateFormDialogTrigger() {
             <LottieHover
               loop={false}
               isHovering={hovering}
-              size={"sm"}
+              size={"xs"}
               src={ADD}
             />
             <span className={cn("text-teal-900")}>New Form</span>

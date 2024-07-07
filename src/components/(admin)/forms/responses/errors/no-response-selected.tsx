@@ -2,12 +2,12 @@ export function NoResponseSelected() {
   return (
     <div className="items center flex h-full w-full flex-col items-center justify-center space-y-6">
       <div className="flex flex-col items-center">
-        <p className="text-2xl font-bold">Select a response to get started.</p>
+        <p className="text-lg font-bold">Select a response to get started.</p>
       </div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="400"
-        height="415"
+        width="200"
+        height="215"
         viewBox="0 0 552.81023 515.45882"
         xmlnsXlink="http://www.w3.org/1999/xlink"
       >
