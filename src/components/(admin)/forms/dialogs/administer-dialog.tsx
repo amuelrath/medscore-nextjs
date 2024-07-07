@@ -22,7 +22,7 @@ export function AdministerDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="accent-secondary" className="w-36">
+        <Button size="xs" variant="accent-secondary">
           <div
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
@@ -31,7 +31,7 @@ export function AdministerDialog() {
             <LottieHover
               loop={false}
               isHovering={hovering}
-              size="sm"
+              size="xs"
               src={PENCIL}
             />
             <span className="font-semibold text-teal-900">Administer</span>

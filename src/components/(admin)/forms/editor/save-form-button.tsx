@@ -10,14 +10,14 @@ export function SaveFormButton({ isSaving }: { isSaving: boolean }) {
           animationData={CLOUD_LOADING_LOOP}
           loop
           autoplay
-          style={{ width: 28, height: 28 }}
+          style={{ width: 16, height: 16 }}
         />
       ) : (
         <Lottie
           animationData={CLOUD_DONE}
           loop={false}
           autoplay
-          style={{ width: 28, height: 28 }}
+          style={{ width: 16, height: 16 }}
         />
       )}
     </>

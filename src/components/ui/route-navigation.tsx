@@ -35,16 +35,8 @@ export function RouteNavigation({ tabs }: Props) {
   return (
     <nav>
       <div
-        className={`flex min-h-screen flex-col items-center border-r border-accent-secondary bg-card p-3`}
+        className={`flex min-h-screen w-12 flex-col items-center border-r border-neutral-300 bg-card p-3`}
       >
-        <div className="fixed bottom-3 left-[68px] z-50">
-          <div className={cn("flex select-none flex-row text-gray-600")}>
-            <h3 className={cn("flex flex-row text-2xl")}>
-              <p className={cn("font-bold ")}>MED</p>
-              <p className={cn("font-extralight ")}>score</p>
-            </h3>
-          </div>
-        </div>
         <div className={cn("flex select-none flex-col items-center space-y-3")}>
           {tabs.map((tab) => (
             <div

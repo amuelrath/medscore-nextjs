@@ -8,6 +8,7 @@ import {
   GraduationCapIcon,
   TextSearchIcon
 } from "lucide-react";
+import { AppHeader } from "@/components/ui/app-header";
 
 export default async function AppLayout({
   children,
@@ -18,7 +19,10 @@ export default async function AppLayout({
     <div className="flex flex-row">
       <RouteNavigation tabs={tabs} />
       <ReactQueryDevtools />
+      <div className="flex flex-col w-full" >
+        <AppHeader />
       {children}
+      </div>
     </div>
   );
 }

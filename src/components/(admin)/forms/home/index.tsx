@@ -44,21 +44,21 @@ export default function FormsHome() {
   };
 
   return (
-    <>
-      <div className="h-16 w-full">
-        <div className="flex h-16 flex-row justify-between border-b border-accent-secondary bg-card p-1 px-3">
+    <main>
+        <div className="flex h-12 w-full flex-row justify-between bg-card/50 border-b border-neutral-300 p-1 pl-4 pr-2">
           <div className="flex flex-row items-center space-x-4">
             <h3
               className={cn(
-                "align-middle text-2xl font-bold text-neutral-700 xs:text-2xl",
+                "text-2xl font-light",
               )}
             >
               My Forms
             </h3>
             <Input
+              size="sm"
               placeholder="Search Forms..."
               className={cn(
-                "text-md w-64 bg-blue-950 bg-opacity-5 shadow-inner backdrop-blur-3xl",
+                "w-64 text-sm",
               )}
               onChange={(e) => handleFilter({ title: e.target.value })}
             />
@@ -72,7 +72,7 @@ export default function FormsHome() {
             <CreateFormDialogTrigger />
           </div>
         </div>
-      </div>
+        <hr className="h-[1px] w-full bg-neutral-300"/>
       <div className="grid h-full grid-cols-5 p-4 ">
         <motion.div
           initial={{ opacity: 0, y: random(7, 25) }}
@@ -80,7 +80,7 @@ export default function FormsHome() {
           transition={{ duration: 0.3 }}
           className="col-span-3 flex flex-col"
         >
-          <ScrollArea className={cn("h-[620px] pr-4")}>
+          <ScrollArea className={cn("h-[650px] pr-4")}>
             <Scrollbar />
             <WaterfallAnimation noExit>
               {filteredForms.map((form) => (
@@ -89,13 +89,13 @@ export default function FormsHome() {
             </WaterfallAnimation>
           </ScrollArea>
         </motion.div>
-        <div className={cn("col-span-2 flex w-full flex-col space-y-3 pl-2")}>
+        <div className={cn("col-span-2 flex w-full flex-col space-y-3 pl-2 pb-24")}>
           {features.map((feature) => (
             <BentoCard key={feature.name} {...feature} />
           ))}
         </div>
       </div>
-    </>
+    </main>
   );
 }
 

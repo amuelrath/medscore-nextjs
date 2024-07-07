@@ -2,7 +2,6 @@
 
 import { useCallback, useState, useEffect } from "react";
 import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion";
-import { Main } from "@/components/ui/main";
 import { QuestionCard } from "@/components/(admin)/forms/editor/question-card";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFieldArray, useFormContext } from "react-hook-form";
@@ -10,8 +9,15 @@ import { PlusCircleIcon } from "lucide-react";
 import { v4 } from "uuid";
 import { useScrollToQuestion } from "@/components/(admin)/forms/editor/hooks/use-scroll-to-question";
 import dynamic from "next/dynamic";
+import Loading from "@/components/ui/loading";
 
-const DynamicMilestoneMenu = dynamic(() => import("@/components/(admin)/forms/editor/milestone-menu").then((mod) => mod.MilestoneMenu))
+const DynamicMilestoneMenu = dynamic(
+  () =>
+    import("@/components/(admin)/forms/editor/milestone-menu").then(
+      (mod) => mod.MilestoneMenu,
+    ),
+  { ssr: false, loading: () => <Loading /> },
+);
 
 export function FormBuilder() {
   const [selectedQuestionId, setSelectedQuestionId] = useState<
@@ -82,10 +88,16 @@ export function FormBuilder() {
         );
       }
     }
-  }, [selectedQuestionId, questions, selectedQuestionIndex, setValue, getValues]);
+  }, [
+    selectedQuestionId,
+    questions,
+    selectedQuestionIndex,
+    setValue,
+    getValues,
+  ]);
 
   return (
-    <Main className="flex flex-row gap-4">
+    <main className="flex flex-row px-2 pl-4">
       <LazyMotion features={domAnimation}>
         <DynamicMilestoneMenu
           control={control}
@@ -96,7 +108,7 @@ export function FormBuilder() {
         <div className="flex flex-grow justify-center">
           <div
             ref={containerRef}
-            className="no-scrollbar h-[93vh] w-full max-w-3xl overflow-y-scroll"
+            className="no-scrollbar h-[87.3vh] w-full max-w-3xl overflow-y-scroll"
           >
             <form
               onSubmit={(e) => e.preventDefault()}
@@ -139,6 +151,6 @@ export function FormBuilder() {
           </div>
         </div>
       </LazyMotion>
-    </Main>
+    </main>
   );
 }

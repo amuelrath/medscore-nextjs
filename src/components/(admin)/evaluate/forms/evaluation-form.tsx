@@ -7,9 +7,9 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
 import { submitResponse } from "@/server/actions/responses/submit-response";
-import { AnswerCard } from "@/components/(admin)/forms/responses/answer-card";
+import { AnswerCard } from "@/components/(admin)/evaluate/forms/answer-card";
 import { FormErrorMessage } from "@/components/ui/form-error-message";
-import { EvaluateNav } from "@/components/(admin)/evaluate/evaluate-nav";
+import { EvaluateNav } from "@/components/(admin)/evaluate/forms/evaluate-nav";
 import { getFullName } from "@/lib/helpers/getFullName";
 
 interface EvaluationFormProps {

@@ -4,7 +4,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
-import { EvaluationForm } from "@/components/(admin)/evaluate/evaluation-form";
+import { EvaluationForm } from "@/components/(admin)/evaluate/forms/evaluation-form";
 
 export default async function EvaluateFormPage({
   params,

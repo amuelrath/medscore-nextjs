@@ -3,6 +3,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
+import { ResponseSummary } from "@/components/(admin)/forms/responses/response-summary";
 
 // TODO - ISR
 export default async function ResponsesPage({
@@ -18,10 +19,9 @@ export default async function ResponsesPage({
     },
   });
 
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      hello world
+      <ResponseSummary formId={params.formId} />
     </HydrationBoundary>
   );
 }
