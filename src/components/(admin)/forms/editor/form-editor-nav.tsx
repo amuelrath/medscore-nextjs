@@ -7,21 +7,41 @@ import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-bu
 import { useFormContext } from "react-hook-form";
 import { useAtom } from "jotai";
 import { isSavingAtom } from "./atoms";
-import { AdministerDialog } from "@/components/(admin)/forms/dialogs/administer-dialog";
 import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
+import { isAfter, isBefore } from "date-fns";
+import { FormCodeDisplay } from "@/components/(admin)/forms/form-code-display";
+import { ManageDialog } from "@/components/(admin)/forms/dialogs/manage-dialog";
+import { useFormResult } from "@/hooks/queries/use-form-result";
 
 export const FormEditorNav = () => {
   const { getValues, register } = useFormContext<TFormSchema>();
   const title = getValues(`title`);
-  const formId = getValues(`id`)
+  const formId = getValues(`id`);
+
   const [isSaving] = useAtom(isSavingAtom);
 
+  const { formResult } = useFormResult(formId);
+
+  const now = new Date();
+
+  const getActiveFormCode = () => {
+    return formResult?.formCodes.find(
+      (fc) =>
+        isAfter(now, fc.startsAt) &&
+        isBefore(now, fc.expiresAt) &&
+        fc.canceledAt === null,
+    );
+  };
+  const activeFormCode = formResult?.formCodes ? getActiveFormCode() : null;
+
   return (
-    <div className="flex h-12 w-full bg-card/50 border-b border-neutral-300 p-1 flex-row items-center justify-between px-2">
+    <div className="flex h-12 w-full flex-row items-center justify-between border-b border-neutral-300 bg-card/50 p-1 px-2">
       <div className={cn("flex flex-row items-center space-x-2")}>
         <Input
           size="sm"
-          className={cn("text-xl border border-neutral-300 hover:border-neutral-600 font-medium w-64")}
+          className={cn(
+            "w-64 border border-neutral-300 text-xl font-medium hover:border-neutral-600",
+          )}
           defaultValue={title}
           {...register("title")}
         />
@@ -29,7 +49,10 @@ export const FormEditorNav = () => {
         <SaveFormButton isSaving={isSaving} />
       </div>
       <div className={cn("flex flex-row space-x-2")}>
-        <AdministerDialog />
+        {activeFormCode && (
+          <FormCodeDisplay size="sm" code={activeFormCode.code} />
+        )}
+        <ManageDialog />
         <StartObservationDialog formId={formId} />
       </div>
     </div>

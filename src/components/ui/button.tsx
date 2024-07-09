@@ -18,7 +18,8 @@ const buttonVariants = cva(
         accent: "bg-accent text-background hover:bg-accent/90",
         icon: "items-center p-1 hover:text-white hover:bg-accent-secondary rounded-md transition-all",
         destructive:
-          "bg-destructive text-red-950 font-semibold hover:bg-destructive/90",
+          "bg-destructive/80 text-red-950 font-semibold hover:bg-destructive/70",
+        "destructive-secondary": "bg-red-400 border-red-800 border text-red-950 font-semibold hover:bg-red-400/70",
         outline:
           "border border-input bg-background hover:bg-slate-200 hover:text-accent-foreground",
         secondary:

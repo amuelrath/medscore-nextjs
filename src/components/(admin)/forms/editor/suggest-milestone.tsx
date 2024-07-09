@@ -6,7 +6,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { FormResult, getFormById } from "@/server/actions/forms/get-form-by-id";
+import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import { pickBestMilestone } from "@/server/actions/ai/recommend-milestone";
 import { LottieHover } from "@/components/ui/lottie-hover";
@@ -20,6 +20,7 @@ import { LazyMotion, m, domAnimation } from "framer-motion";
 import { addTrainingData } from "@/server/actions/ml/add-training-data";
 import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useFormResult } from "@/hooks/queries/use-form-result";
 
 export function SuggestMilestone({
   selectedQuestionIndex,
@@ -29,13 +30,9 @@ export function SuggestMilestone({
   const [hovering, setHovering] = useState<boolean>(false);
   const { control, getValues } = useFormContext<TFormSchema>();
   const formId = getValues(`id`);
-  const queryClient = useQueryClient();
 
-  const { data: formData } = useSuspenseQuery({
-    queryKey: ["form", formId],
-    queryFn: () =>
-      getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
-  });
+  const queryClient = useQueryClient();
+  const { formResult } = useFormResult(formId)
 
   const { data: subcompetencies } = useSuspenseQuery({
     queryKey: ["subcompetencies", formId],
@@ -72,7 +69,7 @@ export function SuggestMilestone({
           control={control}
           render={({ field }) => {
             const recData =
-              formData?.questions[selectedQuestionIndex]?.recommendedMilestone;
+              formResult?.questions[selectedQuestionIndex]?.recommendedMilestone;
             const recommendedMilestone = subcompetencies
               .flatMap((sc) => sc.milestones)
               .find((m) => m.id === recData?.milestoneId);

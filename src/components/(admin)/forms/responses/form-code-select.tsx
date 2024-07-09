@@ -1,8 +1,6 @@
 import * as React from "react";
 import { useAtom } from "jotai/index";
 import { selectedFormCodeIdAtom } from "@/store/responses-atoms";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import {
   Popover,
   PopoverContent,
@@ -19,6 +17,8 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/helpers/utils";
+import { isBefore } from "date-fns";
+import { useFormResult } from "@/hooks/queries/use-form-result";
 
 function FormCodeSelect({ formId }: { formId: string }) {
   const [open, setOpen] = React.useState(false);
@@ -26,14 +26,7 @@ function FormCodeSelect({ formId }: { formId: string }) {
     selectedFormCodeIdAtom,
   );
 
-  const { data: form } = useSuspenseQuery({
-    queryKey: ["form", formId],
-    queryFn: () =>
-      getFormById({
-        formId: formId || "",
-        userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-      }),
-  });
+  const { formResult } = useFormResult(formId);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -45,8 +38,9 @@ function FormCodeSelect({ formId }: { formId: string }) {
         >
           <p className="truncate text-sm">
             {selectedFormCodeId
-              ? form?.formCodes?.find((fc) => fc.id === selectedFormCodeId)
-                  ?.title
+              ? formResult?.formCodes?.find(
+                  (fc) => fc.id === selectedFormCodeId,
+                )?.title
               : "Select an Administration"}
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 transition-opacity group-hover:opacity-100" />
@@ -62,7 +56,8 @@ function FormCodeSelect({ formId }: { formId: string }) {
             <ScrollArea className="h-72">
               <CommandEmpty>No administration found.</CommandEmpty>
               <CommandGroup>
-                {form?.formCodes
+                {formResult?.formCodes
+                  ?.filter((fc) => isBefore(fc.startsAt, new Date()))
                   ?.sort(
                     (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
                   )

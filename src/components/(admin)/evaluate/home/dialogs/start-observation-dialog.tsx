@@ -14,7 +14,7 @@ import { ReactNode, Suspense, useState } from "react";
 import {
   InEditorForm,
   NotInEditorForm,
-} from "@/components/(admin)/evaluate/home/dialogs/start-observation-form";
+} from "@/components/(admin)/evaluate/home/forms/start-observation-form";
 import Loading from "@/components/ui/loading";
 
 // if the dialog has a formId in props, then we know we are in the editor
