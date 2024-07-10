@@ -6,7 +6,8 @@ import { z } from "zod";
 import { autosaveForm } from "@/server/actions/forms/autosave-form";
 import { isEqual } from "lodash";
 import { useAtom } from "jotai";
-import { isSavingAtom } from "../atoms";
+import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
+import { toast } from "sonner";
 
 export const ZFormSchema = z.object({
   id: z.string(),
@@ -54,7 +55,7 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
     } finally {
       setIsSaving(false);
     }
-  }, []);
+  }, [setIsSaving]);
 
   const debouncedSave = useCallback(() => {
     if (timerRef.current) {
@@ -63,7 +64,9 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
 
     timerRef.current = setTimeout(() => {
       if (latestFormDataRef.current) {
-        handleSave(latestFormDataRef.current);
+        handleSave(latestFormDataRef.current).catch(() =>
+          toast.error("Error saving form."),
+        );
       }
     }, 2000); // Max delay of 2000ms
   }, [handleSave]);
