@@ -9,7 +9,6 @@ import { useAtom } from "jotai";
 import { isSavingAtom } from "./atoms";
 import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
 import { isAfter, isBefore } from "date-fns";
-import { FormCodeDisplay } from "@/components/(admin)/forms/form-code-display";
 import { ManageDialog } from "@/components/(admin)/forms/dialogs/manage-dialog";
 import { useFormResult } from "@/hooks/queries/use-form-result";
 
@@ -32,7 +31,6 @@ export const FormEditorNav = () => {
         fc.canceledAt === null,
     );
   };
-  const activeFormCode = formResult?.formCodes ? getActiveFormCode() : null;
 
   return (
     <div className="flex h-12 w-full flex-row items-center justify-between border-b border-neutral-300 bg-card/50 p-1 px-2">
@@ -49,9 +47,7 @@ export const FormEditorNav = () => {
         <SaveFormButton isSaving={isSaving} />
       </div>
       <div className={cn("flex flex-row space-x-2")}>
-        {activeFormCode && (
-          <FormCodeDisplay size="sm" code={activeFormCode.code} />
-        )}
+
         <ManageDialog />
         <StartObservationDialog formId={formId} />
       </div>
