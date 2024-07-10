@@ -5,7 +5,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { FormResult, getFormById } from "@/server/actions/forms/get-form-by-id";
+import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
@@ -24,6 +24,7 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { startDirectObservation } from "@/server/actions/evaluate/start-direct-observation";
+import { useFormResult } from "@/hooks/queries/use-form-result";
 
 const ZStartObservationSchema = z.object({
   evaluateeId: z.string().min(1, { message: "Select an evaluatee." }),
@@ -43,15 +44,9 @@ export function InEditorForm({ formId }: { formId: string }) {
 
   // spin up a query client
   const queryClient = useQueryClient();
+
   // get form's data
-  const { data: formResult } = useSuspenseQuery({
-    queryKey: ["form", formId],
-    queryFn: () =>
-      getFormById({
-        formId: formId || "",
-        userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-      }),
-  });
+  const { formResult } = useFormResult(formId);
 
   // initialize a hook form
   const {
@@ -94,7 +89,7 @@ export function InEditorForm({ formId }: { formId: string }) {
     const now = new Date();
     await mutateAsync({
       formId,
-      title: `Direct Observation of ${getFullName(students!.find((s) => s.id === data.evaluateeId)!)}`, // zod will throw errors for us
+      title: `${getFullName(students!.find((s) => s.id === data.evaluateeId)!)}`, // zod will throw errors for us
       startsAt: addMinutes(now, -3),
       expiresAt: addHours(now, 2),
       userIds: [data.evaluateeId],
