@@ -10,7 +10,6 @@ interface Tab {
   href: string;
 }
 
-// TODO discriminated union type so we know tabs are null if withoutTabs is true
 interface Props {
   tabs: Tab[];
   defaultValue?: string;
