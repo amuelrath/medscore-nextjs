@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { responses, answers, formCodes } from "@/db/schema";
+import { responses, answers, formCodes, responsesView } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 type Answer = {
@@ -41,8 +41,14 @@ export async function submitResponse(response: Response) {
       // first get the response
       const currentResponse = await tx.query.responses.findFirst({
         where: eq(responses.id, response.id),
+        with: {
+          answers: true
+        }
       });
       if (!currentResponse) throw new Error("Response does not exist.");
+
+      // if the response has answers that means it has already been submitted once
+      if (currentResponse.answers.length > 0) throw new Error("Response has answers");
 
       // then, check if the form code is a direct observation
       const formCode = await tx.query.formCodes.findFirst({
@@ -74,7 +80,7 @@ export async function submitResponse(response: Response) {
       }));
 
       await tx.insert(answers).values(answerInserts);
-
+      await db.refreshMaterializedView(responsesView)
       return { responseId: newResponse.id };
     });
 
