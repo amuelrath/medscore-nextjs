@@ -1,16 +1,15 @@
 "use client";
 import { formatDate, isAfter, isBefore } from "date-fns";
-import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
 import EYEBALL from "public/image/eye.png";
 import { cn } from "@/lib/helpers/utils";
 import { CalendarClockIcon, UsersRoundIcon } from "lucide-react";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
-import { FormCodeDisplay } from "@/components/(admin)/forms/form-code-display";
 import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { manageDialogSelectedCodeIdAtom } from "@/store/form-atoms";
 import { useAtom } from "jotai";
+import { m, LazyMotion, domAnimation } from "framer-motion";
 import React from "react";
 
 export function ScheduledAssessmentsSelect() {
@@ -32,23 +31,20 @@ export function ScheduledAssessmentsSelect() {
   }
 
   return (
-    <div className="no-scrollbar h-[46vh] w-full overflow-y-scroll">
-      {activeFormCode && (
-        <div className="mb-4">
-          <h3 className="text-md font-semibold">Active</h3>
-          <ScheduleCard formCode={activeFormCode} status="active" />
-        </div>
-      )}
-      {(scheduledFormCodes?.length || 0) > 0 && (
-        <div className="mb-4">
-          <div className="space-y-2">
-            {scheduledFormCodes?.map((fc) => (
-              <ScheduleCard key={fc.id} formCode={fc} status="scheduled" />
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    <LazyMotion features={domAnimation}>
+      <div className="no-scrollbar h-[46vh] w-full space-y-2 overflow-y-scroll">
+          {activeFormCode && (
+            <ScheduleCard formCode={activeFormCode} status="active" />
+          )}
+          {(scheduledFormCodes?.length || 0) > 0 && (
+            <>
+              {scheduledFormCodes?.map((fc) => (
+                <ScheduleCard key={fc.id} formCode={fc} status="scheduled" />
+              ))}
+            </>
+          )}
+      </div>
+    </LazyMotion>
   );
 }
 
@@ -72,12 +68,16 @@ export function ScheduleCard({ formCode, status }: ScheduleCardProps) {
   };
 
   return (
-    <div
+    <m.div
+      layoutId={formCode.id}
+      layout="position"
       onClick={handleClick}
       className={cn(
         "select-none rounded-xl p-3 transition-colors",
         activeCodeId === formCode.id ? "bg-blue-800/5" : "hover:bg-blue-800/5",
       )}
+      initial={{ opacity: 0, y: -5 }}
+      animate={{ opacity: 1, y: 0 }}
     >
       <div className="flex flex-row items-center justify-between">
         <div className="space-y-1.5">
@@ -104,9 +104,7 @@ export function ScheduleCard({ formCode, status }: ScheduleCardProps) {
             </div>
           </div>
         </div>
-
-        {status === "active" && <FormCodeDisplay code={formCode.code} />}
       </div>
-    </div>
+    </m.div>
   );
 }

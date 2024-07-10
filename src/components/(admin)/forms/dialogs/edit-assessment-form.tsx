@@ -29,6 +29,9 @@ import { ScientistIllustration } from "@/components/illustrations/scientist-illu
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration";
 import COPY from "public/icons/system-regular-99-copy.json";
 
+/* TODO handle edge-case where if this is mounted and the assessment starts,
+*       the UI will not update without a refresh
+*/
 export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
     manageDialogSelectedCodeIdAtom,
@@ -92,7 +95,6 @@ export function EditAssessmentForm() {
     onSuccess: (result) => {
       if (result.status === "error")
         return toast.error("Something went wrong. Try again.");
-      toast.success("Changes applied.");
       queryClient.setQueryData(
         ["form", formResult?.id],
         (oldData: FormResult | undefined) => {
@@ -151,7 +153,6 @@ export function EditAssessmentForm() {
             (fc) => fc.id !== formCode?.id,
           );
 
-          toast.success("Assessment canceled.");
           setActiveCodeId(
             oldData.formCodes.find((fc) => isAfter(fc.startsAt, now))?.id,
           );
@@ -206,6 +207,20 @@ export function EditAssessmentForm() {
         </div>
       </>
     );
+
+
+  if (error) {
+    return (
+      <>
+        <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
+        <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
+          <p className="text-lg font-normal">
+            Something went wrong. Try again.
+          </p>
+        </div>
+      </>
+    )
+  }
 
   const isActive =
     isAfter(now, formCode.startsAt) &&
@@ -327,7 +342,7 @@ export function EditAssessmentForm() {
           </div>
         </div>
         <AssessmentControls
-          code={formCode.code}
+          assessment={formCode}
           onCancel={cancelAssessment}
           isActive={isActive}
         />
@@ -337,17 +352,17 @@ export function EditAssessmentForm() {
 }
 
 function AssessmentControls({
-  code,
+  assessment,
   onCancel,
   isActive,
 }: {
-  code: number | string;
+  assessment: FormResult["formCodes"][0];
   onCancel: () => void;
   isActive: boolean;
 }) {
   const [hovering, setHovering] = useState<boolean>(false);
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(String(code));
+    await navigator.clipboard.writeText(String(assessment.code));
     return toast.message("Access code copied to clipboard.");
   };
 
@@ -362,7 +377,9 @@ function AssessmentControls({
         >
           {isActive ? (
             <>
-              <p className="text-xl font-medium tracking-widest">{code}</p>
+              <p className="text-xl font-medium tracking-widest">
+                {assessment.code}
+              </p>
               <Button
                 name="access-code"
                 size="xs"
@@ -383,15 +400,7 @@ function AssessmentControls({
       </div>
       <div className="flex flex-row items-center justify-between space-x-2">
         <div className="flex flex-row items-center space-x-2">
-          <Button
-            size="xs"
-            variant="accent-secondary"
-            className="w-28 items-center space-x-2"
-            type="button"
-          >
-            <LottieHover src={PLAY} size="xs" />
-            <p>Start Now</p>
-          </Button>
+          <StartNowButton assessment={assessment} />
           <TwoStageConfirmButton
             size="xs"
             variant="outline"
@@ -405,6 +414,76 @@ function AssessmentControls({
         </div>
       </div>
     </div>
+  );
+}
+
+function StartNowButton({
+  assessment,
+}: {
+  assessment: FormResult["formCodes"][0];
+}) {
+  const [hovering, setHovering] = useState<boolean>(false);
+
+  const queryClient = useQueryClient();
+  const { mutate: startNow, isPending } = useMutation({
+    mutationFn: async () => {
+      const now = new Date();
+      return updateAssessmentDetails({
+        title: assessment.title,
+        formCodeId: assessment.id,
+        evaluateeIds: assessment.usersWithCode.map((u) => u.user.id),
+        startsAt: now.toString(),
+        expiresAt: assessment.startsAt.toString(),
+      });
+    },
+    onSuccess: (result) => {
+      if (result.status === "error")
+        return toast.error("Something went wrong. Try again.");
+      queryClient.setQueryData(
+        ["form", assessment.formId],
+        (oldData: FormResult | undefined) => {
+          if (!oldData) return oldData;
+
+          const updatedFormCodes = oldData.formCodes.map((fc) =>
+            fc.id === result.data.id
+              ? {
+                  ...fc,
+                  startsAt: result.data.startsAt,
+                }
+              : fc,
+          );
+
+          return {
+            ...oldData,
+            formCodes: updatedFormCodes,
+          };
+        },
+      );
+    },
+  });
+
+  const handleClick = () => {
+    if (assessment.usersWithCode.map(u => u.user.id).length <= 0) return toast.error("Add an evaluatee to start this assessment.")
+    return startNow();
+  }
+
+  const now = new Date()
+  const isActive = isAfter(now, assessment.startsAt)
+
+  return (
+    <Button
+      onClick={handleClick}
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      disabled={isActive || isPending}
+      size="xs"
+      variant="accent-secondary"
+      className="w-28 items-center space-x-2"
+      type="button"
+    >
+      <LottieHover src={PLAY} size="xs" isHovering={hovering} />
+      {<p>Start Now</p>}
+    </Button>
   );
 }
 

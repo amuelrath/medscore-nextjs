@@ -32,8 +32,8 @@ type ErrorResult = {
 };
 
 export async function updateAssessmentDetails({
-                                                ...params
-                                              }: Params): Promise<Result> {
+  ...params
+}: Params): Promise<Result> {
   const { title, evaluateeIds, formCodeId } = params;
   const startsAt = new Date(params.startsAt);
   const expiresAt = new Date(params.expiresAt);
@@ -53,9 +53,7 @@ export async function updateAssessmentDetails({
 
       // insert new user associations
       for (const userId of evaluateeIds) {
-        await tx
-          .insert(formCodesOnUsers)
-          .values({ formCodeId, userId });
+        await tx.insert(formCodesOnUsers).values({ formCodeId, userId });
       }
 
       return {
