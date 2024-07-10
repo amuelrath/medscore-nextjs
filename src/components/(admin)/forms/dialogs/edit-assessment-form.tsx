@@ -399,7 +399,7 @@ function AssessmentControls({
         </div>
       </div>
       <div className="flex flex-row items-center justify-between space-x-2">
-        <div className="flex flex-row items-center space-x-2">
+        <div className="flex flex-row justify-between items-center w-full">
           <StartNowButton assessment={assessment} />
           <TwoStageConfirmButton
             size="xs"
