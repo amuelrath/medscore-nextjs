@@ -1,11 +1,10 @@
 "use client";
 
-import * as React from "react";
-import { forwardRef, useEffect } from "react";
 import { Command as CommandPrimitive, useCommandState } from "cmdk";
 import { X } from "lucide-react";
+import * as React from "react";
+import { forwardRef, useEffect } from "react";
 
-import { cn } from "@/lib/helpers/utils";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
@@ -13,6 +12,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { cn } from "@/lib/helpers/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 export interface Option {
   value: string;
@@ -74,6 +75,8 @@ interface MultipleSelectorProps {
     React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>,
     "value" | "placeholder" | "disabled"
   >;
+  /** hide the clear all button. */
+  hideClearAllButton?: boolean;
 }
 
 export interface MultipleSelectorRef {
@@ -128,7 +131,7 @@ function removePickedOption(groupOption: GroupOption, picked: Option[]) {
 }
 
 function isOptionsExist(groupOption: GroupOption, targetOption: Option[]) {
-  for (const [key, value] of Object.entries(groupOption)) {
+  for (const [, value] of Object.entries(groupOption)) {
     if (
       value.some((option) => targetOption.find((p) => p.value === option.value))
     ) {
@@ -192,11 +195,13 @@ const MultipleSelector = React.forwardRef<
       triggerSearchOnFocus = false,
       commandProps,
       inputProps,
+      hideClearAllButton = false,
     }: MultipleSelectorProps,
     ref: React.Ref<MultipleSelectorRef>,
   ) => {
     const inputRef = React.useRef<HTMLInputElement>(null);
     const [open, setOpen] = React.useState(false);
+    const mouseOn = React.useRef<boolean>(false);
     const [isLoading, setIsLoading] = React.useState(false);
 
     const [selected, setSelected] = React.useState<Option[]>(value || []);
@@ -359,57 +364,63 @@ const MultipleSelector = React.forwardRef<
         return commandProps.filter;
       }
 
-      return (value: string, search: string) => {
-        const option = Object.values(selectables)
-          .flat()
-          .find((opt) => opt.value === value);
-        if (option) {
-          return option.label.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
-        }
-        return -1;
-      };
-    }, [commandProps?.filter, selectables]);
+      if (creatable) {
+        return (value: string, search: string) => {
+          return value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
+        };
+      }
+      // Using default filter in `cmdk`. We don't have to provide it.
+      return undefined;
+    }, [creatable, commandProps?.filter]);
 
     return (
-      <Command
-        {...commandProps}
-        onKeyDown={(e) => {
-          handleKeyDown(e);
-          commandProps?.onKeyDown?.(e);
-        }}
+
+    <Command
+      {...commandProps}
+      onKeyDown={(e) => {
+        handleKeyDown(e);
+        commandProps?.onKeyDown?.(e);
+      }}
+      className={cn(
+        "h-auto overflow-visible bg-transparent",
+        commandProps?.className,
+      )}
+      shouldFilter={
+        commandProps?.shouldFilter !== undefined
+          ? commandProps.shouldFilter
+          : !onSearch
+      }
+      filter={commandFilter()}
+    >
+      <div
         className={cn(
-          "h-auto overflow-visible bg-blue-800/5 shadow-inner",
-          commandProps?.className,
+          "min-h-10 rounded-md  bg-blue-800/5 shadow-inner transition-all text-sm ring-offset-background focus-within:ring-2 focus-within:ring-accent/90 focus-within:ring-offset-2",
+          {
+            "px-3 py-2": selected.length !== 0,
+            "cursor-text": !disabled && selected.length !== 0,
+          },
+          className,
         )}
-        shouldFilter={
-          commandProps?.shouldFilter !== undefined
-            ? commandProps.shouldFilter
-            : !onSearch
-        } // When onSearch is provided, we don't want to filter the options. You can still override it.
-        filter={commandFilter()}
+        onClick={() => {
+          if (disabled) return;
+          inputRef.current?.focus();
+        }}
       >
-        <div
-          className={cn(
-            "min-h-10 rounded-md border border-input text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
-            {
-              "px-3 py-2": selected.length !== 0,
-              "cursor-text": !disabled && selected.length !== 0,
-            },
-            className,
-          )}
-          onClick={() => {
-            if (disabled) return;
-            inputRef.current?.focus();
-          }}
-        >
-          <div className="flex flex-wrap gap-1">
-            {selected.map((option) => {
-              return (
+        <div className="relative flex flex-wrap gap-1">
+          <AnimatePresence>
+            {selected.map((option) => (
+              <motion.div
+                key={option.value}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -5 }}
+                transition={{ duration: 0.2 }}
+              >
                 <Badge
-                  key={option.value}
+                  size="xs"
                   className={cn(
                     "data-[disabled]:bg-muted-foreground data-[disabled]:text-muted data-[disabled]:hover:bg-muted-foreground",
-                    "data-[fixed]:bg-muted-foreground data-[fixed]:text-muted data-[fixed]:hover:bg-muted-foreground",
+                    " bg-muted-foreground/70 text-normal max-h-5 font-medium text-card text-xs data-[fixed]:text-muted hover:bg-muted-foreground/80",
                     badgeClassName,
                   )}
                   data-fixed={option.fixed}
@@ -417,6 +428,7 @@ const MultipleSelector = React.forwardRef<
                 >
                   {option.label}
                   <button
+                    type="button"
                     className={cn(
                       "ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2",
                       (disabled || option.fixed) && "hidden",
@@ -432,68 +444,104 @@ const MultipleSelector = React.forwardRef<
                     }}
                     onClick={() => handleUnselect(option)}
                   >
-                    <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+                    <X className="h-3 w-3 text-card hover:text-foreground" />
                   </button>
                 </Badge>
-              );
-            })}
-            {/* Avoid having the "Search" Icon */}
-            <CommandPrimitive.Input
-              {...inputProps}
-              ref={inputRef}
-              value={inputValue}
-              disabled={disabled}
-              onValueChange={(value) => {
-                setInputValue(value);
-                inputProps?.onValueChange?.(value);
-              }}
-              onBlur={(event) => {
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          <CommandPrimitive.Input
+            {...inputProps}
+            ref={inputRef}
+            value={inputValue}
+            disabled={disabled}
+            onValueChange={(value) => {
+              setInputValue(value);
+              inputProps?.onValueChange?.(value);
+            }}
+            onBlur={(event) => {
+              if (mouseOn.current === false) {
                 setOpen(false);
-                inputProps?.onBlur?.(event);
-              }}
-              onFocus={(event) => {
-                setOpen(true);
-                triggerSearchOnFocus && onSearch?.(debouncedSearchTerm);
-                inputProps?.onFocus?.(event);
-              }}
-              placeholder={
-                hidePlaceholderWhenSelected && selected.length !== 0
-                  ? ""
-                  : placeholder
               }
-              className={cn(
-                "flex-1 bg-transparent outline-none placeholder:text-muted-foreground",
-                {
-                  "w-full": hidePlaceholderWhenSelected,
-                  "px-3 py-2": selected.length === 0,
-                  "ml-1": selected.length !== 0,
-                },
-                inputProps?.className,
-              )}
-            />
-          </div>
+              inputProps?.onBlur?.(event);
+            }}
+            onFocus={(event) => {
+              setOpen(true);
+              triggerSearchOnFocus && onSearch?.(debouncedSearchTerm);
+              inputProps?.onFocus?.(event);
+            }}
+            placeholder={
+              hidePlaceholderWhenSelected && selected.length !== 0
+                ? ""
+                : placeholder
+            }
+            className={cn(
+              "flex-1 border-none text-sm font-light transition-all focus:ring-0 bg-transparent outline-none placeholder:text-muted-foreground",
+              {
+                "w-full": hidePlaceholderWhenSelected,
+                "px-3 py-2": selected.length === 0,
+                "ml-1": selected.length !== 0,
+              },
+              inputProps?.className,
+            )}
+          />
+          <button
+            type="button"
+            onClick={() => {
+              setSelected(selected.filter((s) => s.fixed));
+              onChange?.(selected.filter((s) => s.fixed));
+            }}
+            className={cn(
+              "absolute right-0 h-6 w-6 p-0",
+              (hideClearAllButton ||
+                disabled ||
+                selected.length < 1 ||
+                selected.filter((s) => s.fixed).length === selected.length) &&
+              "hidden",
+            )}
+          >
+            <X size={18} />
+          </button>
         </div>
-        <div className="relative">
+      </div>
+      <div className="relative">
+        <AnimatePresence mode="popLayout">
           {open && (
-            <CommandList className="absolute top-1 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
-              {isLoading ? (
-                <>{loadingIndicator}</>
-              ) : (
-                <>
-                  {EmptyItem()}
-                  {CreatableItem()}
-                  {!selectFirstItem && (
-                    <CommandItem value="-" className="hidden" />
-                  )}
-                  {Object.entries(selectables).map(([key, dropdowns]) => (
-                    <CommandGroup
-                      key={key}
-                      heading={key}
-                      className="h-full overflow-auto"
-                    >
-                      <>
-                        {dropdowns.map((option) => {
-                          return (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.2 }}
+            >
+              <CommandList
+                className="absolute top-1 z-10 w-full rounded-md bg-popover text-popover-foreground shadow-md outline-none"
+                onMouseLeave={() => {
+                  mouseOn.current = false;
+                }}
+                onMouseEnter={() => {
+                  mouseOn.current = true;
+                }}
+                onMouseUp={() => {
+                  inputRef.current?.focus();
+                }}
+              >
+                {isLoading ? (
+                  <>{loadingIndicator}</>
+                ) : (
+                  <>
+                    {EmptyItem()}
+                    {CreatableItem()}
+                    {!selectFirstItem && (
+                      <CommandItem value="-" className="hidden" />
+                    )}
+                    {Object.entries(selectables).map(([key, dropdowns]) => (
+                      <CommandGroup
+                        key={key}
+                        heading={key}
+                        className="h-full overflow-auto"
+                      >
+                        <>
+                          {dropdowns.map((option) => (
                             <CommandItem
                               key={option.value}
                               value={option.value}
@@ -515,22 +563,23 @@ const MultipleSelector = React.forwardRef<
                               className={cn(
                                 "cursor-pointer",
                                 option.disable &&
-                                  "cursor-default text-muted-foreground",
+                                "cursor-default text-muted-foreground",
                               )}
                             >
                               {option.label}
                             </CommandItem>
-                          );
-                        })}
-                      </>
-                    </CommandGroup>
-                  ))}
-                </>
-              )}
-            </CommandList>
+                          ))}
+                        </>
+                      </CommandGroup>
+                    ))}
+                  </>
+                )}
+              </CommandList>
+            </motion.div>
           )}
-        </div>
-      </Command>
+        </AnimatePresence>
+      </div>
+    </Command>
     );
   },
 );
