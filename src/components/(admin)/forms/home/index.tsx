@@ -14,7 +14,7 @@ import { useFilter } from "@/hooks/useFilter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
-import { Books } from "@/components/illustrations/books";
+import { BooksIllustration } from "@/components/illustrations/books-illustration";
 import { UpcomingAssessments } from "@/components/(admin)/forms/home/upcoming-assessments";
 
 export default function FormsHome() {
@@ -108,7 +108,7 @@ const features: BentoCardProps[] = [
     cta: "Go to ACGME Resources",
     className: "w-full h-[35%]",
     iconSize: "size-8",
-    background: <Books />,
+    background: <BooksIllustration />,
   },
 ];
 

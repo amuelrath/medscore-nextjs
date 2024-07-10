@@ -5,7 +5,7 @@ import { FormCodeSelect } from "@/components/(admin)/forms/responses/form-code-s
 import { NewResultGroup } from "@/components/(admin)/forms/responses/new-result-group";
 import { useQuery } from "@tanstack/react-query";
 import { useAtomValue } from "jotai";
-import { selectedFormCodeIdAtom } from "@/store/responses-atoms";
+import { selectedFormCodeIdAtom } from "@/store/form-atoms";
 import {
   FormCodeResponsesResult,
   getFormCodeResponses,

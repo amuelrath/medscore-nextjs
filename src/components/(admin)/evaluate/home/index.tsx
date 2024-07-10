@@ -3,9 +3,9 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/helpers/utils";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
 import { ClipboardPlusIcon, EyeIcon } from "lucide-react";
-import { Doctors } from "@/components/illustrations/doctors";
+import { DoctorsIllustration } from "@/components/illustrations/doctors-illustration";
 import { Button } from "@/components/ui/button";
-import { Survey } from "@/components/illustrations/survey";
+import { SurveyIllustration } from "@/components/illustrations/survey-illustration";
 import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
 import { StartEvaluationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-evaluation-dialog";
 
@@ -55,7 +55,7 @@ const features: BentoCardProps[] = [
     name: "Evaluate Students",
     description: "Assess student performance in a competency-based assessment.",
     Icon: ClipboardPlusIcon,
-    background: <Doctors />,
+    background: <DoctorsIllustration />,
     iconSize: "size-8",
     cta: <StartEvaluationDialog>Begin Assessment</StartEvaluationDialog>,
     className: "w-full h-full"
@@ -64,7 +64,7 @@ const features: BentoCardProps[] = [
     name: "Direct Observation",
     description: "Assess student performance in live clinical encounters",
     Icon: EyeIcon,
-    background: <Survey />,
+    background: <SurveyIllustration />,
     iconSize: "size-8",
     cta: <StartObservationDialog>Start Observation</StartObservationDialog>,
     className: "w-full h-full ",
