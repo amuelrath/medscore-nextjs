@@ -6,11 +6,9 @@ import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-butt
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFormContext } from "react-hook-form";
 import { useAtom } from "jotai";
-import { isSavingAtom } from "./atoms";
 import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
-import { isAfter, isBefore } from "date-fns";
 import { ManageDialog } from "@/components/(admin)/forms/dialogs/manage-dialog";
-import { useFormResult } from "@/hooks/queries/use-form-result";
+import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 
 export const FormEditorNav = () => {
   const { getValues, register } = useFormContext<TFormSchema>();
@@ -18,19 +16,6 @@ export const FormEditorNav = () => {
   const formId = getValues(`id`);
 
   const [isSaving] = useAtom(isSavingAtom);
-
-  const { formResult } = useFormResult(formId);
-
-  const now = new Date();
-
-  const getActiveFormCode = () => {
-    return formResult?.formCodes.find(
-      (fc) =>
-        isAfter(now, fc.startsAt) &&
-        isBefore(now, fc.expiresAt) &&
-        fc.canceledAt === null,
-    );
-  };
 
   return (
     <div className="flex h-12 w-full flex-row items-center justify-between border-b border-neutral-300 bg-card/50 p-1 px-2">
@@ -47,7 +32,6 @@ export const FormEditorNav = () => {
         <SaveFormButton isSaving={isSaving} />
       </div>
       <div className={cn("flex flex-row space-x-2")}>
-
         <ManageDialog />
         <StartObservationDialog formId={formId} />
       </div>
