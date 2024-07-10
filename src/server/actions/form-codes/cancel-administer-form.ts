@@ -10,11 +10,9 @@ type CancelAdministerFormResult = {
   message: string;
 };
 
-export async function cancelAdministerForm({
-  formCodeId,
-}: {
-  formCodeId: string;
-}): Promise<CancelAdministerFormResult> {
+export async function cancelAdministerForm(
+  formCodeId: string,
+): Promise<CancelAdministerFormResult> {
   try {
     const now = dateToSQLDate(new Date());
 

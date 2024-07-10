@@ -1,4 +1,4 @@
-export const Survey = () => {
+export const SurveyIllustration = () => {
   return (
     <div
       className="absolute left-[20%] top-8 group-hover:scale-110 transition-all origin-left duration-500 ease-in-out [mask-image:linear-gradient(to_top,transparent_50%,#000_100%)] group-hover:blur-sm">

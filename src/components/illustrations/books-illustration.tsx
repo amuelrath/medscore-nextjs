@@ -1,4 +1,4 @@
-export const Books = () => {
+export const BooksIllustration = () => {
   return (
     <div
       className="absolute group-hover:scale-110 origin-center duration-500 ease-in-out left-[15%] top-2 transition-all [mask-image:linear-gradient(to_top,transparent_45%,#000_100%)] group-hover:blur-sm">

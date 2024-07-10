@@ -1,4 +1,4 @@
-export const Doctors = () => {
+export const DoctorsIllustration = () => {
   return (
     <div
       className="absolute left-[8%] group-hover:scale-110 origin-center duration-500 ease-in-out pt-0 top-4 transition-all group-hover:blur-sm">
