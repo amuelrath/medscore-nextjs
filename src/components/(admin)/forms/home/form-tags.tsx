@@ -43,9 +43,9 @@ export const tagColors: Color[] = [
     ring: "ring-destructive",
   },
   {
-    bg: "bg-yellow-500",
+    bg: "bg-lime-300",
     variant: "yellow",
-    ring: "ring-yellow-500",
+    ring: "ring-lime-400",
   },
   {
     bg: "bg-accent-secondary",
@@ -195,7 +195,7 @@ export function FormTags({
             <div className={cn("flex w-full flex-row items-center space-x-4")}>
               <Input
                 placeholder={"Tag Description..."}
-                className="bg-blue-800 shadow-inner bg-opacity-5 backdrop-blur-3xl"
+                className="bg-blue-800 bg-opacity-5 shadow-inner backdrop-blur-3xl"
                 {...register(`tag`)}
               />
               <Button>Add Tag</Button>
@@ -229,18 +229,20 @@ function FormTag({
       initial={{ opacity: 0, x: -5 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2 }}
+      className="select-none"
     >
       <Badge
         // @ts-ignore
         variant={tag.variant}
-        className={cn(`group relative cursor-pointer text-2xs font-medium bg-opacity-70 py-1`)}
+        className={cn(
+          `group relative bg-opacity-70 py-1 text-2xs font-medium`,
+        )}
         onMouseEnter={() => handleMouseEnter(tag.id)}
         onMouseLeave={handleMouseLeave}
-        onClick={() => removeTag(tag.id)}
       >
         <span
           className={cn(
-            "origin-center transition-all duration-200 ease-in-out",
+            "origin-center transition-all  duration-200 ease-in-out",
             hoveredTagId === tag.id
               ? "scale-x-0 opacity-0"
               : "scale-x-100 opacity-100",
@@ -250,8 +252,9 @@ function FormTag({
         </span>
         <TrashIcon
           size={12}
+          onClick={() => removeTag(tag.id)}
           className={cn(
-            `absolute left-1/2 top-1/2 origin-center -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200`,
+            `absolute left-1/2 top-1/2 cursor-pointer origin-center -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200`,
             hoveredTagId === tag.id ? "opacity-100" : "opacity-0",
           )}
         />
