@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/db";
 import { responses } from "@/db/schema";
-import { administerForm } from "@/server/actions/forms/administer-form";
+import { administerForm } from "@/server/actions/form-codes/administer-form";
 
 export async function startDirectObservation({
   formId,
