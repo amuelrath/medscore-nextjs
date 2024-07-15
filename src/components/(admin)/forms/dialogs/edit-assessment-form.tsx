@@ -30,21 +30,21 @@ import { NoDataIllustration } from "@/components/illustrations/no-data-illustrat
 import COPY from "public/icons/system-regular-99-copy.json";
 
 /* TODO handle edge-case where if this is mounted and the assessment starts,
-*       the UI will not update without a refresh
-*/
+ *       the UI will not update without a refresh
+ */
 export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
     manageDialogSelectedCodeIdAtom,
   );
   const { formResult, error, isLoading } = useFormResultInEditorQuery();
-  const formCode = formResult?.formCodes.find((fc) => fc.id == activeCodeId);
+  const selectedFormCode = formResult?.formCodes.find((fc) => fc.id == activeCodeId);
   const studentOptions = formResult?.programs.users
     .filter((u) => u.user.role === "STUDENT")
     .map((s) => ({
       value: s.user.id,
       label: getFullName(s.user),
     }));
-  const evaluateeIds = formCode?.usersWithCode
+  const evaluateeIds = selectedFormCode?.usersWithCode
     .map((uwc) => uwc.user)
     ?.map((u) => u.id)
     .filter((id) => id !== undefined);
@@ -58,36 +58,36 @@ export function EditAssessmentForm() {
   } = useForm<TEditAssessmentFormSchema>({
     resolver: zodResolver(ZEditAssessmentFormSchema),
     defaultValues: {
-      formCodeId: formCode?.id || "",
-      title: formCode?.title || "",
+      formCodeId: selectedFormCode?.id || "",
+      title: selectedFormCode?.title || "",
       evaluateeIds,
-      expiresAt: formCode?.expiresAt
-        ? formatDate(formCode.expiresAt, "yyyy-MM-dd'T'HH:mm")
+      expiresAt: selectedFormCode?.expiresAt
+        ? formatDate(selectedFormCode.expiresAt, "yyyy-MM-dd'T'HH:mm")
         : "",
-      startsAt: formCode?.startsAt
-        ? formatDate(formCode.startsAt, "yyyy-MM-dd'T'HH:mm")
+      startsAt: selectedFormCode?.startsAt
+        ? formatDate(selectedFormCode.startsAt, "yyyy-MM-dd'T'HH:mm")
         : "",
     },
   });
 
   // Add this effect to update form values when activeCodeId changes
   useEffect(() => {
-    if (formCode) {
+    if (selectedFormCode) {
       reset({
-        formCodeId: formCode.id || "",
-        title: formCode.title || "",
-        evaluateeIds: formCode.usersWithCode
+        formCodeId: selectedFormCode.id || "",
+        title: selectedFormCode.title || "",
+        evaluateeIds: selectedFormCode.usersWithCode
           .map((uwc) => uwc.user?.id)
           .filter((id) => id !== undefined),
-        expiresAt: formCode.expiresAt
-          ? formatDate(formCode.expiresAt, "yyyy-MM-dd'T'HH:mm")
+        expiresAt: selectedFormCode.expiresAt
+          ? formatDate(selectedFormCode.expiresAt, "yyyy-MM-dd'T'HH:mm")
           : "",
-        startsAt: formCode.startsAt
-          ? formatDate(formCode.startsAt, "yyyy-MM-dd'T'HH:mm")
+        startsAt: selectedFormCode.startsAt
+          ? formatDate(selectedFormCode.startsAt, "yyyy-MM-dd'T'HH:mm")
           : "",
       });
     }
-  }, [formCode, reset]);
+  }, [selectedFormCode, reset]);
 
   const queryClient = useQueryClient();
   const { mutate: updateDetails, isPending } = useMutation({
@@ -140,7 +140,7 @@ export function EditAssessmentForm() {
   });
   const now = new Date();
   const { mutate: cancelAssessment } = useMutation({
-    mutationFn: () => cancelAdministerForm(formCode?.id || ""),
+    mutationFn: () => cancelAdministerForm(selectedFormCode?.id || ""),
     onSuccess: (result) => {
       if (!result.success)
         return toast.error("Something went wrong. Try again.");
@@ -150,7 +150,7 @@ export function EditAssessmentForm() {
           if (!oldData) return oldData;
 
           const updatedFormCodes = oldData.formCodes.filter(
-            (fc) => fc.id !== formCode?.id,
+            (fc) => fc.id !== selectedFormCode?.id,
           );
 
           setActiveCodeId(
@@ -176,40 +176,10 @@ export function EditAssessmentForm() {
   };
 
   if (isLoading) {
-    return <Skeleton className="h-full w-full " />;
+    return <Skeleton className="h-full w-full" />;
   }
-  if (formResult?.formCodes.length === 0)
-    return (
-      <>
-        <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
-        <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
-          <ScientistIllustration />
-          <div className="flex flex-col items-center">
-            <p className="text-lg font-medium">
-              This form has no upcoming assessments.
-            </p>
-            <p className="text-sm font-normal">
-              Click &quot;New Assessment&quot; to get started.
-            </p>
-          </div>
-        </div>
-      </>
-    );
-  if (!formCode)
-    return (
-      <>
-        <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
-        <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
-          <NoDataIllustration />
-          <p className="text-lg font-normal">
-            Select an assessment to get started.
-          </p>
-        </div>
-      </>
-    );
 
-
-  if (error) {
+  if (error || !formResult) {
     return (
       <>
         <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
@@ -219,13 +189,63 @@ export function EditAssessmentForm() {
           </p>
         </div>
       </>
-    )
+    );
+  }
+
+  const scheduledAssessments = formResult.formCodes.filter(
+    (fc) => isBefore(now, fc.startsAt) && !fc.canceledAt,
+  );
+
+  const activeAssessments = formResult.formCodes.filter(
+    (fc) =>
+      isAfter(now, fc.startsAt) &&
+      isBefore(now, fc.expiresAt) &&
+      !fc.canceledAt,
+  );
+
+  const noAssessmentsContent = (
+    <>
+      <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
+      <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
+        <ScientistIllustration />
+        <div className="flex flex-col items-center">
+          <p className="text-lg font-medium">
+            This form has no upcoming assessments.
+          </p>
+          <p className="text-sm font-normal">
+            Click &quot;New Assessment&quot; to get started.
+          </p>
+        </div>
+      </div>
+    </>
+  );
+
+  const selectAssessmentContent = (
+    <>
+      <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
+      <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
+        <NoDataIllustration />
+        <p className="text-lg font-normal">
+          Select an assessment to get started.
+        </p>
+      </div>
+    </>
+  );
+
+  if (
+    (scheduledAssessments.length === 0 && activeAssessments.length === 0)
+  ) {
+    return noAssessmentsContent;
+  }
+
+  if (!selectedFormCode) {
+    return selectAssessmentContent;
   }
 
   const isActive =
-    isAfter(now, formCode.startsAt) &&
-    isBefore(now, formCode.expiresAt) &&
-    !formCode.canceledAt;
+    isAfter(now, selectedFormCode.startsAt) &&
+    isBefore(now, selectedFormCode.expiresAt) &&
+    !selectedFormCode.canceledAt;
 
   return (
     <>
@@ -342,7 +362,7 @@ export function EditAssessmentForm() {
           </div>
         </div>
         <AssessmentControls
-          assessment={formCode}
+          assessment={selectedFormCode}
           onCancel={cancelAssessment}
           isActive={isActive}
         />
@@ -399,7 +419,7 @@ function AssessmentControls({
         </div>
       </div>
       <div className="flex flex-row items-center justify-between space-x-2">
-        <div className="flex flex-row justify-between items-center w-full">
+        <div className="flex w-full flex-row items-center justify-between">
           <StartNowButton assessment={assessment} />
           <TwoStageConfirmButton
             size="xs"
@@ -463,12 +483,13 @@ function StartNowButton({
   });
 
   const handleClick = () => {
-    if (assessment.usersWithCode.map(u => u.user.id).length <= 0) return toast.error("Add an evaluatee to start this assessment.")
+    if (assessment.usersWithCode.map((u) => u.user.id).length <= 0)
+      return toast.error("Add an evaluatee to start this assessment.");
     return startNow();
-  }
+  };
 
-  const now = new Date()
-  const isActive = isAfter(now, assessment.startsAt)
+  const now = new Date();
+  const isActive = isAfter(now, assessment.startsAt);
 
   return (
     <Button

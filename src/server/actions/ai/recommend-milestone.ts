@@ -37,14 +37,14 @@ export async function getIndexMatches({ text }: { text: string }) {
 
 // function to pick the best milestone given the top 5 vector search results
 export async function pickBestMilestone({
-  questionId,
+  formItemId,
   formTitle,
 }: {
-  questionId: string;
+  formItemId: string;
   formTitle: string;
 }) {
-  const question = await db.query.questions.findFirst({
-    where: (q, { eq }) => eq(q.id, questionId),
+  const question = await db.query.formItems.findFirst({
+    where: (q, { eq }) => eq(q.id, formItemId),
   });
   const matches = await getIndexMatches({ text: question?.text || "" });
   const matchingSubcompetencyIds = matches?.matches?.map(
@@ -145,7 +145,7 @@ Remember, your goal is to provide a clear, concise, and insightful connection be
   // delete the old rec
   await db
     .delete(recommendedMilestones)
-    .where(eq(recommendedMilestones.questionId, question?.id || ""));
+    .where(eq(recommendedMilestones.formItemId, question?.id || ""));
 
   // add the new one
   return db
@@ -154,7 +154,7 @@ Remember, your goal is to provide a clear, concise, and insightful connection be
       milestoneId,
       score: confidenceScore,
       justification,
-      questionId: question?.id || "",
+      formItemId: question?.id || "",
     })
     .returning();
 }
