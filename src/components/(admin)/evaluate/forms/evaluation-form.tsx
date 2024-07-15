@@ -1,75 +1,141 @@
 "use client";
-import { useEffect } from "react";
-import { useForm, FormProvider, useWatch } from "react-hook-form";
+import React, { useMemo } from "react";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
-import { submitResponse } from "@/server/actions/responses/submit-response";
-import { AnswerCard } from "@/components/(admin)/evaluate/forms/answer-card";
-import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { EvaluateNav } from "@/components/(admin)/evaluate/forms/evaluate-nav";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
+import { Button } from "@/components/ui/button";
+import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { getFullName } from "@/lib/helpers/getFullName";
-import { useRouter } from "next/navigation";
+import { submitResponse } from "@/server/actions/responses/submit-response";
+import { toast } from "sonner";
 
-interface EvaluationFormProps {
-  responseId: string;
-}
+const ZEvaluationFormSchema = z.object({
+  id: z.string().uuid({
+    message: "ERR: Response Id could not be located. Refresh the page.",
+  }),
+  duration: z.number(),
+  answers: z.array(
+    z
+      .object({
+        formItemId: z // maybe remove this field? it is unused in the submission data
+          .string()
+          .uuid({ message: "ERR: A Question Id could not be located." }),
+        type: z.enum(["WRITTEN", "MULTIPLE_CHOICE", "SINGLE_CHOICE", "RANGE"]),
+        optionIds: z.array(z.string().uuid()).optional(),
+        textValue: z.string().optional(),
+        isRequired: z.boolean(),
+      })
+      .refine(
+        (answer) => {
+          if (answer.isRequired) {
+            if (answer.type === "WRITTEN") {
+              return !!answer.textValue;
+            } else {
+              return (answer.optionIds?.length || 0) > 0;
+            }
+          }
+          return true;
+        },
+        {
+          message: "This question is required.",
+          path: ["value"],
+        },
+      )
+      .refine(
+        (answer) => {
+          if (answer.type === "SINGLE_CHOICE") {
+            return (answer.optionIds?.length || 0) <= 1;
+          }
+          return true;
+        },
+        {
+          message: "Please select only one option.",
+          path: ["value"],
+        },
+      )
+      .refine(
+        (answer) => {
+          if (answer.type === "WRITTEN") {
+            return !answer.optionIds || answer.optionIds.length === 0;
+          }
+          return true;
+        },
+        {
+          message: "Written questions should not have any selected options.",
+          path: ["value"],
+        },
+      ),
+  ),
+});
 
-export function EvaluationForm({ responseId }: EvaluationFormProps) {
+export type TEvaluationFormSchema = z.infer<typeof ZEvaluationFormSchema>;
+
+export function EvaluationForm({ responseId }: { responseId: string }) {
   const { data: evaluation } = useSuspenseQuery({
     queryKey: ["evaluation-form", responseId],
     queryFn: () => getEvaluationForm({ responseId }),
   });
 
-  const ZEvaluationFormSchema = z.object({
-    answers: z
-      .array(
-        z.object({
-          optionId: z.string().min(1, "An option must be selected"),
-          feedback: z.string().optional(),
-        }),
-      )
-      .refine(
-        (answers) => {
-          if (!evaluation) return false;
-          if (answers.length !== evaluation?.form.questions.length)
-            return false;
-          return answers.every(
-            (answer, index) =>
-              answer.optionId !== "" &&
-              (!evaluation?.form.questions[index].feedback || answer.feedback),
-          );
-        },
-        {
-          message:
-            "All questions must be answered and feedback provided where required",
-        },
-      ),
-    duration: z.number(),
-  });
+  /* Since we have formItems we want to ignore, such as HEADER, we need to
+   * remap over all of the items and then shift the array back.If we don't do
+   * this, hook form expects that the HEADER will have required fields and
+   * doesn't allow form submission.
+   */
+  const { indexMap, nonHeaderItems } = useMemo(() => {
+    const map = new Map<string, number>();
+    const nonHeaders = evaluation.form.formItems.filter(
+      (item) => item.type !== "HEADER",
+    );
+    nonHeaders.forEach((item, index) => {
+      map.set(item.id, index);
+    });
+    return { indexMap: map, nonHeaderItems: nonHeaders };
+  }, [evaluation.form.formItems]);
 
-  type TEvaluationForm = z.infer<typeof ZEvaluationFormSchema>;
-
-  const methods = useForm<TEvaluationForm>({
+  const methods = useForm<TEvaluationFormSchema>({
     resolver: zodResolver(ZEvaluationFormSchema),
     defaultValues: {
-      answers:
-        evaluation?.form.questions.map(() => ({
-          optionId: "",
-          feedback: "",
-        })) || [],
+      id: responseId,
       duration: 0,
+      answers: nonHeaderItems.map((i) => ({
+        type: i.type as "WRITTEN" | "SINGLE_CHOICE" | "MULTIPLE_CHOICE",
+        formItemId: i.id,
+        optionIds: [],
+        textValue: "",
+        isRequired: !!i.isRequired,
+      })),
     },
   });
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = methods;
+  const { mutate: submitMutate, isPending } = useMutation({
+    mutationFn: submitResponse,
+    onSuccess: (data) => {
+      if (!data.success) return toast.error("Oops! Something went wrong.");
+      // take the user to the response submitted page? allow another submission.
+      return toast.success("Evaluation submitted successfully.")
+    },
+    onError: () => {
+      return toast.error("Oops! Something went wrong.");
+    },
+  });
+
+  const onSubmit = async (data: TEvaluationFormSchema) => {
+    submitMutate(data);
+  };
 
   const getEvaluatee = () => {
     if (!evaluation || !evaluation) throw new Error("No form!");
@@ -81,112 +147,196 @@ export function EvaluationForm({ responseId }: EvaluationFormProps) {
     }
   };
 
-  const router = useRouter();
-
-  const submitMutation = useMutation({
-    mutationFn: (data: TEvaluationForm) =>
-      submitResponse({
-        id: responseId,
-        evaluatorId: "cf8b381f-1956-4c56-acf3-cf7517b20b92",
-        evaluateeId: getEvaluatee()?.id || "", // TODO FIXME
-        answers: data.answers,
-        duration: data.duration,
-      }),
-    onSuccess: () => {
-      toast.success("Response submitted successfully!");
-      router.push(`/evaluate`);
-      reset();
-    },
-    onError: () => {
-      toast.error("Oops! Something went wrong.");
-    },
-  });
-
-  useEffect(() => {
-    if (errors.answers) {
-      toast.error("Make sure all fields have been filled out.");
+  const getEvaluator = () => {
+    if (!evaluation || !evaluation) throw new Error("No form!");
+    if (evaluation.form.formCodes[0]) {
+      return evaluation.response.creator;
     }
-  }, [errors]);
-
-  const answers = useWatch({
-    control,
-    name: "answers",
-  });
-
-  const totalQuestions = answers.length;
-  const completedQuestions = answers.filter(
-    (answer) =>
-      answer.optionId &&
-      (!evaluation?.form.questions[answers.indexOf(answer)]?.feedback ||
-        answer.feedback),
-  ).length;
-
-  const onSubmit = (data: TEvaluationForm) => {
-    submitMutation.mutate(data);
   };
+
+  const errors = methods.formState.errors;
 
   return (
     <FormProvider {...methods}>
-      <div className="flex w-full flex-col">
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="flex w-full flex-col"
+      >
         <EvaluateNav
           formTitle={evaluation?.form.title || ""}
-          evaluatorName={"Austin Muelrath"}
-          evaluateeName={getFullName(getEvaluatee() || {})}
-          totalQuestions={totalQuestions}
-          completedQuestions={completedQuestions}
+          evaluatorName={getFullName(getEvaluator())}
+          evaluateeName={getFullName(getEvaluatee())}
         />
-        <div className="flex flex-grow justify-center">
-          <div className="no-scrollbar h-[93vh] w-full max-w-3xl overflow-y-scroll">
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="mx-auto space-y-4 p-4 pb-52"
-            >
-              {evaluation?.form.questions
-                .sort((a, b) => a.position - b.position)
-                .map((question, index) => (
-                  <div key={question.id}>
-                    <AnswerCard
-                      id={question.id}
-                      feedbackRequired={question.feedback}
-                      position={question.position}
-                      text={question.text}
-                      options={question.options}
-                      control={control}
-                      name={`answers.${index}.optionId`}
-                      feedbackName={`answers.${index}.feedback`}
-                    />
-                    <div className="flex w-full justify-center">
-                      {errors.answers?.[index]?.optionId && (
-                        <FormErrorMessage
-                          message={errors.answers[index].optionId?.message}
-                        />
-                      )}
-                      {errors.answers?.[index]?.feedback && (
-                        <FormErrorMessage
-                          message={errors.answers[index].feedback?.message}
-                        />
-                      )}
-                    </div>
-                  </div>
-                ))}
-              {errors.answers && (
-                <div className="col-span-5 col-start-3 mt-4 text-red-500">
-                  {errors.answers.message}
-                </div>
-              )}
-              <button
-                type="submit"
-                disabled={isSubmitting || submitMutation.isPending}
-                className="col-span-5 col-start-3 mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-gray-400"
-              >
-                {isSubmitting || submitMutation.isPending
-                  ? "Submitting..."
-                  : "Submit Evaluation"}
-              </button>
-            </form>
+        <div className="flex h-[84.5vh] flex-col items-center overflow-y-scroll pb-52 pt-4">
+          <div className="w-[45%] pr-[31px]">
+            {evaluation.form.formItems
+              .sort((a, b) => a.position - b.position)
+              .map((fi) => {
+                const answerIndex = indexMap.get(fi.id);
+
+                if (answerIndex === undefined) {
+                  return fi.type === "HEADER" ? (
+                    <Card
+                      key={fi.id}
+                      className="mb-4 border-t-[12px] border-t-primary/80"
+                    >
+                      <CardHeader>
+                        <CardTitle>{fi.text}</CardTitle>
+                        <CardDescription>{fi.description}</CardDescription>
+                      </CardHeader>
+                    </Card>
+                  ) : null;
+                }
+
+                // @ts-expect-error i have no idea but this works and 'isRequired' doesn't
+                const fieldError = errors.answers?.[answerIndex]?.value;
+
+                switch (fi.type) {
+                  case "SINGLE_CHOICE":
+                    return (
+                      <Card key={fi.id} className="mb-4">
+                        <CardHeader>
+                          <CardTitle className="text-lg font-medium">
+                            {fi.text}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <Controller
+                            name={`answers.${answerIndex}.optionIds` as const}
+                            control={methods.control}
+                            render={({ field }) => (
+                              <RadioGroup
+                                onValueChange={(value) =>
+                                  field.onChange([value])
+                                }
+                                value={field.value?.[0] || ""}
+                                className="flex flex-col"
+                              >
+                                {fi.options.map((o) => (
+                                  <div
+                                    key={o.id}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <RadioGroupItem
+                                      value={o.id}
+                                      id={o.id}
+                                      label={o.text || ""}
+                                    />
+                                  </div>
+                                ))}
+                              </RadioGroup>
+                            )}
+                          />
+                          <Controller
+                            name={`answers.${answerIndex}.textValue` as const}
+                            control={methods.control}
+                            render={({ field }) => (
+                              <AutosizeTextarea
+                                placeholder="Comments/Feedback (optional)"
+                                {...field}
+                              />
+                            )}
+                          />
+                          {fieldError && (
+                            <FormErrorMessage message={fieldError.message} />
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  case "MULTIPLE_CHOICE":
+                    return (
+                      <Card key={fi.id} className="mb-4">
+                        <CardHeader>
+                          <CardTitle className="text-lg font-medium">
+                            {fi.text}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          <Controller
+                            name={`answers.${answerIndex}.optionIds` as const}
+                            control={methods.control}
+                            render={({ field }) => (
+                              <div className="flex flex-col space-y-2">
+                                {fi.options.map((o) => (
+                                  <div
+                                    key={o.id}
+                                    className="flex items-center space-x-2"
+                                  >
+                                    <Checkbox
+                                      id={o.id}
+                                      checked={field.value?.includes(o.id)}
+                                      onCheckedChange={(checked) => {
+                                        const updatedValue = checked
+                                          ? [...(field.value || []), o.id]
+                                          : (field.value || []).filter(
+                                              (id) => id !== o.id,
+                                            );
+                                        field.onChange(updatedValue);
+                                      }}
+                                    />
+                                    <Label htmlFor={o.id}>{o.text}</Label>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          />
+                          <Controller
+                            name={`answers.${answerIndex}.textValue` as const}
+                            control={methods.control}
+                            render={({ field }) => (
+                              <AutosizeTextarea
+                                placeholder="Comments/Feedback (optional)"
+                                {...field}
+                              />
+                            )}
+                          />
+                          {fieldError && (
+                            <FormErrorMessage message={fieldError.message} />
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  case "WRITTEN":
+                    return (
+                      <Card key={fi.id} className="mb-4">
+                        <CardHeader>
+                          <CardTitle className="text-lg font-medium">
+                            {fi.text}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <Controller
+                            name={`answers.${answerIndex}.textValue` as const}
+                            control={methods.control}
+                            render={({ field }) => (
+                              <AutosizeTextarea
+                                placeholder="Written response."
+                                {...field}
+                              />
+                            )}
+                          />
+                          {fieldError && (
+                            <FormErrorMessage message={fieldError.message} />
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  default:
+                    throw new Error(
+                      `Question type '${fi.type}' is unsupported.`,
+                    );
+                }
+              })}
           </div>
+          <Button
+            type="submit"
+            className="mt-4 w-64"
+            disabled={isPending || methods.formState.isSubmitting}
+          >
+            Submit
+          </Button>
         </div>
-      </div>
+      </form>
     </FormProvider>
   );
 }
