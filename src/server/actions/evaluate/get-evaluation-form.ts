@@ -1,7 +1,7 @@
 "use server";
 import { db } from "@/db";
 import { responses } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { dateToSQLDate } from "@/lib/helpers/date-to-sql-date";
 import { isAfter, isBefore } from "date-fns";
 
@@ -15,6 +15,17 @@ export async function getEvaluationForm({
   const response = await db.query.responses.findFirst({
     where: eq(responses.id, responseId),
     with: {
+      // todo use session instead of this when we have auth done
+      creator: {
+        columns: {
+          id: true,
+          role: true,
+          email: true,
+          password: false,
+          firstName: true,
+          lastName: true,
+        },
+      },
       formCode: {
         with: {
           form: {
@@ -30,14 +41,12 @@ export async function getEvaluationForm({
       },
     },
   });
-  console.log("Query result:", response);
 
-  if (!response)
-    throw new Error("Form code not found, expired, or not yet valid");
+  if (!response) throw new Error("Form code not found");
 
   if (
     isBefore(now, response.formCode.startsAt) ||
-    !isAfter(now, response.formCode.expiresAt) ||
+    isAfter(now, response.formCode.expiresAt) ||
     response.formCode.canceledAt
   )
     throw new Error("Form code has expired or not yet valid");
@@ -85,18 +94,20 @@ export async function getEvaluationForm({
           },
         },
       },
-      questions: {
+      formItems: {
         columns: {
           id: true,
+          type: true,
+          description: true,
           position: true,
           text: true,
-          feedback: true,
+          isRequired: true,
         },
         with: {
           options: {
             columns: {
               id: true,
-              questionId: true,
+              formItemId: true,
               text: true,
               position: true,
             },

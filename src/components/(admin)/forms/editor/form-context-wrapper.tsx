@@ -15,29 +15,45 @@ export const FormContextWrapper = ({
     () => ({
       id: defaultValues.id,
       title: defaultValues.title,
-      questions: transform(defaultValues.questions),
+      formItems: transform(defaultValues.formItems),
     }),
     [defaultValues],
   );
 
+  // this instantiates the hook-form
   const { methods } = useFormBuilder(transformedDefaultValues);
 
   return <FormProvider {...methods}>{children}</FormProvider>;
 };
 
-const transform = (questions: FormResult["questions"]) => {
-  return questions.map(
-    ({ id, text, milestones, position, options, feedback }) => ({
+// for getting the formResult into hook-form readable format
+const transform = (formItems: FormResult["formItems"]) => {
+  return formItems.map(
+    ({
       id,
-      text: text || undefined,
-      milestoneIds: milestones.map((m) => m.milestoneId),
-      feedback,
+      text,
       position,
-      options: options.map(({ id, text, position, pointValue }) => ({
+      milestones,
+      type,
+      isRequired,
+      description,
+      options,
+      isScored,
+    }) => ({
+      id,
+      text: text || "", // for some reason null !== undefined. gotta love zod ts support
+      type,
+      isRequired: !!isRequired,
+      isScored,
+      description,
+      milestoneIds: milestones.map((m) => m.milestoneId),
+      position,
+      options: options.map(({ id, text, position, pointValue, isNa }) => ({
         id,
         text: text || undefined,
         position,
-        pointValue,
+        isNa,
+        pointValue: pointValue,
       })),
     }),
   );

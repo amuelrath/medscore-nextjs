@@ -1,57 +1,73 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
-import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion";
-import { QuestionCard } from "@/components/(admin)/forms/editor/question-card";
+import React, { useCallback, useRef, useState } from "react";
+import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { PlusCircleIcon } from "lucide-react";
-import { v4 } from "uuid";
-import { useScrollToQuestion } from "@/components/(admin)/forms/editor/hooks/use-scroll-to-question";
+import { TFormItemType } from "@/db/schema";
+import { FormItem } from "@/components/(admin)/forms/editor/form-item";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
+import { v4 } from "uuid";
 
 const DynamicMilestoneMenu = dynamic(
   () =>
-    import("@/components/(admin)/forms/editor/milestone-menu").then(
-      (mod) => mod.MilestoneMenu,
+    import("@/components/(admin)/forms/editor/question-details-menu").then(
+      (mod) => mod.QuestionDetailsMenu,
     ),
   { ssr: false, loading: () => <Loading /> },
 );
 
 export function FormBuilder() {
-  const [selectedQuestionId, setSelectedQuestionId] = useState<
-    string | undefined
-  >(undefined);
-  const { control, getValues, setValue } = useFormContext<TFormSchema>();
-
-  const { containerRef, questionRefs } = useScrollToQuestion({
-    selectedQuestionId,
-  });
-
+  const { control, getValues } = useFormContext<TFormSchema>();
+  const formAreaRef = useRef<HTMLDivElement>(null);
   const {
-    fields: questions,
-    append: addQuestion,
-    remove: removeQuestion,
+    fields: formItems,
+    append: addItem,
+    remove: removeItem,
+    insert: insertItem,
   } = useFieldArray({
     control,
-    name: "questions",
+    name: "formItems",
   });
 
-  const handleAddQuestion = useCallback(() => {
-    addQuestion({
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
+  const [lastSelectedItemIndex, setLastSelectedItemIndex] = useState<number | null>(null);
+
+  const handleAddQuestion = useCallback((type: TFormItemType) => {
+    const newItem = {
       id: v4(),
       options: [],
-      feedback: false,
       text: "",
-      position: questions.length + 1,
+      type,
+      isScored: type !== "HEADER" && type !== "WRITTEN",
+      isRequired: type !== "HEADER",
+      position: formItems.length + 1,
       milestoneIds: [],
-    });
-  }, [addQuestion, questions.length]);
+    };
 
-  const handleDuplicateQuestion = useCallback(
+    let newIndex: number;
+    if (lastSelectedItemIndex !== null) {
+      newIndex = lastSelectedItemIndex + 1;
+      insertItem(newIndex, newItem);
+    } else {
+      newIndex = formItems.length;
+      addItem(newItem);
+    }
+
+    setSelectedItemIndex(newIndex);
+    setLastSelectedItemIndex(newIndex);
+  }, [formItems, addItem, insertItem, lastSelectedItemIndex]);
+
+  const handleRemoveItem = useCallback((index: number) => {
+    removeItem(index);
+    setSelectedItemIndex(null);
+    setLastSelectedItemIndex(null);
+  }, [removeItem]);
+
+  const handleDuplicateItem = useCallback(
     (index: number) => {
-      const currentQuestions = getValues("questions");
+      const currentQuestions = getValues("formItems");
       const questionToDuplicate = currentQuestions[index];
       const newQuestion = {
         ...questionToDuplicate,
@@ -62,91 +78,87 @@ export function FormBuilder() {
           id: v4(),
         })),
       };
-      addQuestion(newQuestion);
+      const newIndex = index + 1;
+      insertItem(newIndex, newQuestion);
+      setSelectedItemIndex(newIndex);
+      setLastSelectedItemIndex(newIndex);
     },
-    [getValues, addQuestion],
+    [getValues, insertItem]
   );
 
-  const handleQuestionClick = useCallback((id: string) => {
-    setSelectedQuestionId((prevId) => (prevId === id ? undefined : id));
+  const handleSelectItem = useCallback((index: number) => {
+    setSelectedItemIndex(index);
+    setLastSelectedItemIndex(index);
   }, []);
 
-  const selectedQuestionIndex = questions.findIndex(
-    (q) => q.id === selectedQuestionId,
+  const handleDeselectItem = useCallback(() => {
+    setSelectedItemIndex(null);
+  }, []);
+
+  const handleFormAreaClick = useCallback(
+    (event: React.MouseEvent) => {
+      if (event.target === formAreaRef.current) {
+        handleDeselectItem();
+      }
+    },
+    [handleDeselectItem]
   );
 
-  // Effect to update form context when selected question changes
-  useEffect(() => {
-    if (selectedQuestionId) {
-      const selectedQuestion = questions.find(
-        (q) => q.id === selectedQuestionId,
-      );
-      if (selectedQuestion) {
-        setValue(
-          `questions.${selectedQuestionIndex}.milestoneIds`,
-          getValues(`questions.${selectedQuestionIndex}.milestoneIds`),
-        );
-      }
-    }
-  }, [
-    selectedQuestionId,
-    questions,
-    selectedQuestionIndex,
-    setValue,
-    getValues,
-  ]);
+  const getPosition = (index: number): number => {
+    return (
+      getValues(`formItems`)
+        .filter((_, itemIndex) => itemIndex < index)
+        .filter((item) => item.type !== "HEADER").length + 1
+    );
+  };
+
+  const isSelectedItemHeader = selectedItemIndex !== null && formItems[selectedItemIndex]?.type === "HEADER";
 
   return (
-    <main className="flex flex-row px-2 pl-4">
+    <main className="flex flex-row px-2">
       <LazyMotion features={domAnimation}>
         <DynamicMilestoneMenu
           control={control}
-          selectedQuestionIndex={selectedQuestionIndex}
-          open={!!selectedQuestionId}
-          onClose={() => setSelectedQuestionId(undefined)}
+          selectedQuestionIndex={selectedItemIndex !== null && !isSelectedItemHeader ? selectedItemIndex : -1}
+          open={selectedItemIndex !== null && !isSelectedItemHeader}
+          onClose={handleDeselectItem}
+          getPosition={getPosition}
         />
-        <div className="flex flex-grow justify-center">
-          <div
-            ref={containerRef}
-            className="no-scrollbar h-[87.3vh] w-full max-w-3xl overflow-y-scroll"
-          >
+        <div
+          ref={formAreaRef}
+          className="flex w-full flex-grow justify-center overflow-y-scroll"
+          onClick={handleFormAreaClick}
+        >
+          <div className="no-scrollbar h-[87.3vh] w-full max-w-2xl">
             <form
               onSubmit={(e) => e.preventDefault()}
-              className="mx-auto pb-52"
+              className="mx-auto px-4 pb-52"
             >
               <AnimatePresence>
-                {questions.map((q, index) => (
+                {formItems.map((item, index) => (
                   <m.div
-                    key={q.id}
+                    key={item.id}
                     layout
-                    // @ts-expect-error WATCH THIS MIGHT CAUSE ISSUES
-                    ref={(el) => (questionRefs.current[q.id] = el)}
-                    initial={{ opacity: 0, y: 50 }}
+                    layoutId={item.id}
+                    initial={{ opacity: 0, y: -5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -50 }}
-                    transition={{ duration: 0.3 }}
+                    className="my-4 mr-8"
                   >
-                    <QuestionCard
-                      index={index}
-                      question={q}
-                      removeQuestion={removeQuestion}
-                      duplicateQuestion={() => handleDuplicateQuestion(index)}
+                    <FormItem
+                      item={item}
                       control={control}
-                      selectQuestion={() => handleQuestionClick(q.id)}
-                      isSelected={selectedQuestionId === q.id}
+                      index={index}
+                      removeItem={() => handleRemoveItem(index)}
+                      duplicateItem={() => handleDuplicateItem(index)}
+                      isSelected={index === selectedItemIndex}
+                      showDock={index === lastSelectedItemIndex}
+                      selectItem={() => handleSelectItem(index)}
+                      deselectItem={handleDeselectItem}
+                      addQuestion={handleAddQuestion}
                     />
                   </m.div>
                 ))}
               </AnimatePresence>
-              <m.div layout className="mt-4 flex justify-center">
-                <m.div
-                  layoutId="add-question"
-                  className="cursor-pointer rounded-full p-1 transition-all hover:bg-primary hover:text-white"
-                  onClick={handleAddQuestion}
-                >
-                  <PlusCircleIcon />
-                </m.div>
-              </m.div>
             </form>
           </div>
         </div>

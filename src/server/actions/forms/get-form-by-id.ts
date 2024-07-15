@@ -51,8 +51,8 @@ export async function getFormById({
           },
         },
       },
-      questions: {
-        orderBy: (q, { asc }) => asc(q.position),
+      formItems: {
+        orderBy: (fi, { asc }) => asc(fi.position),
         with: {
           recommendedMilestone: true,
           options: true,

@@ -22,23 +22,25 @@ interface MilestoneMenuProps {
   open: boolean;
   control: Control<TFormSchema>;
   onClose: () => void;
+  getPosition: (index: number) => number;
 }
 
-export const MilestoneMenu: FC<MilestoneMenuProps> = ({
+export const QuestionDetailsMenu: FC<MilestoneMenuProps> = ({
   selectedQuestionIndex,
   control,
   onClose,
   open,
+  getPosition,
 }) => {
   return (
     <m.div
-      className="border-opacity-18 mt-4 h-[94%] rounded-xl border border-white bg-card shadow-lg ring-[2.8px] ring-accent"
+      className="border-opacity-18 fixed left-4 top-4 h-[85%] rounded-lg border border-neutral-300 bg-card shadow-lg"
       initial={{ width: 0, opacity: 0 }}
       animate={{
-        width: open ? "45%" : 0,
+        width: open ? "25%" : 0,
         opacity: open ? 1 : 0,
       }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
+      transition={{ duration: 0.15, ease: "easeInOut" }}
     >
       {selectedQuestionIndex !== -1 && (
         <div className="px-4">
@@ -47,7 +49,7 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
               <LetterPullup
                 delay={0.005}
                 key={selectedQuestionIndex}
-                words={`Question ${selectedQuestionIndex + 1}`}
+                words={`Question ${getPosition(selectedQuestionIndex)}`}
               />
               <Button
                 onClick={onClose}
@@ -58,14 +60,17 @@ export const MilestoneMenu: FC<MilestoneMenuProps> = ({
                 Close
               </Button>
             </div>
-            <TabsList>
-              <TabsTrigger value="milestones">Milestones</TabsTrigger>
-              <TabsTrigger value="suggested">Suggested</TabsTrigger>
-            </TabsList>
+            <div className="mb-2 flex justify-center">
+              <TabsList>
+                <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                <TabsTrigger value="suggested">Suggested</TabsTrigger>
+              </TabsList>
+            </div>
+            <hr />
             <TabsContent value="milestones">
               <DynamicInlineMilestoneMultiselect
                 control={control}
-                name={`questions.${selectedQuestionIndex}.milestoneIds`}
+                name={`formItems.${selectedQuestionIndex}.milestoneIds`}
               />
             </TabsContent>
             <TabsContent value="suggested">

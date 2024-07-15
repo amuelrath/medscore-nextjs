@@ -10,6 +10,7 @@ interface FormLayoutProps {
   responses: ReactNode;
 }
 
+// separates the tabs and tabs content
 export const FormLayout: FC<FormLayoutProps> = ({ editor, responses }) => {
   const tabs = [
     { id: 0, label: "Editor", content: editor },

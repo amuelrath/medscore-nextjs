@@ -18,8 +18,24 @@ import {
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
 import { pgMaterializedView } from "drizzle-orm/pg-core/view";
+import { z } from "zod";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
+export const formItemTypeEnum = pgEnum("form_item_type", [
+  "RANGE",
+  "MULTIPLE_CHOICE",
+  "SINGLE_CHOICE",
+  "HEADER",
+  "WRITTEN",
+]);
+export const ZFormEnum = z.enum([
+  "RANGE",
+  "MULTIPLE_CHOICE",
+  "SINGLE_CHOICE",
+  "HEADER",
+  "WRITTEN",
+]);
+export type TFormItemType = z.infer<typeof ZFormEnum>;
 
 export const behaviors = pgTable("behaviors", {
   id: uuid("id")
@@ -30,15 +46,16 @@ export const behaviors = pgTable("behaviors", {
     .notNull()
     .references(() => subcompetencies.id),
 });
-export const Behvaior = typeof behaviors.$inferSelect;
-export const behvaiorRelations = relations(behaviors, ({ one }) => ({
+
+// TODO remove at some point
+export const Behavior = typeof behaviors.$inferSelect;
+export const behaviorRelations = relations(behaviors, ({ one }) => ({
   subcompetency: one(subcompetencies, {
     fields: [behaviors.subcompetencyId],
     references: [subcompetencies.id],
   }),
 }));
 
-// MARK: Competencies
 export const competencies = pgTable("competencies", {
   id: uuid("id")
     .primaryKey()
@@ -50,7 +67,6 @@ export const competencyRelations = relations(competencies, ({ many }) => ({
   subcompetencies: many(subcompetencies),
 }));
 
-// MARK: Subcompetencies
 export const subcompetencies = pgTable("subcompetencies", {
   id: uuid("id")
     .primaryKey()
@@ -81,7 +97,6 @@ export const subcompetencyRelations = relations(
   }),
 );
 
-// MARK: Milestones
 export const milestones = pgTable("milestones", {
   id: uuid("id")
     .primaryKey()
@@ -101,10 +116,9 @@ export const milestoneRelations = relations(milestones, ({ one, many }) => ({
     fields: [milestones.subcompetencyId],
     references: [subcompetencies.id],
   }),
-  questions: many(milestonesOnQuestions),
+  questions: many(milestonesOnFormItems),
 }));
 
-// MARK: Specialties
 export const specialties = pgTable("specialties", {
   id: uuid("id")
     .primaryKey()
@@ -116,7 +130,6 @@ export const specialtyRelations = relations(specialties, ({ many }) => ({
   subcompetencies: many(subcompetencies),
 }));
 
-// MARK: Programs
 export const programs = pgTable("programs", {
   id: uuid("id")
     .primaryKey()
@@ -138,7 +151,6 @@ export const programRelations = relations(programs, ({ one, many }) => ({
   forms: many(forms),
 }));
 
-// MARK: Users
 export const users = pgTable("users", {
   id: uuid("id")
     .primaryKey()
@@ -156,7 +168,6 @@ export const userRelations = relations(users, ({ many }) => ({
   forms: many(forms),
 }));
 
-// MARK: Users On Programs
 export const usersOnPrograms = pgTable("users_on_programs", {
   userId: uuid("user_id")
     .notNull()
@@ -201,7 +212,6 @@ export const formTagRelations = relations(formTags, ({ one }) => ({
   }),
 }));
 
-// MARK: Forms
 export const forms = pgTable("forms", {
   id: uuid("id")
     .notNull()
@@ -225,33 +235,35 @@ export const formRelations = relations(forms, ({ one, many }) => ({
     fields: [forms.creatorId],
     references: [users.id],
   }),
-  questions: many(questions),
+  formItems: many(formItems),
   tags: many(formTags),
   formCodes: many(formCodes),
 }));
 
-// MARK: Questions
-export const questions = pgTable("questions", {
+export const formItems = pgTable("form_items", {
   id: uuid("id")
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  feedback: boolean("feedback").notNull().default(false),
-  position: integer("position").notNull(),
   formId: uuid("form_id")
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
+  text: text("text"),
+  description: text("description"),
+  type: formItemTypeEnum("type").notNull(),
+  position: integer("position").notNull(),
+  isRequired: boolean("is_required").default(true),
+  isScored: boolean("is_scored").notNull().default(true),
 });
-export type Question = typeof questions.$inferSelect;
-export type NewQuestion = typeof questions.$inferInsert;
-export const questionRelations = relations(questions, ({ one, many }) => ({
+export type FormItem = typeof formItems.$inferSelect;
+export type NewFormItem = typeof formItems.$inferInsert;
+export const formItemRelations = relations(formItems, ({ one, many }) => ({
   form: one(forms, {
-    fields: [questions.formId],
+    fields: [formItems.formId],
     references: [forms.id],
   }),
   options: many(options),
-  milestones: many(milestonesOnQuestions),
+  milestones: many(milestonesOnFormItems),
   recommendedMilestone: one(recommendedMilestones),
 }));
 
@@ -263,30 +275,29 @@ export const options = pgTable("options", {
     .default(sql`gen_random_uuid()`),
   text: text("text"),
   position: integer("position").notNull(),
-  pointValue: decimal("point_value", { precision: 10, scale: 2 })
-    .default("0.0")
-    .notNull(),
-  questionId: uuid("question_id")
+  pointValue: decimal("point_value", { precision: 10, scale: 2 }),
+  isNa: boolean("is_na").notNull().default(false),
+  formItemId: uuid("form_item_id")
     .notNull()
-    .references((): AnyPgColumn => questions.id, { onDelete: "cascade" }),
+    .references((): AnyPgColumn => formItems.id, { onDelete: "cascade" }),
 });
 export type Option = typeof options.$inferSelect;
 export type NewOption = typeof options.$inferInsert;
 export const optionRelations = relations(options, ({ one, many }) => ({
-  question: one(questions, {
-    fields: [options.questionId],
-    references: [questions.id],
+  formItem: one(formItems, {
+    fields: [options.formItemId],
+    references: [formItems.id],
   }),
   answers: many(answers),
 }));
 
 // MARK:  Milestones On Questions
-export const milestonesOnQuestions = pgTable(
-  "milestones_on_questions",
+export const milestonesOnFormItems = pgTable(
+  "milestones_on_form_items",
   {
-    questionId: uuid("question_id")
+    formItemId: uuid("form_item_id")
       .notNull()
-      .references((): AnyPgColumn => questions.id, { onDelete: "cascade" }),
+      .references((): AnyPgColumn => formItems.id, { onDelete: "cascade" }),
     milestoneId: uuid("milestone_id")
       .notNull()
       .references((): AnyPgColumn => milestones.id),
@@ -294,32 +305,31 @@ export const milestonesOnQuestions = pgTable(
   (table) => {
     return {
       id: primaryKey({
-        columns: [table.questionId, table.milestoneId],
+        columns: [table.formItemId, table.milestoneId],
       }),
       question: foreignKey({
-        columns: [table.questionId],
-        foreignColumns: [questions.id],
+        columns: [table.formItemId],
+        foreignColumns: [formItems.id],
       }),
     };
   },
 );
-export type MilestonesOnQuestion = typeof milestonesOnQuestions.$inferSelect;
-export type NewMilestoneOnQuestion = typeof milestonesOnQuestions.$inferInsert;
-export const milestonesOnQuestionsRelations = relations(
-  milestonesOnQuestions,
+export type MilestonesOnFormItem = typeof milestonesOnFormItems.$inferSelect;
+export type NewMilestoneOnFormItem = typeof milestonesOnFormItems.$inferInsert;
+export const milestonesOnFormItemRelations = relations(
+  milestonesOnFormItems,
   ({ one }) => ({
     milestone: one(milestones, {
-      fields: [milestonesOnQuestions.milestoneId],
+      fields: [milestonesOnFormItems.milestoneId],
       references: [milestones.id],
     }),
-    question: one(questions, {
-      fields: [milestonesOnQuestions.questionId],
-      references: [questions.id],
+    formItem: one(formItems, {
+      fields: [milestonesOnFormItems.formItemId],
+      references: [formItems.id],
     }),
   }),
 );
 
-// MARK: Responses
 export const responses = pgTable("responses", {
   id: uuid("id")
     .primaryKey()
@@ -330,8 +340,9 @@ export const responses = pgTable("responses", {
   creatorId: uuid("creator_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  evaluateeId: uuid("evaluatee_id")
-    .references(() => users.id, { onDelete: "cascade" }),
+  evaluateeId: uuid("evaluatee_id").references(() => users.id, {
+    onDelete: "cascade",
+  }),
   duration: integer("duration"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -353,7 +364,6 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
   }),
 }));
 
-// MARK: Answers
 export const answers = pgTable("answers", {
   id: uuid("id")
     .primaryKey()
@@ -364,12 +374,11 @@ export const answers = pgTable("answers", {
   responseId: uuid("response_id")
     .notNull()
     .references(() => responses.id, { onDelete: "cascade" }),
-  feedback: text("feedback"),
-  createdAt: timestamp("created_at"),
+  textValue: text("text_value"),
 });
 export type Answer = DateToString<typeof answers.$inferSelect>;
 export type NewAnswer = typeof answers.$inferInsert;
-export const answerRelations = relations(answers, ({ one, many }) => ({
+export const answerRelations = relations(answers, ({ one }) => ({
   option: one(options, {
     fields: [answers.optionId],
     references: [options.id],
@@ -380,7 +389,6 @@ export const answerRelations = relations(answers, ({ one, many }) => ({
   }),
 }));
 
-// MARK: Form Codes
 export const formCodes = pgTable("form_codes", {
   id: uuid("id")
     .primaryKey()
@@ -409,7 +417,6 @@ export const formCodeRelations = relations(formCodes, ({ one, many }) => ({
   responses: many(responses),
 }));
 
-// MARK: Form Codes on Users
 export const formCodesOnUsers = pgTable(
   "form_codes_on_users",
   {
@@ -449,9 +456,9 @@ export const recommendedMilestones = pgTable("recommended_milestones", {
   id: uuid(`id`)
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  questionId: uuid("question_id")
+  formItemId: uuid("form_item_id")
     .notNull()
-    .references(() => questions.id, { onDelete: "cascade" }),
+    .references(() => formItems.id, { onDelete: "cascade" }),
   milestoneId: uuid("milestone_id")
     .notNull()
     .references(() => milestones.id),
@@ -464,9 +471,9 @@ export type NewRecommendedMilestone = typeof recommendedMilestones.$inferInsert;
 export const recommendedMilestoneRelations = relations(
   recommendedMilestones,
   ({ one }) => ({
-    question: one(questions, {
-      fields: [recommendedMilestones.questionId],
-      references: [questions.id],
+    formItem: one(formItems, {
+      fields: [recommendedMilestones.formItemId],
+      references: [formItems.id],
     }),
     milestones: one(milestones, {
       fields: [recommendedMilestones.milestoneId],
@@ -475,26 +482,4 @@ export const recommendedMilestoneRelations = relations(
   }),
 );
 
-// todo add duration
-export const responsesView = pgMaterializedView("responses_view", {
-  formId: uuid("form_id").notNull(),
-  formCodeId: uuid("form_code_id").notNull(),
-  formCodeCreatedAt: timestamp("form_code_created_at").notNull(),
-  responseCreatedAt: timestamp("response_created_at").notNull(),
-  responseId: uuid("response_id").notNull(),
-  evaluatorId: uuid("evaluator_id").notNull(),
-  evaluatorFullName: text("evaluator_full_name").notNull(),
-  evaluateeId: uuid("evaluatee_id").notNull(),
-  evaluateeFullName: text("evaluatee_full_name").notNull(),
-  questionId: uuid("question_id").notNull(),
-  selectedOptionId: uuid("selected_option_id").notNull(),
-  evaluatorFeedback: text("evaluator_feedback"),
-  milestoneId: uuid("milestone_id"),
-  milestoneDescription: text("milestone_description"),
-  subcompetencyId: uuid("subcompetency_id"),
-  subcompetencyName: text("subcompetency_name"),
-  competencyId: uuid("competency_id"),
-  competencyName: text("competency_name"),
-  pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
-  pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
-}).existing();
+// todo update materialized view for response info
