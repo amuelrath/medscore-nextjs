@@ -2,7 +2,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 
-export function useFormResult(formId: string) {
+export function useFormResultSuspenseQuery(formId: string) {
   const { data: formResult } = useSuspenseQuery({
     queryKey: ["form", formId],
     queryFn: () =>
