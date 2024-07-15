@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { forms, questions, options, milestonesOnQuestions } from "@/db/schema";
+import { forms, formItems, options, milestonesOnFormItems } from "@/db/schema";
 import { and, eq, ExtractTablesWithRelations, inArray } from "drizzle-orm";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { PgTransaction } from "drizzle-orm/pg-core";
@@ -17,15 +17,14 @@ type Transaction = PgTransaction<
 export async function autosaveForm(formData: TFormSchema) {
   return db.transaction(async (tx) => {
     // Update form title
-    const now = new Date()
     await tx
       .update(forms)
-      .set({ title: formData.title})
+      .set({ title: formData.title })
       .where(eq(forms.id, formData.id));
 
-    // Get existing questions
-    const existingQuestions = await tx.query.questions.findMany({
-      where: eq(questions.formId, formData.id),
+    // Get existing formItems
+    const existingQuestions = await tx.query.formItems.findMany({
+      where: eq(formItems.formId, formData.id),
       with: {
         options: true,
         milestones: true,
@@ -33,18 +32,18 @@ export async function autosaveForm(formData: TFormSchema) {
     });
 
     // Create a set of current question IDs for faster lookup
-    const currentQuestionIds = new Set(formData.questions.map((q) => q.id));
+    const currentQuestionIds = new Set(formData.formItems.map((q) => q.id));
 
-    // Delete questions that no longer exist
+    // Delete formItems that no longer exist
     for (const existingQuestion of existingQuestions) {
       if (!currentQuestionIds.has(existingQuestion.id)) {
-        await tx.delete(questions).where(eq(questions.id, existingQuestion.id));
+        await tx.delete(formItems).where(eq(formItems.id, existingQuestion.id));
       }
     }
 
-    // Update or insert questions
-    for (let i = 0; i < formData.questions.length; i++) {
-      const questionData = formData.questions[i];
+    // Update or insert formItems
+    for (let i = 0; i < formData.formItems.length; i++) {
+      const questionData = formData.formItems[i];
       const existingQuestion = existingQuestions.find(
         (q) => q.id === questionData.id,
       );
@@ -52,18 +51,24 @@ export async function autosaveForm(formData: TFormSchema) {
       if (existingQuestion) {
         // Update existing question
         await tx
-          .update(questions)
+          .update(formItems)
           .set({
             text: questionData.text,
+            type: questionData.type,
             position: i + 1, // Update position based on array index
-            feedback: questionData.feedback,
+            description: questionData.description,
+            isRequired:
+              questionData.type !== "HEADER" ? questionData.isRequired : false,
+            isScored:
+              questionData.type !== "HEADER" ? questionData.isScored : false,
           })
-          .where(eq(questions.id, questionData.id));
+          .where(eq(formItems.id, questionData.id));
 
         // Handle options
         await handleOptions(
           tx,
           questionData.id,
+          questionData.isScored,
           questionData.options,
           existingQuestion.options,
         );
@@ -78,18 +83,23 @@ export async function autosaveForm(formData: TFormSchema) {
       } else {
         // Insert new question
         const [newQuestion] = await tx
-          .insert(questions)
+          .insert(formItems)
           .values({
             id: questionData.id,
             formId: formData.id,
+            type: questionData.type,
             text: questionData.text,
+            description: questionData.description,
             position: i + 1, // Set position based on array index
-            feedback: questionData.feedback,
+            isRequired:
+              questionData.type !== "HEADER" ? questionData.isRequired : false,
+            isScored:
+              questionData.type !== "HEADER" ? questionData.isScored : false,
           })
           .returning();
 
         // Insert new options
-        await handleOptions(tx, newQuestion.id, questionData.options, []);
+        await handleOptions(tx, newQuestion.id, newQuestion.isScored, questionData.options, []);
 
         // Insert new milestones
         await handleMilestones(
@@ -106,7 +116,8 @@ export async function autosaveForm(formData: TFormSchema) {
 async function handleOptions(
   tx: Transaction,
   questionId: string,
-  newOptions: TFormSchema["questions"][0]["options"],
+  isScored: boolean,
+  newOptions: TFormSchema["formItems"][0]["options"],
   existingOptions: (typeof options.$inferSelect)[],
 ) {
   const newOptionIds = new Set(newOptions.map((o) => o.id));
@@ -128,17 +139,18 @@ async function handleOptions(
         .set({
           text: newOption.text,
           position: newOption.position,
-          pointValue: newOption.pointValue,
+          pointValue: isScored ? newOption.pointValue : null,
         })
         .where(eq(options.id, newOption.id));
     } else {
       // Insert new option
       await tx.insert(options).values({
         id: newOption.id,
-        questionId,
+        formItemId: questionId,
         text: newOption.text,
+        isNa: newOption.isNa,
         position: newOption.position,
-        pointValue: newOption.pointValue,
+        pointValue: isScored ? newOption.pointValue : null,
       });
     }
   }
@@ -146,7 +158,7 @@ async function handleOptions(
 
 async function handleMilestones(
   tx: Transaction,
-  questionId: string,
+  formItemId: string,
   newMilestoneIds: string[] | undefined,
   existingMilestones: { milestoneId: string }[],
 ) {
@@ -156,6 +168,7 @@ async function handleMilestones(
     : [];
 
   const existingMilestoneIds = existingMilestones.map((m) => m.milestoneId);
+
   const milestonesToAdd = milestoneIdsArray.filter(
     (id) => !existingMilestoneIds.includes(id),
   );
@@ -165,19 +178,19 @@ async function handleMilestones(
 
   if (milestonesToAdd.length > 0) {
     await tx
-      .insert(milestonesOnQuestions)
+      .insert(milestonesOnFormItems)
       .values(
-        milestonesToAdd.map((milestoneId) => ({ questionId, milestoneId })),
+        milestonesToAdd.map((milestoneId) => ({ formItemId, milestoneId })),
       );
   }
 
   if (milestonesToRemove.length > 0) {
     await tx
-      .delete(milestonesOnQuestions)
+      .delete(milestonesOnFormItems)
       .where(
         and(
-          eq(milestonesOnQuestions.questionId, questionId),
-          inArray(milestonesOnQuestions.milestoneId, milestonesToRemove),
+          eq(milestonesOnFormItems.formItemId, formItemId),
+          inArray(milestonesOnFormItems.milestoneId, milestonesToRemove),
         ),
       );
   }
