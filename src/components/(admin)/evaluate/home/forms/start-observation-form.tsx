@@ -24,7 +24,7 @@ import { DialogClose } from "@radix-ui/react-dialog";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { startDirectObservation } from "@/server/actions/evaluate/start-direct-observation";
-import { useFormResult } from "@/hooks/queries/use-form-result";
+import { useFormResultSuspenseQuery } from "@/hooks/queries/use-form-result-suspense-query";
 
 const ZStartObservationSchema = z.object({
   evaluateeId: z.string().min(1, { message: "Select an evaluatee." }),
@@ -46,7 +46,7 @@ export function InEditorForm({ formId }: { formId: string }) {
   const queryClient = useQueryClient();
 
   // get form's data
-  const { formResult } = useFormResult(formId);
+  const { formResult } = useFormResultSuspenseQuery(formId);
 
   // initialize a hook form
   const {

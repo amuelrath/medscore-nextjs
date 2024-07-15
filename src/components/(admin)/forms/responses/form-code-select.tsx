@@ -18,7 +18,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/helpers/utils";
 import { isBefore } from "date-fns";
-import { useFormResult } from "@/hooks/queries/use-form-result";
+import { useFormResultSuspenseQuery } from "@/hooks/queries/use-form-result-suspense-query";
 
 function FormCodeSelect({ formId }: { formId: string }) {
   const [open, setOpen] = React.useState(false);
@@ -26,7 +26,7 @@ function FormCodeSelect({ formId }: { formId: string }) {
     selectedFormCodeIdAtom,
   );
 
-  const { formResult } = useFormResult(formId);
+  const { formResult } = useFormResultSuspenseQuery(formId);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

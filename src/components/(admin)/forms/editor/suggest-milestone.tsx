@@ -20,7 +20,7 @@ import { LazyMotion, m, domAnimation } from "framer-motion";
 import { addTrainingData } from "@/server/actions/ml/add-training-data";
 import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
 import { toast } from "sonner";
-import { useFormResult } from "@/hooks/queries/use-form-result";
+import { useFormResultSuspenseQuery } from "@/hooks/queries/use-form-result-suspense-query";
 
 export function SuggestMilestone({
   selectedQuestionIndex,
@@ -32,7 +32,7 @@ export function SuggestMilestone({
   const formId = getValues(`id`);
 
   const queryClient = useQueryClient();
-  const { formResult } = useFormResult(formId)
+  const { formResult } = useFormResultSuspenseQuery(formId)
 
   const { data: subcompetencies } = useSuspenseQuery({
     queryKey: ["subcompetencies", formId],
@@ -43,12 +43,12 @@ export function SuggestMilestone({
     mutationFn: () =>
       pickBestMilestone({
         formTitle: getValues(`title`),
-        questionId: getValues(`questions.${selectedQuestionIndex}.id`),
+        formItemId: getValues(`formItems.${selectedQuestionIndex}.id`),
       }),
     onSuccess: (newRecommendation) => {
       queryClient.setQueryData(["form", formId], (oldData: any) => {
         const updatedQuestions = oldData.questions.map((q: any) =>
-          q.id === getValues(`questions.${selectedQuestionIndex}.id`)
+          q.id === getValues(`formItems.${selectedQuestionIndex}.id`)
             ? { ...q, recommendedMilestone: newRecommendation[0] }
             : q,
         );
@@ -65,11 +65,11 @@ export function SuggestMilestone({
         transition={{ duration: 0.3 }}
       >
         <Controller
-          name={`questions.${selectedQuestionIndex}.milestoneIds`}
+          name={`formItems.${selectedQuestionIndex}.milestoneIds`}
           control={control}
           render={({ field }) => {
             const recData =
-              formResult?.questions[selectedQuestionIndex]?.recommendedMilestone;
+              formResult?.formItems[selectedQuestionIndex]?.recommendedMilestone;
             const recommendedMilestone = subcompetencies
               .flatMap((sc) => sc.milestones)
               .find((m) => m.id === recData?.milestoneId);
@@ -89,7 +89,7 @@ export function SuggestMilestone({
 
             return (
               <div >
-                <div className="relative flex h-36 pb-2  flex-col justify-center rounded-xl border border-accent-secondary bg-accent-secondary-background p-2 text-center">
+                <div className="relative flex h-44 pb-2  flex-col justify-center rounded-xl border border-accent-secondary bg-accent-secondary-background p-2 text-center">
                   <p className="text-2xl font-bold tracking-wider text-teal-950">
                     {recommendedMilestone?.name || (
                       <p className="text-xl font-semibold tracking-normal">
@@ -123,7 +123,7 @@ export function SuggestMilestone({
                     onMouseEnter={() => setHovering(true)}
                     onMouseLeave={() => setHovering(false)}
                     className={cn(
-                      "flex items-center h-7 rounded-lg text-xs transition-all justify-center space-x-2 border border-accent-secondary px-4 py-2 text-white hover:bg-accent-secondary disabled:opacity-100",
+                      "flex items-center h-7 rounded-lg text-2xs transition-all justify-center space-x-2 border border-accent-secondary px-4 py-2 text-white hover:bg-accent-secondary disabled:opacity-100",
                     )}
                   >
                     {isPending ? (
@@ -205,7 +205,7 @@ function FeedbackButtonGroup({
       queryClient.setQueryData<FormResult>(["form", formId], (oldData) => {
         if (!oldData) return oldData;
 
-        const updatedQuestions = oldData.questions.map((question) => ({
+        const updatedQuestions = oldData.formItems.map((question) => ({
           ...question,
           recommendedMilestone:
             question.recommendedMilestone?.id === recommendationId
