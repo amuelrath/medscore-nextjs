@@ -1,42 +1,18 @@
-import React from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { Control, Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import {
-  CheckCheckIcon,
-  CheckIcon,
-  CopyIcon,
-  HeadingIcon,
-  NotebookPenIcon,
-  TrashIcon,
-  WrenchIcon,
-} from "lucide-react";
+import { CopyIcon, MilestoneIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, m } from "framer-motion";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { TFormItemType } from "@/db/schema";
 import { SimpleTooltip } from "@/components/ui/simple-tooltip";
-
-interface FormItemWrapperProps {
-  item: TFormSchema["formItems"][number];
-  control: Control<TFormSchema>;
-  index: number;
-  removeItem: () => void;
-  duplicateItem: () => void;
-  isSelected: boolean;
-  selectItem: () => void;
-  deselectItem: () => void;
-}
+import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item-dock";
+import { FormItemSettingsPopover } from "@/components/(admin)/forms/editor/form-item-settings-popover";
 
 const placeholders = {
   HEADER: "Header",
@@ -60,10 +36,10 @@ interface FormItemWrapperProps {
   index: number;
   removeItem: () => void;
   duplicateItem: () => void;
-  showDock: boolean;
   isSelected: boolean;
-  selectItem: () => void;
-  addQuestion: (type: TFormItemType) => void;
+  selectItem: (index: number, top: number, height: number) => void;
+  deselectItem: () => void;
+  toggleMilestoneDialog: () => void;
 }
 
 export function FormItem({
@@ -71,15 +47,34 @@ export function FormItem({
   index,
   control,
   isSelected,
-  showDock,
   selectItem,
   removeItem,
   duplicateItem,
-  addQuestion,
+  toggleMilestoneDialog,
 }: FormItemWrapperProps) {
+  const itemRef = useRef<HTMLDivElement>(null);
+
+  const updatePosition = useCallback(() => {
+    if (itemRef.current) {
+      const { offsetTop, offsetHeight } = itemRef.current;
+      selectItem(index, offsetTop, offsetHeight);
+    }
+  }, [index, selectItem]);
+
+  useEffect(() => {
+    if (isSelected) {
+      // Delay the position update slightly to ensure layout has settled
+      const timeoutId = setTimeout(() => {
+        requestAnimationFrame(updatePosition);
+      }, 100); // since the 100ms transition of border-t is causing the height to change
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isSelected, updatePosition]);
+
   const handleFocus = () => {
-    selectItem();
+    updatePosition();
   };
+
 
   const getContent = () => {
     const ContentComponent = content[item.type];
@@ -94,7 +89,7 @@ export function FormItem({
   };
 
   return (
-    <div className="relative">
+    <div ref={itemRef} className="relative mb-4">
       <Card
         onClick={handleFocus}
         className={cn(
@@ -107,7 +102,7 @@ export function FormItem({
       >
         <CardHeader className="flex flex-row items-start">
           <div
-            className="flex-grow transition-all duration-300 ease-in-out"
+            className="flex-grow"
             style={{
               width:
                 isSelected && item.type !== "HEADER"
@@ -139,7 +134,7 @@ export function FormItem({
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.1 }}
-                className="ml-2 flex flex-row items-center overflow-hidden"
+                className="ml-2 flex flex-row items-center overflow-hidden pr-1"
               >
                 {item.type !== "HEADER" && (
                   <FormItemSettingsPopover
@@ -153,20 +148,19 @@ export function FormItem({
                   delay={200}
                   contentClassName=" w-[60px] "
                 >
-
-                <Button
-                  size="xs"
-                  variant="hide"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    duplicateItem();
-                  }}
-                >
-                  <CopyIcon
-                    className="text-neutral-500 hover:text-neutral-500/80"
-                    size={16}
-                  />
-                </Button>
+                  <Button
+                    size="xs"
+                    variant="hide"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateItem();
+                    }}
+                  >
+                    <CopyIcon
+                      className="text-neutral-500 hover:text-neutral-500/80"
+                      size={16}
+                    />
+                  </Button>
                 </SimpleTooltip>
                 <SimpleTooltip
                   description={"Delete"}
@@ -196,159 +190,16 @@ export function FormItem({
           {item.type !== "HEADER" && (
             <div className="mt-2 flex select-none flex-row items-center justify-end">
               <MilestoneBadges questionIndex={index} />
+              <MilestoneIcon
+                size={16}
+                onClick={toggleMilestoneDialog}
+                className="ml-2 cursor-pointer text-neutral-500 transition-colors hover:text-accent-secondary"
+              />
             </div>
           )}
         </CardContent>
       </Card>
-      <AnimatePresence>
-        {showDock && (
-          <m.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-full top-0 ml-4"
-          >
-            <AddFormItemDock addQuestion={addQuestion} />
-          </m.div>
-        )}
-      </AnimatePresence>
     </div>
-  );
-}
-
-function AddFormItemDock({
-  addQuestion,
-}: {
-  addQuestion: (type: TFormItemType) => void;
-}) {
-  return (
-    <m.div
-      layout="position"
-      layoutId="dock"
-      className="flex flex-col items-center space-y-2 rounded-lg border border-neutral-300 bg-card p-4 drop-shadow-xl"
-    >
-      <SimpleTooltip
-        description={"Single-choice"}
-        delay={0}
-        contentClassName="absolute -top-2 left-11 w-[112px] "
-      >
-        <Button
-          variant="ghost"
-          size="xs"
-          onClick={() => addQuestion("SINGLE_CHOICE")}
-        >
-          <CheckIcon size={16} />
-        </Button>
-      </SimpleTooltip>
-
-      <SimpleTooltip
-        description={"Multiple-choice"}
-        delay={0}
-        contentClassName="absolute -top-2 left-11 w-[120px] "
-      >
-        <Button
-          variant="ghost"
-          size="xs"
-          onClick={() => addQuestion("MULTIPLE_CHOICE")}
-        >
-          <CheckCheckIcon size={16} />
-        </Button>
-      </SimpleTooltip>
-      <SimpleTooltip
-        description={"Written"}
-        delay={0}
-        contentClassName="absolute -top-2 left-11 w-[70px] "
-      >
-        <Button
-          variant="ghost"
-          size="xs"
-          onClick={() => addQuestion("WRITTEN")}
-        >
-          <NotebookPenIcon size={16} />
-        </Button>
-      </SimpleTooltip>
-      <SimpleTooltip
-        description={"Heading"}
-        delay={0}
-        contentClassName="absolute -top-2 left-11 w-[80px] "
-      >
-        <Button variant="ghost" size="xs" onClick={() => addQuestion("HEADER")}>
-          <HeadingIcon size={16} />
-        </Button>
-      </SimpleTooltip>
-    </m.div>
-  );
-}
-interface FormItemSettingsPopoverProps {
-  index: number;
-  type: TFormItemType;
-  control: Control<TFormSchema>;
-}
-
-function FormItemSettingsPopover({
-  index,
-  control,
-  type,
-}: FormItemSettingsPopoverProps) {
-  return (
-    <Popover>
-      <SimpleTooltip
-        description={"Settings"}
-        delay={200}
-        contentClassName=" w-[75px] "
-      >
-      <PopoverTrigger asChild>
-        <Button variant="hide" size="xs">
-          <WrenchIcon size={16} className="text-neutral-500" />
-        </Button>
-      </PopoverTrigger>
-      </SimpleTooltip>
-      <PopoverContent className={cn("flex max-w-32 flex-col space-y-2")}>
-        <div className="flex flex-row items-center space-x-2">
-          <Controller
-            name={`formItems.${index}.isRequired`}
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <Switch
-                id={`formItems.${index}.isRequired`}
-                size="xs"
-                checked={value}
-                onCheckedChange={onChange}
-              />
-            )}
-          />
-          <Label
-            htmlFor={`formItems.${index}.isRequired`}
-            className="text-xs text-neutral-500"
-          >
-            Required
-          </Label>
-        </div>
-        {type !== "WRITTEN" && (
-          <div className="flex flex-row items-center space-x-2">
-            <Controller
-              name={`formItems.${index}.isScored`}
-              control={control}
-              render={({ field: { onChange, value } }) => (
-                <Switch
-                  id={`formItems.${index}.isScored`}
-                  size="xs"
-                  checked={value}
-                  onCheckedChange={onChange}
-                />
-              )}
-            />
-            <Label
-              htmlFor={`formItems.${index}.isRequired`}
-              className="text-xs text-neutral-500"
-            >
-              Scored
-            </Label>
-          </div>
-        )}
-      </PopoverContent>
-    </Popover>
   );
 }
 

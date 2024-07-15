@@ -1,11 +1,11 @@
 "use client";
-
 import React, { useCallback, useRef, useState } from "react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { TFormItemType } from "@/db/schema";
 import { FormItem } from "@/components/(admin)/forms/editor/form-item";
+import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item-dock";
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
 import { v4 } from "uuid";
@@ -31,39 +31,58 @@ export function FormBuilder() {
     name: "formItems",
   });
 
-  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
-  const [lastSelectedItemIndex, setLastSelectedItemIndex] = useState<number | null>(null);
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
+    null,
+  );
+  const [lastSelectedItemIndex, setLastSelectedItemIndex] = useState<
+    number | null
+  >(null);
+  const [milestoneDialogOpenIndex, setMilestoneDialogOpenIndex] = useState<
+    number | null
+  >(null);
+  const [dockPosition, setDockPosition] = useState<{
+    top: number;
+    height: number;
+  } | null>(null);
 
-  const handleAddQuestion = useCallback((type: TFormItemType) => {
-    const newItem = {
-      id: v4(),
-      options: [],
-      text: "",
-      type,
-      isScored: type !== "HEADER" && type !== "WRITTEN",
-      isRequired: type !== "HEADER",
-      position: formItems.length + 1,
-      milestoneIds: [],
-    };
+  const handleAddQuestion = useCallback(
+    (type: TFormItemType) => {
+      const newItem = {
+        id: v4(),
+        options: [],
+        text: "",
+        type,
+        isScored: type !== "HEADER" && type !== "WRITTEN",
+        isRequired: type !== "HEADER",
+        position: formItems.length + 1,
+        milestoneIds: [],
+      };
 
-    let newIndex: number;
-    if (lastSelectedItemIndex !== null) {
-      newIndex = lastSelectedItemIndex + 1;
-      insertItem(newIndex, newItem);
-    } else {
-      newIndex = formItems.length;
-      addItem(newItem);
-    }
+      let newIndex: number;
+      if (lastSelectedItemIndex !== null) {
+        newIndex = lastSelectedItemIndex + 1;
+        insertItem(newIndex, newItem);
+      } else {
+        newIndex = formItems.length;
+        addItem(newItem);
+      }
 
-    setSelectedItemIndex(newIndex);
-    setLastSelectedItemIndex(newIndex);
-  }, [formItems, addItem, insertItem, lastSelectedItemIndex]);
+      setSelectedItemIndex(newIndex);
+      setLastSelectedItemIndex(newIndex);
+    },
+    [formItems, addItem, insertItem, lastSelectedItemIndex],
+  );
 
-  const handleRemoveItem = useCallback((index: number) => {
-    removeItem(index);
-    setSelectedItemIndex(null);
-    setLastSelectedItemIndex(null);
-  }, [removeItem]);
+  const handleRemoveItem = useCallback(
+    (index: number) => {
+      removeItem(index);
+      setSelectedItemIndex(null);
+      setLastSelectedItemIndex(null);
+      setMilestoneDialogOpenIndex(null);
+      setDockPosition(null);
+    },
+    [removeItem],
+  );
 
   const handleDuplicateItem = useCallback(
     (index: number) => {
@@ -83,13 +102,41 @@ export function FormBuilder() {
       setSelectedItemIndex(newIndex);
       setLastSelectedItemIndex(newIndex);
     },
-    [getValues, insertItem]
+    [getValues, insertItem],
   );
 
-  const handleSelectItem = useCallback((index: number) => {
-    setSelectedItemIndex(index);
-    setLastSelectedItemIndex(index);
-  }, []);
+  const handleSelectItem = useCallback(
+    (index: number, offsetTop: number, height: number) => {
+      setSelectedItemIndex(index);
+      setLastSelectedItemIndex(index);
+      setDockPosition({ top: offsetTop, height });
+
+      const selectedItem = formItems[index];
+      if (selectedItem && selectedItem.type === "HEADER") {
+        // Close the milestone dialog if a header is selected
+        setMilestoneDialogOpenIndex(null);
+      } else if (milestoneDialogOpenIndex !== null) {
+        // If the milestone dialog is open, update its index
+        setMilestoneDialogOpenIndex(index);
+      }
+    },
+    [formItems, milestoneDialogOpenIndex],
+  );
+
+  const handleToggleMilestoneDialog = useCallback(
+    (index: number) => {
+      const selectedItem = formItems[index];
+      if (selectedItem && selectedItem.type !== "HEADER") {
+        setMilestoneDialogOpenIndex((prevIndex) =>
+          prevIndex === index ? null : index,
+        );
+      } else {
+        // If it's a header, ensure the milestone dialog is closed
+        setMilestoneDialogOpenIndex(null);
+      }
+    },
+    [formItems],
+  );
 
   const handleDeselectItem = useCallback(() => {
     setSelectedItemIndex(null);
@@ -99,9 +146,10 @@ export function FormBuilder() {
     (event: React.MouseEvent) => {
       if (event.target === formAreaRef.current) {
         handleDeselectItem();
+        setMilestoneDialogOpenIndex(null);
       }
     },
-    [handleDeselectItem]
+    [handleDeselectItem],
   );
 
   const getPosition = (index: number): number => {
@@ -112,16 +160,16 @@ export function FormBuilder() {
     );
   };
 
-  const isSelectedItemHeader = selectedItemIndex !== null && formItems[selectedItemIndex]?.type === "HEADER";
-
   return (
     <main className="flex flex-row px-2">
       <LazyMotion features={domAnimation}>
         <DynamicMilestoneMenu
           control={control}
-          selectedQuestionIndex={selectedItemIndex !== null && !isSelectedItemHeader ? selectedItemIndex : -1}
-          open={selectedItemIndex !== null && !isSelectedItemHeader}
-          onClose={handleDeselectItem}
+          selectedQuestionIndex={
+            milestoneDialogOpenIndex !== null ? milestoneDialogOpenIndex : -1
+          }
+          open={milestoneDialogOpenIndex !== null}
+          onClose={() => setMilestoneDialogOpenIndex(null)}
           getPosition={getPosition}
         />
         <div
@@ -129,37 +177,57 @@ export function FormBuilder() {
           className="flex w-full flex-grow justify-center overflow-y-scroll"
           onClick={handleFormAreaClick}
         >
-          <div className="no-scrollbar h-[87.3vh] w-full max-w-2xl">
+          <div className="no-scrollbar relative h-[87.3vh] w-full max-w-2xl">
             <form
               onSubmit={(e) => e.preventDefault()}
-              className="mx-auto px-4 pb-52"
+              className="mx-auto px-4 pb-52 pt-4"
             >
               <AnimatePresence>
                 {formItems.map((item, index) => (
-                  <m.div
-                    key={item.id}
-                    layout
-                    layoutId={item.id}
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="my-4 mr-8"
-                  >
+                  <m.div key={item.id} layout="position" layoutId={item.id}>
                     <FormItem
+                      key={item.id}
                       item={item}
                       control={control}
                       index={index}
                       removeItem={() => handleRemoveItem(index)}
                       duplicateItem={() => handleDuplicateItem(index)}
                       isSelected={index === selectedItemIndex}
-                      showDock={index === lastSelectedItemIndex}
-                      selectItem={() => handleSelectItem(index)}
+                      selectItem={handleSelectItem}
                       deselectItem={handleDeselectItem}
-                      addQuestion={handleAddQuestion}
+                      toggleMilestoneDialog={() =>
+                        handleToggleMilestoneDialog(index)
+                      }
                     />
                   </m.div>
                 ))}
               </AnimatePresence>
             </form>
+            <AnimatePresence>
+              {dockPosition && (
+                <m.div
+                  key="form-dock"
+                  initial={false}
+                  animate={{
+                    top: dockPosition.top,
+                    opacity: 1,
+                  }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: "100%",
+                    height: dockPosition.height,
+                  }}
+                >
+                  <AddFormItemDock addQuestion={handleAddQuestion} />
+                </m.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </LazyMotion>
