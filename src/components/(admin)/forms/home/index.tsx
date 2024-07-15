@@ -10,7 +10,7 @@ import WaterfallAnimation from "@/components/ui/waterfall-animation";
 import { FormCard } from "@/components/(admin)/forms/home/form-card";
 import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
 import { BookOpenIcon, FileIcon } from "lucide-react";
-import { useFilter } from "@/hooks/useFilter";
+import { useFilter } from "@/hooks/use-filter";
 import { Input } from "@/components/ui/input";
 import { TagFilter } from "@/components/(admin)/forms/home/tag-filter";
 import { CreateFormDialogTrigger } from "@/components/(admin)/forms/dialogs/create-form-dialog-trigger";
@@ -41,12 +41,12 @@ export default function FormsHome() {
   };
 
   return (
-    <main>
+    <main className="h-full w-full" >
       <div className="flex h-12 w-full flex-row items-center justify-between border-b border-neutral-300 bg-card/50 p-1 pl-4 pr-2">
         <CreateFormDialogTrigger />
       </div>
       <hr className="h-[1px] w-full bg-neutral-300" />
-      <div className="grid h-full grid-cols-5 p-4 ">
+      <div className="grid h-full grid-cols-5 p-4">
         <div className="col-span-3 flex flex-col">
           <div className="mb-2 flex flex-row items-center space-x-4">
             <div className="flex items-center space-x-2">

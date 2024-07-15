@@ -9,6 +9,7 @@ const switchVariants = cva(
   {
     variants: {
       size: {
+        "2xs": "h-3 w-[19px]",
         xs: "h-4 w-7",
         sm: "h-5 w-9",
         md: "h-6 w-11",
@@ -26,6 +27,7 @@ const thumbVariants = cva(
   {
     variants: {
       size: {
+        "2xs": "h-2 w-2",
         xs: "h-3 w-3",
         sm: "h-4 w-4",
         md: "h-5 w-5",

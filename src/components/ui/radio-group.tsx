@@ -36,11 +36,11 @@ const RadioGroupItem = React.forwardRef<
       ref={ref}
       {...props}
     >
-      <div className={cn(`cursor-pointer relative items-center space-x-2 transition-colors border-2 w-full flex flex-row justify-start rounded-xl p-3 data-[state='checked']:border-accent-secondary data-[state='unchecked']:border-transparent`,
+      <div className={cn(`cursor-pointer relative items-center space-x-2 transition-colors border-2 w-full flex flex-row justify-start rounded-xl p-3 data-[state='checked']:border-primary data-[state='unchecked']:border-transparent`,
         className)}>
         <div
           className={
-            "relative aspect-square size-4 origin-center rounded-full border border-accent-foreground bg-accent-secondary shadow-inner transition-all"
+            "relative aspect-square size-4 origin-center rounded-full border border-accent-foreground bg-primary shadow-inner transition-all"
           }
         >
           <RadioGroupPrimitive.Indicator
@@ -49,7 +49,7 @@ const RadioGroupItem = React.forwardRef<
           >
             <div
               className={cn(
-                'absolute -left-[0.5px] -top-[0.5px] size-4 origin-center rounded-full bg-blue-950/50 data-[state="checked"]:bg-teal-900 transition-all duration-300 ease-out data-[state="checked"]:scale-50',
+                'absolute -left-[1px] -top-[0.5px] scale-105 size-4 origin-center rounded-full bg-card transition-all duration-300 ease-out data-[state="checked"]:scale-50  data-[state="unchecked"]:border data-[state="unchecked"]:border-neutral-500',
                 props.disabled ? `hover:scale-100` : `hover:scale-75`,
               )}
             />

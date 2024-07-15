@@ -51,7 +51,7 @@ export default function RootLayout({
         <StrictMode>
           <Provider>
             <body className={cn(poppins.className)}>
-              <Background variant="green">{children}</Background>
+              {children}
               <Toaster />
             </body>
           </Provider>

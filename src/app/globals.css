@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 240 100% 99%;
+    --background: 0 0% 100%;
     --foreground: 222.2 47.4% 11.2%;
 
     --card: 0 0% 100%;
@@ -13,7 +13,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 70 11% 11%;
+    --primary: 188 96% 21%;
     --primary-foreground: 240 100% 99%;
 
     --secondary: 210 40% 96.1%;
@@ -84,7 +84,8 @@ body {
 
 }
 
-input {
+
+input:focus {
   border: none;
 }
 

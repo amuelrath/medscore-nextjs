@@ -71,7 +71,6 @@ function ResponseCardList() {
           size="xs"
           placeholder="Search results..."
           className={cn("pl-6 bg-inherit font-light")}
-          variant="outline"
           onChange={(e) => handleSearch(e.target.value)}
         />
       </div>

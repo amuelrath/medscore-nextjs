@@ -35,7 +35,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   return (
     <div
       className={cn(
-        "group flex flex-col h-28 space-y-1 rounded-xl border border-neutral-300 bg-white p-4 shadow-sm transition-all hover:shadow-md",
+        "group flex flex-col h-28 space-y-1 rounded-xl border border-neutral-300 bg-card p-4 shadow-sm transition-all hover:shadow-md",
       )}
     >
         <div className="flex flex-row items-start justify-between">

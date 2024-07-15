@@ -11,13 +11,13 @@ import { StartEvaluationDialog } from "@/components/(admin)/evaluate/home/dialog
 
 export function EvaluateHome() {
   return (
-    <main className="flex flex-col space-y-4 h-full" >
+    <main className="pb-24" >
       <SectionHeader className="flex-row items-center px-2 pl-4">
         <h3 className={cn("text-2xl font-bold text-neutral-700")}>Evaluate</h3>
       </SectionHeader>
-      <div className="grid grid-cols-8 gap-4 h-full px-4 pb-4 ">
+      <div className="grid grid-cols-8 gap-4 w-full h-full px-4 pb-4 ">
         <div
-          className={cn("col-span-3 flex w-full flex-col space-y-2")}
+          className={cn("col-span-3 flex w-full h-full flex-col space-y-2")}
         >
           {features.map((feature) => (
             <BentoCard key={feature.name} {...feature} />

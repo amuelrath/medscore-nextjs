@@ -8,15 +8,15 @@ const inputVariants = cva(
   {
     variants: {
       size: {
-        xs: "h-6 text-xs",
-        sm: "h-8 text-sm",
+        xs: "h-6 text-2xs",
+        sm: "h-8 text-xs",
         md: "h-10 text-sm",
         lg: "h-12 text-base",
         xl: "h-14 text-lg",
       },
       variant: {
-        default: "bg-blue-800/5 shadow-inner",
-        outline: "border border-input",
+        default: "bg-primary/5 border-none",
+        outline: "",
       },
     },
     defaultVariants: {

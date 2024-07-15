@@ -16,29 +16,19 @@ export const useAutosizeTextArea = ({
   maxHeight = Number.MAX_SAFE_INTEGER,
   minHeight = 0,
 }: UseAutosizeTextAreaProps) => {
-  const [init, setInit] = React.useState(true);
   React.useEffect(() => {
-    // We need to reset the height momentarily to get the correct scrollHeight for the textarea
-    const offsetBorder = 2;
     if (textAreaRef) {
-      if (init) {
-        textAreaRef.style.minHeight = `${minHeight + offsetBorder}px`;
-        if (maxHeight > minHeight) {
-          textAreaRef.style.maxHeight = `${maxHeight}px`;
-        }
-        setInit(false);
-      }
-      textAreaRef.style.height = `${minHeight + offsetBorder}px`;
+      // Reset the height
+      textAreaRef.style.height = "auto";
+
+      // Get the scroll height (content height)
       const scrollHeight = textAreaRef.scrollHeight;
-      // We then set the height directly, outside of the render loop
-      // Trying to set this with state or a ref will product an incorrect value.
-      if (scrollHeight > maxHeight) {
-        textAreaRef.style.height = `${maxHeight}px`;
-      } else {
-        textAreaRef.style.height = `${scrollHeight + offsetBorder}px`;
-      }
+
+      // Set the new height
+      const newHeight = Math.max(minHeight, Math.min(scrollHeight, maxHeight));
+      textAreaRef.style.height = `${newHeight}px`;
     }
-  }, [textAreaRef, triggerAutoSize]);
+  }, [textAreaRef, triggerAutoSize, minHeight, maxHeight]);
 };
 
 export type AutosizeTextAreaRef = {
@@ -86,7 +76,7 @@ export const AutosizeTextarea = React.forwardRef<
 
     React.useEffect(() => {
       setTriggerAutoSize(value as string);
-    }, [props?.defaultValue, value]);
+    }, [value]);
 
     return (
       <textarea
@@ -94,11 +84,14 @@ export const AutosizeTextarea = React.forwardRef<
         value={value}
         ref={textAreaRef}
         className={cn(
-          "flex w-full transition-all rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full rounded-md border-0 bg-primary/5 px-3 py-2 text-sm text-neutral-800 ring-offset-background transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/80 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         onChange={(e) => {
           setTriggerAutoSize(e.target.value);
+          if (textAreaRef.current) {
+            textAreaRef.current.style.height = "auto";
+          }
           onChange?.(e);
         }}
       />

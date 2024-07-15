@@ -109,7 +109,7 @@ export function UpcomingAssessments() {
           initial={{ opacity: 0, y: Math.random() * (25 - 7) + 7 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex h-[325px] w-full flex-col justify-center rounded-xl border border-neutral-300 bg-card px-3 [box-shadow:0_0_0_1px_rgba(0,0,0,.05),0_2px_4px_rgba(0,0,0,.07),0_12px_24px_rgba(0,0,0,.05)]"
+          className="flex h-[325px] w-full flex-col justify-center rounded-xl border border-neutral-300 bg-card px-3 shadow-sm"
         >
           <div className="overflow-hidden">
             <Calendar

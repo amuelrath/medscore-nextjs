@@ -6,7 +6,7 @@ import {
   FileStackIcon,
   GaugeIcon,
   GraduationCapIcon,
-  TextSearchIcon
+  TextSearchIcon,
 } from "lucide-react";
 import { AppHeader } from "@/components/ui/app-header";
 
@@ -16,14 +16,14 @@ export default async function AppLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className="flex flex-row">
-      <RouteNavigation tabs={tabs} />
+    <>
+      <AppHeader />
       <ReactQueryDevtools />
-      <div className="flex flex-col w-full" >
-        <AppHeader />
-      {children}
+      <div className="flex w-full">
+        <RouteNavigation tabs={tabs} />
+        {children}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -31,7 +31,7 @@ const tabs = [
   {
     id: "dashboard",
     label: "Dashboard",
-    icon: <GaugeIcon  />,
+    icon: <GaugeIcon />,
     href: "/dashboard",
   },
   {

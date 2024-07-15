@@ -56,19 +56,19 @@ export const CompetencyCard: FC<CompetencyCardProps> = ({
           className={cn(
             "border-offset-2 w-full rounded-lg border-2 p-2 transition-all ",
             isOpen
-              ? "sticky top-0 z-10 bg-accent "
-              : "bg-background ",
+              ? "sticky top-0 z-10 bg-primary"
+              : "bg-background",
           )}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
         >
           <Button
             variant="hide"
             className={cn(
-              "w-full justify-between p-2 text-sm font-semibold",
-              isOpen ? " text-white" : "text-gray-700",
+              "w-full justify-between p-2 text-wrap text-left text-xs font-semibold",
+              isOpen ? " text-white" : "text-neutral-700",
             )}
             onClick={() => setOpenCompetencyId(isOpen ? null : competency.id)}
           >
@@ -137,9 +137,9 @@ export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
       <m.div
         layout="position"
         className={cn(
-          "border-offset-2 w-full rounded-lg border-2 p-2",
+          "w-full rounded-md p-2",
           isOpen
-            ? "sticky top-16 z-20 bg-accent/80"
+            ? "sticky top-16 z-20 bg-[#378794]"
             : "bg-background",
         )}
         initial={{ opacity: 0, scale: 0.9 }}
@@ -150,7 +150,7 @@ export const SubcompetencyCard: FC<SubcompetencyCardProps> = ({
         <Button
           variant="hide"
           className={cn(
-            "w-full justify-between p-1 text-xs font-medium",
+            "w-full justify-between p-1 text-xs text-left text-wrap font-medium",
             isOpen ? "text-white" : "text-gray-600",
           )}
           onClick={() =>
@@ -208,7 +208,7 @@ export const MilestoneCard: FC<MilestoneCardProps> = ({
       className={cn(
         "w-full cursor-pointer rounded-lg border p-2 transition-all",
         isSelected
-          ? "border-[#0066CC] bg-[#E6F3FF]"
+          ? "border-accent-secondary bg-accent-secondary-background"
           : "border-gray-200 hover:border-[#99D6FF]",
       )}
       onClick={onToggle}
@@ -231,7 +231,7 @@ export const MilestoneCard: FC<MilestoneCardProps> = ({
               exit={{ opacity: 0, scale: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <CheckCircle className="h-3 w-3 text-[#0066CC]" />
+              <CheckCircle className="h-3 w-3 text-accent-secondary" />
             </m.div>
           )}
         </AnimatePresence>

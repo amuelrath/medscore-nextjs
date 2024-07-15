@@ -26,9 +26,9 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
 
   return (
     <LazyMotion features={domAnimation}>
-      <div className="flex flex-row items-center space-x-1">
+      <div className="flex flex-row justify-end items-center space-x-1">
         {milestones?.map((ms) => (
-          <TooltipProvider delayDuration={0} key={ms.id}>
+          <TooltipProvider delayDuration={500} key={ms.id}>
             <Tooltip>
               <TooltipTrigger asChild className="select-none">
                 <m.div
@@ -39,8 +39,8 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
                   className="select-none"
                 >
                   <Badge
-                    variant="accent"
-                    className={cn(`group relative select-none font-medium`)}
+                    variant="accent-secondary"
+                    className={cn(`group bg-accent-secondary-background text-xs relative select-none font-medium`)}
                     size={"xs"}
                     onMouseEnter={() => handleMouseEnter(ms.id)}
                     onMouseLeave={handleMouseLeave}
@@ -66,7 +66,7 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
                   </Badge>
                 </m.div>
               </TooltipTrigger>
-              <TooltipContent className="flex w-80 flex-col space-y-1 text-wrap bg-zinc-50">
+              <TooltipContent className="flex w-80 flex-col space-y-1 text-wrap text-xs bg-slate-50">
                 <p className="font-semibold">{ms.name}</p>
                 <p>{ms.description}</p>
               </TooltipContent>
@@ -83,7 +83,7 @@ function useQuestionMilestones(questionIndex: number) {
   const { control, getValues, setValue } = useFormContext<TFormSchema>();
   const milestoneIds = useWatch({
     control,
-    name: `questions.${questionIndex}.milestoneIds`,
+    name: `formItems.${questionIndex}.milestoneIds`,
   });
 
   const { data: subcompetencies } = useSuspenseQuery({
@@ -99,7 +99,7 @@ function useQuestionMilestones(questionIndex: number) {
 
   const removeMilestone = (milestoneId: string) => {
     const updatedMilestoneIds = milestoneIds.filter((id) => id !== milestoneId);
-    setValue(`questions.${questionIndex}.milestoneIds`, updatedMilestoneIds);
+    setValue(`formItems.${questionIndex}.milestoneIds`, updatedMilestoneIds);
   };
 
   const handleMouseEnter = (tagId: string) => {
