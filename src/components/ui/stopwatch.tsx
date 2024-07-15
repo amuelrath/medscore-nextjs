@@ -4,8 +4,8 @@ import { cn } from "@/lib/helpers/utils";
 
 interface StopwatchProps {
   className: string;
-  onChange: (elapsedTime: number) => void;
-  value: number;
+  onChange?: (elapsedTime: number) => void;
+  value?: number;
 }
 
 export function Stopwatch({ className, onChange, value }: StopwatchProps) {
@@ -20,7 +20,9 @@ export function Stopwatch({ className, onChange, value }: StopwatchProps) {
   }, []);
 
   useEffect(() => {
+    if (onChange) {
     onChange(elapsedTime);
+    }
   }, [elapsedTime, onChange]);
 
   const formatTime = (timeInSeconds: number): string => {
