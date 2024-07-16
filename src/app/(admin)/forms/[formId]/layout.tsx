@@ -21,7 +21,7 @@ export default async function FormIdLayout({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <FormContextWrapper defaultValues={form}>
-        <FormLayout editor={editor} responses={responses} />
+        <FormLayout editor={editor} responses={responses} formId={params.formId} />
       </FormContextWrapper>
     </HydrationBoundary>
   );

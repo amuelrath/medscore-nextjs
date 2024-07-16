@@ -270,7 +270,7 @@ function DirectionAwareContent({ className }: { className?: string }) {
     <LazyMotion features={domAnimation}>
       <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}>
         <m.div
-          className={cn("flex flex-col", className)}
+          className={cn("flex flex-col overflow-x-hidden", className)}
           initial={false}
           animate={{ height: bounds.height > 0 ? bounds.height : "100%" }}
         >

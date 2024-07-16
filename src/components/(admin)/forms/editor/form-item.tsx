@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { Control, Controller } from "react-hook-form";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -9,9 +9,7 @@ import { AnimatePresence, m } from "framer-motion";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
-import { TFormItemType } from "@/db/schema";
 import { SimpleTooltip } from "@/components/ui/simple-tooltip";
-import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item-dock";
 import { FormItemSettingsPopover } from "@/components/(admin)/forms/editor/form-item-settings-popover";
 
 const placeholders = {
@@ -75,11 +73,11 @@ export function FormItem({
     updatePosition();
   };
 
-
   const getContent = () => {
     const ContentComponent = content[item.type];
     return (
       <ContentComponent
+        id={item.id}
         index={index}
         control={control}
         key={item.id}
@@ -204,6 +202,7 @@ export function FormItem({
 }
 
 interface FormItemContentProps {
+  id: string;
   index: number;
   isSelected: boolean;
   control: Control<TFormSchema>;
@@ -225,12 +224,19 @@ function HeaderItemContent({ index, control }: FormItemContentProps) {
 function MultipleChoiceItemContent({
   index,
   isSelected,
+  id,
 }: FormItemContentProps) {
-  return <OptionList isMulti itemIndex={index} isSelected={isSelected} />;
+  return (
+    <OptionList isMulti key={id} itemIndex={index} isSelected={isSelected} />
+  );
 }
 
-function SingleChoiceItemContent({ index, isSelected }: FormItemContentProps) {
-  return <OptionList itemIndex={index} isSelected={isSelected} />;
+function SingleChoiceItemContent({
+  index,
+  isSelected,
+  id,
+}: FormItemContentProps) {
+  return <OptionList key={id} itemIndex={index} isSelected={isSelected} />;
 }
 
 function WrittenItemContent({}: FormItemContentProps) {

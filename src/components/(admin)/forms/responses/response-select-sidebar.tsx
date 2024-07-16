@@ -4,14 +4,17 @@ import * as React from "react";
 import { FormCodeSelect } from "@/components/(admin)/forms/responses/form-code-select";
 import { NewResultGroup } from "@/components/(admin)/forms/responses/new-result-group";
 import { useQuery } from "@tanstack/react-query";
-import { useAtomValue } from "jotai";
-import { selectedFormCodeIdAtom } from "@/store/form-atoms";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import {
+  selectedFormCodeIdAtom,
+  selectedResponseIdAtom,
+} from "@/store/form-atoms";
 import {
   FormCodeResponsesResult,
   getFormCodeResponses,
 } from "@/server/actions/responses/get-form-code-responses";
 import { useState } from "react";
-import {  FileCheckIcon, SearchIcon } from "lucide-react";
+import { FileCheckIcon, SearchIcon } from "lucide-react";
 import { getFullName } from "@/lib/helpers/getFullName";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,18 +53,21 @@ function ResponseCardList() {
     enabled: !!selectedFormCodeId,
   });
 
-  if (isLoading) return (<>
-    <Skeleton className="w-full h-8" />
-    <Skeleton className="w-full h-8 opacity-90" />
-    <Skeleton className="w-full h-8 opacity-75" />
-    <Skeleton className="w-full h-8 opacity-60" />
-    <Skeleton className="w-full h-8 opacity-50" />
-    <Skeleton className="w-full h-8 opacity-25" />
-  </>);
+  if (isLoading)
+    return (
+      <>
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full opacity-90" />
+        <Skeleton className="h-8 w-full opacity-75" />
+        <Skeleton className="h-8 w-full opacity-60" />
+        <Skeleton className="h-8 w-full opacity-50" />
+        <Skeleton className="h-8 w-full opacity-25" />
+      </>
+    );
 
   if (isError) return <>Error!</>;
 
-  if (!responses) return <>No Responses</>
+  if (!responses) return <>No Responses</>;
 
   return (
     <div className="space-y-2">
@@ -70,18 +76,20 @@ function ResponseCardList() {
         <Input
           size="xs"
           placeholder="Search results..."
-          className={cn("pl-6 bg-inherit font-light")}
+          className={cn("bg-inherit pl-6 font-light")}
           onChange={(e) => handleSearch(e.target.value)}
         />
       </div>
-      {
-        responses
-          .filter((r) => r.formCodeId === selectedFormCodeId)
-          .filter((r) =>
-            getFullName(r.evaluatee || {}).toLowerCase().includes(search),
-          )
-          .map((r) => <ResponseCard key={r.id} response={r} />)
-      }
+      {responses
+        .filter((r) => r.formCodeId === selectedFormCodeId)
+        .filter((r) =>
+          getFullName(r.evaluatee || {})
+            .toLowerCase()
+            .includes(search),
+        )
+        .map((r) => (
+          <ResponseCard key={r.id} response={r} />
+        ))}
     </div>
   );
 }
@@ -91,8 +99,23 @@ interface ResponseCardProps {
 }
 
 function ResponseCard({ response }: ResponseCardProps) {
+  const [selectedResponseId, setSelectedResponseId] = useAtom(
+    selectedResponseIdAtom,
+  );
+  const handleSelectResponse = () => {
+    setSelectedResponseId(response.id);
+  };
+
   return (
-    <div className="flex flex-row items-center space-x-2 rounded-md px-2 py-1.5 transition-colors hover:bg-blue-800/5">
+    <div
+      onClick={handleSelectResponse}
+      className={cn(
+        "flex flex-row items-center space-x-2 rounded-md border px-2 py-1.5 transition-colors",
+        selectedResponseId === response.id
+          ? "border-neutral-300  bg-primary/10"
+          : "border-transparent hover:bg-primary/10",
+      )}
+    >
       <FileCheckIcon
         strokeWidth={2}
         className="size-4 opacity-50 transition-opacity "

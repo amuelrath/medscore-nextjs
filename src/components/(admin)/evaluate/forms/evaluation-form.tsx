@@ -31,7 +31,7 @@ const ZEvaluationFormSchema = z.object({
   answers: z.array(
     z
       .object({
-        formItemId: z // maybe remove this field? it is unused in the submission data
+        formItemId: z
           .string()
           .uuid({ message: "ERR: A Question Id could not be located." }),
         type: z.enum(["WRITTEN", "MULTIPLE_CHOICE", "SINGLE_CHOICE", "RANGE"]),
@@ -39,49 +39,52 @@ const ZEvaluationFormSchema = z.object({
         textValue: z.string().optional(),
         isRequired: z.boolean(),
       })
-      .refine(
-        (answer) => {
-          if (answer.isRequired) {
-            if (answer.type === "WRITTEN") {
-              return !!answer.textValue;
-            } else {
-              return (answer.optionIds?.length || 0) > 0;
-            }
+      .superRefine((answer, ctx) => {
+        if (answer.isRequired) {
+          if (answer.type === "WRITTEN" && !answer.textValue) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "This question is required.",
+              path: ["textValue"],
+            });
+          } else if (
+            ["MULTIPLE_CHOICE", "SINGLE_CHOICE"].includes(answer.type) &&
+            (!answer.optionIds || answer.optionIds.length === 0)
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "This question is required.",
+              path: ["optionIds"],
+            });
           }
-          return true;
-        },
-        {
-          message: "This question is required.",
-          path: ["value"],
-        },
-      )
-      .refine(
-        (answer) => {
-          if (answer.type === "SINGLE_CHOICE") {
-            return (answer.optionIds?.length || 0) <= 1;
-          }
-          return true;
-        },
-        {
-          message: "Please select only one option.",
-          path: ["value"],
-        },
-      )
-      .refine(
-        (answer) => {
-          if (answer.type === "WRITTEN") {
-            return !answer.optionIds || answer.optionIds.length === 0;
-          }
-          return true;
-        },
-        {
-          message: "Written questions should not have any selected options.",
-          path: ["value"],
-        },
-      ),
+        }
+
+        if (
+          answer.type === "SINGLE_CHOICE" &&
+          answer.optionIds &&
+          answer.optionIds.length > 1
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select only one option.",
+            path: ["optionIds"],
+          });
+        }
+
+        if (
+          answer.type === "WRITTEN" &&
+          answer.optionIds &&
+          answer.optionIds.length > 0
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Written questions should not have any selected options.",
+            path: ["optionIds"],
+          });
+        }
+      }),
   ),
 });
-
 export type TEvaluationFormSchema = z.infer<typeof ZEvaluationFormSchema>;
 
 export function EvaluationForm({ responseId }: { responseId: string }) {
@@ -90,11 +93,6 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
     queryFn: () => getEvaluationForm({ responseId }),
   });
 
-  /* Since we have formItems we want to ignore, such as HEADER, we need to
-   * remap over all of the items and then shift the array back.If we don't do
-   * this, hook form expects that the HEADER will have required fields and
-   * doesn't allow form submission.
-   */
   const { indexMap, nonHeaderItems } = useMemo(() => {
     const map = new Map<string, number>();
     const nonHeaders = evaluation.form.formItems.filter(
@@ -108,6 +106,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
 
   const methods = useForm<TEvaluationFormSchema>({
     resolver: zodResolver(ZEvaluationFormSchema),
+    mode: "onChange",
     defaultValues: {
       id: responseId,
       duration: 0,
@@ -125,8 +124,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
     mutationFn: submitResponse,
     onSuccess: (data) => {
       if (!data.success) return toast.error("Oops! Something went wrong.");
-      // take the user to the response submitted page? allow another submission.
-      return toast.success("Evaluation submitted successfully.")
+      return toast.success("Evaluation submitted successfully.");
     },
     onError: () => {
       return toast.error("Oops! Something went wrong.");
@@ -134,13 +132,13 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
   });
 
   const onSubmit = async (data: TEvaluationFormSchema) => {
+    console.log("Form data before submission:", data);
     submitMutate(data);
   };
 
   const getEvaluatee = () => {
     if (!evaluation || !evaluation) throw new Error("No form!");
     if (evaluation.form.formCodes[0]) {
-      // in the query we only get the form code for this particular response
       return evaluation.form.formCodes[0].usersWithCode.find(
         (u) => u.user.id === evaluation.response.evaluateeId,
       )?.user;
@@ -206,9 +204,10 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                             control={methods.control}
                             render={({ field }) => (
                               <RadioGroup
-                                onValueChange={(value) =>
-                                  field.onChange([value])
-                                }
+                                onValueChange={(value) => {
+                                  console.log("Single choice selected:", value);
+                                  field.onChange([value]);
+                                }}
                                 value={field.value?.[0] || ""}
                                 className="flex flex-col"
                               >
@@ -264,13 +263,68 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                                   >
                                     <Checkbox
                                       id={o.id}
-                                      checked={field.value?.includes(o.id)}
+                                      checked={(() => {
+                                        const selectedOptions =
+                                          methods.getValues(
+                                            `answers.${answerIndex}.optionIds`,
+                                          ) || [];
+                                        const naOption = fi.options.find(
+                                          (opt) => opt.isNa,
+                                        );
+                                        const isNaSelected =
+                                          naOption &&
+                                          selectedOptions.includes(naOption.id);
+
+                                        if (isNaSelected) {
+                                          return o.id === naOption.id;
+                                        }
+
+                                        return selectedOptions.includes(o.id);
+                                      })()}
+                                      disabled={(() => {
+                                        const selectedOptions =
+                                          methods.getValues(
+                                            `answers.${answerIndex}.optionIds`,
+                                          ) || [];
+                                        const naOption = fi.options.find(
+                                          (opt) => opt.isNa,
+                                        );
+                                        const isNaSelected =
+                                          naOption &&
+                                          selectedOptions.includes(naOption.id);
+
+                                        return (
+                                          isNaSelected && o.id !== naOption.id
+                                        );
+                                      })()}
                                       onCheckedChange={(checked) => {
-                                        const updatedValue = checked
-                                          ? [...(field.value || []), o.id]
-                                          : (field.value || []).filter(
-                                              (id) => id !== o.id,
-                                            );
+                                        const currentValue = field.value || [];
+                                        let updatedValue;
+
+                                        if (checked) {
+                                          // If this is the NA option, clear all other options
+                                          if (o.isNa) {
+                                            updatedValue = [o.id];
+                                          } else {
+                                            // Add this option, remove NA if it's there
+                                            updatedValue = [
+                                              ...currentValue.filter(
+                                                (id) =>
+                                                  id !==
+                                                  fi.options.find(
+                                                    (opt) => opt.isNa,
+                                                  )?.id,
+                                              ),
+                                              o.id,
+                                            ];
+                                          }
+                                        } else {
+                                          // Remove this option
+                                          updatedValue = currentValue.filter(
+                                            (id) => id !== o.id,
+                                          );
+                                        }
+
                                         field.onChange(updatedValue);
                                       }}
                                     />

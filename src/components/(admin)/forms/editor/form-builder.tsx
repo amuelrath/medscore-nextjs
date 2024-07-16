@@ -43,7 +43,7 @@ export function FormBuilder() {
   const [dockPosition, setDockPosition] = useState<{
     top: number;
     height: number;
-  } | null>(null);
+  } | null>({ top: 24, height: 24 });
 
   const handleAddQuestion = useCallback(
     (type: TFormItemType) => {
@@ -54,6 +54,7 @@ export function FormBuilder() {
         type,
         isScored: type !== "HEADER" && type !== "WRITTEN",
         isRequired: type !== "HEADER",
+        description: type === "HEADER" ? "" : null,
         position: formItems.length + 1,
         milestoneIds: [],
       };
