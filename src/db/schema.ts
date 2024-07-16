@@ -254,6 +254,8 @@ export const formItems = pgTable("form_items", {
   position: integer("position").notNull(),
   isRequired: boolean("is_required").default(true),
   isScored: boolean("is_scored").notNull().default(true),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  // todo how to figure out updatedAt
 });
 export type FormItem = typeof formItems.$inferSelect;
 export type NewFormItem = typeof formItems.$inferInsert;
@@ -483,3 +485,22 @@ export const recommendedMilestoneRelations = relations(
 );
 
 // todo update materialized view for response info
+export const answerTotalsView = pgView("answer_totals_view", {
+  responseId: uuid("response_id").notNull(),
+  responseCreatedAt: timestamp("response_created_at").notNull(), // for tracking a student's scores over time
+  formCodeId: uuid("form_code_id").notNull(),
+  formCodeCreatedAt: timestamp("form_code_created_at").notNull(), // for tracking a form's scores over time
+  evaluateeId: uuid("evaluatee_id").notNull(),
+  evaluatorId: uuid("evaluator_id").notNull(),
+  formItemId: uuid("form_item_id").notNull(),
+  formItemType: formItemTypeEnum("form_item_type").notNull(),
+  selectedOptionId: uuid("selected_option_id"),
+  pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
+  pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
+  textValue: text("text_value"),
+  isNa: boolean("is_na").notNull(),
+  isScored: boolean("is_scored").notNull(),
+  milestoneId: uuid("milestone_id"),
+  subcompetencyId: uuid("subcompetency_id"), // consider removing later, as we can get this info from the milestone id
+  competencyId: uuid("competency_id"),
+}).existing()
