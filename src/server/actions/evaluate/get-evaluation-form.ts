@@ -2,7 +2,6 @@
 import { db } from "@/db";
 import { responses } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { dateToSQLDate } from "@/lib/helpers/date-to-sql-date";
 import { isAfter, isBefore } from "date-fns";
 
 export async function getEvaluationForm({
@@ -11,7 +10,7 @@ export async function getEvaluationForm({
   responseId: string;
 }) {
   console.log("Received responseId:", responseId);
-  const now = dateToSQLDate(new Date());
+  const now = new Date()
   const response = await db.query.responses.findFirst({
     where: eq(responses.id, responseId),
     with: {
@@ -108,6 +107,7 @@ export async function getEvaluationForm({
             columns: {
               id: true,
               formItemId: true,
+              isNa: true,
               text: true,
               position: true,
             },
