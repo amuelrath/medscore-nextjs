@@ -49,48 +49,38 @@ export async function submitResponse(response: TEvaluationFormSchema) {
         .set({ duration })
         .where(eq(responses.id, newResponse.id));
 
-      // insert the answers
-      const multipleChoiceAnswerInserts = responseAnswers
-        .filter((answer) => answer.type === "MULTIPLE_CHOICE")
-        .map((a) => {
-          const { optionIds, textValue, formItemId } = a;
-          if (!optionIds) return;
-          return optionIds.map((optionId) => ({
-            responseId: newResponse.id,
-            optionId,
-            textValue,
-          }));
-        })
-        .filter((a) => a !== undefined)
-        .flat();
+      // Process all answers (multiple-choice, single-choice, and written)
+      const answerInserts = responseAnswers.flatMap((answer) => {
+        const { optionIds, textValue, formItemId, type } = answer;
 
-      const singleChoiceAnswers = responseAnswers
-        .filter((answer) => answer.type === "SINGLE_CHOICE")
-        .map((a) => {
-          const { optionIds, textValue } = a;
-          if (!optionIds) return;
-          return {
-            responseId: newResponse.id,
-            optionIds,
-            textValue,
-          };
-        })
-        .filter((a) => a !== undefined);
+        if (type === "WRITTEN") {
+          return [
+            {
+              responseId: newResponse.id,
+              textValue,
+              formItemId,
+            },
+          ];
+        }
 
-      const writtenAnswers = responseAnswers
-        .filter((answer) => answer.type === "WRITTEN")
-        .map((a) => {
-          const { textValue } = a;
-          return {
-            responseId: newResponse.id,
-            textValue,
-          };
-        });
+        // For both MULTIPLE_CHOICE and SINGLE_CHOICE
+        if (!optionIds || optionIds.length === 0) return [];
 
-      await tx.insert(answers).values(multipleChoiceAnswerInserts);
-      await tx.insert(answers).values(singleChoiceAnswers);
-      await tx.insert(answers).values(writtenAnswers);
-      // await db.refreshMaterializedView(responsesView)
+        return optionIds.map((optionId) => ({
+          responseId: newResponse.id,
+          optionId,
+          textValue,
+          formItemId,
+        }));
+      });
+
+      // Insert all answers in a single operation
+      if (answerInserts.length > 0) {
+        await tx.insert(answers).values(answerInserts);
+      }
+
+      //await db.refreshMaterializedView(answerTotalsView);
+
       return { responseId: newResponse.id };
     });
 
