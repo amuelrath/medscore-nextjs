@@ -9,6 +9,8 @@ import { useAtom } from "jotai";
 import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 import { toast } from "sonner";
 
+// BEWARE OF FUNNY ERROR WITH DELETING A QUESTION AND NOT ALL PROPERTIES
+// GETTING DELETED.I THINK I FIXED IT BUT KNOW IT HAPPENED AND IT SUCKED
 export const ZFormSchema = z
   .object({
     id: z.string(),
@@ -26,75 +28,63 @@ export const ZFormSchema = z
         ]),
         description: z.string().optional().nullable(),
         position: z.number(),
-        isRequired: z.boolean().default(true),
-        isScored: z.boolean().default(true),
-        milestoneIds: z.array(z.string()),
-        options: z.array(
-          z.object({
-            id: z.string(),
-            text: z.string().optional().nullable(),
-            pointValue: z.string().optional().nullable(),
-            isNa: z.boolean().default(false),
-            position: z.number(),
-          }),
-        ),
+        isRequired: z.boolean(),
+        isScored: z.boolean(),
+        milestoneIds: z.array(z.string()).default([]),
+        options: z
+          .array(
+            z.object({
+              id: z.string(),
+              text: z.string().optional().nullable(),
+              pointValue: z
+                .union([z.number(), z.string()])
+                .optional()
+                .nullable(),
+              isNa: z.boolean().default(false),
+              position: z.union([z.number(), z.string()]),
+            }),
+          )
+          .default([]),
       }),
     ),
   })
   .refine(
     (data) => {
-      // if it is a header, make sure it doesnt have options or milestones or isRequired
       const headerItems = data.formItems.filter((fi) => fi.type === "HEADER");
-      if (!headerItems) return;
-
-      const headerItemsWithMilestones = headerItems.filter(
-        (hi) => hi.milestoneIds.length > 0,
+      return headerItems.every(
+        (hi) =>
+          hi.milestoneIds.length === 0 &&
+          hi.options.length === 0 &&
+          !hi.isRequired,
       );
-      const headerItemsWithOptions = headerItems.filter(
-        (hi) => hi.options.length > 0,
-      );
-      const headerItemsThatAreRequired = headerItems.filter(
-        (hi) => hi.isRequired,
-      );
-
-      if (headerItemsWithMilestones)
-        throw new Error("Headers cannot be assigned milestones.");
-      if (headerItemsWithOptions)
-        throw new Error("Headers cannot have options.");
-      if (headerItemsThatAreRequired)
-        throw new Error("Headers cannot be required.");
     },
-    { path: ["formItems"] },
+    {
+      message:
+        "Header items must not have milestones, options, or be required.",
+      path: ["formItems"],
+    },
   )
   .refine(
     (data) => {
-      // if it is a written question, make sure it has no options
       const writtenItems = data.formItems.filter((fi) => fi.type === "WRITTEN");
-      if (!writtenItems) return;
-
-      const writtenItemsWithOptions = writtenItems.filter(
-        (fi) => fi.options.length > 0,
-      );
-      if (writtenItemsWithOptions)
-        throw new Error("Written questions cannot have options.");
+      return writtenItems.every((fi) => fi.options.length === 0);
     },
-    { path: ["formItems"] },
+    {
+      message: "Written questions must not have options.",
+      path: ["formItems"],
+    },
   )
   .refine(
     (data) => {
-      // if it is not a header, it can't have a description
       const nonHeaderItems = data.formItems.filter(
         (fi) => fi.type !== "HEADER",
       );
-      if (!nonHeaderItems) return;
-
-      const nonHeaderItemsWithDescription = nonHeaderItems.filter(
-        (fi) => fi.description !== null,
-      );
-      if (nonHeaderItemsWithDescription)
-        throw new Error("Non-header items cannot have descriptions.");
+      return nonHeaderItems.every((fi) => fi.description === null || undefined);
     },
-    { path: ["formItems"] },
+    {
+      message: "Only header items can have descriptions.",
+      path: ["formItems"],
+    },
   );
 
 export type TFormSchema = z.infer<typeof ZFormSchema>;
@@ -112,6 +102,7 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
   const handleSave = useCallback(
     async (formData: TFormSchema) => {
       const startTime = Date.now();
+      console.log("Form Data Before Submission: ", formData);
       try {
         setIsSaving(true);
         await autosaveForm(formData);
@@ -143,7 +134,7 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
   useEffect(() => {
     const subscription = methods.watch((formData) => {
       if (!isEqual(formData, previousStateRef.current)) {
-        latestFormDataRef.current = formData as TFormSchema;
+        latestFormDataRef.current = ZFormSchema.parse(formData);
         previousStateRef.current = JSON.parse(JSON.stringify(formData));
 
         // Add 200ms to the timer, up to a max of 2000ms
