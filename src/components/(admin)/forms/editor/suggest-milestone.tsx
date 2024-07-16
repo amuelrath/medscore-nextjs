@@ -46,13 +46,13 @@ export function SuggestMilestone({
         formItemId: getValues(`formItems.${selectedQuestionIndex}.id`),
       }),
     onSuccess: (newRecommendation) => {
-      queryClient.setQueryData(["form", formId], (oldData: any) => {
-        const updatedQuestions = oldData.questions.map((q: any) =>
+      queryClient.setQueryData(["form", formId], (oldData: FormResult) => {
+        const updatedQuestions = oldData.formItems.map((q) =>
           q.id === getValues(`formItems.${selectedQuestionIndex}.id`)
             ? { ...q, recommendedMilestone: newRecommendation[0] }
             : q,
         );
-        return { ...oldData, questions: updatedQuestions };
+        return { ...oldData, formItems: updatedQuestions };
       });
     },
   });
@@ -88,7 +88,7 @@ export function SuggestMilestone({
             };
 
             return (
-              <div >
+              <div key={recData?.id || "rec"} >
                 <div className="relative flex h-44 pb-2  flex-col justify-center rounded-xl border border-accent-secondary bg-accent-secondary-background p-2 text-center">
                   <p className="text-2xl font-bold tracking-wider text-teal-950">
                     {recommendedMilestone?.name || (
@@ -216,7 +216,7 @@ function FeedbackButtonGroup({
               : question.recommendedMilestone,
         }));
 
-        return { ...oldData, questions: updatedQuestions };
+        return { ...oldData, formItems: updatedQuestions };
       });
 
       // Return a context object with the snapshotted value
