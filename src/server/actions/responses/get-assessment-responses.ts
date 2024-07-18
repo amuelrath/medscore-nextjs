@@ -4,11 +4,11 @@ import { db } from "@/db";
 import { responses } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function getFormCodeResponses(formCodeId: string) {
+export async function getAssessmentResponses(formCodeId: string) {
   return db.query.responses.findMany({
-    where: eq(responses.formCodeId, formCodeId),
+    where: eq(responses.assessmentId, formCodeId),
     columns: {
-      formCodeId: true,
+      assessmentId: true,
       id: true,
       createdAt: true,
       creatorId: false,
@@ -41,5 +41,5 @@ export async function getFormCodeResponses(formCodeId: string) {
 }
 
 export type FormCodeResponsesResult = Awaited<
-  ReturnType<typeof getFormCodeResponses>
+  ReturnType<typeof getAssessmentResponses>
 >;

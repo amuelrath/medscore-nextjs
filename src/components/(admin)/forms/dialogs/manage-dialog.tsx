@@ -15,7 +15,7 @@ import { EditAssessmentForm } from "@/components/(admin)/forms/dialogs/edit-asse
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   manageDialogOpenAtom,
-  manageDialogSelectedCodeIdAtom,
+  manageDialogSelectedAssessmentIdAtom,
 } from "@/store/form-atoms";
 import { useAtom, useSetAtom } from "jotai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -30,7 +30,7 @@ export function ManageDialog() {
   const formId = getValues(`id`);
   const [hovering, setHovering] = useState<boolean>(false);
   const [open, setOpen] = useAtom(manageDialogOpenAtom);
-  const setActiveCodeId = useSetAtom(manageDialogSelectedCodeIdAtom);
+  const setActiveCodeId = useSetAtom(manageDialogSelectedAssessmentIdAtom);
 
   const handleClose = () => {
     if (open) {
@@ -51,8 +51,8 @@ export function ManageDialog() {
           if (!oldData) return oldData;
 
           // Add the new form code to the existing array
-          const updatedFormCodes: FormResult["formCodes"] = [
-            ...oldData.formCodes,
+          const updatedAssessments: FormResult["assessments"] = [
+            ...oldData.assessments,
             {
               ...result,
             },
@@ -62,7 +62,7 @@ export function ManageDialog() {
 
           return {
             ...oldData,
-            formCodes: updatedFormCodes,
+            assessments: updatedAssessments,
           };
         },
       );

@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { responses, answers, formCodes } from "@/db/schema";
+import { responses, answers, assessments } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { TEvaluationFormSchema } from "@/components/(admin)/evaluate/forms/evaluation-form";
 
@@ -25,16 +25,16 @@ export async function submitResponse(response: TEvaluationFormSchema) {
         throw new Error("Response has answers");
 
       // then, check if the form code is a direct observation
-      const formCode = await tx.query.formCodes.findFirst({
-        where: (fc, { eq }) => eq(fc.id, currentResponse.formCodeId),
+      const formCode = await tx.query.assessments.findFirst({
+        where: (fc, { eq }) => eq(fc.id, currentResponse.assessmentId),
       });
 
       // If it's a direct observation, update the canceledAt field
       if (formCode?.isDirectObservation) {
         await tx
-          .update(formCodes)
+          .update(assessments)
           .set({ canceledAt: new Date() })
-          .where(eq(formCodes.id, formCode.id));
+          .where(eq(assessments.id, formCode.id));
       }
 
       // not entirely certain why i am refetching the same response, but ill roll w it for the moment

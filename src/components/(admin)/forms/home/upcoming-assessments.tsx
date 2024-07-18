@@ -15,13 +15,13 @@ import { cn } from "@/lib/helpers/utils";
 import { useRouter } from "next/navigation";
 import {
   manageDialogOpenAtom,
-  manageDialogSelectedCodeIdAtom,
+  manageDialogSelectedAssessmentIdAtom,
 } from "@/store/form-atoms";
 import { useSetAtom } from "jotai";
 
 export function UpcomingAssessments() {
   const setManageDialogOpen = useSetAtom(manageDialogOpenAtom);
-  const setActiveCodeId = useSetAtom(manageDialogSelectedCodeIdAtom);
+  const setActiveCodeId = useSetAtom(manageDialogSelectedAssessmentIdAtom);
   const router = useRouter();
 
   const { data: forms } = useSuspenseQuery({
@@ -32,7 +32,7 @@ export function UpcomingAssessments() {
       }),
   });
 
-  const upcomingAssessments = forms.flatMap((f) => f.formCodes);
+  const upcomingAssessments = forms.flatMap((f) => f.assessments);
 
   const getAssessmentsForDay = (day: Date) => {
     return upcomingAssessments.filter((assessment) =>
@@ -53,7 +53,7 @@ export function UpcomingAssessments() {
           <TooltipContent className="mb-3 px-1.5">
             {assessments.map((assessment) => {
               const formId = forms.find((f) =>
-                f.formCodes.find((fc) => fc.id === assessment.id),
+                f.assessments.find((fc) => fc.id === assessment.id),
               )?.id;
               const handleClick = () => {
                 setManageDialogOpen(true);
@@ -77,7 +77,7 @@ export function UpcomingAssessments() {
                   <p className="text-neutral-600">
                     {
                       forms.find((f) =>
-                        f.formCodes?.find((fc) => fc.id === assessment.id),
+                        f.assessments?.find((fc) => fc.id === assessment.id),
                       )?.title
                     }
                   </p>

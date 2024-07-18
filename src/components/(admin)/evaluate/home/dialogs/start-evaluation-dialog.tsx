@@ -193,7 +193,7 @@ export function StartEvaluationDialog({ children }: { children: ReactNode }) {
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                       <SelectContent>
-                        {formCodeData?.formCode.usersWithCode
+                        {formCodeData?.assessment.evaluatees
                           ?.filter((student) => student.user.role === "STUDENT")
                           .map((student) => (
                             <SelectItem

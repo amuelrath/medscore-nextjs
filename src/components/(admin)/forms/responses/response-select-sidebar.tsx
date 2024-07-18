@@ -11,8 +11,8 @@ import {
 } from "@/store/form-atoms";
 import {
   FormCodeResponsesResult,
-  getFormCodeResponses,
-} from "@/server/actions/responses/get-form-code-responses";
+  getAssessmentResponses,
+} from "@/server/actions/responses/get-assessment-responses";
 import { useState } from "react";
 import { FileCheckIcon, SearchIcon } from "lucide-react";
 import { getFullName } from "@/lib/helpers/getFullName";
@@ -49,7 +49,7 @@ function ResponseCardList() {
     isError,
   } = useQuery({
     queryKey: ["responses", selectedFormCodeId],
-    queryFn: () => getFormCodeResponses(selectedFormCodeId!),
+    queryFn: () => getAssessmentResponses(selectedFormCodeId!),
     enabled: !!selectedFormCodeId,
   });
 
@@ -81,7 +81,8 @@ function ResponseCardList() {
         />
       </div>
       {responses
-        .filter((r) => r.formCodeId === selectedFormCodeId)
+        .filter((r) => r.assessmentId === selectedFormCodeId)
+        .filter(r => r.duration) // hack way to make sure 'unsubmitted' responses are not included
         .filter((r) =>
           getFullName(r.evaluatee || {})
             .toLowerCase()

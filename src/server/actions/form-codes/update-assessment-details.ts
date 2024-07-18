@@ -1,10 +1,10 @@
 "use server";
 import { db } from "@/db";
-import { formCodes, formCodesOnUsers } from "@/db/schema";
+import { assessments, assessmentsOnEvaluatees } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 interface Params {
-  formCodeId: string;
+  assessmentId: string;
   title: string;
   evaluateeIds: string[];
   startsAt: string;
@@ -34,7 +34,7 @@ type ErrorResult = {
 export async function updateAssessmentDetails({
   ...params
 }: Params): Promise<Result> {
-  const { title, evaluateeIds, formCodeId } = params;
+  const { title, evaluateeIds, assessmentId } = params;
   const startsAt = new Date(params.startsAt);
   const expiresAt = new Date(params.expiresAt);
 
@@ -42,22 +42,22 @@ export async function updateAssessmentDetails({
     const result = await db.transaction(async (tx) => {
       // update the form code itself
       await tx
-        .update(formCodes)
+        .update(assessments)
         .set({ title, startsAt, expiresAt })
-        .where(eq(formCodes.id, formCodeId));
+        .where(eq(assessments.id, assessmentId));
 
       // delete existing user associations
       await tx
-        .delete(formCodesOnUsers)
-        .where(eq(formCodesOnUsers.formCodeId, formCodeId));
+        .delete(assessmentsOnEvaluatees)
+        .where(eq(assessmentsOnEvaluatees.assessmentId, assessmentId));
 
       // insert new user associations
       for (const userId of evaluateeIds) {
-        await tx.insert(formCodesOnUsers).values({ formCodeId, userId });
+        await tx.insert(assessmentsOnEvaluatees).values({ assessmentId: assessmentId, userId });
       }
 
       return {
-        id: formCodeId,
+        id: assessmentId,
         title,
         startsAt: startsAt.toISOString(),
         expiresAt: expiresAt.toISOString(),

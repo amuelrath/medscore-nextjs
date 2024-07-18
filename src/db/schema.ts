@@ -237,7 +237,7 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   }),
   formItems: many(formItems),
   tags: many(formTags),
-  formCodes: many(formCodes),
+  assessments: many(assessments),
 }));
 
 export const formItems = pgTable("form_items", {
@@ -269,7 +269,6 @@ export const formItemRelations = relations(formItems, ({ one, many }) => ({
   recommendedMilestone: one(recommendedMilestones),
 }));
 
-// MARK: Options
 export const options = pgTable("options", {
   id: uuid("id")
     .notNull()
@@ -282,6 +281,7 @@ export const options = pgTable("options", {
   formItemId: uuid("form_item_id")
     .notNull()
     .references((): AnyPgColumn => formItems.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 export type Option = typeof options.$inferSelect;
 export type NewOption = typeof options.$inferInsert;
@@ -336,9 +336,9 @@ export const responses = pgTable("responses", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formCodeId: uuid("form_code_id")
+  assessmentId: uuid("assessment_id")
     .notNull()
-    .references(() => formCodes.id, { onDelete: "cascade" }),
+    .references(() => assessments.id, { onDelete: "cascade" }),
   creatorId: uuid("creator_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
@@ -360,9 +360,9 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
     fields: [responses.evaluateeId],
     references: [users.id],
   }),
-  formCode: one(formCodes, {
-    fields: [responses.formCodeId],
-    references: [formCodes.id],
+  assessment: one(assessments, {
+    fields: [responses.assessmentId],
+    references: [assessments.id],
   }),
 }));
 
@@ -391,7 +391,7 @@ export const answerRelations = relations(answers, ({ one }) => ({
   }),
 }));
 
-export const formCodes = pgTable("form_codes", {
+export const assessments = pgTable("assessments", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
@@ -408,23 +408,23 @@ export const formCodes = pgTable("form_codes", {
     .notNull()
     .default(false),
 });
-export type FormCode = typeof formCodes.$inferSelect;
-export type NewFormCode = typeof formCodes.$inferInsert;
-export const formCodeRelations = relations(formCodes, ({ one, many }) => ({
+export type Assessment = typeof assessments.$inferSelect;
+export type NewAssessment = typeof assessments.$inferInsert;
+export const assessmentRelations = relations(assessments, ({ one, many }) => ({
   form: one(forms, {
-    fields: [formCodes.formId],
+    fields: [assessments.formId],
     references: [forms.id],
   }),
-  usersWithCode: many(formCodesOnUsers),
+  evaluatees: many(assessmentsOnEvaluatees),
   responses: many(responses),
 }));
 
-export const formCodesOnUsers = pgTable(
-  "form_codes_on_users",
+export const assessmentsOnEvaluatees = pgTable(
+  "assessments_on_evaluatees",
   {
-    formCodeId: uuid("form_code_id")
+    assessmentId: uuid("assessment_id")
       .notNull()
-      .references(() => formCodes.id, { onDelete: "cascade" }),
+      .references(() => assessments.id, { onDelete: "cascade" }),
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
@@ -433,22 +433,23 @@ export const formCodesOnUsers = pgTable(
   (table) => {
     return {
       id: primaryKey({
-        columns: [table.formCodeId, table.userId],
+        columns: [table.assessmentId, table.userId],
       }),
     };
   },
 );
-export type FormCodeOnUser = typeof formCodesOnUsers.$inferSelect;
-export type NewFormCodeOnUser = typeof formCodesOnUsers.$inferInsert;
-export const formCodesOnUsersRelations = relations(
-  formCodesOnUsers,
+export type AssessmentOnEvaluatee = typeof assessmentsOnEvaluatees.$inferSelect;
+export type NewAssessmentOnEvaluatee =
+  typeof assessmentsOnEvaluatees.$inferInsert;
+export const assessmentsOnEvaluateesRelations = relations(
+  assessmentsOnEvaluatees,
   ({ one }) => ({
-    formCode: one(formCodes, {
-      fields: [formCodesOnUsers.formCodeId],
-      references: [formCodes.id],
+    assessment: one(assessments, {
+      fields: [assessmentsOnEvaluatees.assessmentId],
+      references: [assessments.id],
     }),
     user: one(users, {
-      fields: [formCodesOnUsers.userId],
+      fields: [assessmentsOnEvaluatees.userId],
       references: [users.id],
     }),
   }),
@@ -488,8 +489,8 @@ export const recommendedMilestoneRelations = relations(
 export const answerTotalsView = pgView("answer_totals_view", {
   responseId: uuid("response_id").notNull(),
   responseCreatedAt: timestamp("response_created_at").notNull(), // for tracking a student's scores over time
-  formCodeId: uuid("form_code_id").notNull(),
-  formCodeCreatedAt: timestamp("form_code_created_at").notNull(), // for tracking a form's scores over time
+  assessmentId: uuid("assessment_id").notNull(),
+  assessmentCreatedAt: timestamp("assessment_created_at").notNull(), // for tracking a form's scores over time
   evaluateeId: uuid("evaluatee_id").notNull(),
   evaluatorId: uuid("evaluator_id").notNull(),
   formItemId: uuid("form_item_id").notNull(),
@@ -503,4 +504,4 @@ export const answerTotalsView = pgView("answer_totals_view", {
   milestoneId: uuid("milestone_id"),
   subcompetencyId: uuid("subcompetency_id"), // consider removing later, as we can get this info from the milestone id
   competencyId: uuid("competency_id"),
-}).existing()
+}).existing();

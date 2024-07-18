@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { formCodes, formCodesOnUsers } from "@/db/schema";
+import { assessments, assessmentsOnEvaluatees } from "@/db/schema";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 export async function administerForm({
@@ -34,7 +34,7 @@ export async function administerForm({
 
   // create the form code
   const insertFormCode = await tx
-    .insert(formCodes)
+    .insert(assessments)
     .values({
       formId: form.id,
       code,
@@ -46,10 +46,10 @@ export async function administerForm({
     .returning();
 
   // this is inefficient but i want to get joins
-  const formCode = await tx.query.formCodes.findFirst({
+  const formCode = await tx.query.assessments.findFirst({
     where: (fc, { eq }) => eq(fc.id, insertFormCode[0].id),
     with: {
-      usersWithCode: {
+      evaluatees: {
         with: {
           user: {
             columns: {
@@ -71,8 +71,8 @@ export async function administerForm({
   // link the form code to the users
   await Promise.all(
     userIds.map((u) =>
-      tx.insert(formCodesOnUsers).values({
-        formCodeId: formCode.id,
+      tx.insert(assessmentsOnEvaluatees).values({
+        assessmentId: formCode.id,
         userId: u,
       }),
     ),

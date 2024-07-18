@@ -11,9 +11,9 @@ export async function getFormById({
 }) {
   return db.query.forms.findFirst({
     with: {
-      formCodes: {
+      assessments: {
         with: {
-          usersWithCode: {
+          evaluatees: {
             with: {
               user: {
                 columns: {

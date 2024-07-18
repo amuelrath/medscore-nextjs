@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { formCodes } from "@/db/schema";
+import { assessments } from "@/db/schema";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { dateToSQLDate } from "@/lib/helpers/date-to-sql-date";
 
@@ -18,32 +18,32 @@ export async function cancelAdministerForm(
 
     // Check if the form code has any responses
     const hasResponses = await db.query.responses.findFirst({
-      where: (r, { eq }) => eq(r.formCodeId, formCodeId),
+      where: (r, { eq }) => eq(r.assessmentId, formCodeId),
     });
 
     if (hasResponses) {
       // If there are responses, set the canceledAt property
       await db
-        .update(formCodes)
+        .update(assessments)
         .set({
           canceledAt: new Date(),
         })
         .where(
           and(
-            eq(formCodes.id, formCodeId),
-            isNull(formCodes.canceledAt),
-            sql`${formCodes.expiresAt} > ${now}::timestamp`,
+            eq(assessments.id, formCodeId),
+            isNull(assessments.canceledAt),
+            sql`${assessments.expiresAt} > ${now}::timestamp`,
           ),
         );
     } else {
       // If there are no responses, delete the form code
       await db
-        .delete(formCodes)
+        .delete(assessments)
         .where(
           and(
-            eq(formCodes.id, formCodeId),
-            isNull(formCodes.canceledAt),
-            sql`${formCodes.expiresAt} > ${now}::timestamp`,
+            eq(assessments.id, formCodeId),
+            isNull(assessments.canceledAt),
+            sql`${assessments.expiresAt} > ${now}::timestamp`,
           ),
         );
     }

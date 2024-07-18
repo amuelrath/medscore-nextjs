@@ -25,7 +25,7 @@ export async function getEvaluationForm({
           lastName: true,
         },
       },
-      formCode: {
+      assessment: {
         with: {
           form: {
             columns: {
@@ -44,22 +44,22 @@ export async function getEvaluationForm({
   if (!response) throw new Error("Form code not found");
 
   if (
-    isBefore(now, response.formCode.startsAt) ||
-    isAfter(now, response.formCode.expiresAt) ||
-    response.formCode.canceledAt
+    isBefore(now, response.assessment.startsAt) ||
+    isAfter(now, response.assessment.expiresAt) ||
+    response.assessment.canceledAt
   )
     throw new Error("Form code has expired or not yet valid");
 
   const form = await db.query.forms.findFirst({
-    where: (f, { eq }) => eq(f.id, response.formCode.formId),
+    where: (f, { eq }) => eq(f.id, response.assessment.formId),
     columns: {
       id: true,
       title: true,
     },
     with: {
-      formCodes: {
+      assessments: {
         limit: 1,
-        where: (fc, { eq }) => eq(fc.id, response.formCode.id),
+        where: (fc, { eq }) => eq(fc.id, response.assessment.id),
         columns: {
           formId: false,
           code: false,
@@ -72,10 +72,10 @@ export async function getEvaluationForm({
           createdAt: false,
         },
         with: {
-          usersWithCode: {
+          evaluatees: {
             columns: {
               userId: false,
-              formCodeId: false,
+              assessmentId: false,
               deletedAt: false,
             },
             with: {

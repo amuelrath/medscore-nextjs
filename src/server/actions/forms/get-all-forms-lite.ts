@@ -17,7 +17,7 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
     },
     // TODO maybe fetch this sep. ? this is used in only the upcoming assessments card
     with: {
-      formCodes: {
+      assessments: {
         where: (fc, { and, isNull }) =>
           and(sql`${fc.startsAt} > ${now}::timestamp`, isNull(fc.canceledAt)),
         columns: {

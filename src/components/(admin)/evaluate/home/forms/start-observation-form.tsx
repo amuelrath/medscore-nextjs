@@ -72,7 +72,7 @@ export function InEditorForm({ formId }: { formId: string }) {
 
           return {
             ...oldData,
-            formCodes: [...oldData.formCodes, result.formCode],
+            assessments: [...oldData.assessments, result.assessment],
           };
         },
       );
@@ -171,12 +171,12 @@ export function NotInEditorForm() {
     mutationFn: startDirectObservation,
     onSuccess: (result) => {
       queryClient.setQueryData(
-        ["form", result.formCode.formId],
+        ["form", result.assessment.formId],
         (oldData: FormResult | undefined) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            formCodes: [...oldData.formCodes, result.formCode],
+            assessments: [...oldData.assessments, result.assessment],
           };
         },
       );

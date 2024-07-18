@@ -7,22 +7,22 @@ import { CalendarClockIcon, UsersRoundIcon } from "lucide-react";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { manageDialogSelectedCodeIdAtom } from "@/store/form-atoms";
+import { manageDialogSelectedAssessmentIdAtom } from "@/store/form-atoms";
 import { useAtom } from "jotai";
 import { m, LazyMotion, domAnimation } from "framer-motion";
 import React from "react";
 
 export function ScheduledAssessmentsSelect() {
-  const { formResult, isLoading, error } = useFormResultInEditorQuery();
+  const { formResult, isLoading } = useFormResultInEditorQuery();
 
   const now = new Date();
-  const activeFormCode = formResult?.formCodes.find(
+  const activeFormCode = formResult?.assessments.find(
     (fc) =>
       isAfter(now, fc.startsAt) &&
       isBefore(now, fc.expiresAt) &&
       fc.canceledAt === null,
   );
-  const scheduledFormCodes = formResult?.formCodes.filter(
+  const scheduledAssessments = formResult?.assessments.filter(
     (fc) => isBefore(now, fc.startsAt) && !fc.canceledAt,
   );
 
@@ -34,12 +34,12 @@ export function ScheduledAssessmentsSelect() {
     <LazyMotion features={domAnimation}>
       <div className="no-scrollbar h-[46vh] w-full space-y-2 overflow-y-scroll">
           {activeFormCode && (
-            <ScheduleCard formCode={activeFormCode} status="active" />
+            <ScheduleCard assessment={activeFormCode} status="active" />
           )}
-          {(scheduledFormCodes?.length || 0) > 0 && (
+          {(scheduledAssessments?.length || 0) > 0 && (
             <>
-              {scheduledFormCodes?.map((fc) => (
-                <ScheduleCard key={fc.id} formCode={fc} status="scheduled" />
+              {scheduledAssessments?.map((fc) => (
+                <ScheduleCard key={fc.id} assessment={fc} status="scheduled" />
               ))}
             </>
           )}
@@ -49,32 +49,32 @@ export function ScheduledAssessmentsSelect() {
 }
 
 interface ScheduleCardProps {
-  formCode: FormResult["formCodes"][number];
+  assessment: FormResult["assessments"][number];
   status: "active" | "scheduled";
 }
 
-export function ScheduleCard({ formCode, status }: ScheduleCardProps) {
-  const [activeCodeId, setActiveCodeId] = useAtom(
-    manageDialogSelectedCodeIdAtom,
+export function ScheduleCard({ assessment, status }: ScheduleCardProps) {
+  const [activeId, setActiveId] = useAtom(
+    manageDialogSelectedAssessmentIdAtom,
   );
 
-  const assignedUsers = formCode.usersWithCode.length;
+  const assignedUsers = assessment.evaluatees.length;
 
-  const startDate = formCode.startsAt ? new Date(formCode.startsAt) : null;
+  const startDate = assessment.startsAt ? new Date(assessment.startsAt) : null;
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    setActiveCodeId(formCode.id);
+    setActiveId(assessment.id);
   };
 
   return (
     <m.div
-      layoutId={formCode.id}
+      layoutId={assessment.id}
       layout="position"
       onClick={handleClick}
       className={cn(
         "select-none rounded-xl p-3 transition-colors",
-        activeCodeId === formCode.id ? "bg-blue-800/5" : "hover:bg-blue-800/5",
+        activeId === assessment.id ? "bg-blue-800/5" : "hover:bg-blue-800/5",
       )}
       initial={{ opacity: 0, y: -5 }}
       animate={{ opacity: 1, y: 0 }}
@@ -82,10 +82,10 @@ export function ScheduleCard({ formCode, status }: ScheduleCardProps) {
       <div className="flex flex-row items-center justify-between">
         <div className="space-y-1.5">
           <div className="flex flex-row items-center space-x-2">
-            {formCode.isDirectObservation && (
+            {assessment.isDirectObservation && (
               <Image src={EYEBALL} alt="eyeball-icon" width={16} height={16} />
             )}
-            <p> {formCode.title || "Untitled Administration"}</p>
+            <p> {assessment.title || "Untitled Administration"}</p>
             {status === "active" && (
               <span className=" size-2 animate-pulse rounded-full bg-accent-secondary" />
             )}

@@ -21,7 +21,7 @@ import { LottieHover } from "@/components/ui/lottie-hover";
 import { cancelAdministerForm } from "@/server/actions/form-codes/cancel-administer-form";
 import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { manageDialogSelectedCodeIdAtom } from "@/store/form-atoms";
+import { manageDialogSelectedAssessmentIdAtom } from "@/store/form-atoms";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import TwoStageConfirmButton from "@/components/ui/confirm-button";
@@ -34,17 +34,19 @@ import COPY from "public/icons/system-regular-99-copy.json";
  */
 export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
-    manageDialogSelectedCodeIdAtom,
+    manageDialogSelectedAssessmentIdAtom,
   );
   const { formResult, error, isLoading } = useFormResultInEditorQuery();
-  const selectedFormCode = formResult?.formCodes.find((fc) => fc.id == activeCodeId);
+  const selectedFormCode = formResult?.assessments.find(
+    (fc) => fc.id == activeCodeId,
+  );
   const studentOptions = formResult?.programs.users
     .filter((u) => u.user.role === "STUDENT")
     .map((s) => ({
       value: s.user.id,
       label: getFullName(s.user),
     }));
-  const evaluateeIds = selectedFormCode?.usersWithCode
+  const evaluateeIds = selectedFormCode?.evaluatees
     .map((uwc) => uwc.user)
     ?.map((u) => u.id)
     .filter((id) => id !== undefined);
@@ -58,7 +60,7 @@ export function EditAssessmentForm() {
   } = useForm<TEditAssessmentFormSchema>({
     resolver: zodResolver(ZEditAssessmentFormSchema),
     defaultValues: {
-      formCodeId: selectedFormCode?.id || "",
+      assessmentId: selectedFormCode?.id || "",
       title: selectedFormCode?.title || "",
       evaluateeIds,
       expiresAt: selectedFormCode?.expiresAt
@@ -74,9 +76,9 @@ export function EditAssessmentForm() {
   useEffect(() => {
     if (selectedFormCode) {
       reset({
-        formCodeId: selectedFormCode.id || "",
+        assessmentId: selectedFormCode.id || "",
         title: selectedFormCode.title || "",
-        evaluateeIds: selectedFormCode.usersWithCode
+        evaluateeIds: selectedFormCode.evaluatees
           .map((uwc) => uwc.user?.id)
           .filter((id) => id !== undefined),
         expiresAt: selectedFormCode.expiresAt
@@ -100,24 +102,24 @@ export function EditAssessmentForm() {
         (oldData: FormResult | undefined) => {
           if (!oldData) return oldData;
 
-          const updatedFormCodes = oldData.formCodes.map((fc) =>
+          const updatedFormCodes = oldData.assessments.map((fc) =>
             fc.id === result.data.id
               ? {
                   ...fc,
                   title: result.data.title,
                   startsAt: result.data.startsAt,
                   expiresAt: result.data.expiresAt,
-                  usersWithCode: result.data.evaluateeIds.map((id) => ({
+                  evaluatees: result.data.evaluateeIds.map((id) => ({
                     user: {
                       id,
                       firstName:
-                        fc.usersWithCode.find((u) => u.user.id === id)?.user
+                        fc.evaluatees.find((u) => u.user.id === id)?.user
                           .firstName || "",
                       lastName:
-                        fc.usersWithCode.find((u) => u.user.id === id)?.user
+                        fc.evaluatees.find((u) => u.user.id === id)?.user
                           .lastName || "",
                       role:
-                        fc.usersWithCode.find((u) => u.user.id === id)?.user
+                        fc.evaluatees.find((u) => u.user.id === id)?.user
                           .role || "STUDENT",
                     },
                   })),
@@ -130,7 +132,7 @@ export function EditAssessmentForm() {
 
           return {
             ...oldData,
-            formCodes: updatedFormCodes,
+            assessments: updatedFormCodes,
           };
         },
       );
@@ -149,17 +151,17 @@ export function EditAssessmentForm() {
         (oldData: FormResult | undefined) => {
           if (!oldData) return oldData;
 
-          const updatedFormCodes = oldData.formCodes.filter(
+          const updatedFormCodes = oldData.assessments.filter(
             (fc) => fc.id !== selectedFormCode?.id,
           );
 
           setActiveCodeId(
-            oldData.formCodes.find((fc) => isAfter(fc.startsAt, now))?.id,
+            oldData.assessments.find((fc) => isAfter(fc.startsAt, now))?.id,
           );
 
           return {
             ...oldData,
-            formCodes: updatedFormCodes,
+            assessments: updatedFormCodes,
           };
         },
       );
@@ -192,11 +194,11 @@ export function EditAssessmentForm() {
     );
   }
 
-  const scheduledAssessments = formResult.formCodes.filter(
+  const scheduledAssessments = formResult.assessments.filter(
     (fc) => isBefore(now, fc.startsAt) && !fc.canceledAt,
   );
 
-  const activeAssessments = formResult.formCodes.filter(
+  const activeAssessments = formResult.assessments.filter(
     (fc) =>
       isAfter(now, fc.startsAt) &&
       isBefore(now, fc.expiresAt) &&
@@ -232,9 +234,7 @@ export function EditAssessmentForm() {
     </>
   );
 
-  if (
-    (scheduledAssessments.length === 0 && activeAssessments.length === 0)
-  ) {
+  if (scheduledAssessments.length === 0 && activeAssessments.length === 0) {
     return noAssessmentsContent;
   }
 
@@ -376,7 +376,7 @@ function AssessmentControls({
   onCancel,
   isActive,
 }: {
-  assessment: FormResult["formCodes"][0];
+  assessment: FormResult["assessments"][0];
   onCancel: () => void;
   isActive: boolean;
 }) {
@@ -440,7 +440,7 @@ function AssessmentControls({
 function StartNowButton({
   assessment,
 }: {
-  assessment: FormResult["formCodes"][0];
+  assessment: FormResult["assessments"][0];
 }) {
   const [hovering, setHovering] = useState<boolean>(false);
 
@@ -450,8 +450,8 @@ function StartNowButton({
       const now = new Date();
       return updateAssessmentDetails({
         title: assessment.title,
-        formCodeId: assessment.id,
-        evaluateeIds: assessment.usersWithCode.map((u) => u.user.id),
+        assessmentId: assessment.id,
+        evaluateeIds: assessment.evaluatees.map((u) => u.user.id),
         startsAt: now.toString(),
         expiresAt: assessment.startsAt.toString(),
       });
@@ -464,7 +464,7 @@ function StartNowButton({
         (oldData: FormResult | undefined) => {
           if (!oldData) return oldData;
 
-          const updatedFormCodes = oldData.formCodes.map((fc) =>
+          const updatedFormCodes = oldData.assessments.map((fc) =>
             fc.id === result.data.id
               ? {
                   ...fc,
@@ -475,7 +475,7 @@ function StartNowButton({
 
           return {
             ...oldData,
-            formCodes: updatedFormCodes,
+            assessments: updatedFormCodes,
           };
         },
       );
@@ -483,7 +483,7 @@ function StartNowButton({
   });
 
   const handleClick = () => {
-    if (assessment.usersWithCode.map((u) => u.user.id).length <= 0)
+    if (assessment.evaluatees.map((u) => u.user.id).length <= 0)
       return toast.error("Add an evaluatee to start this assessment.");
     return startNow();
   };
@@ -510,7 +510,7 @@ function StartNowButton({
 
 const ZEditAssessmentFormSchema = z
   .object({
-    formCodeId: z.string().min(1, {
+    assessmentId: z.string().min(1, {
       message: "An unexpected error occurred. Refresh the page and try again.",
     }),
     title: z.string().min(1, { message: "Enter a title." }),

@@ -38,7 +38,7 @@ function FormCodeSelect({ formId }: { formId: string }) {
         >
           <p className="truncate text-sm">
             {selectedFormCodeId
-              ? formResult?.formCodes?.find(
+              ? formResult?.assessments?.find(
                   (fc) => fc.id === selectedFormCodeId,
                 )?.title
               : "Select an Administration"}
@@ -56,7 +56,7 @@ function FormCodeSelect({ formId }: { formId: string }) {
             <ScrollArea className="h-72">
               <CommandEmpty>No administration found.</CommandEmpty>
               <CommandGroup>
-                {formResult?.formCodes
+                {formResult?.assessments
                   ?.filter((fc) => isBefore(fc.startsAt, new Date()))
                   ?.sort(
                     (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),

@@ -138,8 +138,8 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
 
   const getEvaluatee = () => {
     if (!evaluation || !evaluation) throw new Error("No form!");
-    if (evaluation.form.formCodes[0]) {
-      return evaluation.form.formCodes[0].usersWithCode.find(
+    if (evaluation.form.assessments[0]) {
+      return evaluation.form.assessments[0].evaluatees.find(
         (u) => u.user.id === evaluation.response.evaluateeId,
       )?.user;
     }
@@ -147,7 +147,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
 
   const getEvaluator = () => {
     if (!evaluation || !evaluation) throw new Error("No form!");
-    if (evaluation.form.formCodes[0]) {
+    if (evaluation.form.assessments[0]) {
       return evaluation.response.creator;
     }
   };
