@@ -69,6 +69,7 @@ export const QuestionDetailsMenu: FC<MilestoneMenuProps> = ({
             <hr />
             <TabsContent value="milestones">
               <DynamicInlineMilestoneMultiselect
+                key={selectedQuestionIndex}
                 control={control}
                 name={`formItems.${selectedQuestionIndex}.milestoneIds`}
               />
