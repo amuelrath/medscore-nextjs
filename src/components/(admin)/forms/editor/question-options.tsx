@@ -1,10 +1,15 @@
 "use client";
-import { useFormContext, useFieldArray, Controller, useWatch } from "react-hook-form";
+import {
+  useFormContext,
+  useFieldArray,
+  Controller,
+  useWatch,
+} from "react-hook-form";
 import { CircleIcon, SquareIcon, XIcon } from "lucide-react";
 import { v4 } from "uuid";
 import { Input } from "@/components/ui/input";
 import { FC } from "react";
-import { AnimatePresence, m} from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { cn } from "@/lib/helpers/utils";
 import { SimpleTooltip } from "@/components/ui/simple-tooltip";
@@ -26,7 +31,10 @@ export const OptionList: FC<OptionListProps> = ({
     name: `formItems.${itemIndex}.options`,
   });
 
-  const isScored = useWatch({ control, name: `formItems.${itemIndex}.isScored`})
+  const isScored = useWatch({
+    control,
+    name: `formItems.${itemIndex}.isScored`,
+  });
 
   const handleAddOption = (isNa = false) => {
     const position = fields.length + 1;
@@ -34,20 +42,20 @@ export const OptionList: FC<OptionListProps> = ({
       id: v4(),
       text: isNa ? "N/a" : "",
       position,
-      pointValue: isNa ? null : isScored ? '0' : null,
+      pointValue: isNa ? null : isScored ? "0" : null,
       isNa,
     });
   };
 
   return (
     <div>
-      <AnimatePresence >
+      <AnimatePresence>
         {fields
           .sort((a, b) => a.position - b.position)
           .map((field, index) => (
             <m.div
               key={field.id}
-              className="flex items-center mb-2"
+              className="mb-2 flex items-center"
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
@@ -66,7 +74,7 @@ export const OptionList: FC<OptionListProps> = ({
                   size={18}
                 />
               )}
-              <div className="relative flex-grow mx-2">
+              <div className="relative mx-2 flex-grow">
                 <Input
                   {...register(`formItems.${itemIndex}.options.${index}.text`)}
                   disabled={field.isNa}
@@ -79,7 +87,14 @@ export const OptionList: FC<OptionListProps> = ({
                 initial={{ width: 0, opacity: 0 }}
                 animate={{
                   // leave me alone i know this is disgusting
-                  width: (isSelected && isScored && !field.isNa) ? "65px" : (isSelected && !isScored) ? '0px' : (isSelected && field.isNa) ? '0px' : "0px",
+                  width:
+                    isSelected && isScored && !field.isNa
+                      ? "65px"
+                      : isSelected && !isScored
+                        ? "0px"
+                        : isSelected && field.isNa
+                          ? "0px"
+                          : "0px",
                   opacity: isSelected ? 1 : 0,
                 }}
                 transition={{ duration: 0.1 }}
@@ -116,17 +131,20 @@ export const OptionList: FC<OptionListProps> = ({
                   delay={200}
                   contentClassName="absolute left-6 w-[65px] "
                 >
-
-                <div className="cursor-pointer p-1 text-neutral-500 hover:text-destructive/90">
-                  <XIcon size={16} onClick={() => remove(index)} />
-                </div>
+                  <div className="cursor-pointer p-1 text-neutral-500 hover:text-destructive/90">
+                    <XIcon size={16} onClick={() => remove(index)} />
+                  </div>
                 </SimpleTooltip>
               </m.div>
             </m.div>
           ))}
         <m.div
           initial={{ x: -50, opacity: 0 }}
-          animate={{ x: isSelected ? 0 : -50, opacity: isSelected ? 1 : 0, height: isSelected ? "32px" : "0px" }}
+          animate={{
+            x: isSelected ? 0 : -50,
+            opacity: isSelected ? 1 : 0,
+            height: isSelected ? "32px" : "0px",
+          }}
           transition={{ duration: 0.1 }}
           className={cn("flex h-8 select-none items-center space-x-3")}
         >

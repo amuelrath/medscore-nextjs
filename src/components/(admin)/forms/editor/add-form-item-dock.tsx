@@ -23,7 +23,7 @@ export function AddFormItemDock({
         stiffness: 300,
         damping: 30,
       }}
-      className="flex flex-col items-center space-y-2 rounded-lg border border-neutral-300 bg-card p-4 drop-shadow-xl"
+      className="flex flex-col items-center space-y-2 rounded-lg border border-neutral-300 bg-card p-1 drop-shadow-sm"
     >
       <SimpleTooltip
         description={"Single-choice"}

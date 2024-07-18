@@ -194,11 +194,11 @@ export function FormTags({
             />
             <div className={cn("flex w-full flex-row items-center space-x-4")}>
               <Input
+                size="sm"
                 placeholder={"Tag Description..."}
-                className="bg-blue-800 bg-opacity-5 shadow-inner backdrop-blur-3xl"
                 {...register(`tag`)}
               />
-              <Button>Add Tag</Button>
+              <Button size="xs">Add Tag</Button>
             </div>
           </form>
         </PopoverContent>
@@ -234,9 +234,7 @@ function FormTag({
       <Badge
         // @ts-ignore
         variant={tag.variant}
-        className={cn(
-          `group relative bg-opacity-70 py-1 text-2xs font-medium`,
-        )}
+        className={cn(`group relative bg-opacity-70 py-1 text-2xs font-medium`)}
         onMouseEnter={() => handleMouseEnter(tag.id)}
         onMouseLeave={handleMouseLeave}
       >
@@ -254,7 +252,7 @@ function FormTag({
           size={12}
           onClick={() => removeTag(tag.id)}
           className={cn(
-            `absolute left-1/2 top-1/2 cursor-pointer origin-center -translate-x-1/2 -translate-y-1/2 transition-opacity duration-200`,
+            `absolute left-1/2 top-1/2 origin-center -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-opacity duration-200`,
             hoveredTagId === tag.id ? "opacity-100" : "opacity-0",
           )}
         />
@@ -285,7 +283,7 @@ function TagColorSelector({
           onClick={() => handleClick(color.variant)}
           className={cn(
             color.bg,
-            "size-6 cursor-pointer rounded-full transition-all",
+            "size-5 cursor-pointer rounded-full transition-all",
             selectedColor === color.variant &&
               `scale-110 ring-2 ${color.ring} ring-offset-1`,
           )}
