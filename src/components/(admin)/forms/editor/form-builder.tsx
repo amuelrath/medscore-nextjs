@@ -9,6 +9,7 @@ import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item
 import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
 import { v4 } from "uuid";
+import { toast } from "sonner";
 
 const DynamicMilestoneMenu = dynamic(
   () =>
@@ -76,13 +77,17 @@ export function FormBuilder() {
 
   const handleRemoveItem = useCallback(
     (index: number) => {
-      removeItem(index);
-      setSelectedItemIndex(null);
-      setLastSelectedItemIndex(null);
-      setMilestoneDialogOpenIndex(null);
-      setDockPosition(null);
+      if (formItems.length === 1) {
+        toast.error("You must have at least one question.");
+      } else {
+        removeItem(index);
+        setSelectedItemIndex(null);
+        setLastSelectedItemIndex(null);
+        setMilestoneDialogOpenIndex(null);
+        setDockPosition(null);
+      }
     },
-    [removeItem],
+    [removeItem, formItems.length],
   );
 
   const handleDuplicateItem = useCallback(
