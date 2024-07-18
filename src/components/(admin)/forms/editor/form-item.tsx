@@ -89,15 +89,28 @@ export function FormItem({
   return (
     <div ref={itemRef} className="relative mb-4">
       <Card
-        onClick={handleFocus}
+        onMouseDown={() => updatePosition()}
         className={cn(
-          item.type === "HEADER" && "border-t-[12px] border-t-primary/80",
-          isSelected &&
-            item.type !== "HEADER" &&
-            "border-t-[6px] border-t-accent-secondary",
-          "overflow-hidden transition-all",
+          "relative z-10 overflow-hidden transition-all",
+          item.type === "HEADER" && "border-t-[12px] border-t-primary/80 pt-3",
         )}
       >
+        <m.span
+          initial={false}
+          animate={{
+            width: isSelected || item.type === "HEADER" ? "100%" : "0%",
+            height: item.type === "HEADER" ? "0px" : "6px",
+          }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+          className={cn(
+            "absolute -top-[3px] left-0 right-0 z-10 origin-center",
+            item.type === "HEADER" ? "bg-primary/80" : "bg-accent-secondary",
+          )}
+          style={{
+            left: "50%",
+            transform: "translateX(-50%)",
+          }}
+        />
         <CardHeader className="flex flex-row items-start">
           <div
             className="flex-grow"
