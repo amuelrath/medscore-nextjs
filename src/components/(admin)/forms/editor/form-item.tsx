@@ -121,6 +121,7 @@ export function FormItem({
               name={`formItems.${index}.text`}
               control={control}
               render={({ field }) => (
+                // @ts-expect-error
                 <AutosizeTextarea
                   {...field}
                   minHeight={30}
