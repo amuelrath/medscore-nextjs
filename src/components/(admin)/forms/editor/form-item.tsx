@@ -69,10 +69,6 @@ export function FormItem({
     }
   }, [isSelected, updatePosition]);
 
-  const handleFocus = () => {
-    updatePosition();
-  };
-
   const getContent = () => {
     const ContentComponent = content[item.type];
     return (
