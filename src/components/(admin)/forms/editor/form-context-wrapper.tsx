@@ -50,10 +50,10 @@ const transform = (formItems: FormResult["formItems"]) => {
       position,
       options: options.map(({ id, text, position, pointValue, isNa }) => ({
         id,
-        text: text || undefined,
+        text,
         position,
         isNa,
-        pointValue: pointValue,
+        pointValue,
       })),
     }),
   );

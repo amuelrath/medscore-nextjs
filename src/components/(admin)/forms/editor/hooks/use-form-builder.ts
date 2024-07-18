@@ -8,6 +8,7 @@ import { isEqual } from "lodash";
 import { useAtom } from "jotai";
 import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 import { toast } from "sonner";
+import { v4 } from "uuid";
 
 // BEWARE OF FUNNY ERROR WITH DELETING A QUESTION AND NOT ALL PROPERTIES
 // GETTING DELETED.I THINK I FIXED IT BUT KNOW IT HAPPENED AND IT SUCKED
@@ -18,7 +19,7 @@ export const ZFormSchema = z
     formItems: z.array(
       z.object({
         id: z.string(),
-        text: z.string().optional(),
+        text: z.string().nullable(),
         type: z.enum([
           "MULTIPLE_CHOICE",
           "SINGLE_CHOICE",
@@ -26,7 +27,7 @@ export const ZFormSchema = z
           "RANGE",
           "WRITTEN",
         ]),
-        description: z.string().optional().nullable(),
+        description: z.string().nullable(),
         position: z.number(),
         isRequired: z.boolean(),
         isScored: z.boolean(),
@@ -36,12 +37,9 @@ export const ZFormSchema = z
             z.object({
               id: z.string(),
               text: z.string().optional().nullable(),
-              pointValue: z
-                .union([z.number(), z.string()])
-                .optional()
-                .nullable(),
+              pointValue: z.union([z.number(), z.string()]).nullable(),
               isNa: z.boolean().default(false),
-              position: z.union([z.number(), z.string()]),
+              position: z.number(),
             }),
           )
           .default([]),
@@ -92,7 +90,25 @@ export type TFormSchema = z.infer<typeof ZFormSchema>;
 export const useFormBuilder = (initialData?: TFormSchema) => {
   const methods = useForm<TFormSchema>({
     resolver: zodResolver(ZFormSchema),
-    defaultValues: initialData,
+    defaultValues: !!initialData?.formItems.length
+      ? initialData
+      : {
+          id: initialData?.id,
+          title: initialData?.title,
+          formItems: [
+            {
+              id: v4(),
+              text: initialData?.title,
+              type: "HEADER",
+              description: null,
+              position: 1,
+              isRequired: false,
+              isScored: false,
+              milestoneIds: [],
+              options: [],
+            },
+          ],
+        },
   });
   const [isSaving, setIsSaving] = useAtom(isSavingAtom);
   const previousStateRef = useRef<TFormSchema | null>(null);

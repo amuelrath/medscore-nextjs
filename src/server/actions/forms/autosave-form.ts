@@ -99,7 +99,13 @@ export async function autosaveForm(formData: TFormSchema) {
           .returning();
 
         // Insert new options
-        await handleOptions(tx, newQuestion.id, newQuestion.isScored, questionData.options, []);
+        await handleOptions(
+          tx,
+          newQuestion.id,
+          newQuestion.isScored,
+          questionData.options,
+          [],
+        );
 
         // Insert new milestones
         await handleMilestones(
@@ -139,7 +145,7 @@ async function handleOptions(
         .set({
           text: newOption.text,
           position: newOption.position,
-          pointValue: isScored ? newOption.pointValue : null,
+          pointValue: isScored ? String(newOption.pointValue) : null,
         })
         .where(eq(options.id, newOption.id));
     } else {
@@ -150,7 +156,7 @@ async function handleOptions(
         text: newOption.text,
         isNa: newOption.isNa,
         position: newOption.position,
-        pointValue: isScored ? newOption.pointValue : null,
+        pointValue: isScored ? String(newOption.pointValue) : null,
       });
     }
   }
