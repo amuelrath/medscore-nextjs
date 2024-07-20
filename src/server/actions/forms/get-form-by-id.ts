@@ -55,7 +55,9 @@ export async function getFormById({
         orderBy: (fi, { asc }) => asc(fi.position),
         with: {
           recommendedMilestone: true,
-          options: true,
+          options: {
+            orderBy: (o, { asc }) => asc(o.position)
+          },
           milestones: {
             with: {
               milestone: {
