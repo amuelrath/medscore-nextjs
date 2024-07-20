@@ -19,3 +19,5 @@ export async function getSubcompetencies({ formId }: { formId: string }) {
     });
   });
 }
+
+export type SubcompetencyResult = NonNullable<Awaited<ReturnType<typeof getSubcompetencies>>>
