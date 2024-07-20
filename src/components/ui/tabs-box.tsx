@@ -28,8 +28,8 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
               "-mb-[0.25px] -ml-[0.5px] inline-block h-8 w-24 cursor-pointer rounded-tl-md rounded-tr-md border-x-[1px] border-t border-neutral-300 px-4 py-2 text-center text-xs",
               "transition-all duration-200 ease-in-out",
               t.id === selectedTabId
-                ? "-translate-y-[1.5px] scale-y-[110%] border-b border-b-white bg-white text-primary"
-                : " border-b border-b-transparent bg-primary/5 text-primary/70 hover:bg-gray-200"
+                ? "-translate-y-[1.5px] scale-y-[110%] border-b border-b-white bg-white"
+                : " border-b border-b-transparent bg-primary/5 text-neutral-500 hover:bg-gray-200"
             )}
           >
             <div
