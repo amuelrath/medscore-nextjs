@@ -1,6 +1,6 @@
 "use server";
 import { db } from "@/db";
-import { responses, answers, assessments } from "@/db/schema";
+import { responses, answers, assessments, NewAnswer } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { TEvaluationFormSchema } from "@/components/(admin)/evaluate/forms/evaluation-form";
 
@@ -25,16 +25,16 @@ export async function submitResponse(response: TEvaluationFormSchema) {
         throw new Error("Response has answers");
 
       // then, check if the form code is a direct observation
-      const formCode = await tx.query.assessments.findFirst({
+      const assessment = await tx.query.assessments.findFirst({
         where: (fc, { eq }) => eq(fc.id, currentResponse.assessmentId),
       });
 
       // If it's a direct observation, update the canceledAt field
-      if (formCode?.isDirectObservation) {
+      if (assessment?.isDirectObservation) {
         await tx
           .update(assessments)
           .set({ canceledAt: new Date() })
-          .where(eq(assessments.id, formCode.id));
+          .where(eq(assessments.id, assessment.id));
       }
 
       // not entirely certain why i am refetching the same response, but ill roll w it for the moment
@@ -50,7 +50,7 @@ export async function submitResponse(response: TEvaluationFormSchema) {
         .where(eq(responses.id, newResponse.id));
 
       // Process all answers (multiple-choice, single-choice, and written)
-      const answerInserts = responseAnswers.flatMap((answer) => {
+      const answerInserts: NewAnswer[] = responseAnswers.flatMap((answer) => {
         const { optionIds, textValue, formItemId, type } = answer;
 
         if (type === "WRITTEN") {
@@ -66,21 +66,18 @@ export async function submitResponse(response: TEvaluationFormSchema) {
         // For both MULTIPLE_CHOICE and SINGLE_CHOICE
         if (!optionIds || optionIds.length === 0) return [];
 
-        return optionIds.map((optionId) => ({
+        return {
           responseId: newResponse.id,
-          optionId,
+          selectedOptionIds: optionIds,
           textValue,
           formItemId,
-        }));
+        };
       });
 
       // Insert all answers in a single operation
       if (answerInserts.length > 0) {
         await tx.insert(answers).values(answerInserts);
       }
-
-      //await db.refreshMaterializedView(answerTotalsView);
-
       return { responseId: newResponse.id };
     });
 
