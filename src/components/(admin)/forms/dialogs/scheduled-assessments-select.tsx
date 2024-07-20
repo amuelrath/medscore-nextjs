@@ -83,7 +83,7 @@ export function ScheduleCard({ assessment, status }: ScheduleCardProps) {
         <div className="space-y-1.5">
           <div className="flex flex-row items-center space-x-2">
             {assessment.isDirectObservation && (
-              <Image src={EYEBALL} alt="eyeball-icon" width={16} height={16} />
+              <Image src={EYEBALL} alt="eyeball-label" width={16} height={16} />
             )}
             <p> {assessment.title || "Untitled Administration"}</p>
             {status === "active" && (
