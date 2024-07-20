@@ -1,7 +1,11 @@
 import { TFormItemType } from "@/db/schema";
 import { Control, Controller } from "react-hook-form";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { SimpleTooltip } from "@/components/ui/simple-tooltip";
 import { Button } from "@/components/ui/button";
 import { WrenchIcon } from "lucide-react";
@@ -17,10 +21,10 @@ interface FormItemSettingsPopoverProps {
 }
 
 export function FormItemSettingsPopover({
-                                          index,
-                                          control,
-                                          type
-                                        }: FormItemSettingsPopoverProps) {
+  index,
+  control,
+  type,
+}: FormItemSettingsPopoverProps) {
   return (
     <Popover>
       <SimpleTooltip
