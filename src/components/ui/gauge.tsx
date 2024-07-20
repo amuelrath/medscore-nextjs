@@ -20,7 +20,7 @@ interface GaugeChartProps {
     | "primary"
     | "foreground";
   bgStrokeColor?: string;
-  icon?: ReactNode;
+  label?: ReactNode;
 }
 
 const gaugeChartClasses = cva("relative", {
@@ -45,7 +45,7 @@ const GaugeChart: FC<GaugeChartProps> = memo(
     size = "md",
     color = "accent-secondary",
     bgStrokeColor = "stroke-gray-300",
-    icon,
+    label
   }) => {
     const percentage = (value / max) * 100;
     const pathColor = {
@@ -89,8 +89,8 @@ const GaugeChart: FC<GaugeChartProps> = memo(
               d="M20,100 A60,60 0 0 1 180,100"
             />
           </svg>
-          <div className={cn("absolute left-1/2 top-1/2 mt-2 -translate-x-1/2 -translate-y-1/2 transform text-lg font-light", size === "sm" && "mt-6")}>
-            {icon}
+          <div className={cn("absolute text-xs left-1/2 top-1/2 mt-3 -translate-x-1/2 -translate-y-1/2 transform", size === "sm" && "mt-6")}>
+            {label}
           </div>
         </m.div>
       </LazyMotion>
