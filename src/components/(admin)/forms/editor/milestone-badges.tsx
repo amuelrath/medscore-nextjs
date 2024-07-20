@@ -6,7 +6,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import { cn } from "@/lib/helpers/utils";
 import { TrashIcon } from "lucide-react";
-import { m, LazyMotion, domAnimation } from "framer-motion";
+import { m } from "framer-motion";
 import { useState } from "react";
 import {
   Tooltip,
@@ -25,7 +25,6 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
   } = useQuestionMilestones(questionIndex);
 
   return (
-    <LazyMotion features={domAnimation}>
       <div className="flex flex-row justify-end items-center space-x-1">
         {milestones?.map((ms) => (
           <TooltipProvider delayDuration={500} key={ms.id}>
@@ -74,7 +73,6 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
           </TooltipProvider>
         ))}
       </div>
-    </LazyMotion>
   );
 }
 
