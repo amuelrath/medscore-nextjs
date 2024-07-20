@@ -15,6 +15,7 @@ import {
   AnyPgColumn,
   json,
   pgView,
+  jsonb, numeric
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
 import { pgMaterializedView } from "drizzle-orm/pg-core/view";
@@ -370,25 +371,29 @@ export const answers = pgTable("answers", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  optionId: uuid("option_id").references(() => options.id, {
-    onDelete: "cascade",
-  }),
+  selectedOptionIds: uuid("selected_option_ids").references(() => options.id).array(), // Array of option UUIDs
   responseId: uuid("response_id")
     .notNull()
     .references(() => responses.id, { onDelete: "cascade" }),
+  formItemId: uuid("form_item_id")
+    .notNull()
+    .references(() => formItems.id, { onDelete: "cascade" }),
   textValue: text("text_value"),
 });
-export type Answer = DateToString<typeof answers.$inferSelect>;
+
+export type Answer = typeof answers.$inferSelect;
 export type NewAnswer = typeof answers.$inferInsert;
-export const answerRelations = relations(answers, ({ one }) => ({
-  option: one(options, {
-    fields: [answers.optionId],
-    references: [options.id],
-  }),
+
+export const answerRelations = relations(answers, ({ one, many }) => ({
   response: one(responses, {
     fields: [answers.responseId],
     references: [responses.id],
   }),
+  formItem: one(formItems, {
+    fields: [answers.formItemId],
+    references: [formItems.id],
+  }),
+  selectedOptions: many(options),
 }));
 
 export const assessments = pgTable("assessments", {
@@ -485,23 +490,74 @@ export const recommendedMilestoneRelations = relations(
   }),
 );
 
-// todo update materialized view for response info
-export const answerTotalsView = pgView("answer_totals_view", {
-  responseId: uuid("response_id").notNull(),
-  responseCreatedAt: timestamp("response_created_at").notNull(), // for tracking a student's scores over time
-  assessmentId: uuid("assessment_id").notNull(),
-  assessmentCreatedAt: timestamp("assessment_created_at").notNull(), // for tracking a form's scores over time
-  evaluateeId: uuid("evaluatee_id").notNull(),
-  evaluatorId: uuid("evaluator_id").notNull(),
-  formItemId: uuid("form_item_id").notNull(),
-  formItemType: formItemTypeEnum("form_item_type").notNull(),
-  selectedOptionId: uuid("selected_option_id"),
+export const responseQuestionScoresView = pgView("response_question_scores_view", {
+  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  questionId: uuid("question_id").references(() => formItems.id).notNull(),
   pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
   pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
-  textValue: text("text_value"),
-  isNa: boolean("is_na").notNull(),
-  isScored: boolean("is_scored").notNull(),
-  milestoneId: uuid("milestone_id"),
-  subcompetencyId: uuid("subcompetency_id"), // consider removing later, as we can get this info from the milestone id
-  competencyId: uuid("competency_id"),
-}).existing();
+  milestoneIds: uuid("milestone_ids").array(),
+  textValue: text("text_value")
+}).existing()
+
+export const overallCompetencySummaryView = pgView("overall_competency_summary_view", {
+evaluateeId: uuid("evaluatee_id").references(() => users.id).notNull(),
+  competencyId: uuid("competency_id").references(() => competencies.id).notNull(),
+  competencyName: text("competency_name").notNull(),
+  avgScore: numeric("average_percentage_score").notNull()
+}).existing()
+
+export const subcompetencyAverageScoreView = pgView("subcompetency_average_score_view", {
+  evaluateeId: uuid("evaluatee_id").references(() => users.id).notNull(),
+  competencyId: uuid("competency_id").references(() => competencies.id).notNull(),
+  competencyName: text("competency_name").notNull(),
+  subcompetencyId: uuid("subcompetency_id").references(() => subcompetencies.id).notNull(),
+  subcompetencyName: text("subcompetency_name").notNull(),
+  avgScore: numeric("average_percentage_score").notNull()
+}).existing()
+
+export const questionAverageScoreView = pgView("question_average_score_view", {
+  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  questionId: uuid("question_id").references(() => formItems.id).notNull(),
+  avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
+}).existing()
+
+export const responseCompetencyScoreView = pgView("response_competency_score_view", {
+  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  competencyScores: jsonb("competency_scores").notNull(),
+}).existing()
+
+export const responseScoreView = pgView("response_score_view", {
+  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  responseCreatedAt: timestamp("response_created_at").notNull(),
+  totalPointsEarned: decimal("total_points_earned", { precision: 10, scale: 2 }),
+  totalPointsAvailable: decimal("total_points_available", { precision: 10, scale: 2 }),
+}).existing()
+
+export const responseAverageScoreView = pgView("response_average_score_view", {
+  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
+}).existing()
+
+export const ZCompetencyScoresSchema = z.object({
+  competencies: z.array(z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    pointsEarned: z.number(),
+    pointsAvailable: z.number(),
+    subcompetencies: z.array(z.object({
+      id: z.string().uuid(),
+      name: z.string(),
+      pointsEarned: z.number(),
+      pointsAvailable: z.number(),
+      milestones: z.array(z.object({
+        id: z.string().uuid(),
+        name: z.string(),
+        level: z.number(),
+        sublevel: z.number(),
+        pointsEarned: z.number(),
+        pointsAvailable: z.number(),
+      }))
+    }))
+  }))
+})
+
