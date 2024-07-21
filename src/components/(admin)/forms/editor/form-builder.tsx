@@ -229,6 +229,7 @@ export function FormBuilder() {
                     left: "100%",
                     height: dockPosition.height,
                   }}
+                  className="will-change-transform"
                 >
                   <AddFormItemDock addQuestion={handleAddQuestion} />
                 </m.div>

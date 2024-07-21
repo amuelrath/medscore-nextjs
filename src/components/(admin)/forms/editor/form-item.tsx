@@ -135,14 +135,15 @@ export function FormItem({
               )}
             />
           </div>
-          <AnimatePresence>
             {(item.type === "HEADER" || isSelected) && (
               <m.div
+                layoutId={`settings-group-${item.id}`}
+                layout="position"
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: "auto", opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: 0.1 }}
-                className="ml-2 flex flex-row items-center overflow-hidden pr-1"
+                className="ml-2 flex flex-row items-center will-change-auto overflow-hidden pr-1"
               >
                 {item.type !== "HEADER" && (
                   <FormItemSettingsPopover
@@ -191,7 +192,6 @@ export function FormItem({
                 </SimpleTooltip>
               </m.div>
             )}
-          </AnimatePresence>
         </CardHeader>
         <CardContent>
           {getContent()}
