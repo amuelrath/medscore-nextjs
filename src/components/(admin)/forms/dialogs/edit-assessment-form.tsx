@@ -29,15 +29,12 @@ import { ScientistIllustration } from "@/components/illustrations/scientist-illu
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration";
 import COPY from "public/icons/system-regular-99-copy.json";
 
-/* TODO handle edge-case where if this is mounted and the assessment starts,
- *       the UI will not update without a refresh
- */
 export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
     manageDialogSelectedAssessmentIdAtom,
   );
   const { formResult, error, isLoading } = useFormResultInEditorQuery();
-  const selectedFormCode = formResult?.assessments.find(
+  const selectedAssessment = formResult?.assessments.find(
     (fc) => fc.id == activeCodeId,
   );
   const studentOptions = formResult?.programs.users
@@ -46,7 +43,7 @@ export function EditAssessmentForm() {
       value: s.user.id,
       label: getFullName(s.user),
     }));
-  const evaluateeIds = selectedFormCode?.evaluatees
+  const evaluateeIds = selectedAssessment?.evaluatees
     .map((uwc) => uwc.user)
     ?.map((u) => u.id)
     .filter((id) => id !== undefined);
@@ -60,36 +57,36 @@ export function EditAssessmentForm() {
   } = useForm<TEditAssessmentFormSchema>({
     resolver: zodResolver(ZEditAssessmentFormSchema),
     defaultValues: {
-      assessmentId: selectedFormCode?.id || "",
-      title: selectedFormCode?.title || "",
+      assessmentId: selectedAssessment?.id || "",
+      title: selectedAssessment?.title || "",
       evaluateeIds,
-      expiresAt: selectedFormCode?.expiresAt
-        ? formatDate(selectedFormCode.expiresAt, "yyyy-MM-dd'T'HH:mm")
+      expiresAt: selectedAssessment?.expiresAt
+        ? formatDate(selectedAssessment.expiresAt, "yyyy-MM-dd'T'HH:mm")
         : "",
-      startsAt: selectedFormCode?.startsAt
-        ? formatDate(selectedFormCode.startsAt, "yyyy-MM-dd'T'HH:mm")
+      startsAt: selectedAssessment?.startsAt
+        ? formatDate(selectedAssessment.startsAt, "yyyy-MM-dd'T'HH:mm")
         : "",
     },
   });
 
   // Add this effect to update form values when activeCodeId changes
   useEffect(() => {
-    if (selectedFormCode) {
+    if (selectedAssessment) {
       reset({
-        assessmentId: selectedFormCode.id || "",
-        title: selectedFormCode.title || "",
-        evaluateeIds: selectedFormCode.evaluatees
+        assessmentId: selectedAssessment.id || "",
+        title: selectedAssessment.title || "",
+        evaluateeIds: selectedAssessment.evaluatees
           .map((uwc) => uwc.user?.id)
           .filter((id) => id !== undefined),
-        expiresAt: selectedFormCode.expiresAt
-          ? formatDate(selectedFormCode.expiresAt, "yyyy-MM-dd'T'HH:mm")
+        expiresAt: selectedAssessment.expiresAt
+          ? formatDate(selectedAssessment.expiresAt, "yyyy-MM-dd'T'HH:mm")
           : "",
-        startsAt: selectedFormCode.startsAt
-          ? formatDate(selectedFormCode.startsAt, "yyyy-MM-dd'T'HH:mm")
+        startsAt: selectedAssessment.startsAt
+          ? formatDate(selectedAssessment.startsAt, "yyyy-MM-dd'T'HH:mm")
           : "",
       });
     }
-  }, [selectedFormCode, reset]);
+  }, [selectedAssessment, reset]);
 
   const queryClient = useQueryClient();
   const { mutate: updateDetails, isPending } = useMutation({
@@ -142,29 +139,60 @@ export function EditAssessmentForm() {
   });
   const now = new Date();
   const { mutate: cancelAssessment } = useMutation({
-    mutationFn: () => cancelAdministerForm(selectedFormCode?.id || ""),
+    mutationFn: () => cancelAdministerForm(selectedAssessment?.id || ""),
     onSuccess: (result) => {
       if (!result.success)
         return toast.error("Something went wrong. Try again.");
-      queryClient.setQueryData(
-        ["form", formResult?.id],
-        (oldData: FormResult | undefined) => {
-          if (!oldData) return oldData;
+      // first check to see if the assessment has any responses
+      const { hasResponses } = result;
+      if (!hasResponses) {
+        // we are deleting it in the db, so we delete it here
+        queryClient.setQueryData(
+          ["form", formResult?.id],
+          (oldData: FormResult | undefined) => {
+            if (!oldData) return oldData;
 
-          const updatedFormCodes = oldData.assessments.filter(
-            (fc) => fc.id !== selectedFormCode?.id,
-          );
+            const updatedAssessments = oldData.assessments.filter(
+              (fc) => fc.id !== selectedAssessment?.id,
+            );
 
-          setActiveCodeId(
-            oldData.assessments.find((fc) => isAfter(fc.startsAt, now))?.id,
-          );
+            setActiveCodeId(
+              oldData.assessments.find((fc) => isAfter(fc.startsAt, now))?.id,
+            );
 
-          return {
-            ...oldData,
-            assessments: updatedFormCodes,
-          };
-        },
-      );
+            return {
+              ...oldData,
+              assessments: updatedAssessments,
+            };
+          },
+        );
+      } else {
+        // we are just adding a canceled at
+        queryClient.setQueryData(
+          ["form", formResult?.id],
+          (oldData: FormResult | undefined) => {
+            if (!oldData) return oldData;
+
+            const updatedAssessment = {
+              ...selectedAssessment,
+              canceledAt: new Date(),
+            };
+
+            const updatedAssessments = oldData.assessments.filter(
+              (a) => a.id !== selectedAssessment?.id,
+            );
+
+            setActiveCodeId(
+              oldData.assessments.find((fc) => isAfter(fc.startsAt, now))?.id,
+            );
+
+            return {
+              ...oldData,
+              assessments: [...updatedAssessments, updatedAssessment],
+            };
+          },
+        );
+      }
       queryClient.invalidateQueries({ queryKey: ["forms", "lite"] });
     },
   });
@@ -238,14 +266,14 @@ export function EditAssessmentForm() {
     return noAssessmentsContent;
   }
 
-  if (!selectedFormCode) {
+  if (!selectedAssessment) {
     return selectAssessmentContent;
   }
 
   const isActive =
-    isAfter(now, selectedFormCode.startsAt) &&
-    isBefore(now, selectedFormCode.expiresAt) &&
-    !selectedFormCode.canceledAt;
+    isAfter(now, selectedAssessment.startsAt) &&
+    isBefore(now, selectedAssessment.expiresAt) &&
+    !selectedAssessment.canceledAt;
 
   return (
     <>
@@ -362,7 +390,7 @@ export function EditAssessmentForm() {
           </div>
         </div>
         <AssessmentControls
-          assessment={selectedFormCode}
+          assessment={selectedAssessment}
           onCancel={cancelAssessment}
           isActive={isActive}
         />
