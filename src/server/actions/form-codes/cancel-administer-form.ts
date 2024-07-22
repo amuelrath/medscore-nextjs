@@ -8,6 +8,7 @@ import { dateToSQLDate } from "@/lib/helpers/date-to-sql-date";
 type CancelAdministerFormResult = {
   success: boolean;
   message: string;
+  hasResponses: boolean;
 };
 
 export async function cancelAdministerForm(
@@ -51,12 +52,14 @@ export async function cancelAdministerForm(
     return {
       success: true,
       message: "Form administration cancelled successfully.",
+      hasResponses: hasResponses !== null,
     };
   } catch (error) {
     console.error("Error cancelling form administration:", error);
     return {
       success: false,
       message: "An error occurred while cancelling form administration.",
+      hasResponses: false,
     };
   }
 }
