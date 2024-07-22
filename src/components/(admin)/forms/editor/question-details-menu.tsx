@@ -34,13 +34,12 @@ export const QuestionDetailsMenu: FC<MilestoneMenuProps> = ({
 }) => {
   return (
     <m.div
-      className="border-opacity-18 fixed left-4 top-4 h-[85%] rounded-lg border border-neutral-300 bg-card shadow-lg"
+      className="border-opacity-18 will-change-auto fixed left-4 top-4 h-[85%] rounded-lg border border-neutral-300 bg-card shadow-lg"
       initial={{ width: 0, opacity: 0 }}
       animate={{
         width: open ? "25%" : 0,
         opacity: open ? 1 : 0,
       }}
-      transition={{ duration: 0.15, ease: "easeInOut" }}
     >
       {selectedQuestionIndex !== -1 && (
         <div className="px-4">
