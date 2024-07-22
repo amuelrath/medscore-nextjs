@@ -2,7 +2,7 @@ import { FC } from "react";
 import { CheckCircle, ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/helpers/utils";
-import { AnimatePresence, m, LazyMotion, domAnimation } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 
 interface Competency {
   id: string;
@@ -50,7 +50,6 @@ export const CompetencyCard: FC<CompetencyCardProps> = ({
 
   return (
     <div className="mb-2 w-full">
-      <LazyMotion features={domAnimation}>
         <m.div
           layout="position"
           className={cn(
@@ -92,7 +91,7 @@ export const CompetencyCard: FC<CompetencyCardProps> = ({
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className="mt-2 space-y-2"
+              className="mt-2 space-y-2 will-change-scroll"
             >
               {subcompetencies
                 .filter((sub) => sub.competencyId === competency.id)
@@ -110,7 +109,6 @@ export const CompetencyCard: FC<CompetencyCardProps> = ({
             </m.div>
           )}
         </AnimatePresence>
-      </LazyMotion>
     </div>
   );
 };
