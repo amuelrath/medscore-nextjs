@@ -15,7 +15,8 @@ import {
   AnyPgColumn,
   json,
   pgView,
-  jsonb, numeric
+  jsonb,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { DateToString } from "@/db/utils";
 import { pgMaterializedView } from "drizzle-orm/pg-core/view";
@@ -371,7 +372,9 @@ export const answers = pgTable("answers", {
   id: uuid("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  selectedOptionIds: uuid("selected_option_ids").references(() => options.id).array(), // Array of option UUIDs
+  selectedOptionIds: uuid("selected_option_ids")
+    .references(() => options.id)
+    .array(), // Array of option UUIDs
   responseId: uuid("response_id")
     .notNull()
     .references(() => responses.id, { onDelete: "cascade" }),
@@ -490,74 +493,131 @@ export const recommendedMilestoneRelations = relations(
   }),
 );
 
-export const responseQuestionScoresView = pgView("response_question_scores_view", {
-  responseId: uuid("response_id").references(() => responses.id).notNull(),
-  questionId: uuid("question_id").references(() => formItems.id).notNull(),
-  pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
-  pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
-  milestoneIds: uuid("milestone_ids").array(),
-  textValue: text("text_value")
-}).existing()
+export const responseQuestionScoresView = pgView(
+  "response_question_scores_view",
+  {
+    responseId: uuid("response_id")
+      .references(() => responses.id)
+      .notNull(),
+    questionId: uuid("question_id")
+      .references(() => formItems.id)
+      .notNull(),
+    pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
+    pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
+    milestoneIds: uuid("milestone_ids").array(),
+    textValue: text("text_value"),
+  },
+).existing();
 
-export const overallCompetencySummaryView = pgView("overall_competency_summary_view", {
-evaluateeId: uuid("evaluatee_id").references(() => users.id).notNull(),
-  competencyId: uuid("competency_id").references(() => competencies.id).notNull(),
-  competencyName: text("competency_name").notNull(),
-  avgScore: numeric("average_percentage_score").notNull()
-}).existing()
+export const overallCompetencySummaryView = pgView(
+  "overall_competency_summary_view",
+  {
+    evaluateeId: uuid("evaluatee_id")
+      .references(() => users.id)
+      .notNull(),
+    competencyId: uuid("competency_id")
+      .references(() => competencies.id)
+      .notNull(),
+    competencyName: text("competency_name").notNull(),
+    avgScore: numeric("average_percentage_score").notNull(),
+  },
+).existing();
 
-export const subcompetencyAverageScoreView = pgView("subcompetency_average_score_view", {
-  evaluateeId: uuid("evaluatee_id").references(() => users.id).notNull(),
-  competencyId: uuid("competency_id").references(() => competencies.id).notNull(),
-  competencyName: text("competency_name").notNull(),
-  subcompetencyId: uuid("subcompetency_id").references(() => subcompetencies.id).notNull(),
-  subcompetencyName: text("subcompetency_name").notNull(),
-  avgScore: numeric("average_percentage_score").notNull()
-}).existing()
+export const subcompetencyAverageScoreView = pgView(
+  "subcompetency_average_score_view",
+  {
+    evaluateeId: uuid("evaluatee_id")
+      .references(() => users.id)
+      .notNull(),
+    competencyId: uuid("competency_id")
+      .references(() => competencies.id)
+      .notNull(),
+    competencyName: text("competency_name").notNull(),
+    subcompetencyId: uuid("subcompetency_id")
+      .references(() => subcompetencies.id)
+      .notNull(),
+    subcompetencyName: text("subcompetency_name").notNull(),
+    avgScore: numeric("average_percentage_score").notNull(),
+  },
+).existing();
 
 export const questionAverageScoreView = pgView("question_average_score_view", {
-  responseId: uuid("response_id").references(() => responses.id).notNull(),
-  questionId: uuid("question_id").references(() => formItems.id).notNull(),
+  responseId: uuid("response_id")
+    .references(() => responses.id)
+    .notNull(),
+  questionId: uuid("question_id")
+    .references(() => formItems.id)
+    .notNull(),
   avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
-}).existing()
+}).existing();
 
-export const responseCompetencyScoreView = pgView("response_competency_score_view", {
-  responseId: uuid("response_id").references(() => responses.id).notNull(),
-  competencyScores: jsonb("competency_scores").notNull(),
-}).existing()
+export const responseCompetencyScoreView = pgView(
+  "response_competency_scores_view",
+  {
+    responseId: uuid("response_id")
+      .references(() => responses.id)
+      .notNull(),
+    evaluateeId: uuid("evaluatee_id").references(() => users.id), // can be null
+    responseCreatedAt: timestamp("response_created_at").notNull(),
+    competencyScores: jsonb("competency_scores").notNull(),
+  },
+).existing();
 
 export const responseScoreView = pgView("response_score_view", {
-  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  responseId: uuid("response_id")
+    .references(() => responses.id)
+    .notNull(),
   responseCreatedAt: timestamp("response_created_at").notNull(),
-  totalPointsEarned: decimal("total_points_earned", { precision: 10, scale: 2 }),
-  totalPointsAvailable: decimal("total_points_available", { precision: 10, scale: 2 }),
-}).existing()
+  totalPointsEarned: decimal("total_points_earned", {
+    precision: 10,
+    scale: 2,
+  }),
+  totalPointsAvailable: decimal("total_points_available", {
+    precision: 10,
+    scale: 2,
+  }),
+  responseDuration: integer("response_duration"),
+}).existing();
 
 export const responseAverageScoreView = pgView("response_average_score_view", {
-  responseId: uuid("response_id").references(() => responses.id).notNull(),
+  responseId: uuid("response_id")
+    .references(() => responses.id)
+    .notNull(),
   avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
-}).existing()
+}).existing();
 
 export const ZCompetencyScoresSchema = z.object({
-  competencies: z.array(z.object({
-    id: z.string().uuid(),
-    name: z.string(),
-    pointsEarned: z.number(),
-    pointsAvailable: z.number(),
-    subcompetencies: z.array(z.object({
+  competencies: z.array(
+    z.object({
       id: z.string().uuid(),
       name: z.string(),
       pointsEarned: z.number(),
       pointsAvailable: z.number(),
-      milestones: z.array(z.object({
-        id: z.string().uuid(),
-        name: z.string(),
-        level: z.number(),
-        sublevel: z.number(),
-        pointsEarned: z.number(),
-        pointsAvailable: z.number(),
-      }))
-    }))
-  }))
-})
+      subcompetencies: z.array(
+        z.object({
+          id: z.string().uuid(),
+          name: z.string(),
+          pointsEarned: z.number(),
+          pointsAvailable: z.number(),
+          milestones: z.array(
+            z.object({
+              id: z.string().uuid(),
+              name: z.string(),
+              level: z.number(),
+              sublevel: z.number(),
+              pointsEarned: z.number(),
+              pointsAvailable: z.number(),
+            }),
+          ),
+        }),
+      ),
+    }),
+  ),
+});
 
+export type TCompetencyScoreSchema = z.infer<typeof ZCompetencyScoresSchema>;
+
+export type TCompetencyScores = {
+  responseId: string;
+  responseCreatedAt: Date;
+} & TCompetencyScoreSchema;
