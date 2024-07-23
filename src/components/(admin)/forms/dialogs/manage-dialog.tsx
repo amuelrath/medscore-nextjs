@@ -9,7 +9,7 @@ import {
 import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import LAUNCH from "public/icons/launch.json";
+import ASSESSMENT from "public/icons/assessment-white.json";
 import { ScheduledAssessmentsSelect } from "@/components/(admin)/forms/dialogs/scheduled-assessments-select";
 import { EditAssessmentForm } from "@/components/(admin)/forms/dialogs/edit-assessment-form";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -96,7 +96,6 @@ export function ManageDialog() {
     >
       <Button
         size="xs"
-        variant="accent-secondary"
         onClick={() => setOpen(true)}
       >
         <div
@@ -108,9 +107,9 @@ export function ManageDialog() {
             loop={false}
             isHovering={hovering}
             size="xs"
-            src={LAUNCH}
+            src={ASSESSMENT}
           />
-          <span className="font-semibold text-teal-900">Manage Assessments</span>
+          <span className="font-semibold">Manage Assessments</span>
         </div>
       </Button>
       <DialogContent

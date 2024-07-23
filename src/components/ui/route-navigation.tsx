@@ -34,7 +34,7 @@ export function RouteNavigation({ tabs }: Props) {
   return (
     <nav>
       <div
-        className={`flex min-h-screen w-12 flex-col items-center border-r border-neutral-300 bg-[#eaeaea] p-1.5`}
+        className={`flex min-h-screen w-12 flex-col items-center border-r border-neutral-300 bg-primary/5 p-1.5`}
       >
         <div className={cn("flex select-none flex-col items-center space-y-3")}>
           {tabs.map((tab) => (
@@ -54,8 +54,8 @@ export function RouteNavigation({ tabs }: Props) {
                 className={cn(
                   "flex w-full flex-col items-center  space-y-1 transition-all duration-300",
                   activeTab === tab.id
-                    ? "text-accent-secondary"
-                    : "text-primary hover:text-accent-secondary",
+                    ? "text-primary"
+                    : "text-primary/50 hover:text-primary/80",
                 )}
               >
                 {tab.icon}

@@ -18,8 +18,8 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
   );
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex flex-row items-end">
+    <div className="flex h-full flex-col bg-transparent">
+      <div className="flex flex-row  items-end">
         {tabs?.map((t) => (
           <div
             key={t.id}
@@ -43,7 +43,7 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
           </div>
         ))}
       </div>
-      <div className="-mt-[1px] flex flex-grow flex-col rounded-b-md rounded-tr-md border border-neutral-300">
+      <div className="-mt-[1px] flex flex-grow flex-col bg-white rounded-b-md rounded-tr-md border border-neutral-300">
         <div className="flex-grow">
           {tabs.find((t) => t.id === selectedTabId)?.content}
         </div>

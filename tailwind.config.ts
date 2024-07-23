@@ -33,11 +33,17 @@ const config = {
         "accent-secondary": "hsl(var(--accent-secondary))",
         "accent-secondary-background":
           "hsl(var(--accent-secondary-background))",
-        notepad: "hsl(var(--notepad))",
         border: "hsl(var(--border))",
+        lavender: "hsl(var(--lavender))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
+        "chart-1": "hsl(var(--chart-1))",
+        "chart-2": "hsl(var(--chart-2))",
+        "chart-3": "hsl(var(--chart-3))",
+        "chart-4": "hsl(var(--chart-4))",
+        "chart-5": "hsl(var(--chart-5))",
+        "chart-6": "hsl(var(--chart-6))",
         foreground: "hsl(var(--foreground))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
