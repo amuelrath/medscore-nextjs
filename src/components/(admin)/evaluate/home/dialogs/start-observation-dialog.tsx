@@ -38,7 +38,7 @@ export function StartObservationDialog({
     <Dialog>
       <DialogTrigger asChild>
         {isInEditor ? (
-          <Button size="xs" variant="accent-secondary">
+          <Button size="xs" variant="accent">
             <div
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}

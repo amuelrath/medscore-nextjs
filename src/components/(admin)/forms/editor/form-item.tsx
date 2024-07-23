@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CopyIcon, MilestoneIcon, TrashIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/helpers/utils";
-import { AnimatePresence, m } from "framer-motion";
+import { m } from "framer-motion";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
@@ -100,7 +100,7 @@ export function FormItem({
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className={cn(
             "absolute -top-[3px] left-0 right-0 z-10 origin-center",
-            item.type === "HEADER" ? "bg-primary/80" : "bg-accent-secondary",
+            item.type === "HEADER" ? "bg-primary/80" : "bg-accent",
           )}
           style={{
             left: "50%",

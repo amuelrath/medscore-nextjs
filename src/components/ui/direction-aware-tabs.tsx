@@ -112,7 +112,6 @@ const motionSpanVariants = cva("absolute inset-0 z-10", {
   variants: {
     color: {
       accent: "border-accent",
-      "accent-secondary": "border-accent-secondary",
       outline: "border-neutral-600",
       primary: "border-primary",
       secondary: "border-secondary",
@@ -131,11 +130,6 @@ const motionSpanVariants = cva("absolute inset-0 z-10", {
       variant: "secondary",
       color: "accent",
       class: "bg-accent/10",
-    },
-    {
-      variant: "secondary",
-      color: "accent-secondary",
-      class: "bg-accent-secondary/10",
     },
     {
       variant: "secondary",
@@ -174,7 +168,7 @@ const motionSpanVariants = cva("absolute inset-0 z-10", {
     },
   ],
   defaultVariants: {
-    color: "accent-secondary",
+    color: "accent",
     variant: "primary",
   },
 });

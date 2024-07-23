@@ -70,7 +70,7 @@ export function CreateFormDialogTrigger() {
         <Button
           size="xs"
           className={cn("font-semibold")}
-          variant={"accent-secondary"}
+          variant="accent"
         >
           <div
             onMouseEnter={() => setHovering(true)}
