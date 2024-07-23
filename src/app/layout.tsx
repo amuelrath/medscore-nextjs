@@ -5,7 +5,6 @@ import Provider from "@/server/provider";
 import { ReactNode, StrictMode } from "react";
 import { Poppins } from "next/font/google";
 import { cn } from "@/lib/helpers/utils";
-import { Background } from "@/components/ui/background";
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "auto",
@@ -45,12 +44,12 @@ export default function RootLayout({
           sizes="16x16"
           href="/image/favicon.ico"
         />
-        <title>MEDscore</title>
+        <title>medscore</title>
       </head>
       <html lang="en">
         <StrictMode>
           <Provider>
-            <body className={cn(poppins.className)}>
+            <body className={cn(poppins.className, "bg-gradient-to-b from-primary/5 via-white to-primary/5 from-60%")}>
               {children}
               <Toaster />
             </body>
