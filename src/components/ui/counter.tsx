@@ -1,66 +1,55 @@
-import React, { useEffect, useRef, useState } from "react";
+"use client";
 
-interface CounterProps {
-  value: number;
-  duration?: number;
-  className?: string;
-  type?: "percent" | "number";
-}
+import {
+  KeyframeOptions,
+  animate,
+  useIsomorphicLayoutEffect,
+} from "framer-motion";
+import { useRef } from "react";
 
-const easeOutCubic = (t: number, b: number, c: number, d: number) => {
-  const ts = (t /= d) * t;
-  const tc = ts * t;
-  return b + c * (tc + -3 * ts + 3 * t);
+type AnimatedCounterProps = {
+  from: number;
+  to: number;
+  animationOptions?: KeyframeOptions;
 };
 
-const Counter: React.FC<CounterProps> = ({
-  value,
-  duration = 1,
-  className,
-  type = "number",
-}) => {
-  const [count, setCount] = useState(0);
-  const animationIdRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
+const AnimatedCounter = ({
+  from,
+  to,
+  animationOptions,
+}: AnimatedCounterProps) => {
+  const ref = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
-    const startAnimation = () => {
-      startTimeRef.current = performance.now();
-      animationIdRef.current = requestAnimationFrame(animate);
-    };
+  useIsomorphicLayoutEffect(() => {
+    const element = ref.current;
 
-    const animate = (timestamp: number) => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = timestamp;
-      }
+    if (!element) return;
 
-      const progress = timestamp - startTimeRef.current;
-      const elapsed = Math.min(progress / (duration * 1000), 1);
-      const countValue = easeOutCubic(elapsed, count, value - count, 1);
+    // Set initial value
+    element.textContent = String(from);
 
-      setCount(countValue);
+    // If reduced motion is enabled in system's preferences
+    if (window.matchMedia("(prefers-reduced-motion)").matches) {
+      element.textContent = String(to);
+      return;
+    }
 
-      if (elapsed < 1) {
-        animationIdRef.current = requestAnimationFrame(animate);
-      }
-    };
+    const controls = animate(from, to, {
+      duration: 3,
+      ease: "easeOut",
+      ...animationOptions,
+      onUpdate(value) {
+        element.textContent = value === 100 ? "100%" : value.toFixed(1) + "%";
+      },
+    });
 
-    startAnimation();
-
+    // Cancel on unmount
     return () => {
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
+      controls.stop();
     };
-  }, [value, duration]);
+  }, [ref, from, to]);
 
-  const formatCount = () => {
-    const fixedCount = count.toFixed(type === "percent" ? 0 : 1);
-    const paddedCount = fixedCount.toString().padStart(2, "0");
-    return type === "percent" ? `${paddedCount}%` : paddedCount;
-  };
-
-  return <div className={className}>{formatCount()}</div>;
+  return <span ref={ref} />;
 };
 
-export default Counter;
+export default AnimatedCounter;
