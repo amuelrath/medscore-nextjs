@@ -21,24 +21,33 @@ export async function getResponse(responseId: string) {
               id: true,
               createdAt: true,
               text: true,
-              formId: false,
               type: true,
               position: true,
-              isScored: false,
+              isScored: true,
+
+              formId: false,
               isRequired: false,
               description: false,
             },
             with: {
+              milestones: {
+                columns: {
+                  milestoneId: true,
+
+                  formItemId: false,
+                }
+              },
               options: {
                 orderBy: (o, { asc }) => asc(o.position),
                 columns: {
                   id: true,
                   position: true,
                   createdAt: true,
-                  formItemId: false,
                   text: true,
+
+                  formItemId: false,
                   isNa: true,
-                  pointValue: false,
+                  pointValue: true,
                 },
               },
             },
@@ -48,3 +57,5 @@ export async function getResponse(responseId: string) {
     },
   });
 }
+
+export type ResponseResult = NonNullable<Awaited<ReturnType<typeof getResponse>>>
