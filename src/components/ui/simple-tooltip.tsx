@@ -24,7 +24,7 @@ export function SimpleTooltip({
     <TooltipProvider>
       <Tooltip delayDuration={delay}>
         <TooltipTrigger asChild>{children}</TooltipTrigger>
-        <TooltipContent className={cn("bg-slate-50 text-xs rounded-sm", contentClassName)}>
+        <TooltipContent className={cn("bg-white text-xs rounded-lg border border-border", contentClassName)}>
           <div className="flex flex-col space-y-1 ">
             {heading && (
             <p className="font-semibold">{heading}</p>
