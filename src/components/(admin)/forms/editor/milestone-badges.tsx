@@ -2,8 +2,6 @@
 import { useFormContext, useWatch } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import { cn } from "@/lib/helpers/utils";
 import { TrashIcon } from "lucide-react";
 import { m } from "framer-motion";
@@ -14,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
 
 export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
   const {
@@ -78,16 +77,13 @@ export function MilestoneBadges({ questionIndex }: { questionIndex: number }) {
 
 // extracted logic for readability
 function useQuestionMilestones(questionIndex: number) {
-  const { control, getValues, setValue } = useFormContext<TFormSchema>();
+  const { control, setValue } = useFormContext<TFormSchema>();
   const milestoneIds = useWatch({
     control,
     name: `formItems.${questionIndex}.milestoneIds`,
   });
 
-  const { data: subcompetencies } = useSuspenseQuery({
-    queryKey: ["subcompetencies", getValues(`id`)],
-    queryFn: () => getSubcompetencies({ formId: getValues(`id`) }),
-  });
+  const { subcompetencies } = useGetSubcompetenciesInEditor()
 
   const milestones = subcompetencies
     .flatMap((sc) => sc.milestones)

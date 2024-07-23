@@ -4,10 +4,8 @@ import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-bu
 import {
   useMutation,
   useQueryClient,
-  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
-import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 import { pickBestMilestone } from "@/server/actions/ai/recommend-milestone";
 import { LottieHover } from "@/components/ui/lottie-hover";
 import CIRCLE_ARROW from "public/icons/circle-arrow.json";
@@ -21,6 +19,7 @@ import { addTrainingData } from "@/server/actions/ml/add-training-data";
 import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useFormResultSuspenseQuery } from "@/hooks/queries/use-form-result-suspense-query";
+import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
 
 export function SuggestMilestone({
   selectedQuestionIndex,
@@ -34,10 +33,7 @@ export function SuggestMilestone({
   const queryClient = useQueryClient();
   const { formResult } = useFormResultSuspenseQuery(formId)
 
-  const { data: subcompetencies } = useSuspenseQuery({
-    queryKey: ["subcompetencies", formId],
-    queryFn: () => getSubcompetencies({ formId }),
-  });
+  const { subcompetencies} = useGetSubcompetenciesInEditor()
 
   const { mutate: suggestMilestone, isPending } = useMutation({
     mutationFn: () =>
