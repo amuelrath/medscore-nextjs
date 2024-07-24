@@ -1,10 +1,8 @@
 "use client";
-
-import * as React from "react";
 import { FormCodeSelect } from "@/components/(admin)/forms/responses/form-code-select";
-import { NewResultGroup } from "@/components/(admin)/forms/responses/new-result-group";
+import { NewResultGroupButton } from "@/components/(admin)/forms/responses/new-result-group-button";
 import { useQuery } from "@tanstack/react-query";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import {
   selectedFormCodeIdAtom,
   selectedResponseIdAtom,
@@ -22,10 +20,10 @@ import { cn } from "@/lib/helpers/utils";
 
 export function ResponseSelectSidebar({ formId }: { formId: string }) {
   return (
-    <aside className="flex h-full w-[332px] flex-col space-y-6 overflow-x-hidden border-r border-neutral-300 bg-card/50 p-2 py-6">
+    <aside className="flex h-full w-[332px] flex-col space-y-6 overflow-x-hidden border-r border-neutral-300 bg-card/50 p-2 pb-6">
       <div className="space-y-2">
         <FormCodeSelect formId={formId} />
-        <NewResultGroup />
+        <NewResultGroupButton />
       </div>
       <div className="h-full space-y-2">
         <ResponseCardList />
@@ -57,11 +55,11 @@ function ResponseCardList() {
     return (
       <>
         <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-8 w-full opacity-90" />
-        <Skeleton className="h-8 w-full opacity-75" />
-        <Skeleton className="h-8 w-full opacity-60" />
-        <Skeleton className="h-8 w-full opacity-50" />
-        <Skeleton className="h-8 w-full opacity-25" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
+        <Skeleton className="h-8 w-full" />
       </>
     );
 
@@ -109,9 +107,9 @@ function ResponseCard({ response }: ResponseCardProps) {
 
   return (
     <div
-      onClick={handleSelectResponse}
+      onMouseDown={handleSelectResponse}
       className={cn(
-        "flex flex-row items-center space-x-2 rounded-md border px-2 py-1.5 transition-colors",
+        "flex flex-row items-center space-x-2 rounded-md select-none cursor-pointer border px-2 py-1.5 transition-colors",
         selectedResponseId === response.id
           ? "border-neutral-300  bg-primary/10"
           : "border-transparent hover:bg-primary/10",

@@ -23,7 +23,7 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
         {tabs?.map((t) => (
           <div
             key={t.id}
-            onClick={() => setSelectedTabId(t.id)}
+            onMouseDown={() => setSelectedTabId(t.id)}
             className={cn(
               "-mb-[0.5px] -ml-[0.5px] inline-block h-6 w-24 cursor-pointer rounded-tl-md rounded-tr-md border-x-[1px] border-t border-neutral-300 px-4 py-2 text-center text-xs",
               "transition-all duration-200 ease-in-out",
