@@ -12,7 +12,7 @@ import { FC } from "react";
 import { m } from "framer-motion";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { cn } from "@/lib/helpers/utils";
-import { SimpleTooltip } from "@/components/ui/simple-tooltip";
+import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
 
 interface OptionListProps {
   itemIndex: number;
@@ -104,7 +104,7 @@ export const OptionList: FC<OptionListProps> = ({
                   )}
                 />
               )}
-              <SimpleTooltip
+              <EnhancedTooltip
                 description={"Delete"}
                 delay={200}
                 contentClassName="absolute right-0 w-[65px]"
@@ -112,7 +112,7 @@ export const OptionList: FC<OptionListProps> = ({
                 <div className="cursor-pointer p-1 text-neutral-500 hover:text-destructive/90">
                   <XIcon size={16} onClick={() => remove(index)} />
                 </div>
-              </SimpleTooltip>
+              </EnhancedTooltip>
             </m.div>
           </div>
         ))}

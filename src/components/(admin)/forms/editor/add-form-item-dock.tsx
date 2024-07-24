@@ -1,6 +1,6 @@
 import { TFormItemType } from "@/db/schema";
 import { motion } from "framer-motion";
-import { SimpleTooltip } from "@/components/ui/simple-tooltip";
+import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
 import { Button } from "@/components/ui/button";
 import {
   CheckCheckIcon,
@@ -25,7 +25,7 @@ export function AddFormItemDock({
       }}
       className="flex flex-col items-center space-y-2 rounded-lg border border-neutral-300 bg-card p-1 drop-shadow-sm"
     >
-      <SimpleTooltip
+      <EnhancedTooltip
         description={"Single-choice"}
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[112px] "
@@ -37,9 +37,9 @@ export function AddFormItemDock({
         >
           <CheckIcon size={16} />
         </Button>
-      </SimpleTooltip>
+      </EnhancedTooltip>
 
-      <SimpleTooltip
+      <EnhancedTooltip
         description={"Multiple-choice"}
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[120px] "
@@ -51,8 +51,8 @@ export function AddFormItemDock({
         >
           <CheckCheckIcon size={16} />
         </Button>
-      </SimpleTooltip>
-      <SimpleTooltip
+      </EnhancedTooltip>
+      <EnhancedTooltip
         description={"Written"}
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[70px] "
@@ -64,8 +64,8 @@ export function AddFormItemDock({
         >
           <NotebookPenIcon size={16} />
         </Button>
-      </SimpleTooltip>
-      <SimpleTooltip
+      </EnhancedTooltip>
+      <EnhancedTooltip
         description={"Heading"}
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[80px] "
@@ -73,7 +73,7 @@ export function AddFormItemDock({
         <Button variant="ghost" size="xs" onClick={() => addQuestion("HEADER")}>
           <HeadingIcon size={16} />
         </Button>
-      </SimpleTooltip>
+      </EnhancedTooltip>
     </motion.div>
   );
 }

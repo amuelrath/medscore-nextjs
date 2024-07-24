@@ -9,7 +9,7 @@ import { m } from "framer-motion";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
 import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
-import { SimpleTooltip } from "@/components/ui/simple-tooltip";
+import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
 import { FormItemSettingsPopover } from "@/components/(admin)/forms/editor/form-item-settings-popover";
 
 const placeholders = {
@@ -152,7 +152,7 @@ export function FormItem({
                     control={control}
                   />
                 )}
-                <SimpleTooltip
+                <EnhancedTooltip
                   description={"Copy"}
                   delay={200}
                   contentClassName=" w-[60px] "
@@ -170,8 +170,8 @@ export function FormItem({
                       size={16}
                     />
                   </Button>
-                </SimpleTooltip>
-                <SimpleTooltip
+                </EnhancedTooltip>
+                <EnhancedTooltip
                   description={"Delete"}
                   delay={200}
                   contentClassName=" w-[65px] "
@@ -189,7 +189,7 @@ export function FormItem({
                       size={16}
                     />
                   </Button>
-                </SimpleTooltip>
+                </EnhancedTooltip>
               </m.div>
             )}
         </CardHeader>

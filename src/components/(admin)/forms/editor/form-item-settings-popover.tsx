@@ -6,7 +6,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SimpleTooltip } from "@/components/ui/simple-tooltip";
+import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
 import { Button } from "@/components/ui/button";
 import { WrenchIcon } from "lucide-react";
 import { cn } from "@/lib/helpers/utils";
@@ -27,7 +27,7 @@ export function FormItemSettingsPopover({
 }: FormItemSettingsPopoverProps) {
   return (
     <Popover>
-      <SimpleTooltip
+      <EnhancedTooltip
         description={"Settings"}
         delay={200}
         contentClassName=" w-[75px] "
@@ -37,7 +37,7 @@ export function FormItemSettingsPopover({
             <WrenchIcon size={16} className="text-neutral-500" />
           </Button>
         </PopoverTrigger>
-      </SimpleTooltip>
+      </EnhancedTooltip>
       <PopoverContent className={cn("flex max-w-32 flex-col space-y-2")}>
         <div className="flex flex-row items-center space-x-2">
           <Controller
