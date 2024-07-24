@@ -31,31 +31,31 @@ const tabs = [
   {
     id: "dashboard",
     label: "Dashboard",
-    icon: <GaugeIcon />,
+    icon: <GaugeIcon size={20} />,
     href: "/dashboard",
   },
   {
     id: "Evaluate",
     label: "Evaluate",
-    icon: <ClipboardPlusIcon />,
+    icon: <ClipboardPlusIcon size={20} />,
     href: "/evaluate",
   },
   {
     id: "forms",
     label: "Forms",
-    icon: <FileStackIcon />,
+    icon: <FileStackIcon size={20} />,
     href: "/forms",
   },
   {
     id: "reports",
     label: "Reports",
-    icon: <TextSearchIcon />,
+    icon: <TextSearchIcon size={20} />,
     href: "/reports",
   },
   {
     id: "programs",
     label: "Programs",
-    icon: <GraduationCapIcon />,
+    icon: <GraduationCapIcon size={20} />,
     href: "/programs",
   },
 ];
