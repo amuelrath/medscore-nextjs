@@ -599,6 +599,7 @@ export const ZCompetencyScoresSchema = z.object({
           name: z.string(),
           pointsEarned: z.number(),
           pointsAvailable: z.number(),
+          abbrevName: z.string(),
           milestones: z.array(
             z.object({
               id: z.string().uuid(),
