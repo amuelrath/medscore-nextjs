@@ -6,14 +6,12 @@ import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-butt
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFormContext } from "react-hook-form";
 import { useAtom } from "jotai";
-import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
 import { ManageDialog } from "@/components/(admin)/forms/dialogs/manage-dialog";
 import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 
 export const FormEditorNav = () => {
   const { getValues, register } = useFormContext<TFormSchema>();
   const title = getValues(`title`);
-  const formId = getValues(`id`);
 
   const [isSaving] = useAtom(isSavingAtom);
 
@@ -33,7 +31,6 @@ export const FormEditorNav = () => {
       </div>
       <div className={cn("flex flex-row space-x-2")}>
         <ManageDialog />
-        <StartObservationDialog formId={formId} />
       </div>
     </div>
   );
