@@ -26,6 +26,8 @@ interface DirectionAwareTabsContextProps {
   setDirection: (direction: number) => void;
   tabs: Tab[];
   bubbleId?: string;
+  isHovering: boolean;
+  setIsHovering: (value: boolean) => void;
 }
 
 const DirectionAwareTabsContext = createContext<
@@ -46,6 +48,8 @@ function DirectionAwareTabsProvider({
   const [activeTab, setActiveTab] = useState<number>(0);
   const [direction, setDirection] = useState<number>(0);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const [isHovering, setIsHovering] = useState<boolean>(false)
+
 
   const contextValue = useMemo(
     () => ({
@@ -57,8 +61,10 @@ function DirectionAwareTabsProvider({
       setDirection,
       tabs,
       bubbleId,
+      isHovering,
+      setIsHovering
     }),
-    [activeTab, setActiveTab, isAnimating, direction, tabs, bubbleId],
+    [activeTab, isAnimating, direction, tabs, bubbleId, isHovering],
   );
 
   return (
@@ -184,8 +190,9 @@ function DirectionAwareTabs({
   variant,
   color,
 }: DirectionAwareTabsProps) {
-  const { activeTab, setActiveTab, isAnimating, setDirection, tabs, bubbleId } =
+  const { activeTab, setActiveTab, isAnimating, setDirection, tabs, bubbleId, setIsHovering } =
     useDirectionAwareTabs();
+
 
   const handleTabClick = (newTabId: number) => {
     if (newTabId !== activeTab && !isAnimating) {
@@ -204,8 +211,10 @@ function DirectionAwareTabs({
     >
       {tabs.map((tab) => (
         <button
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
           key={tab.id}
-          onClick={() => handleTabClick(tab.id)}
+          onMouseDown={() => handleTabClick(tab.id)}
           className={tabVariants({
             size,
             active: activeTab === tab.id,
@@ -217,10 +226,12 @@ function DirectionAwareTabs({
             <LazyMotion features={domAnimation}>
               <m.span
                 layoutId={bubbleId || "direction-aware-tabs-bubble"}
-                className={motionSpanVariants({
+                className={cn(motionSpanVariants({
                   color,
                   variant,
-                })}
+                }),
+
+                )}
                 transition={{ type: "spring", bounce: 0.19, duration: 0.4 }}
               />
             </LazyMotion>
@@ -233,7 +244,7 @@ function DirectionAwareTabs({
 }
 
 function DirectionAwareContent({ className }: { className?: string }) {
-  const { activeTab, isAnimating, setIsAnimating, direction, tabs } =
+  const { activeTab, isHovering, setIsAnimating, direction, tabs } =
     useDirectionAwareTabs();
   const [ref, bounds] = useMeasure();
 
@@ -264,7 +275,7 @@ function DirectionAwareContent({ className }: { className?: string }) {
     <LazyMotion features={domAnimation}>
       <MotionConfig transition={{ duration: 0.4, type: "spring", bounce: 0.1 }}>
         <m.div
-          className={cn("flex flex-col overflow-x-hidden", className)}
+          className={cn("flex flex-col overflow-x-hidden no-scrollbar", className, isHovering && "will-change-transform")}
           initial={false}
           animate={{ height: bounds.height > 0 ? bounds.height : "100%" }}
         >
