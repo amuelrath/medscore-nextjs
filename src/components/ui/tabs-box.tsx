@@ -25,7 +25,7 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
             key={t.id}
             onMouseDown={() => setSelectedTabId(t.id)}
             className={cn(
-              "-mb-[0.5px] -ml-[0.5px] inline-block h-6 w-24 cursor-pointer rounded-tl-md rounded-tr-md border-x-[1px] border-t border-neutral-300 px-4 py-2 text-center text-xs",
+              "-mb-[0.75px] ml-[0px] inline-block h-6 w-24 cursor-pointer rounded-tl-md rounded-tr-md border-x-[1px] border-t border-neutral-300 px-4 py-2 text-center text-xs",
               "transition-all duration-200 ease-in-out",
               t.id === selectedTabId
                 ? "-translate-y-[1.5px] scale-y-[110%] border-b border-b-white bg-white"
