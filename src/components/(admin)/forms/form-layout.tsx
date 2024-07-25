@@ -7,7 +7,7 @@ import {
 import { FormEditorNav } from "@/components/(admin)/forms/editor/form-editor-nav";
 import { useSetAtom } from "jotai";
 import {
-  selectedFormCodeIdAtom,
+  selectedAssessmentIdAtom,
   selectedResponseIdAtom,
 } from "@/store/form-atoms";
 
@@ -24,7 +24,7 @@ export const FormLayout: FC<FormLayoutProps> = ({
   formId,
 }) => {
   const setSelectedResponseId = useSetAtom(selectedResponseIdAtom);
-  const setSelectedFormCodeId = useSetAtom(selectedFormCodeIdAtom);
+  const setSelectedFormCodeId = useSetAtom(selectedAssessmentIdAtom);
 
   // clear jotai state
   useEffect(() => {

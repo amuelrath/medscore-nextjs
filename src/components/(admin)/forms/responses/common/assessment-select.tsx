@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useAtom } from "jotai/index";
-import { selectedFormCodeIdAtom } from "@/store/form-atoms";
+import { selectedAssessmentIdAtom } from "@/store/form-atoms";
 import {
   Popover,
   PopoverContent,
@@ -20,10 +20,10 @@ import { cn } from "@/lib/helpers/utils";
 import { isBefore } from "date-fns";
 import { useFormResultSuspenseQuery } from "@/hooks/queries/use-form-result-suspense-query";
 
-function FormCodeSelect({ formId }: { formId: string }) {
+function AssessmentSelect({ formId }: { formId: string }) {
   const [open, setOpen] = React.useState(false);
   const [selectedFormCodeId, setSelectedFormCodeId] = useAtom(
-    selectedFormCodeIdAtom,
+    selectedAssessmentIdAtom,
   );
 
   const { formResult } = useFormResultSuspenseQuery(formId);
@@ -34,7 +34,7 @@ function FormCodeSelect({ formId }: { formId: string }) {
         <button
           role="combobox"
           aria-expanded={open}
-          className="group flex h-7 w-full flex-row items-center justify-between rounded-md border border-neutral-300 bg-blue-800/5  px-4 font-medium text-neutral-600 transition-all hover:border-neutral-600"
+          className="group flex h-7 w-full flex-row items-center justify-between rounded-md border border-neutral-300 bg-primary/5  px-4 font-medium text-neutral-600 transition-all hover:border-neutral-600"
         >
           <p className="truncate text-sm">
             {selectedFormCodeId
@@ -46,7 +46,7 @@ function FormCodeSelect({ formId }: { formId: string }) {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 transition-opacity group-hover:opacity-100" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 bg-card p-0 py-2">
+      <PopoverContent className="w-64 bg-card border-border p-0 py-2">
         <Command className="bg-inherit">
           <CommandInput
             className="text-xs font-light"
@@ -93,4 +93,4 @@ function FormCodeSelect({ formId }: { formId: string }) {
   );
 }
 
-export { FormCodeSelect };
+export { AssessmentSelect };

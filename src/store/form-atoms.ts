@@ -7,5 +7,5 @@ export const manageDialogSelectedAssessmentIdAtom = atom<string | undefined>(und
 // Responses Page
 export const currentFormIdAtom = atom<string | undefined>(undefined)
 export const selectedResponseIdAtom = atom<string | undefined>(undefined)
-export const selectedFormCodeIdAtom = atom<string | undefined>(undefined)
+export const selectedAssessmentIdAtom = atom<string | undefined>(undefined)
 
