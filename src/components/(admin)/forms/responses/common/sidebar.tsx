@@ -1,29 +1,33 @@
 "use client";
-import { FormCodeSelect } from "@/components/(admin)/forms/responses/form-code-select";
-import { NewResultGroupButton } from "@/components/(admin)/forms/responses/new-result-group-button";
+import { AssessmentSelect } from "@/components/(admin)/forms/responses/common/assessment-select";
+import { GenerateAssessmentReportButton } from "@/components/(admin)/forms/responses/common/generate-assessment-report-button";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
 import {
-  selectedFormCodeIdAtom,
+  selectedAssessmentIdAtom,
   selectedResponseIdAtom,
 } from "@/store/form-atoms";
 import {
-  FormCodeResponsesResult,
-  getAssessmentResponses,
-} from "@/server/actions/responses/get-assessment-responses";
+  AssessmentResponsesResult,
+  getAssessmentResponsesWithUsers,
+} from "@/server/actions/responses/get-assessment-responses-with-users";
 import { useState } from "react";
 import { FileCheckIcon, SearchIcon } from "lucide-react";
 import { getFullName } from "@/lib/helpers/getFullName";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/helpers/utils";
+import { AssessmentActionsDropdown } from "@/components/(admin)/forms/responses/common/assessment-actions-dropdown";
 
-export function ResponseSelectSidebar({ formId }: { formId: string }) {
+export function Sidebar() {
   return (
-    <aside className="flex h-full w-[332px] flex-col space-y-6 overflow-x-hidden border-r border-neutral-300 bg-card/50 p-2 pb-6">
+    <aside className="flex h-full min-w-[265px] flex-col space-y-6 border-r border-neutral-300 bg-card/50 p-2 pb-6">
       <div className="space-y-2">
-        <FormCodeSelect formId={formId} />
-        <NewResultGroupButton />
+        <div className="flex flex-row items-center space-x-2">
+          <AssessmentSelect />
+          <AssessmentActionsDropdown />
+        </div>
+        <GenerateAssessmentReportButton />
       </div>
       <div className="h-full space-y-2">
         <ResponseCardList />
@@ -40,14 +44,14 @@ function ResponseCardList() {
   };
 
   // get responses relevant to the selectedFormCodeId
-  const selectedFormCodeId = useAtomValue(selectedFormCodeIdAtom);
+  const selectedFormCodeId = useAtomValue(selectedAssessmentIdAtom);
   const {
     data: responses,
     isLoading,
     isError,
   } = useQuery({
     queryKey: ["responses", selectedFormCodeId],
-    queryFn: () => getAssessmentResponses(selectedFormCodeId!),
+    queryFn: () => getAssessmentResponsesWithUsers(selectedFormCodeId!),
     enabled: !!selectedFormCodeId,
   });
 
@@ -80,12 +84,8 @@ function ResponseCardList() {
       </div>
       {responses
         .filter((r) => r.assessmentId === selectedFormCodeId)
-        .filter(r => r.duration) // hack way to make sure 'unsubmitted' responses are not included
-        .filter((r) =>
-          getFullName(r.evaluatee || {})
-            .toLowerCase()
-            .includes(search),
-        )
+        .filter((r) => r.duration) // hack way to make sure 'unsubmitted' responses are not included
+        .filter((r) => getFullName(r.evaluatee).toLowerCase().includes(search))
         .map((r) => (
           <ResponseCard key={r.id} response={r} />
         ))}
@@ -94,7 +94,7 @@ function ResponseCardList() {
 }
 
 interface ResponseCardProps {
-  response: FormCodeResponsesResult[0];
+  response: AssessmentResponsesResult[0];
 }
 
 function ResponseCard({ response }: ResponseCardProps) {
@@ -109,10 +109,10 @@ function ResponseCard({ response }: ResponseCardProps) {
     <div
       onMouseDown={handleSelectResponse}
       className={cn(
-        "flex flex-row items-center space-x-2 rounded-md select-none cursor-pointer border px-2 py-1.5 transition-colors",
+        "flex cursor-pointer select-none flex-row items-center space-x-2 rounded-md border px-2 py-1.5 transition-colors",
         selectedResponseId === response.id
-          ? "border-neutral-300  bg-primary/10"
-          : "border-transparent hover:bg-primary/10",
+          ? " border-transparent  bg-primary/5 "
+          : " hover:border-neutral-300",
       )}
     >
       <FileCheckIcon
@@ -120,7 +120,7 @@ function ResponseCard({ response }: ResponseCardProps) {
         className="size-4 opacity-50 transition-opacity "
       />
       <p className="text-sm text-neutral-700 ">
-        {getFullName(response.evaluatee || {})}
+        {getFullName(response.evaluatee)}
       </p>
     </div>
   );
