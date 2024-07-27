@@ -4,9 +4,9 @@ import { db } from "@/db";
 import { responses } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function getAssessmentResponsesWithUsers(formCodeId: string) {
+export async function getAssessmentResponsesWithUsers(assessmentId: string) {
   return db.query.responses.findMany({
-    where: eq(responses.assessmentId, formCodeId),
+    where: eq(responses.assessmentId, assessmentId),
     columns: {
       assessmentId: true,
       id: true,
@@ -40,6 +40,6 @@ export async function getAssessmentResponsesWithUsers(formCodeId: string) {
   });
 }
 
-export type FormCodeResponsesResult = Awaited<
+export type AssessmentResponsesResult = Awaited<
   ReturnType<typeof getAssessmentResponsesWithUsers>
 >;
