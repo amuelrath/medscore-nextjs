@@ -8,11 +8,11 @@ import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-bu
 export function useFormResultInEditor() {
   const { getValues } = useFormContext<TFormSchema>();
   const formId = getValues(`id`);
-  const { data: formResult } = useSuspenseQuery({
+  const { data: formResult, isLoading, ...rest } = useSuspenseQuery({
     queryKey: ["form", formId],
     queryFn: () =>
       getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
-  return { formResult };
+  return { formResult, isLoading, ...rest };
 }
