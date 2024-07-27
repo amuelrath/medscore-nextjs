@@ -5,7 +5,6 @@ import { formatDate, isAfter, isBefore, isToday, parseISO } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAssessmentDetails } from "@/server/actions/form-codes/update-assessment-details";
-import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -28,21 +27,24 @@ import TwoStageConfirmButton from "@/components/ui/confirm-button";
 import { ScientistIllustration } from "@/components/illustrations/scientist-illustration";
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration";
 import COPY from "public/icons/system-regular-99-copy.json";
+import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
+import { AssessmentsResult } from "@/server/actions/responses/get-all-assessments-for-form";
 
 export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
     manageDialogSelectedAssessmentIdAtom,
   );
   const { formResult, error, isLoading } = useFormResultInEditorQuery();
-  const selectedAssessment = formResult?.assessments.find(
-    (fc) => fc.id == activeCodeId,
-  );
+  const { assessments, formId } = useGetFormAssessments();
+  console.log(assessments);
+  const selectedAssessment = assessments?.find((fc) => fc.id == activeCodeId);
   const studentOptions = formResult?.programs.users
     .filter((u) => u.user.role === "STUDENT")
     .map((s) => ({
       value: s.user.id,
       label: getFullName(s.user),
     }));
+
   const evaluateeIds = selectedAssessment?.evaluatees
     .map((uwc) => uwc.user)
     ?.map((u) => u.id)
@@ -91,46 +93,43 @@ export function EditAssessmentForm() {
   const queryClient = useQueryClient();
   const { mutate: updateDetails, isPending } = useMutation({
     mutationFn: updateAssessmentDetails,
-    onSuccess: (result) => {
+    onSuccess: (result): AssessmentsResult | string | number | undefined => {
       if (result.status === "error")
         return toast.error("Something went wrong. Try again.");
       queryClient.setQueryData(
-        ["form", formResult?.id],
-        (oldData: FormResult | undefined) => {
+        ["assessments", formId],
+        (oldData: AssessmentsResult | undefined) => {
           if (!oldData) return oldData;
 
-          const updatedFormCodes = oldData.assessments.map((fc) =>
-            fc.id === result.data.id
+          const updatedAssessments: AssessmentsResult = oldData.map((a) =>
+            a.id === result.data.id
               ? {
-                  ...fc,
+                  ...a,
                   title: result.data.title,
-                  startsAt: result.data.startsAt,
-                  expiresAt: result.data.expiresAt,
+                  startsAt: new Date(result.data.startsAt),
+                  expiresAt: new Date(result.data.expiresAt),
                   evaluatees: result.data.evaluateeIds.map((id) => ({
                     user: {
                       id,
                       firstName:
-                        fc.evaluatees.find((u) => u.user.id === id)?.user
+                        a.evaluatees.find((u) => u.user.id === id)?.user
                           .firstName || "",
                       lastName:
-                        fc.evaluatees.find((u) => u.user.id === id)?.user
+                        a.evaluatees.find((u) => u.user.id === id)?.user
                           .lastName || "",
                       role:
-                        fc.evaluatees.find((u) => u.user.id === id)?.user
-                          .role || "STUDENT",
+                        a.evaluatees.find((u) => u.user.id === id)?.user.role ||
+                        "STUDENT",
                     },
                   })),
                 }
-              : fc,
+              : a,
           );
 
           // Reset the form with current values, but clear the dirty state
           reset(getValues(), { keepDirty: false });
 
-          return {
-            ...oldData,
-            assessments: updatedFormCodes,
-          };
+          return updatedAssessments;
         },
       );
 
@@ -140,7 +139,7 @@ export function EditAssessmentForm() {
   const now = new Date();
   const { mutate: cancelAssessment } = useMutation({
     mutationFn: () => cancelAdministerForm(selectedAssessment?.id || ""),
-    onSuccess: (result) => {
+    onSuccess: (result): AssessmentsResult | string | number | undefined => {
       if (!result.success)
         return toast.error("Something went wrong. Try again.");
       // first check to see if the assessment has any responses
@@ -148,29 +147,24 @@ export function EditAssessmentForm() {
       if (!hasResponses) {
         // we are deleting it in the db, so we delete it here
         queryClient.setQueryData(
-          ["form", formResult?.id],
-          (oldData: FormResult | undefined) => {
+          ["assessments", formId],
+          (oldData: AssessmentsResult | undefined) => {
             if (!oldData) return oldData;
 
-            const updatedAssessments = oldData.assessments.filter(
-              (fc) => fc.id !== selectedAssessment?.id,
+            const updatedAssessments = oldData.filter(
+              (a) => a.id !== selectedAssessment?.id,
             );
 
-            setActiveCodeId(
-              oldData.assessments.find((fc) => isAfter(fc.startsAt, now))?.id,
-            );
+            setActiveCodeId(oldData.find((a) => isAfter(a.startsAt, now))?.id);
 
-            return {
-              ...oldData,
-              assessments: updatedAssessments,
-            };
+            return updatedAssessments;
           },
         );
       } else {
         // we are just adding a canceled at
         queryClient.setQueryData(
-          ["form", formResult?.id],
-          (oldData: FormResult | undefined) => {
+          ["assessments", formId],
+          (oldData: AssessmentsResult | undefined) => {
             if (!oldData) return oldData;
 
             const updatedAssessment = {
@@ -178,18 +172,19 @@ export function EditAssessmentForm() {
               canceledAt: new Date(),
             };
 
-            const updatedAssessments = oldData.assessments.filter(
+            const updatedAssessments = oldData.filter(
               (a) => a.id !== selectedAssessment?.id,
             );
 
             setActiveCodeId(
-              oldData.assessments.find((fc) => isAfter(fc.startsAt, now))?.id,
+              oldData.find(
+                (a) =>
+                  isAfter(a.startsAt, now) ||
+                  (isAfter(now, a.startsAt) && isBefore(now, a.expiresAt)),
+              )?.id,
             );
 
-            return {
-              ...oldData,
-              assessments: [...updatedAssessments, updatedAssessment],
-            };
+            return [...updatedAssessments, updatedAssessment];
           },
         );
       }
@@ -404,7 +399,7 @@ function AssessmentControls({
   onCancel,
   isActive,
 }: {
-  assessment: FormResult["assessments"][0];
+  assessment: AssessmentsResult[0];
   onCancel: () => void;
   isActive: boolean;
 }) {
@@ -465,11 +460,7 @@ function AssessmentControls({
   );
 }
 
-function StartNowButton({
-  assessment,
-}: {
-  assessment: FormResult["assessments"][0];
-}) {
+function StartNowButton({ assessment }: { assessment: AssessmentsResult[0] }) {
   const [hovering, setHovering] = useState<boolean>(false);
 
   const queryClient = useQueryClient();
@@ -488,23 +479,18 @@ function StartNowButton({
       if (result.status === "error")
         return toast.error("Something went wrong. Try again.");
       queryClient.setQueryData(
-        ["form", assessment.formId],
-        (oldData: FormResult | undefined) => {
+        ["assessments", assessment.formId],
+        (oldData: AssessmentsResult | undefined) => {
           if (!oldData) return oldData;
 
-          const updatedFormCodes = oldData.assessments.map((fc) =>
-            fc.id === result.data.id
+          return oldData.map((a) =>
+            a.id === result.data.id
               ? {
-                  ...fc,
+                  ...a,
                   startsAt: result.data.startsAt,
                 }
-              : fc,
+              : a,
           );
-
-          return {
-            ...oldData,
-            assessments: updatedFormCodes,
-          };
         },
       );
     },

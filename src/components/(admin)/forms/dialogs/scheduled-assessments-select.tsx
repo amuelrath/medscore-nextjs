@@ -4,26 +4,26 @@ import Image from "next/image";
 import EYEBALL from "public/image/eye.png";
 import { cn } from "@/lib/helpers/utils";
 import { CalendarClockIcon, UsersRoundIcon } from "lucide-react";
-import { FormResult } from "@/server/actions/forms/get-form-by-id";
-import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { manageDialogSelectedAssessmentIdAtom } from "@/store/form-atoms";
 import { useAtom } from "jotai";
 import { m, LazyMotion, domAnimation } from "framer-motion";
 import React from "react";
+import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
+import { AssessmentsResult } from "@/server/actions/responses/get-all-assessments-for-form";
 
 export function ScheduledAssessmentsSelect() {
-  const { formResult, isLoading } = useFormResultInEditorQuery();
+  const { assessments, isLoading } = useGetFormAssessments();
 
   const now = new Date();
-  const activeFormCode = formResult?.assessments.find(
-    (fc) =>
-      isAfter(now, fc.startsAt) &&
-      isBefore(now, fc.expiresAt) &&
-      fc.canceledAt === null,
+  const activeAssessments = assessments?.filter(
+    (a) =>
+      isAfter(now, a.startsAt) &&
+      isBefore(now, a.expiresAt) &&
+      a.canceledAt === null,
   );
-  const scheduledAssessments = formResult?.assessments.filter(
-    (fc) => isBefore(now, fc.startsAt) && !fc.canceledAt,
+  const scheduledAssessments = assessments?.filter(
+    (a) => isBefore(now, a.startsAt) && !a.canceledAt,
   );
 
   if (isLoading) {
@@ -33,30 +33,29 @@ export function ScheduledAssessmentsSelect() {
   return (
     <LazyMotion features={domAnimation}>
       <div className="no-scrollbar h-[46vh] w-full space-y-2 overflow-y-scroll">
-          {activeFormCode && (
-            <ScheduleCard assessment={activeFormCode} status="active" />
-          )}
-          {(scheduledAssessments?.length || 0) > 0 && (
-            <>
-              {scheduledAssessments?.map((fc) => (
-                <ScheduleCard key={fc.id} assessment={fc} status="scheduled" />
-              ))}
-            </>
-          )}
+        {activeAssessments &&
+          activeAssessments.map((a) => (
+            <ScheduleCard key={a.id} assessment={a} status="active" />
+          ))}
+        {(scheduledAssessments?.length || 0) > 0 && (
+          <>
+            {scheduledAssessments?.map((fc) => (
+              <ScheduleCard key={fc.id} assessment={fc} status="scheduled" />
+            ))}
+          </>
+        )}
       </div>
     </LazyMotion>
   );
 }
 
 interface ScheduleCardProps {
-  assessment: FormResult["assessments"][number];
+  assessment: AssessmentsResult[number];
   status: "active" | "scheduled";
 }
 
 export function ScheduleCard({ assessment, status }: ScheduleCardProps) {
-  const [activeId, setActiveId] = useAtom(
-    manageDialogSelectedAssessmentIdAtom,
-  );
+  const [activeId, setActiveId] = useAtom(manageDialogSelectedAssessmentIdAtom);
 
   const assignedUsers = assessment.evaluatees.length;
 

@@ -11,7 +11,7 @@ export async function getResponse(responseId: string) {
         columns: {
           responseId: false,
           formItemId: false,
-          id: false,
+          id: true,
           textValue: true,
           selectedOptionIds: true,
         },

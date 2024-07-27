@@ -23,7 +23,7 @@ import { administerForm } from "@/server/actions/form-codes/administer-form";
 import { useFormContext } from "react-hook-form";
 import { addBusinessDays, addHours } from "date-fns";
 import { toast } from "sonner";
-import { FormResult } from "@/server/actions/forms/get-form-by-id";
+import { AssessmentsResult } from "@/server/actions/responses/get-all-assessments-for-form";
 
 export function ManageDialog() {
   const { getValues } = useFormContext();
@@ -46,24 +46,16 @@ export function ManageDialog() {
       if (!result) return toast.error("Something went wrong. Try again.");
 
       queryClient.setQueryData(
-        ["form", formId],
-        (oldData: FormResult | undefined) => {
+        ["assessments", formId],
+        (oldData: AssessmentsResult | undefined) => {
           if (!oldData) return oldData;
 
           // Add the new form code to the existing array
-          const updatedAssessments: FormResult["assessments"] = [
-            ...oldData.assessments,
-            {
-              ...result,
-            },
-          ];
+          const updatedAssessments: AssessmentsResult = [...oldData, result];
 
           setActiveCodeId(result.id);
 
-          return {
-            ...oldData,
-            assessments: updatedAssessments,
-          };
+          return [...updatedAssessments];
         },
       );
 
@@ -94,10 +86,7 @@ export function ManageDialog() {
       open={open}
       onOpenChange={(val) => (val ? setOpen(true) : handleClose())}
     >
-      <Button
-        size="xs"
-        onClick={() => setOpen(true)}
-      >
+      <Button size="xs" onClick={() => setOpen(true)}>
         <div
           onMouseEnter={() => setHovering(true)}
           onMouseLeave={() => setHovering(false)}
@@ -112,6 +101,7 @@ export function ManageDialog() {
           <span className="font-semibold">Manage Assessments</span>
         </div>
       </Button>
+
       <DialogContent
         onCloseClick={handleClose}
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -119,6 +109,12 @@ export function ManageDialog() {
         className="flex h-[500px] min-w-[900px] flex-col"
       >
         <div className="grid h-full grid-cols-3 gap-4">
+      <Suspense fallback={(
+        <>
+        <Skeleton className="h-full col-span-1"  />
+        <Skeleton className="h-full col-span-2" />
+        </>
+      )} >
           <div className="col-span-1 flex h-full flex-col space-y-4">
             <DialogHeader className="w-full">
               <DialogTitle className="w-full">Manage Assessments</DialogTitle>
@@ -132,23 +128,12 @@ export function ManageDialog() {
             <ScheduledAssessmentsSelect />
           </div>
           <div className="col-span-2 h-full pb-6">
-            <Suspense fallback={<FormSkeleton />}>
               <EditAssessmentForm />
-            </Suspense>
           </div>
+      </Suspense>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function FormSkeleton() {
-  return (
-    <>
-      <Skeleton className="h-8 w-full" />
-      <Skeleton className="h-8 w-full" />
-      <Skeleton className="h-8 w-full" />
-      <Skeleton className="h-8 w-full" />
-    </>
-  );
-}
