@@ -18,9 +18,11 @@ export async function cancelAdministerForm(
     const now = dateToSQLDate(new Date());
 
     // Check if the form code has any responses
-    const hasResponses = await db.query.responses.findFirst({
+    const responses = await db.query.responses.findMany({
       where: (r, { eq }) => eq(r.assessmentId, formCodeId),
     });
+
+    const hasResponses = responses.length > 0
 
     if (hasResponses) {
       // If there are responses, set the canceledAt property

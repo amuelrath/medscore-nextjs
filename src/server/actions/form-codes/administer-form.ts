@@ -2,6 +2,7 @@
 import { db } from "@/db";
 import { assessments, assessmentsOnEvaluatees } from "@/db/schema";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { getAssessmentById } from "@/server/actions/responses/get-assessment";
 
 export async function administerForm({
   isDirectObservation,
@@ -33,7 +34,7 @@ export async function administerForm({
   }
 
   // create the form code
-  const insertFormCode = await tx
+  const insertedAssessment = await tx
     .insert(assessments)
     .values({
       formId: form.id,
@@ -46,39 +47,21 @@ export async function administerForm({
     .returning();
 
   // this is inefficient but i want to get joins
-  const formCode = await tx.query.assessments.findFirst({
-    where: (fc, { eq }) => eq(fc.id, insertFormCode[0].id),
-    with: {
-      evaluatees: {
-        with: {
-          user: {
-            columns: {
-              id: true,
-              firstName: true,
-              email: false,
-              password: false,
-              role: true,
-              lastName: true,
-            },
-          },
-        },
-      },
-    },
-  });
+  const assessment = await getAssessmentById(insertedAssessment[0].id)
 
-  if (!formCode) throw new Error("Error refetching formcode");
+  if (!assessment) throw new Error("Error refetching formcode");
 
   // link the form code to the users
   await Promise.all(
     userIds.map((u) =>
       tx.insert(assessmentsOnEvaluatees).values({
-        assessmentId: formCode.id,
+        assessmentId: assessment.id,
         userId: u,
       }),
     ),
   );
 
   return {
-    ...formCode,
+    ...assessment,
   };
 }
