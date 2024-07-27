@@ -209,7 +209,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                                   field.onChange([value]);
                                 }}
                                 value={field.value?.[0] || ""}
-                                className="flex flex-col"
+                                className="flex flex-col relative"
                               >
                                 {fi.options.map((o) => (
                                   <div
@@ -217,6 +217,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                                     className="flex items-center space-x-2"
                                   >
                                     <RadioGroupItem
+                                      indicatorClassName="top-[-1px]"
                                       value={o.id}
                                       id={o.id}
                                       label={o.text || ""}

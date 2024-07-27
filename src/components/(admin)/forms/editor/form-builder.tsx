@@ -167,7 +167,7 @@ export function FormBuilder() {
   };
 
   return (
-    <main className="flex flex-row px-2">
+    <main className="flex justify-center flex-row px-2">
       <LazyMotion features={domAnimation}>
         <DynamicMilestoneMenu
           control={control}
