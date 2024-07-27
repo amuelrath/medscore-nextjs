@@ -1,6 +1,6 @@
 import { User } from "@/db/schema";
 
-export const getFullName = (user: Partial<User> | undefined) => {
+export const getFullName = (user: Pick<User, "firstName" | "lastName" > | undefined | null) => {
   const fullName = `${user?.firstName} ${user?.lastName}`;
   const maxLength = 23; // Adjust the maximum length as needed
 
