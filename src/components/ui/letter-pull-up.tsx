@@ -18,18 +18,20 @@ interface LetterPullupProps {
     | "3xl"
     | "4xl"
     | "5xl";
+  fontWeight?: "extralight" | "light" | "normal" | "medium" | "semibold" | "bold" | "extrabold"
 }
 
 export default function LetterPullup({
   className,
   words,
-  delay,
-  size = "2xl",
+  delay=0.01,
+  size = "sm",
+  fontWeight="normal"
 }: LetterPullupProps) {
   const letters = words.split("");
 
   const pullupVariant = {
-    initial: { y: 25, opacity: 0 },
+    initial: { y: 10, opacity: 0 },
     animate: (i: any) => ({
       y: 0,
       opacity: 1,
@@ -40,7 +42,7 @@ export default function LetterPullup({
   };
 
   return (
-    <div className="flex justify-center">
+    <div className={cn("flex", className)}>
       {letters.map((letter, i) => (
         <motion.h1
           key={i}
@@ -49,8 +51,7 @@ export default function LetterPullup({
           animate="animate"
           custom={i}
           className={cn(
-            `font-display text-center text-${size} font-bold tracking-[-0.02em] text-black drop-shadow-sm dark:text-white`,
-            className,
+            `font-display text-${size} font-${fontWeight} tracking-[-0.02em] text-black dark:text-white`,
           )}
         >
           {letter === " " ? <span>&nbsp;</span> : letter}
