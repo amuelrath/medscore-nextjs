@@ -21,7 +21,7 @@ export default async function ResponsesPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ResponseSummary formId={params.formId} />
+      <ResponseSummary/>
     </HydrationBoundary>
   );
 }
