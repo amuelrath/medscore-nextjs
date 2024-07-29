@@ -10,8 +10,6 @@ import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 import { toast } from "sonner";
 import { v4 } from "uuid";
 
-// BEWARE OF FUNNY ERROR WITH DELETING A QUESTION AND NOT ALL PROPERTIES
-// GETTING DELETED.I THINK I FIXED IT BUT KNOW IT HAPPENED AND IT SUCKED
 export const ZFormSchema = z
   .object({
     id: z.string(),
@@ -37,7 +35,7 @@ export const ZFormSchema = z
             z.object({
               id: z.string(),
               text: z.string().optional().nullable(),
-              pointValue: z.union([z.number(), z.string()]).nullable(),
+              pointValue: z.union([z.number(), z.string()]).nullable().optional(),
               isNa: z.boolean().default(false),
               position: z.number(),
             }),
@@ -117,15 +115,11 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
 
   const handleSave = useCallback(
     async (formData: TFormSchema) => {
-      const startTime = Date.now();
-      console.log("Form Data Before Submission: ", formData);
       try {
         setIsSaving(true);
         await autosaveForm(formData);
-        const endTime = Date.now();
-        console.log(`Form saved in ${endTime - startTime}ms`);
       } catch (error) {
-        console.error("Error saving form:", error);
+        toast.error("Something went wrong.")
       } finally {
         setIsSaving(false);
       }
