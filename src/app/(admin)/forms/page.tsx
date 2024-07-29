@@ -4,7 +4,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
-import FormsHome from "@/components/(admin)/forms/home";
+import { FormsHome } from "@/components/(admin)/forms/home";
 
 export default async function FormsPage() {
   // prefetch forms (just the id, title, program)
