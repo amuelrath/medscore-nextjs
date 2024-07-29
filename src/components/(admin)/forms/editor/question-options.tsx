@@ -42,7 +42,7 @@ export const OptionList: FC<OptionListProps> = ({
       id: v4(),
       text: isNa ? "N/a" : "",
       position,
-      pointValue: isNa ? null : isScored ? "0" : null,
+      pointValue: isNa ? undefined : isScored ? "0" : undefined,
       isNa,
     });
   };
