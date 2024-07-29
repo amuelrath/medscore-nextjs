@@ -1,8 +1,8 @@
 "use client";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState, useMemo } from "react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext, Control } from "react-hook-form";
 import { TFormItemType } from "@/db/schema";
 import { FormItem } from "@/components/(admin)/forms/editor/form-item";
 import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item-dock";
@@ -18,6 +18,93 @@ const DynamicMilestoneMenu = dynamic(
     ),
   { ssr: false, loading: () => <Loading /> },
 );
+
+// Memoized FormItem component
+const MemoizedFormItem = React.memo(FormItem);
+
+// FormItems component
+const FormItems = React.memo(
+  ({
+    formItems,
+    selectedItemIndex,
+    handleSelectItem,
+    handleDeselectItem,
+    handleRemoveItem,
+    handleDuplicateItem,
+    handleToggleMilestoneDialog,
+    control,
+  }: {
+    formItems: any[];
+    selectedItemIndex: number | null;
+    handleSelectItem: (
+      index: number,
+      offsetTop: number,
+      height: number,
+    ) => void;
+    handleDeselectItem: () => void;
+    handleRemoveItem: (index: number) => void;
+    handleDuplicateItem: (index: number) => void;
+    handleToggleMilestoneDialog: (index: number) => void;
+    control: Control<TFormSchema>;
+  }) => (
+    <AnimatePresence>
+      {formItems.map((item, index) => (
+        <m.div key={item.id} layout="position" layoutId={item.id}>
+          <MemoizedFormItem
+            item={item}
+            control={control}
+            index={index}
+            removeItem={() => handleRemoveItem(index)}
+            duplicateItem={() => handleDuplicateItem(index)}
+            isSelected={index === selectedItemIndex}
+            selectItem={handleSelectItem}
+            deselectItem={handleDeselectItem}
+            toggleMilestoneDialog={() => handleToggleMilestoneDialog(index)}
+          />
+        </m.div>
+      ))}
+    </AnimatePresence>
+  ),
+);
+FormItems.displayName = "FormItems";
+
+const Dock = React.memo(
+  ({
+    dockPosition,
+    addQuestion,
+  }: {
+    dockPosition: { top: number; height: number } | null;
+    addQuestion: (type: TFormItemType) => void;
+  }) => (
+    <AnimatePresence>
+      {dockPosition && (
+        <m.div
+          key="form-dock"
+          initial={false}
+          animate={{
+            top: dockPosition.top,
+            opacity: 1,
+          }}
+          exit={{ opacity: 0 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30,
+          }}
+          style={{
+            position: "absolute",
+            left: "100%",
+            height: dockPosition.height,
+          }}
+          className="will-change-transform"
+        >
+          <AddFormItemDock addQuestion={addQuestion} />
+        </m.div>
+      )}
+    </AnimatePresence>
+  ),
+);
+Dock.displayName = "Dock";
 
 export function FormBuilder() {
   const { control, getValues } = useFormContext<TFormSchema>();
@@ -119,10 +206,8 @@ export function FormBuilder() {
 
       const selectedItem = formItems[index];
       if (selectedItem && selectedItem.type === "HEADER") {
-        // Close the milestone dialog if a header is selected
         setMilestoneDialogOpenIndex(null);
       } else if (milestoneDialogOpenIndex !== null) {
-        // If the milestone dialog is open, update its index
         setMilestoneDialogOpenIndex(index);
       }
     },
@@ -137,7 +222,6 @@ export function FormBuilder() {
           prevIndex === index ? null : index,
         );
       } else {
-        // If it's a header, ensure the milestone dialog is closed
         setMilestoneDialogOpenIndex(null);
       }
     },
@@ -158,16 +242,44 @@ export function FormBuilder() {
     [handleDeselectItem],
   );
 
-  const getPosition = (index: number): number => {
-    return (
-      getValues(`formItems`)
-        .filter((_, itemIndex) => itemIndex < index)
-        .filter((item) => item.type !== "HEADER").length + 1
-    );
-  };
+  const getPosition = useCallback(
+    (index: number): number => {
+      return (
+        getValues("formItems")
+          .filter((_, itemIndex) => itemIndex < index)
+          .filter((item) => item.type !== "HEADER").length + 1
+      );
+    },
+    [getValues],
+  );
+
+  const memoizedFormItems = useMemo(
+    () => (
+      <FormItems
+        formItems={formItems}
+        selectedItemIndex={selectedItemIndex}
+        handleSelectItem={handleSelectItem}
+        handleDeselectItem={handleDeselectItem}
+        handleRemoveItem={handleRemoveItem}
+        handleDuplicateItem={handleDuplicateItem}
+        handleToggleMilestoneDialog={handleToggleMilestoneDialog}
+        control={control}
+      />
+    ),
+    [
+      formItems,
+      selectedItemIndex,
+      handleSelectItem,
+      handleDeselectItem,
+      handleRemoveItem,
+      handleDuplicateItem,
+      handleToggleMilestoneDialog,
+      control,
+    ],
+  );
 
   return (
-    <main className="flex justify-center flex-row px-2">
+    <main className="flex flex-row justify-center px-2">
       <LazyMotion features={domAnimation}>
         <DynamicMilestoneMenu
           control={control}
@@ -188,53 +300,9 @@ export function FormBuilder() {
               onSubmit={(e) => e.preventDefault()}
               className="mx-auto px-4 pb-52 pt-4"
             >
-              <AnimatePresence>
-                {formItems.map((item, index) => (
-                  <m.div key={item.id} layout="position" layoutId={item.id}>
-                    <FormItem
-                      key={item.id}
-                      item={item}
-                      control={control}
-                      index={index}
-                      removeItem={() => handleRemoveItem(index)}
-                      duplicateItem={() => handleDuplicateItem(index)}
-                      isSelected={index === selectedItemIndex}
-                      selectItem={handleSelectItem}
-                      deselectItem={handleDeselectItem}
-                      toggleMilestoneDialog={() =>
-                        handleToggleMilestoneDialog(index)
-                      }
-                    />
-                  </m.div>
-                ))}
-              </AnimatePresence>
+              {memoizedFormItems}
             </form>
-            <AnimatePresence>
-              {dockPosition && (
-                <m.div
-                  key="form-dock"
-                  initial={false}
-                  animate={{
-                    top: dockPosition.top,
-                    opacity: 1,
-                  }}
-                  exit={{ opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                  }}
-                  style={{
-                    position: "absolute",
-                    left: "100%",
-                    height: dockPosition.height,
-                  }}
-                  className="will-change-transform"
-                >
-                  <AddFormItemDock addQuestion={handleAddQuestion} />
-                </m.div>
-              )}
-            </AnimatePresence>
+            <Dock dockPosition={dockPosition} addQuestion={handleAddQuestion} />
           </div>
         </div>
       </LazyMotion>
