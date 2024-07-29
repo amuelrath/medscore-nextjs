@@ -16,14 +16,16 @@ export default async function AppLayout({
   children: ReactNode;
 }>) {
   return (
-    <>
+    <div className="flex flex-col h-screen overflow-clip">
       <AppHeader />
       <ReactQueryDevtools />
-      <div className="flex w-full">
+      <div className="flex flex-1">
         <RouteNavigation tabs={tabs} />
-        {children}
+        <main className="flex-1 overflow-hidden">
+          {children}
+        </main>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -32,13 +34,13 @@ const tabs = [
     id: "dashboard",
     label: "Dashboard",
     icon: <GaugeIcon size={20} />,
-    href: "/dashboard",
+    href: "/dashboard"
   },
   {
     id: "Evaluate",
     label: "Evaluate",
     icon: <ClipboardPlusIcon size={20} />,
-    href: "/evaluate",
+    href: "/evaluate"
   },
   {
     id: "forms",
