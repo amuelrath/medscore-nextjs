@@ -1,7 +1,7 @@
 "use client";
 import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/helpers/utils";
-import { BentoCard, BentoCardProps } from "@/components/magicui/bento-grid";
+import { BentoCard, BentoCardProps } from "@/components/ui/bento-grid";
 import { ClipboardPlusIcon, EyeIcon } from "lucide-react";
 import { DoctorsIllustration } from "@/components/illustrations/doctors-illustration";
 import { Button } from "@/components/ui/button";
