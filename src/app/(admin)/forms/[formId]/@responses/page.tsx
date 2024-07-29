@@ -6,11 +6,7 @@ import {
 import { ResponseSummary } from "@/components/(admin)/forms/responses";
 
 // TODO - ISR
-export default async function ResponsesPage({
-  params,
-}: {
-  params: { formId: string };
-}) {
+export default async function ResponsesPage() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
