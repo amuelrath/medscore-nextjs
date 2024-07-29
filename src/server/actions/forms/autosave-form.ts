@@ -137,7 +137,7 @@ async function handleOptions(
   }
 
   // Update or insert options
-  for (const newOption of newOptions) {
+  for (const newOption of newOptions ) {
     if (existingOptionIds.has(newOption.id)) {
       // Update existing option
       await tx
