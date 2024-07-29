@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { cn } from "@/lib/helpers/utils";
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface TabsBoxProps {
   defaultTab?: string;
@@ -19,7 +20,7 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
 
   return (
     <div className="flex h-full flex-col bg-transparent">
-      <div className="flex flex-row  items-end">
+      <div className="flex flex-row items-end">
         {tabs?.map((t) => (
           <div
             key={t.id}
@@ -44,9 +45,18 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
         ))}
       </div>
       <div className="-mt-[1px] flex flex-grow flex-col bg-white rounded-b-md rounded-tr-md border border-neutral-300">
-        <div className="flex-grow">
-          {tabs.find((t) => t.id === selectedTabId)?.content}
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedTabId}
+            initial={{ opacity: 0.5, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.1 }}
+            className="flex-grow"
+          >
+            {tabs.find((t) => t.id === selectedTabId)?.content}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
