@@ -10,16 +10,13 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import Counter from "@/components/ui/counter";
 
 const chartConfig = {
-  score: {
-    label: "Performance",
-  },
 } satisfies ChartConfig;
 
 export function GaugeChart({ fill, score, label }: { fill: string; score: number; label?: string }) {
   const chartData = [{ score, fill }];
 
   return (
-    <ChartContainer config={chartConfig} className="mx-auto size-52">
+    <ChartContainer config={chartConfig} className="mx-auto drop-shadow-xl size-52">
       <RadialBarChart
         data={chartData}
         endAngle={chartData[0].score * 360}
@@ -33,7 +30,12 @@ export function GaugeChart({ fill, score, label }: { fill: string; score: number
           className="first:fill-muted last:fill-background"
           polarRadius={[86, 74]}
         />
-        <RadialBar dataKey="score" animationDuration={500}  />
+        <RadialBar
+          dataKey="score"
+          color={fill}
+          animationDuration={500}
+          className="shadow-inner"
+        />
         <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
           <Label
             content={({ viewBox }) => {
