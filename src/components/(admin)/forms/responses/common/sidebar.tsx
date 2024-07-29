@@ -3,6 +3,7 @@ import { AssessmentSelect } from "@/components/(admin)/forms/responses/common/as
 import { GenerateAssessmentReportButton } from "@/components/(admin)/forms/responses/common/generate-assessment-report-button";
 import { useQuery } from "@tanstack/react-query";
 import { useAtom, useAtomValue } from "jotai";
+import { m } from 'framer-motion'
 import {
   selectedAssessmentIdAtom,
   selectedResponseIdAtom,
@@ -17,7 +18,9 @@ import { getFullName } from "@/lib/helpers/getFullName";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/helpers/utils";
-import { AssessmentActionsDropdown } from "@/components/(admin)/forms/responses/common/assessment-actions-dropdown";
+import { AssessmentDropdown } from "@/components/(admin)/forms/responses/dropdowns/assessment-dropdown";
+import { ResponseDropdown } from "@/components/(admin)/forms/responses/dropdowns/response-dropdown";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
 
 export function Sidebar() {
   return (
@@ -25,7 +28,7 @@ export function Sidebar() {
       <div className="space-y-2">
         <div className="flex flex-row items-center space-x-2">
           <AssessmentSelect />
-          <AssessmentActionsDropdown />
+          <AssessmentDropdown />
         </div>
         <GenerateAssessmentReportButton />
       </div>
@@ -105,16 +108,19 @@ function ResponseCard({ response }: ResponseCardProps) {
     setSelectedResponseId(response.id);
   };
 
+  const isSelected =  selectedResponseId === response.id
+
   return (
     <div
       onMouseDown={handleSelectResponse}
       className={cn(
-        "flex cursor-pointer select-none flex-row items-center space-x-2 rounded-md border px-2 py-1.5 transition-colors",
-        selectedResponseId === response.id
+        "flex cursor-pointer select-none flex-row items-center justify-between space-x-2 rounded-md border px-2 py-1.5 transition-colors",
+        isSelected
           ? " border-transparent  bg-primary/5 "
           : " hover:border-neutral-300",
       )}
     >
+      <div className="flex flex-row space-x-2 items-center">
       <FileCheckIcon
         strokeWidth={2}
         className="size-4 opacity-50 transition-opacity "
@@ -122,6 +128,17 @@ function ResponseCard({ response }: ResponseCardProps) {
       <p className="text-sm text-neutral-700 ">
         {getFullName(response.evaluatee)}
       </p>
+      </div>
+      {isSelected && (
+      <ResponseDropdown>
+        <m.div
+        initial={{ opacity: 0}}
+        animate={{ opacity: 1 }}
+        >
+        <DotsHorizontalIcon className={cn("opacity-50 hover:opacity-100 transition-opacity")} />
+        </m.div>
+      </ResponseDropdown>
+      )}
     </div>
   );
 }
