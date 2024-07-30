@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   CartesianGrid,
@@ -16,6 +17,8 @@ import {
 import { differenceInMonths, differenceInYears, formatDate } from "date-fns";
 import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, m } from "framer-motion";
+import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
+import { AssessmentsResult } from "@/server/actions/responses/get-all-assessments-for-form";
 
 type ChartData = {
   date: Date;
@@ -45,6 +48,10 @@ export function AssessmentScoreLineChart({
     },
   } satisfies ChartConfig;
 
+  const { assessments, isLoading } = useGetFormAssessments();
+
+  if (isLoading) return <>Loading...</>;
+
   const sortedChartData = chartData.sort(
     (a, b) => a.date.getTime() - b.date.getTime(),
   );
@@ -52,11 +59,7 @@ export function AssessmentScoreLineChart({
   return (
     <AnimatePresence mode="wait">
       <m.div
-        className={cn(
-          h ? h : "h-full",
-          w ? w : "w-full",
-          "rounded bg-white shadow-sm",
-        )}
+        className={cn(h ? h : "h-full", w ? w : "w-full", "rounded bg-white")}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -101,6 +104,10 @@ export function AssessmentScoreLineChart({
                 content={
                   <ChartTooltipContent
                     formatter={(value, _, props) => {
+                      const assessmentTitle = getAssessmentTitleFromResponseId({
+                        assessments,
+                        selectedResponseId: props.payload.responseId
+                      });
                       const percent = Number(value).toFixed(1) + "%";
                       return (
                         <div className="flex flex-col items-start space-y-1">
@@ -114,7 +121,7 @@ export function AssessmentScoreLineChart({
                             <p className="font-mono">{percent}</p>
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            {formatDate(props.payload.date, "MMM d, yyyy")}
+                            {assessmentTitle}
                           </p>
                         </div>
                       );
@@ -147,6 +154,18 @@ export function AssessmentScoreLineChart({
   );
 }
 
+function getAssessmentTitleFromResponseId({
+  assessments,
+  selectedResponseId,
+}: {
+  assessments: AssessmentsResult | undefined;
+  selectedResponseId: string | undefined;
+}) {
+  if (!assessments || !selectedResponseId) return "Assessment Not Found.";
+  return assessments.find((a) =>
+    a.responses.find((r) => r.id === selectedResponseId),
+  )?.title;
+}
 function getDateFormat(chartData: ChartData) {
   if (chartData.length < 2) {
     return "MMM d";
