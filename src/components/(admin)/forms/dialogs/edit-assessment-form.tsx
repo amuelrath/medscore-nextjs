@@ -1,7 +1,7 @@
 "use client";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-import { formatDate, isAfter, isBefore, isToday, parseISO } from "date-fns";
+import { formatDate, isAfter, isBefore, parseISO } from "date-fns";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateAssessmentDetails } from "@/server/actions/form-codes/update-assessment-details";
@@ -20,7 +20,11 @@ import { LottieHover } from "@/components/ui/lottie-hover";
 import { cancelAdministerForm } from "@/server/actions/form-codes/cancel-administer-form";
 import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { manageDialogSelectedAssessmentIdAtom } from "@/store/form-atoms";
+import {
+  manageDialogSelectedAssessmentIdAtom,
+  selectedAssessmentIdAtom,
+  selectedResponseIdAtom,
+} from "@/store/form-atoms";
 import { useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import TwoStageConfirmButton from "@/components/ui/confirm-button";
@@ -34,10 +38,31 @@ export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
     manageDialogSelectedAssessmentIdAtom,
   );
-  const { formResult, error, isLoading } = useFormResultInEditorQuery();
-  const { assessments, formId } = useGetFormAssessments();
-  console.log(assessments);
-  const selectedAssessment = assessments?.find((fc) => fc.id == activeCodeId);
+  const [selectedAssessmentId, setSelectedAssessmentId] = useAtom(
+    selectedAssessmentIdAtom,
+  );
+  const [selectedResponseId, setSelectedResponseId] = useAtom(
+    selectedResponseIdAtom,
+  );
+  const {
+    formResult,
+    error,
+    isLoading: isFormLoading,
+  } = useFormResultInEditorQuery();
+  const {
+    assessments,
+    formId,
+    isLoading: isAssessmentsLoading,
+  } = useGetFormAssessments();
+
+  const selectedAssessment = assessments?.find((fc) => fc.id === activeCodeId);
+
+  useEffect(() => {
+    if (assessments && assessments.length > 0 && !activeCodeId) {
+      setActiveCodeId(assessments[0].id);
+    }
+  }, [assessments, activeCodeId, setActiveCodeId]);
+
   const studentOptions = formResult?.programs.users
     .filter((u) => u.user.role === "STUDENT")
     .map((s) => ({
@@ -71,7 +96,6 @@ export function EditAssessmentForm() {
     },
   });
 
-  // Add this effect to update form values when activeCodeId changes
   useEffect(() => {
     if (selectedAssessment) {
       reset({
@@ -93,7 +117,7 @@ export function EditAssessmentForm() {
   const queryClient = useQueryClient();
   const { mutate: updateDetails, isPending } = useMutation({
     mutationFn: updateAssessmentDetails,
-    onSuccess: (result): AssessmentsResult | string | number | undefined => {
+    onSuccess: (result) => {
       if (result.status === "error")
         return toast.error("Something went wrong. Try again.");
       queryClient.setQueryData(
@@ -104,29 +128,28 @@ export function EditAssessmentForm() {
           const updatedAssessments: AssessmentsResult = oldData.map((a) =>
             a.id === result.data.id
               ? {
-                  ...a,
-                  title: result.data.title,
-                  startsAt: new Date(result.data.startsAt),
-                  expiresAt: new Date(result.data.expiresAt),
-                  evaluatees: result.data.evaluateeIds.map((id) => ({
-                    user: {
-                      id,
-                      firstName:
-                        a.evaluatees.find((u) => u.user.id === id)?.user
-                          .firstName || "",
-                      lastName:
-                        a.evaluatees.find((u) => u.user.id === id)?.user
-                          .lastName || "",
-                      role:
-                        a.evaluatees.find((u) => u.user.id === id)?.user.role ||
-                        "STUDENT",
-                    },
-                  })),
-                }
+                ...a,
+                title: result.data.title,
+                startsAt: new Date(result.data.startsAt),
+                expiresAt: new Date(result.data.expiresAt),
+                evaluatees: result.data.evaluateeIds.map((id) => ({
+                  user: {
+                    id,
+                    firstName:
+                      a.evaluatees.find((u) => u.user.id === id)?.user
+                        .firstName || "",
+                    lastName:
+                      a.evaluatees.find((u) => u.user.id === id)?.user
+                        .lastName || "",
+                    role:
+                      a.evaluatees.find((u) => u.user.id === id)?.user.role ||
+                      "STUDENT",
+                  },
+                })),
+              }
               : a,
           );
 
-          // Reset the form with current values, but clear the dirty state
           reset(getValues(), { keepDirty: false });
 
           return updatedAssessments;
@@ -139,29 +162,36 @@ export function EditAssessmentForm() {
   const now = new Date();
   const { mutate: cancelAssessment } = useMutation({
     mutationFn: () => cancelAdministerForm(selectedAssessment?.id || ""),
-    onSuccess: (result): AssessmentsResult | string | number | undefined => {
+    onSuccess: (result) => {
       if (!result.success)
         return toast.error("Something went wrong. Try again.");
-      // first check to see if the assessment has any responses
       const { hasResponses } = result;
       if (!hasResponses) {
-        // we are deleting it in the db, so we delete it here
         queryClient.setQueryData(
           ["assessments", formId],
           (oldData: AssessmentsResult | undefined) => {
             if (!oldData) return oldData;
 
-            const updatedAssessments = oldData.filter(
+            const updatedAssessments: AssessmentsResult = oldData.filter(
               (a) => a.id !== selectedAssessment?.id,
             );
 
             setActiveCodeId(oldData.find((a) => isAfter(a.startsAt, now))?.id);
+            if (selectedAssessmentId === selectedAssessment?.id) {
+              setSelectedAssessmentId(undefined);
+            }
+            if (
+              selectedAssessment?.responses.find(
+                (r) => r.id === selectedResponseId,
+              )
+            ) {
+              setSelectedResponseId(undefined);
+            }
 
             return updatedAssessments;
           },
         );
       } else {
-        // we are just adding a canceled at
         queryClient.setQueryData(
           ["assessments", formId],
           (oldData: AssessmentsResult | undefined) => {
@@ -200,7 +230,7 @@ export function EditAssessmentForm() {
     });
   };
 
-  if (isLoading) {
+  if (isAssessmentsLoading || isFormLoading) {
     return <Skeleton className="h-full w-full" />;
   }
 
@@ -217,52 +247,48 @@ export function EditAssessmentForm() {
     );
   }
 
-  const scheduledAssessments = formResult.assessments.filter(
+  const scheduledAssessments = assessments?.filter(
     (fc) => isBefore(now, fc.startsAt) && !fc.canceledAt,
   );
 
-  const activeAssessments = formResult.assessments.filter(
+  const activeAssessments = assessments?.filter(
     (fc) =>
       isAfter(now, fc.startsAt) &&
       isBefore(now, fc.expiresAt) &&
       !fc.canceledAt,
   );
 
-  const noAssessmentsContent = (
-    <>
-      <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
-      <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
-        <ScientistIllustration />
-        <div className="flex flex-col items-center">
-          <p className="text-lg font-medium">
-            This form has no upcoming assessments.
-          </p>
-          <p className="text-sm font-normal">
-            Click &quot;New Assessment&quot; to get started.
-          </p>
+  if (!scheduledAssessments?.length && !activeAssessments?.length) {
+    return (
+      <>
+        <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
+        <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
+          <ScientistIllustration />
+          <div className="flex flex-col items-center">
+            <p className="text-lg font-medium">
+              This form has no upcoming assessments.
+            </p>
+            <p className="text-sm font-normal">
+              Click &quot;New Assessment&quot; to get started.
+            </p>
+          </div>
         </div>
-      </div>
-    </>
-  );
-
-  const selectAssessmentContent = (
-    <>
-      <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
-      <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
-        <NoDataIllustration />
-        <p className="text-lg font-normal">
-          Select an assessment to get started.
-        </p>
-      </div>
-    </>
-  );
-
-  if (scheduledAssessments.length === 0 && activeAssessments.length === 0) {
-    return noAssessmentsContent;
+      </>
+    );
   }
 
   if (!selectedAssessment) {
-    return selectAssessmentContent;
+    return (
+      <>
+        <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
+        <div className="flex h-full flex-col items-center justify-center space-y-2 rounded-lg border border-neutral-300 bg-background/10 p-2">
+          <NoDataIllustration />
+          <p className="text-lg font-normal">
+            Select an assessment to get started.
+          </p>
+        </div>
+      </>
+    );
   }
 
   const isActive =
@@ -542,19 +568,19 @@ const ZEditAssessmentFormSchema = z
       message: "The end time must be after the start time.",
       path: ["expiresAt"],
     },
-  )
-  .refine(
-    (data) => {
-      const now = new Date();
-      return (
-        !isToday(new Date(data.startsAt)) ||
-        !isAfter(now, new Date(data.startsAt))
-      );
-    },
-    {
-      message: "The start time must be now or in the future.",
-      path: ["startsAt"],
-    },
   );
+// .refine(
+//   (data) => {
+//     const now = new Date();
+//     return (
+//       !isToday(new Date(data.startsAt)) ||
+//       !isAfter(now, new Date(data.startsAt))
+//     );
+//   },
+//   {
+//     message: "The start time must be now or in the future.",
+//     path: ["startsAt"],
+//   },
+// );
 
 type TEditAssessmentFormSchema = z.infer<typeof ZEditAssessmentFormSchema>;

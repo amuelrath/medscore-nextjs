@@ -20,7 +20,7 @@ export function ScheduledAssessmentsSelect() {
     (a) =>
       isAfter(now, a.startsAt) &&
       isBefore(now, a.expiresAt) &&
-      a.canceledAt === null,
+      a.canceledAt == null,
   );
   const scheduledAssessments = assessments?.filter(
     (a) => isBefore(now, a.startsAt) && !a.canceledAt,
@@ -70,7 +70,7 @@ export function ScheduleCard({ assessment, status }: ScheduleCardProps) {
     <m.div
       layoutId={assessment.id}
       layout="position"
-      onClick={handleClick}
+      onMouseDown={handleClick}
       className={cn(
         "select-none rounded-xl p-3 transition-colors",
         activeId === assessment.id ? "bg-blue-800/5" : "hover:bg-blue-800/5",

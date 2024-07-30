@@ -48,21 +48,20 @@ export function ManageDialog() {
       queryClient.setQueryData(
         ["assessments", formId],
         (oldData: AssessmentsResult | undefined) => {
-          if (!oldData) return oldData;
+          if (!oldData) return [result];
+          console.log(result)
 
-          // Add the new form code to the existing array
-          const updatedAssessments: AssessmentsResult = [...oldData, result];
-
-          setActiveCodeId(result.id);
-
-          return [...updatedAssessments];
-        },
+          // Add the new assessment to the existing array
+          return [...oldData, result];
+        }
       );
 
       // Invalidate the forms lite query to ensure consistency
       queryClient.invalidateQueries({ queryKey: ["forms", "lite"] });
+      setActiveCodeId(result.id);
     },
   });
+
 
   const handleCreateNewAssessment = () => {
     // deal with dates
@@ -109,31 +108,32 @@ export function ManageDialog() {
         className="flex h-[500px] min-w-[900px] flex-col"
       >
         <div className="grid h-full grid-cols-3 gap-4">
-      <Suspense fallback={(
-        <>
-        <Skeleton className="h-full col-span-1"  />
-        <Skeleton className="h-full col-span-2" />
-        </>
-      )} >
-          <div className="col-span-1 flex h-full flex-col space-y-4">
-            <DialogHeader className="w-full">
-              <DialogTitle className="w-full">Manage Assessments</DialogTitle>
-              <DialogDescription>
-                Start or schedule an assessment.
-              </DialogDescription>
-            </DialogHeader>
-            <Button size="xs" onClick={handleCreateNewAssessment}>
-              New Assessment
-            </Button>
-            <ScheduledAssessmentsSelect />
-          </div>
-          <div className="col-span-2 h-full pb-6">
+          <Suspense
+            fallback={
+              <>
+                <Skeleton className="col-span-1 h-full" />
+                <Skeleton className="col-span-2 h-full" />
+              </>
+            }
+          >
+            <div className="col-span-1 flex h-full flex-col space-y-4">
+              <DialogHeader className="w-full">
+                <DialogTitle className="w-full">Manage Assessments</DialogTitle>
+                <DialogDescription>
+                  Start or schedule an assessment.
+                </DialogDescription>
+              </DialogHeader>
+              <Button size="xs" onClick={handleCreateNewAssessment}>
+                New Assessment
+              </Button>
+              <ScheduledAssessmentsSelect />
+            </div>
+            <div className="col-span-2 h-full pb-6">
               <EditAssessmentForm />
-          </div>
-      </Suspense>
+            </div>
+          </Suspense>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-
