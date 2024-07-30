@@ -94,6 +94,10 @@
   }
 }
 
+body {
+  overflow-x: hidden;
+}
+
 input:focus {
   border: none;
 }
