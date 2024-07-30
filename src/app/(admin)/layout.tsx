@@ -2,11 +2,12 @@ import { RouteNavigation } from "@/components/ui/route-navigation";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ReactNode } from "react";
 import {
+  ChartBarIcon,
   ClipboardPlusIcon,
   FileStackIcon,
   GaugeIcon,
   GraduationCapIcon,
-  TextSearchIcon,
+  TextSearchIcon, UsersIcon
 } from "lucide-react";
 import { AppHeader } from "@/components/ui/app-header";
 
@@ -21,7 +22,7 @@ export default async function AppLayout({
       <ReactQueryDevtools />
       <div className="flex flex-1">
         <RouteNavigation tabs={tabs} />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden h-full">
           {children}
         </main>
       </div>
@@ -49,15 +50,15 @@ const tabs = [
     href: "/forms",
   },
   {
-    id: "reports",
+    id: "programs",
     label: "Reports",
-    icon: <TextSearchIcon size={20} />,
-    href: "/reports",
+    icon: <UsersIcon size={20} />,
+    href: "/programs",
   },
   {
     id: "programs",
     label: "Programs",
     icon: <GraduationCapIcon size={20} />,
-    href: "/programs",
+    href: "/reports",
   },
 ];
