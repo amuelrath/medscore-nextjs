@@ -14,14 +14,12 @@ import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, m } from "framer-motion";
 import {
   ActivityIcon,
-  Minus,
   MinusIcon,
   SquareChevronUp,
-  TargetIcon,
   TrendingDownIcon,
   TrendingUpIcon,
 } from "lucide-react";
-import { analyzeTrend, AnalyzeTrendResult } from "@/lib/analyze-trend";
+import { analyzeTrend } from "@/lib/analyze-trend";
 import { Card } from "@/components/ui/card";
 import { addHours, isBefore } from "date-fns";
 
@@ -152,7 +150,7 @@ export function CompetencyScores({
                 numUnanswered={numUnanswered}
               />
             </div>
-            <div className="h-4/5 w-full">
+            <div className="h-4/5 w-full shadow-sm">
               <AssessmentScoreLineChart
                 chartData={competencyScoresToTrendData}
                 label={`${competency.abbrev} Score`}
@@ -199,7 +197,6 @@ const PerformanceCard = ({
   const { remark, color } = getPerformanceRemarks(percentScore);
   const {
     trendDescription,
-    trendAdherenceDescription,
     trend,
   } = analyzeTrend(trendData);
 
@@ -223,7 +220,7 @@ const PerformanceCard = ({
   };
 
   return (
-    <div className="flex flex-col justify-between basis-1/3 text-xs">
+    <div className="flex flex-col justify-between basis-1/3 text-md">
       <AnimatePresence mode="wait">
         <m.div
           key="performance"
@@ -262,23 +259,6 @@ const PerformanceCard = ({
           </Card>
         </m.div>
 
-        <m.div
-          key="adherence"
-          variants={cardVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.3, delay: 0.2 }}
-        >
-          <Card className="w-full rounded-sm p-4">
-            <div className="flex flex-col items-center justify-center text-center">
-              <TargetIcon className="size-5 opacity-50" />
-              <p className="mt-2">
-                Performance is <strong>{trendAdherenceDescription}</strong>.
-              </p>
-            </div>
-          </Card>
-        </m.div>
       </AnimatePresence>
     </div>
   );
