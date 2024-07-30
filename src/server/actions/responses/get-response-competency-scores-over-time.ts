@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { assessments, responseCompetencyScoreView, responses } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
 
+// gets score data for only the evaluatee of the response passed in
 export async function getResponseCompetencyScoresOverTime(responseId: string) {
   return db.transaction(async (tx) => {
     // figure out the get responses ids of other
