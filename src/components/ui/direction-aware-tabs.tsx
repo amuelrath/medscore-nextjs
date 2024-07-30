@@ -11,7 +11,7 @@ import useMeasure from "react-use-measure";
 import { cn } from "@/lib/helpers/utils";
 import { cva, VariantProps } from "class-variance-authority";
 
-type Tab = {
+export type Tab = {
   id: number;
   label: string;
   content: ReactNode;
@@ -205,7 +205,7 @@ function DirectionAwareTabs({
   return (
     <div
       className={cn(
-        "flex cursor-pointer space-x-1 px-[3px] py-[3.2px]",
+        "flex cursor-pointer overflow-x-hidden space-x-1 px-[3px] py-[3.2px]",
         className,
       )}
     >
@@ -294,7 +294,7 @@ function DirectionAwareContent({ className }: { className?: string }) {
                 custom={direction}
                 onAnimationStart={() => setIsAnimating(true)}
                 onAnimationComplete={() => setIsAnimating(false)}
-                className="flex flex-grow flex-col"
+                className="flex flex-grow overflow-x-hidden no-scrollbar flex-col"
               >
                 {content}
               </m.div>
