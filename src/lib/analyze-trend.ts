@@ -1,3 +1,5 @@
+import { indexOf } from "lodash";
+
 interface DataPoint {
   date: Date;
   score: number; // between 0 and 100
@@ -62,14 +64,14 @@ export function analyzeTrend(data: DataPoint[], allowedDeviation: number = 10): 
   // Calculate slope using first and last points
   const firstPoint = sortedData[0];
   const lastPoint = sortedData[sortedData.length - 1];
-  const timeDiff = (lastPoint.date.getTime() - firstPoint.date.getTime()) / (1000 * 60 * 60 * 24); // Convert to days
-  const slope = (lastPoint.score - firstPoint.score) / timeDiff;
+  const assessmentsDiff = sortedData.length
+  const slope = (lastPoint.score - firstPoint.score) / assessmentsDiff;
 
   // Calculate total change
   const totalChange = lastPoint.score - firstPoint.score;
 
   // Calculate average change
-  const averageChange = totalChange / timeDiff;
+  const averageChange = totalChange / assessmentsDiff;
 
   // Calculate volatility (standard deviation of changes)
   const changes = sortedData
@@ -84,8 +86,8 @@ export function analyzeTrend(data: DataPoint[], allowedDeviation: number = 10): 
 
   // Dynamic thresholds based on the time period and score range
   const maxPossibleChange = 100; // Maximum possible change in score (0 to 100)
-  const gradualThresholdPerDay = (maxPossibleChange * 0.1) / 30; // 10% of max change per month
-  const sharpThresholdPerDay = (maxPossibleChange * 0.2) / 30; // 20% of max change per month
+  const gradualThresholdPerDay = (maxPossibleChange * 0.15) / assessmentsDiff; // 10% of max change per month
+  const sharpThresholdPerDay = (maxPossibleChange * 0.35) / assessmentsDiff; // 20% of max change per month
 
   // Determine trend
   let trend: Trend;
