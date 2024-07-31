@@ -39,6 +39,20 @@ export const ZFormEnum = z.enum([
 ]);
 export type TFormItemType = z.infer<typeof ZFormEnum>;
 
+export const formTypeEnum = pgEnum("form_type", [
+  "OSCE",
+  "SURVEY",
+  "QUIZ",
+  "DIRECT_OBSERVATION",
+]);
+export const ZFormTypeEnum = z.enum([
+  "OSCE",
+  "SURVEY",
+  "QUIZ",
+  "DIRECT_OBSERVATION",
+]);
+export type TFormType = z.infer<typeof ZFormTypeEnum>;
+
 export const behaviors = pgTable("behaviors", {
   id: uuid("id")
     .primaryKey()
@@ -221,6 +235,7 @@ export const forms = pgTable("forms", {
     .default(sql`gen_random_uuid()`),
   title: text("title").notNull().default("Untitled Evaluation"),
   lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
+  type: formTypeEnum("type").notNull(),
   programId: uuid("program_id")
     .references((): AnyPgColumn => programs.id)
     .notNull(),
