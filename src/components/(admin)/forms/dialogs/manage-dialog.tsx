@@ -57,7 +57,7 @@ export function ManageDialog() {
       );
 
       // Invalidate the forms lite query to ensure consistency
-      queryClient.invalidateQueries({ queryKey: ["forms", "lite"] });
+      queryClient.invalidateQueries({ queryKey: ["forms"] });
       setActiveCodeId(result.id);
     },
   });

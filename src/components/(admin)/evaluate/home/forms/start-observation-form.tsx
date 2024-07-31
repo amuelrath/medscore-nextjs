@@ -146,7 +146,7 @@ export function InEditorForm({ formId }: { formId: string }) {
 
 export function NotInEditorForm() {
   const { data: allForms } = useSuspenseQuery({
-    queryKey: ["forms", "lite"],
+    queryKey: ["forms"],
     queryFn: () =>
       getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });

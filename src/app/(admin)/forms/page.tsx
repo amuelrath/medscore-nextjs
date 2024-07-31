@@ -17,7 +17,7 @@ export default async function FormsPage() {
   });
 
   await queryClient.prefetchQuery({
-    queryKey: ["forms", "lite"],
+    queryKey: ["forms"],
     queryFn: () =>
       getAllFormsLite({
         userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,

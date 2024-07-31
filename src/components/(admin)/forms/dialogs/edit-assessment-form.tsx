@@ -156,7 +156,7 @@ export function EditAssessmentForm() {
         },
       );
 
-      queryClient.invalidateQueries({ queryKey: ["forms", "lite"] });
+      queryClient.invalidateQueries({ queryKey: ["forms"] });
     },
   });
   const now = new Date();
@@ -218,7 +218,7 @@ export function EditAssessmentForm() {
           },
         );
       }
-      queryClient.invalidateQueries({ queryKey: ["forms", "lite"] });
+      queryClient.invalidateQueries({ queryKey: ["forms"] });
     },
   });
 

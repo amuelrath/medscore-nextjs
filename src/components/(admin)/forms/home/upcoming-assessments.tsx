@@ -25,7 +25,7 @@ export function UpcomingAssessments() {
   const router = useRouter();
 
   const { data: forms } = useSuspenseQuery({
-    queryKey: ["forms", "lite"],
+    queryKey: ["forms"],
     queryFn: () =>
       getAllFormsLite({
         userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
