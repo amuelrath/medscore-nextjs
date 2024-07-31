@@ -13,18 +13,20 @@ interface CustomTooltipProps {
   tooltipContent: React.ReactNode;
   position?: TooltipPosition;
   delay?: number
+  asChild?: boolean
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
   children,
   tooltipContent,
   position = "top",
-  delay=300
+  delay=300,
+  asChild=true
 }) => {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={delay} >
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
         <TooltipContent  className="text-xs text-left max-w-64" side={position}>{tooltipContent}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
