@@ -27,9 +27,10 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive/70 text-red-950 hover:bg-destructive/60",
         outline: "text-foreground",
+        hide: ""
       },
       size: {
-        xs: "px-[0.25px] py-[0.15px] text-3xs",
+        xs: "px-[0.25px] py-[0.15px] text-2xs",
         sm: "px-2.5 py-0.5 text-xs",
         md: "px-3 py-1 text-sm",
       },
