@@ -5,7 +5,7 @@ import useGetSelectedResponse from "@/hooks/queries/use-get-selected-response";
 import React, { useCallback, useMemo, useRef } from "react";
 import { AnswerDistribution } from "@/components/(admin)/forms/responses/competency/answer-distribution";
 import { AssessmentScoreLineChart } from "@/components/(admin)/forms/responses/common/assessment-score-line-chart";
-import { GaugeChart } from "@/components/ui/charts/gauge-chart";
+import { GaugeChart } from "@/components/ui/gauge-chart";
 import { ResponseResult } from "@/server/actions/responses/get-response";
 import { SubcompetencyResult } from "@/server/actions/forms/get-subcompetencies";
 import { getColorFromNormal } from "@/lib/helpers/get-color-from-normal";
