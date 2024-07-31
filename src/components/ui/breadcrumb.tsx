@@ -1,8 +1,9 @@
+"use client";
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from "lucide-react";
-
 import { cn } from "@/lib/helpers/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Breadcrumb = React.forwardRef<
   HTMLElement,
@@ -15,23 +16,38 @@ Breadcrumb.displayName = "Breadcrumb";
 const BreadcrumbList = React.forwardRef<
   HTMLOListElement,
   React.ComponentPropsWithoutRef<"ol">
->(({ className, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <ol
     ref={ref}
     className={cn(
-      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-neutral-100 sm:gap-2.5",
       className,
     )}
     {...props}
-  />
+  >
+    <AnimatePresence mode="popLayout">
+      {React.Children.map(children, (child, index) => (
+        <motion.li
+          key={index}
+          initial={{ opacity: 0, x: -25 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -25 }}
+          transition={{ duration: 0.10 }}
+          className="flex items-center"
+        >
+          {child}
+        </motion.li>
+      ))}
+    </AnimatePresence>
+  </ol>
 ));
 BreadcrumbList.displayName = "BreadcrumbList";
 
 const BreadcrumbItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentPropsWithoutRef<"li">
+  HTMLSpanElement,
+  React.ComponentPropsWithoutRef<"span">
 >(({ className, ...props }, ref) => (
-  <li
+  <span
     ref={ref}
     className={cn("inline-flex items-center gap-1.5", className)}
     {...props}
@@ -50,7 +66,7 @@ const BreadcrumbLink = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn("transition-colors hover:text-foreground", className)}
+      className={cn("transition-colors hover:text-neutral-100/80", className)}
       {...props}
     />
   );
@@ -66,7 +82,7 @@ const BreadcrumbPage = React.forwardRef<
     role="link"
     aria-disabled="true"
     aria-current="page"
-    className={cn("font-normal text-foreground", className)}
+    className={cn("select-none font-normal text-neutral-100", className)}
     {...props}
   />
 ));
@@ -102,7 +118,7 @@ const BreadcrumbEllipsis = ({
     <span className="sr-only">More</span>
   </span>
 );
-BreadcrumbEllipsis.displayName = "BreadcrumbElipssis";
+BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis";
 
 export {
   Breadcrumb,

@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useRef, useState, useMemo } from "react";
+import React, { useCallback, useRef, useState, useMemo, useEffect } from "react";
 import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { useFieldArray, useFormContext, Control } from "react-hook-form";
@@ -10,6 +10,8 @@ import dynamic from "next/dynamic";
 import Loading from "@/components/ui/loading";
 import { v4 } from "uuid";
 import { toast } from "sonner";
+import { useSetAtom } from "jotai/index";
+import { breadcrumbsAtom } from "@/store/global-atoms";
 
 const DynamicMilestoneMenu = dynamic(
   () =>
@@ -107,6 +109,9 @@ const Dock = React.memo(
 Dock.displayName = "Dock";
 
 export function FormBuilder() {
+  // update the breadcrumbs
+  const setBreadcrumbs = useSetAtom(breadcrumbsAtom)
+  
   const { control, getValues } = useFormContext<TFormSchema>();
   const formAreaRef = useRef<HTMLDivElement>(null);
   const {
@@ -118,6 +123,11 @@ export function FormBuilder() {
     control,
     name: "formItems",
   });
+
+  // set breadcrumbs
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Forms", href: "/forms" }, { label: getValues(`title`), href: `/forms/${getValues(`id`)}` }])
+  }, [setBreadcrumbs, getValues])
 
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
     null,

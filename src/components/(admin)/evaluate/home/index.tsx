@@ -4,12 +4,20 @@ import { cn } from "@/lib/helpers/utils";
 import { BentoCard, BentoCardProps } from "@/components/ui/bento-grid";
 import { ClipboardPlusIcon, EyeIcon } from "lucide-react";
 import { DoctorsIllustration } from "@/components/illustrations/doctors-illustration";
-import { Button } from "@/components/ui/button";
 import { SurveyIllustration } from "@/components/illustrations/survey-illustration";
 import { StartObservationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-observation-dialog";
 import { StartEvaluationDialog } from "@/components/(admin)/evaluate/home/dialogs/start-evaluation-dialog";
+import { useSetAtom } from "jotai/index";
+import { breadcrumbsAtom } from "@/store/global-atoms";
+import { useEffect } from "react";
 
 export function EvaluateHome() {
+  // update the breadcrumbs
+  const setBreadcrumbs = useSetAtom(breadcrumbsAtom)
+
+  useEffect(() => {
+    setBreadcrumbs([{ label: "Evaluate", href: "/evaluate" }])
+  }, [setBreadcrumbs]);
   return (
     <main className="pb-24" >
       <SectionHeader className="flex-row items-center px-2 pl-4">
