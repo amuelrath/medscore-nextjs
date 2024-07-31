@@ -1,29 +1,30 @@
 import { Badge } from "@/components/ui/badge";
-import { FC, useState, useRef } from "react";
+import React, { FC, useRef } from "react";
 import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
+import { TFormType } from "@/db/schema";
+import { formTypeContent } from "@/components/(admin)/forms/home/create-form-dialog";
 
 interface TagFilterProps {
-  tags: string[];
-  onTagSelect: (tag: string) => void;
+  tags: TFormType[];
+  onTagSelect: (tag: TFormType) => void;
   onTagRemove: () => void;
+  selectedTag: TFormType | null;
 }
 
 export const TagFilter: FC<TagFilterProps> = ({
   tags,
   onTagSelect,
   onTagRemove,
+  selectedTag,
 }) => {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
 
-  const handleTagClick = (tag: string) => {
+  const handleTagClick = (tag: TFormType) => {
     if (selectedTag === tag) {
-      setSelectedTag(null);
       onTagRemove();
     } else {
-      setSelectedTag(tag);
       onTagSelect(tag);
     }
   };
@@ -45,7 +46,7 @@ export const TagFilter: FC<TagFilterProps> = ({
       >
         <div className="flex flex-row items-center space-x-1">
           <AnimatePresence mode={"popLayout"} initial={false}>
-            {tags.sort().map((tag) => (
+            {tags.map((tag) => (
               <motion.div
                 layout
                 key={tag}
@@ -55,18 +56,21 @@ export const TagFilter: FC<TagFilterProps> = ({
                 transition={{ type: "spring", stiffness: 200, damping: 30 }}
               >
                 <Badge
+                  variant="hide"
                   onClick={() => handleTagClick(tag)}
                   className={cn(
-                    "cursor-pointer border border-neutral-300 truncate bg-blue-900 font-medium text-blue-950 text-opacity-50 backdrop-blur-2xl hover:bg-blue-900/20",
+                    "cursor-pointer truncate border border-neutral-200 font-normal ",
                     {
-                      "bg-opacity-25": selectedTag === tag,
-                      "bg-opacity-5": selectedTag !== tag,
+                      "border-neutral-300 text-foreground": selectedTag === tag,
+                      "text-foreground/50 hover:border-neutral-300  hover:text-foreground":
+                        selectedTag !== tag,
                     },
                   )}
-                  key={tag}
-                  variant="default"
                 >
-                  {tag}
+                  {(() => {
+                    const Content = formTypeContent[tag];
+                    return <Content size={16} />;
+                  })()}
                 </Badge>
               </motion.div>
             ))}
@@ -75,9 +79,16 @@ export const TagFilter: FC<TagFilterProps> = ({
       </ScrollArea.Viewport>
       <ScrollArea.Scrollbar
         orientation="horizontal"
-        className="duration-[160ms] flex touch-none select-none bg-transparent transition-colors ease-out data-[orientation=horizontal] data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
+        className="duration-[160ms] data-[orientation=horizontal] flex touch-none select-none bg-transparent transition-colors ease-out data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col"
       ></ScrollArea.Scrollbar>
       <ScrollArea.Corner className="bg-transparent" />
     </ScrollArea.Root>
   );
+};
+
+const tagText = {
+  OSCE: "OSCE",
+  DIRECT_OBSERVATION: "Direct Observation",
+  SURVEY: "Survey",
+  QUIZ: "Quiz",
 };

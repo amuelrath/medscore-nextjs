@@ -1,90 +1,155 @@
 "use client";
+import React from "react";
 import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
 import { QueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/helpers/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   EditIcon,
   GraduationCapIcon,
-  HistoryIcon,
-  TagIcon,
+  ClockIcon,
   TrashIcon,
 } from "lucide-react";
-import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/dialogs/delete-evaluation-dialog";
+import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/home/delete-evaluation-dialog";
 import { useRouter } from "next/navigation";
 import { formatDistance } from "date-fns";
-import { FormTags } from "@/components/(admin)/forms/home/form-tags";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
+import { Separator } from "@/components/ui/separator";
+import {
+  formTypeColors,
+  formTypeContent,
+} from "@/components/(admin)/forms/home/create-form-dialog";
+import EasyTooltip from "@/components/ui/easy-tooltip";
+import { TFormType } from "@/db/schema";
+
+const formTypeTooltipContent = {
+  OSCE: "OSCE",
+  SURVEY: "Survey",
+  DIRECT_OBSERVATION: "Direct Observation",
+  QUIZ: "Quiz",
+};
 
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
   const queryClient = new QueryClient();
 
-  const handleClick = async () => {
-    router.push(`/forms/${form.id}`);
-  };
-
-  const handleHover = async (formId: string) => {
+  const handleClick = () => router.push(`/forms/${form.id}`);
+  const handleHover = async () => {
     await queryClient.fetchQuery({
-      queryKey: ["form", formId],
+      queryKey: ["form", form.id],
       queryFn: () =>
-        getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
+        getFormById({
+          formId: form.id,
+          userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+        }),
     });
   };
+
+  const getTypeClasses = (type: TFormType) => {
+    switch (type) {
+      case "OSCE":
+        return {
+          border: "border-r-accent-secondary/50",
+          hover: "hover:text-accent-secondary",
+        };
+      case "SURVEY":
+        return {
+          border: "border-r-accent/50",
+          hover: "hover:text-accent",
+        };
+      case "QUIZ":
+        return {
+          border: "border-r-lavender/50",
+          hover: "hover:text-lavender",
+        };
+      case "DIRECT_OBSERVATION":
+        return {
+          border: "border-r-primary/50",
+          hover: "hover:text-primary",
+        };
+      default:
+        return {
+          border: "",
+          hover: "",
+        };
+    }
+  };
+
+  const typeClasses = getTypeClasses(form.type);
 
   return (
     <div
       className={cn(
-        "group flex flex-col h-28 space-y-1 rounded-xl border border-neutral-300 bg-card p-4 shadow-sm transition-all hover:shadow-md",
+        "group flex items-center rounded-lg border border-neutral-200 bg-white p-4 shadow-sm duration-200",
+        "hover:border-neutral-300 hover:shadow-md",
+        "border-r-4",
+        typeClasses.border
       )}
     >
-        <div className="flex flex-row items-start justify-between">
-          <p
-            onMouseEnter={() => handleHover(form.id)}
-            onClick={handleClick}
-            className={cn(
-              "cursor-pointer text-md truncate font-semibold text-neutral-800 transition-colors hover:text-accent",
-            )}
-          >
-            {form.title}
-          </p>
-          <div className="flex space-x-1">
-            <Button
-              onMouseEnter={() => handleHover(form.id)}
-              onClick={handleClick}
-              variant="hide"
-              size="xs"
-              className="opacity-0 transition-opacity group-hover:opacity-100"
-            >
-              <EditIcon size={16} className="text-neutral-700" />
-            </Button>
-            <DeleteFormDialogTrigger form={form}>
-              <Button
-                variant="hide"
-                size="xs"
-                className="opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                <TrashIcon size={16} className="text-destructive" />
-              </Button>
-            </DeleteFormDialogTrigger>
-          </div>
-        </div>
+      <EasyTooltip
+        asChild={false}
+        tooltipContent={formTypeTooltipContent[form.type]}
+      >
+        <Badge
+          variant="hide"
+          className={cn(
+            "mr-4 flex h-10 w-10 shrink-0 items-center justify-center",
+            formTypeColors[form.type].bg,
+            formTypeColors[form.type].foreground
+          )}
+        >
+          {(() => {
+            const Content = formTypeContent[form.type];
+            return <Content size={18} />;
+          })()}
+        </Badge>
+      </EasyTooltip>
 
-        <div className="flex items-center space-x-2 text-xs text-neutral-500">
-          <div className="flex items-center space-x-1">
-            <GraduationCapIcon size={12} />
+      <div className="flex flex-col flex-grow min-w-0">
+        <p
+          onMouseEnter={handleHover}
+          onClick={handleClick}
+          className={cn(
+            "line-clamp-2 cursor-pointer text-lg font-semibold transition-colors mb-2",
+            typeClasses.hover
+          )}
+        >
+          {form.title}
+        </p>
+        <div className="flex items-center space-x-4 text-sm text-neutral-500">
+          <div className="flex items-center space-x-1.5">
+            <GraduationCapIcon size={14} />
             <span className="hover:underline">{form.programs.name}</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <HistoryIcon size={12} />
-            <span>{`${formatDistance(new Date(), form.lastOpenedAt)} ago`}</span>
+          <Separator orientation="vertical" className="h-4" />
+          <div className="flex items-center space-x-1.5">
+            <ClockIcon size={14} />
+            <span>{formatDistance(new Date(form.lastOpenedAt), new Date(), { addSuffix: true })}</span>
           </div>
         </div>
+      </div>
 
-        <div className="flex items-center space-x-1 pt-2 text-xs text-neutral-600">
-          <TagIcon size={10} />
-          <FormTags tags={form.tags} formId={form.id} />
-        </div>
+      <div className="flex space-x-1 ml-4">
+        <Button
+          onMouseEnter={handleHover}
+          onClick={handleClick}
+          variant="ghost"
+          size="sm"
+          className="opacity-0 transition-opacity group-hover:opacity-100"
+        >
+          <EditIcon size={16}/>
+        </Button>
+        <DeleteFormDialogTrigger form={form}>
+          <Button
+            variant="hide"
+            size="sm"
+            className="opacity-0 transition-opacity group-hover:opacity-100"
+          >
+            <TrashIcon size={16} className="text-destructive" />
+          </Button>
+        </DeleteFormDialogTrigger>
+      </div>
     </div>
   );
 }
