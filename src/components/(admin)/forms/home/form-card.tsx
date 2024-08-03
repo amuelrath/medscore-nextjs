@@ -1,10 +1,10 @@
 "use client";
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
 import { QueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/helpers/utils";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   EditIcon,
   GraduationCapIcon,
@@ -16,23 +16,29 @@ import { useRouter } from "next/navigation";
 import { formatDistance } from "date-fns";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { Separator } from "@/components/ui/separator";
-import {
-  formTypeColors,
-  formTypeContent,
-} from "@/components/(admin)/forms/home/create-form-dialog";
-import EasyTooltip from "@/components/ui/easy-tooltip";
+import { formTypeColors } from "@/components/(admin)/forms/home/create-form-dialog";
 import { TFormType } from "@/db/schema";
+import ASSIGNMENT_ICON from "public/icons/assessment-accent-secondary.json";
+import QUESTION_MARK_ICON from "public/icons/help-accent.json";
+import EYE_ICON from "public/icons/eye-primary.json";
+import SCIENCE_ICON from "public/icons/science-lavender.json";
+import Lottie from "lottie-react";
 
-const formTypeTooltipContent = {
-  OSCE: "OSCE",
-  SURVEY: "Survey",
-  DIRECT_OBSERVATION: "Direct Observation",
-  QUIZ: "Quiz",
+const formTypeIcon = {
+  OSCE: ASSIGNMENT_ICON,
+  SURVEY: QUESTION_MARK_ICON,
+  DIRECT_OBSERVATION: EYE_ICON,
+  QUIZ: SCIENCE_ICON,
 };
 
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
   const queryClient = new QueryClient();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleClick = () => router.push(`/forms/${form.id}`);
   const handleHover = async () => {
@@ -50,95 +56,97 @@ export function FormCard({ form }: { form: FormLiteResult }) {
     switch (type) {
       case "OSCE":
         return {
-          border: "border-r-accent-secondary/50",
-          hover: "hover:text-accent-secondary",
+          hover: "hover:border-r-accent-secondary/50",
+          link: "hover:text-accent-secondary ",
         };
       case "SURVEY":
         return {
-          border: "border-r-accent/50",
-          hover: "hover:text-accent",
+          hover: "hover:text-accent hover:border-r-accent/50",
+          link: "hover:text-accent",
         };
       case "QUIZ":
         return {
-          border: "border-r-lavender/50",
-          hover: "hover:text-lavender",
+          hover: "hover:border-r-lavender/50",
+          link: "hover:text-lavender",
         };
       case "DIRECT_OBSERVATION":
         return {
-          border: "border-r-primary/50",
-          hover: "hover:text-primary",
+          hover: "hover:border-r-primary/50",
+          link: "hover:text-primary",
         };
       default:
         return {
           border: "",
           hover: "",
+          link: "",
         };
     }
   };
 
   const typeClasses = getTypeClasses(form.type);
 
+  if (!isClient) {
+    return null; // or a loading placeholder
+  }
+
   return (
     <div
       className={cn(
-        "group flex items-center rounded-lg border border-neutral-200 bg-white p-4 shadow-sm duration-200",
-        "hover:border-neutral-300 hover:shadow-md",
+        "group flex items-center flex-row justify-between rounded-lg border bg-white p-4 shadow-sm duration-200",
+        `border-neutral-300 hover:shadow-md`,
         "border-r-4",
-        typeClasses.border
+        typeClasses.hover,
       )}
     >
-      <EasyTooltip
-        asChild={false}
-        tooltipContent={formTypeTooltipContent[form.type]}
-      >
-        <Badge
-          variant="hide"
+      <div className="flex flex-row items-center space-x-2" >
+        <span
           className={cn(
-            "mr-4 flex h-10 w-10 shrink-0 items-center justify-center",
+            "mr-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 p-2.5",
             formTypeColors[form.type].bg,
-            formTypeColors[form.type].foreground
+            formTypeColors[form.type].foreground,
           )}
         >
-          {(() => {
-            const Content = formTypeContent[form.type];
-            return <Content size={18} />;
-          })()}
-        </Badge>
-      </EasyTooltip>
+          <Lottie autoplay={false} animationData={formTypeIcon[form.type]} />
+        </span>
 
-      <div className="flex flex-col flex-grow min-w-0">
-        <p
-          onMouseEnter={handleHover}
-          onClick={handleClick}
-          className={cn(
-            "line-clamp-2 cursor-pointer text-lg font-semibold transition-colors mb-2",
-            typeClasses.hover
-          )}
-        >
-          {form.title}
-        </p>
-        <div className="flex items-center space-x-4 text-sm text-neutral-500">
-          <div className="flex items-center space-x-1.5">
-            <GraduationCapIcon size={14} />
-            <span className="hover:underline">{form.programs.name}</span>
-          </div>
-          <Separator orientation="vertical" className="h-4" />
-          <div className="flex items-center space-x-1.5">
-            <ClockIcon size={14} />
-            <span>{formatDistance(new Date(form.lastOpenedAt), new Date(), { addSuffix: true })}</span>
+        <div className="flex min-w-0 flex-col">
+          <p
+            onMouseEnter={handleHover}
+            onClick={handleClick}
+            className={cn(
+              "mb-2 cursor-pointer text-lg font-semibold transition-colors",
+              typeClasses.link,
+            )}
+          >
+            {form.title}
+          </p>
+          <div className="flex items-center space-x-4 text-sm text-neutral-500">
+            <div className="flex items-center space-x-1.5">
+              <GraduationCapIcon size={14} />
+              <span className="hover:underline">{form.programs?.name}</span>
+            </div>
+            <Separator orientation="vertical" className="h-4" />
+            <div className="flex items-center space-x-1.5">
+              <ClockIcon size={14} />
+              <span>
+                {formatDistance(new Date(form.lastOpenedAt), new Date(), {
+                  addSuffix: true,
+                })}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex space-x-1 ml-4">
+      <div className="ml-4 flex space-x-1">
         <Button
           onMouseEnter={handleHover}
           onClick={handleClick}
           variant="ghost"
           size="sm"
-          className="opacity-0 transition-opacity group-hover:opacity-100"
+          className="opacity-0 text-neutral-700 transition-opacity group-hover:opacity-100"
         >
-          <EditIcon size={16}/>
+          <EditIcon size={16} />
         </Button>
         <DeleteFormDialogTrigger form={form}>
           <Button
