@@ -1,17 +1,23 @@
 "use client";
-import React, { useCallback, useRef, useState, useMemo, useEffect } from "react";
-import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
-import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { useFieldArray, useFormContext, Control } from "react-hook-form";
-import { TFormItemType } from "@/db/schema";
-import { FormItem } from "@/components/(admin)/forms/editor/form-item";
 import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item-dock";
-import dynamic from "next/dynamic";
+import { FormItem } from "@/components/(admin)/forms/editor/form-item";
+import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import Loading from "@/components/ui/loading";
-import { v4 } from "uuid";
-import { toast } from "sonner";
-import { useSetAtom } from "jotai/index";
+import { TFormItemType } from "@/db/schema";
 import { breadcrumbsAtom } from "@/store/global-atoms";
+import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
+import { useSetAtom } from "jotai/index";
+import dynamic from "next/dynamic";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import { Control, useFieldArray, useFormContext } from "react-hook-form";
+import { toast } from "sonner";
+import { v4 } from "uuid";
 
 const DynamicMilestoneMenu = dynamic(
   () =>
@@ -110,8 +116,8 @@ Dock.displayName = "Dock";
 
 export function FormBuilder() {
   // update the breadcrumbs
-  const setBreadcrumbs = useSetAtom(breadcrumbsAtom)
-  
+  const setBreadcrumbs = useSetAtom(breadcrumbsAtom);
+
   const { control, getValues } = useFormContext<TFormSchema>();
   const formAreaRef = useRef<HTMLDivElement>(null);
   const {
@@ -126,8 +132,11 @@ export function FormBuilder() {
 
   // set breadcrumbs
   useEffect(() => {
-    setBreadcrumbs([{ label: "Forms", href: "/forms" }, { label: getValues(`title`), href: `/forms/${getValues(`id`)}` }])
-  }, [setBreadcrumbs, getValues])
+    setBreadcrumbs([
+      { label: "Forms", href: "/forms" },
+      { label: getValues(`title`), href: `/forms/${getValues(`id`)}` },
+    ]);
+  }, [setBreadcrumbs, getValues]);
 
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
     null,
