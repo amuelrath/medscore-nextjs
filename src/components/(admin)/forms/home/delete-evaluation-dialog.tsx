@@ -28,7 +28,7 @@ export function DeleteFormDialogTrigger({
     mutationFn: deleteForm,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["forms", "lite"],
+        queryKey: ["forms"],
       });
       toast.success(`"${form.title}" deleted successfully`);
     },
