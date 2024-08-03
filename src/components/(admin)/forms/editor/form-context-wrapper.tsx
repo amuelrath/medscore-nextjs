@@ -47,6 +47,7 @@ export const FormContextWrapper = ({
     () => ({
       id: defaultValues.id,
       title: defaultValues.title,
+      type: defaultValues.type,
       formItems: transform(defaultValues.formItems),
     }),
     [defaultValues],

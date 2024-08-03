@@ -1,13 +1,14 @@
 "use client";
-import { cn } from "@/lib/helpers/utils";
-import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
-import { Input } from "@/components/ui/input";
-import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-button";
-import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { useFormContext } from "react-hook-form";
-import { useAtom } from "jotai";
 import { ManageDialog } from "@/components/(admin)/forms/dialogs/manage-dialog";
 import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
+import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
+import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-button";
+import { SettingsDialog } from "@/components/(admin)/forms/editor/settings-dialog";
+import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/helpers/utils";
+import { useAtom } from "jotai";
+import { useFormContext } from "react-hook-form";
 
 export const FormEditorNav = () => {
   const { getValues, register } = useFormContext<TFormSchema>();
@@ -31,6 +32,7 @@ export const FormEditorNav = () => {
       </div>
       <div className={cn("flex flex-row space-x-2")}>
         <ManageDialog />
+        <SettingsDialog />
       </div>
     </div>
   );
