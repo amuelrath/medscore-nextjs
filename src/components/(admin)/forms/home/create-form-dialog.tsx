@@ -1,32 +1,44 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTrigger,
   DialogTitle,
-  DialogContent,
-  DialogClose,
-  Dialog,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/helpers/utils";
-import { Button } from "@/components/ui/button";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import ADD from "public/icons/add-card-teal.json";
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/helpers/utils";
+import { createForm } from "@/server/actions/forms/create-form";
+import { FormsLiteResult } from "@/server/actions/forms/get-all-forms-lite";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import Lottie from "lottie-react";
 import {
   ClipboardIcon,
   EyeIcon,
   FileQuestionIcon,
   TestTubeIcon,
 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createForm } from "@/server/actions/forms/create-form";
 import { useRouter } from "next/navigation";
-import { FormsLiteResult } from "@/server/actions/forms/get-all-forms-lite";
+import ADD from "public/icons/add-card-teal.json";
+import ASSIGNMENT_ICON from "public/icons/assessment-accent-secondary.json";
+import EYE_ICON from "public/icons/eye-primary.json";
+import QUESTION_MARK_ICON from "public/icons/help-accent.json";
+import SCIENCE_ICON from "public/icons/science-lavender.json";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
+
+const formTypeIcon = {
+  OSCE: ASSIGNMENT_ICON,
+  SURVEY: QUESTION_MARK_ICON,
+  DIRECT_OBSERVATION: EYE_ICON,
+  QUIZ: SCIENCE_ICON,
+};
 
 type FormType = "OSCE" | "SURVEY" | "QUIZ" | "DIRECT_OBSERVATION";
 const formTypes: FormType[] = ["OSCE", "SURVEY", "QUIZ", "DIRECT_OBSERVATION"];
@@ -195,26 +207,30 @@ export const formTypeColors = {
   OSCE: {
     text: "text-accent-secondary",
     ring: "ring-accent-secondary",
-    bg: "bg-accent-secondary-background",
+    bg: "border-accent-secondary/40",
     foreground: "text-teal-900",
+    color: "hsl(var(--accent-secondary))",
   },
   SURVEY: {
     text: "text-accent",
     ring: "ring-accent",
-    bg: "bg-accent/40",
+    bg: "border-accent/40",
     foreground: "text-teal-900",
+    color: "hsl(var(--accent))",
   },
   QUIZ: {
     text: "text-lavender",
     ring: "ring-lavender",
-    bg: "bg-lavender/40",
+    bg: "border-lavender/50",
     foreground: "text-purple-900",
+    color: "hsl(var(--lavender))",
   },
   DIRECT_OBSERVATION: {
     text: "text-primary",
     ring: "ring-primary",
-    bg: "bg-primary/40",
+    bg: "border-primary/40",
     foreground: "text-teal-950",
+    color: "hsl(var(--primary))",
   },
 };
 
@@ -228,21 +244,29 @@ function FormTypeCard({
   type: FormType;
   handleSelect: (type: FormType) => void;
 }) {
-  const Content = formTypeContent[type];
+  const icon = formTypeIcon[type];
+  const ref = useRef<any>(null);
 
   return (
     <div
-      onClick={() => handleSelect(type)}
+      onClick={() => !isSelected && ref.current.goToAndPlay(1)}
       className="col-span-1 flex w-full cursor-pointer select-none flex-col space-y-2"
     >
       <Card
+        onClick={() => handleSelect(type)}
         className={cn(
           "col-span-1 flex h-28 w-full items-center justify-center p-4 shadow-sm transition-all duration-200",
           formTypeColors[type].text,
           isSelected && `ring-2 ring-offset-2 ${formTypeColors[type].ring}`,
         )}
       >
-        <Content size={36} className="opacity-75" />
+        <Lottie
+          animationData={icon}
+          lottieRef={ref}
+          loop={0}
+          autoplay={false}
+          color={formTypeColors[type].color}
+        />
       </Card>
       <p className="text-center text-xs font-light">
         {formTypeDescriptions[type].split(":")[0]}
