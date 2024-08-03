@@ -1,38 +1,38 @@
 "use client";
-import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
-import { formatDate, isAfter, isBefore, parseISO } from "date-fns";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateAssessmentDetails } from "@/server/actions/form-codes/update-assessment-details";
-import { toast } from "sonner";
+import { NoDataIllustration } from "@/components/illustrations/no-data-illustration";
+import { ScientistIllustration } from "@/components/illustrations/scientist-illustration";
+import { Button } from "@/components/ui/button";
+import TwoStageConfirmButton from "@/components/ui/confirm-button";
+import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import MultipleSelector from "@/components/ui/multiple-selector";
-import { FormErrorMessage } from "@/components/ui/form-error-message";
-import { getFullName } from "@/lib/helpers/getFullName";
-import { Button } from "@/components/ui/button";
-import LOADING from "public/icons/three-dots-navy.json";
-import PLAY from "public/icons/play-hover.json";
-import { cn } from "@/lib/helpers/utils";
-import Lottie from "lottie-react";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import { cancelAdministerForm } from "@/server/actions/form-codes/cancel-administer-form";
-import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
+import MultipleSelector from "@/components/ui/multiple-selector";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
+import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
+import { getFullName } from "@/lib/helpers/getFullName";
+import { cn } from "@/lib/helpers/utils";
+import { cancelAdministerForm } from "@/server/actions/form-codes/cancel-administer-form";
+import { updateAssessmentDetails } from "@/server/actions/form-codes/update-assessment-details";
+import { AssessmentsResult } from "@/server/actions/responses/get-all-assessments-for-form";
 import {
   manageDialogSelectedAssessmentIdAtom,
   selectedAssessmentIdAtom,
   selectedResponseIdAtom,
 } from "@/store/form-atoms";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { formatDate, isAfter, isBefore, parseISO } from "date-fns";
 import { useAtom } from "jotai";
-import { useEffect, useState } from "react";
-import TwoStageConfirmButton from "@/components/ui/confirm-button";
-import { ScientistIllustration } from "@/components/illustrations/scientist-illustration";
-import { NoDataIllustration } from "@/components/illustrations/no-data-illustration";
+import Lottie from "lottie-react";
+import PLAY from "public/icons/play-hover.json";
 import COPY from "public/icons/system-regular-99-copy.json";
-import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
-import { AssessmentsResult } from "@/server/actions/responses/get-all-assessments-for-form";
+import LOADING from "public/icons/three-dots-navy.json";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 export function EditAssessmentForm() {
   const [activeCodeId, setActiveCodeId] = useAtom(
@@ -58,8 +58,16 @@ export function EditAssessmentForm() {
   const selectedAssessment = assessments?.find((fc) => fc.id === activeCodeId);
 
   useEffect(() => {
+    const now = new Date();
     if (assessments && assessments.length > 0 && !activeCodeId) {
-      setActiveCodeId(assessments[0].id);
+      setActiveCodeId(
+        assessments.find(
+          (a) =>
+            isAfter(a.startsAt, now) &&
+            isBefore(now, a.expiresAt) &&
+            !a.canceledAt,
+        )?.id,
+      );
     }
   }, [assessments, activeCodeId, setActiveCodeId]);
 
@@ -128,25 +136,25 @@ export function EditAssessmentForm() {
           const updatedAssessments: AssessmentsResult = oldData.map((a) =>
             a.id === result.data.id
               ? {
-                ...a,
-                title: result.data.title,
-                startsAt: new Date(result.data.startsAt),
-                expiresAt: new Date(result.data.expiresAt),
-                evaluatees: result.data.evaluateeIds.map((id) => ({
-                  user: {
-                    id,
-                    firstName:
-                      a.evaluatees.find((u) => u.user.id === id)?.user
-                        .firstName || "",
-                    lastName:
-                      a.evaluatees.find((u) => u.user.id === id)?.user
-                        .lastName || "",
-                    role:
-                      a.evaluatees.find((u) => u.user.id === id)?.user.role ||
-                      "STUDENT",
-                  },
-                })),
-              }
+                  ...a,
+                  title: result.data.title,
+                  startsAt: new Date(result.data.startsAt),
+                  expiresAt: new Date(result.data.expiresAt),
+                  evaluatees: result.data.evaluateeIds.map((id) => ({
+                    user: {
+                      id,
+                      firstName:
+                        a.evaluatees.find((u) => u.user.id === id)?.user
+                          .firstName || "",
+                      lastName:
+                        a.evaluatees.find((u) => u.user.id === id)?.user
+                          .lastName || "",
+                      role:
+                        a.evaluatees.find((u) => u.user.id === id)?.user.role ||
+                        "STUDENT",
+                    },
+                  })),
+                }
               : a,
           );
 
@@ -176,7 +184,15 @@ export function EditAssessmentForm() {
               (a) => a.id !== selectedAssessment?.id,
             );
 
-            setActiveCodeId(oldData.find((a) => isAfter(a.startsAt, now))?.id);
+            // find the next scheduled assessment
+            setActiveCodeId(
+              oldData.find(
+                (a) =>
+                  isAfter(a.startsAt, now) &&
+                  isBefore(now, a.expiresAt) &&
+                  !a.canceledAt,
+              )?.id,
+            );
             if (selectedAssessmentId === selectedAssessment?.id) {
               setSelectedAssessmentId(undefined);
             }
@@ -209,8 +225,9 @@ export function EditAssessmentForm() {
             setActiveCodeId(
               oldData.find(
                 (a) =>
-                  isAfter(a.startsAt, now) ||
-                  (isAfter(now, a.startsAt) && isBefore(now, a.expiresAt)),
+                  isAfter(a.startsAt, now) &&
+                  isBefore(now, a.expiresAt) &&
+                  !a.canceledAt,
               )?.id,
             );
 
