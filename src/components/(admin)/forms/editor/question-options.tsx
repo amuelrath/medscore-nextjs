@@ -1,18 +1,18 @@
 "use client";
+import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
+import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/helpers/utils";
+import { m } from "framer-motion";
+import { CircleIcon, SquareIcon, XIcon } from "lucide-react";
+import { FC } from "react";
 import {
-  useFormContext,
-  useFieldArray,
   Controller,
+  useFieldArray,
+  useFormContext,
   useWatch,
 } from "react-hook-form";
-import { CircleIcon, SquareIcon, XIcon } from "lucide-react";
 import { v4 } from "uuid";
-import { Input } from "@/components/ui/input";
-import { FC } from "react";
-import { m } from "framer-motion";
-import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { cn } from "@/lib/helpers/utils";
-import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
 
 interface OptionListProps {
   itemIndex: number;
@@ -42,7 +42,7 @@ export const OptionList: FC<OptionListProps> = ({
       id: v4(),
       text: isNa ? "N/a" : "",
       position,
-      pointValue: isNa ? undefined : isScored ? "0" : undefined,
+      pointValue: isNa ? "0" : isScored ? "0" : "0", // nullable column doesnt allow null as a value???
       isNa,
     });
   };
@@ -124,7 +124,9 @@ export const OptionList: FC<OptionListProps> = ({
           height: isSelected ? "32px" : "0px",
         }}
         transition={{ duration: 0.1 }}
-        className={cn("flex h-8 select-none items-center will-change-transform space-x-3")}
+        className={cn(
+          "flex h-8 select-none items-center will-change-transform space-x-3",
+        )}
       >
         {isMulti ? (
           <SquareIcon strokeWidth={2} className="text-neutral-500" size={18} />
