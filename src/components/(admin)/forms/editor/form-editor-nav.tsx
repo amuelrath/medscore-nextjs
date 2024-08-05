@@ -3,7 +3,7 @@ import { ManageDialog } from "@/components/(admin)/forms/dialogs/manage-dialog";
 import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { SaveFormButton } from "@/components/(admin)/forms/editor/save-form-button";
-import { SettingsDialog } from "@/components/(admin)/forms/editor/settings-dialog";
+import { SettingsDialog } from "@/components/(admin)/forms/editor/settings/settings-dialog";
 import { DirectionAwareTabs } from "@/components/ui/direction-aware-tabs";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/helpers/utils";
