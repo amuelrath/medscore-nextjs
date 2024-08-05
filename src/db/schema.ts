@@ -1,25 +1,24 @@
-import { relations, sql, max, eq, and, asc, avg, desc } from "drizzle-orm";
+import { DateToString } from "@/db/utils";
+import { relations, sql } from "drizzle-orm";
 import {
-  pgTable,
-  text,
-  integer,
-  decimal,
-  uuid,
-  smallint,
-  pgEnum,
-  timestamp,
-  primaryKey,
-  boolean,
-  foreignKey,
-  varchar,
   AnyPgColumn,
+  boolean,
+  decimal,
+  foreignKey,
+  integer,
   json,
-  pgView,
   jsonb,
   numeric,
+  pgEnum,
+  pgTable,
+  pgView,
+  primaryKey,
+  smallint,
+  text,
+  timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
-import { DateToString } from "@/db/utils";
-import { pgMaterializedView } from "drizzle-orm/pg-core/view";
 import { z } from "zod";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
@@ -165,6 +164,7 @@ export const programRelations = relations(programs, ({ one, many }) => ({
   }),
   users: many(usersOnPrograms),
   forms: many(forms),
+  roles: many(programRoles)
 }));
 
 export const users = pgTable("users", {
@@ -182,6 +182,7 @@ export type NewUser = typeof users.$inferInsert;
 export const userRelations = relations(users, ({ many }) => ({
   programs: many(usersOnPrograms),
   forms: many(forms),
+  roles: many(rolesOnUsers)
 }));
 
 export const usersOnPrograms = pgTable("users_on_programs", {
@@ -208,23 +209,57 @@ export const usersOnProgramsRelations = relations(
   }),
 );
 
-export const formTags = pgTable("form_tags", {
+// todo more expansive role permissions
+export const programRoles = pgTable("program_roles", {
   id: uuid("id")
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  tag: text("tag").notNull(),
-  variant: text("variant").notNull().default("black"),
-  formId: uuid("form_id")
+  programId: uuid("program_id")
     .notNull()
-    .references(() => forms.id, { onDelete: "cascade" }),
+    .references(() => programs.id, { onDelete: "cascade" }),
+  roleName: text("role_name"),
+  isAdmin: boolean("is_admin"),
+  isStudent: boolean("is_student"),
+  isOwner: boolean("is_owner"),
 });
-export type FormTag = typeof formTags.$inferSelect;
-export type NewFormTag = typeof formTags.$inferInsert;
-export const formTagRelations = relations(formTags, ({ one }) => ({
-  form: one(forms, {
-    fields: [formTags.formId],
-    references: [forms.id],
+export type ProgramRole = typeof programRoles.$inferSelect;
+export type NewProgramRole = typeof programRoles.$inferInsert;
+export const programRoleRelations = relations(programRoles, ({ one }) => ({
+  program: one(programs, {
+    fields: [programRoles.programId],
+    references: [programs.id],
+  }),
+}));
+
+export const rolesOnUsers = pgTable(
+  "roles_on_users",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => programRoles.id),
+  },
+  (table) => {
+    return {
+      id: primaryKey({
+        columns: [table.userId, table.roleId],
+      }),
+    };
+  },
+);
+export type RoleOnUser = typeof rolesOnUsers.$inferSelect;
+export type NewRoleOnUser = typeof rolesOnUsers.$inferInsert;
+export const rolesOnUserRelations = relations(rolesOnUsers, ({ one }) => ({
+  user: one(users, {
+    fields: [rolesOnUsers.userId],
+    references: [users.id],
+  }),
+  role: one(programRoles, {
+    fields: [rolesOnUsers.roleId],
+    references: [programRoles.id],
   }),
 }));
 
@@ -236,6 +271,7 @@ export const forms = pgTable("forms", {
   title: text("title").notNull().default("Untitled Evaluation"),
   lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
   type: formTypeEnum("type").notNull(),
+  settings: jsonb("settings"),
   programId: uuid("program_id")
     .references((): AnyPgColumn => programs.id)
     .notNull(),
@@ -253,7 +289,6 @@ export const formRelations = relations(forms, ({ one, many }) => ({
     references: [users.id],
   }),
   formItems: many(formItems),
-  tags: many(formTags),
   assessments: many(assessments),
 }));
 
@@ -600,6 +635,10 @@ export const responseAverageScoreView = pgView("response_average_score_view", {
     .notNull(),
   avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
 }).existing();
+
+// =============================================================================
+//                           JSONB Column Validation
+// =============================================================================
 
 export const ZCompetencyScoresSchema = z.object({
   competencies: z.array(
