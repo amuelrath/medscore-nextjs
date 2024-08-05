@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Toaster } from "sonner";
-import Provider from "@/server/provider";
-import { ReactNode, StrictMode } from "react";
-import { Poppins } from "next/font/google";
 import { cn } from "@/lib/helpers/utils";
+import Provider from "@/server/provider";
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
+import { ReactNode, StrictMode } from "react";
+import { Toaster } from "sonner";
+import "./globals.css";
 const poppins = Poppins({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   display: "auto",
@@ -49,7 +49,11 @@ export default function RootLayout({
       <html lang="en">
         <StrictMode>
           <Provider>
-            <body className={cn(poppins.className, "bg-gradient-to-b from-primary/5 via-white to-primary/5 from-60%")}>
+            <body
+              className={cn(poppins.className,"bg-white" , {
+                /*"bg-gradient-to-b from-primary/5 via-white to-primary/5 from-60%"*/
+              })}
+            >
               {children}
               <Toaster />
             </body>
