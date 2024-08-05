@@ -1,16 +1,18 @@
-import React, { useRef, useEffect, useCallback } from "react";
+import { FormItemSettingsPopover } from "@/components/(admin)/forms/editor/form-item-settings-popover";
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { Control, Controller } from "react-hook-form";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { CopyIcon, MilestoneIcon, TrashIcon } from "lucide-react";
+import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
+import { OptionList } from "@/components/(admin)/forms/editor/question-options";
+import { formTypeColors } from "@/components/(admin)/forms/home/create-form-dialog";
+import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
+import { TFormType } from "@/db/schema";
 import { cn } from "@/lib/helpers/utils";
 import { m } from "framer-motion";
-import { OptionList } from "@/components/(admin)/forms/editor/question-options";
-import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
-import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
-import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
-import { FormItemSettingsPopover } from "@/components/(admin)/forms/editor/form-item-settings-popover";
+import { CopyIcon, MilestoneIcon, TrashIcon } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
+import { Control, Controller } from "react-hook-form";
 
 const placeholders = {
   HEADER: "Header",
@@ -50,6 +52,8 @@ export function FormItem({
   duplicateItem,
   toggleMilestoneDialog,
 }: FormItemWrapperProps) {
+  const formType = control._defaultValues.type;
+
   const itemRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
@@ -87,20 +91,19 @@ export function FormItem({
       <Card
         onMouseDown={() => updatePosition()}
         className={cn(
-          "relative z-10 overflow-hidden transition-all",
-          item.type === "HEADER" && "border-t-[12px] border-t-primary/80 pt-3",
+          "relative z-10 origin-center overflow-hidden transition-all",
         )}
       >
         <m.span
           initial={false}
           animate={{
-            width: isSelected || item.type === "HEADER" ? "100%" : "0%",
-            height: item.type === "HEADER" ? "0px" : "6px",
+            width: isSelected ? "100%" : "0%",
+            height:  "6px",
           }}
           transition={{ duration: 0.2, ease: "easeInOut" }}
           className={cn(
             "absolute -top-[3px] left-0 right-0 z-10 origin-center",
-            item.type === "HEADER" ? "bg-primary/80" : "bg-accent",
+               formTypeColors[formType as TFormType].border,
           )}
           style={{
             left: "50%",
@@ -112,7 +115,7 @@ export function FormItem({
             className="flex-grow"
             style={{
               width:
-                isSelected && item.type !== "HEADER"
+                isSelected
                   ? "calc(100% - 45px)"
                   : "100%",
             }}
@@ -135,63 +138,63 @@ export function FormItem({
               )}
             />
           </div>
-            {(item.type === "HEADER" || isSelected) && (
-              <m.div
-                layoutId={`settings-group-${item.id}`}
-                layout="position"
-                initial={{ width: 0, opacity: 0 }}
-                animate={{ width: "auto", opacity: 1 }}
-                exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.1 }}
-                className="ml-2 flex flex-row items-center will-change-auto overflow-hidden pr-1"
+          {( isSelected) && (
+            <m.div
+              layoutId={`settings-group-${item.id}`}
+              layout="position"
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.1 }}
+              className="ml-2 flex flex-row items-center will-change-auto overflow-hidden pr-1"
+            >
+              {item.type !== "HEADER" && (
+                <FormItemSettingsPopover
+                  index={index}
+                  type={item.type}
+                  control={control}
+                />
+              )}
+              <EnhancedTooltip
+                description={"Copy"}
+                delay={200}
+                contentClassName=" w-[60px] "
               >
-                {item.type !== "HEADER" && (
-                  <FormItemSettingsPopover
-                    index={index}
-                    type={item.type}
-                    control={control}
+                <Button
+                  size="xs"
+                  variant="hide"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    duplicateItem();
+                  }}
+                >
+                  <CopyIcon
+                    className="text-neutral-500 hover:text-neutral-500/80"
+                    size={16}
                   />
-                )}
-                <EnhancedTooltip
-                  description={"Copy"}
-                  delay={200}
-                  contentClassName=" w-[60px] "
+                </Button>
+              </EnhancedTooltip>
+              <EnhancedTooltip
+                description={"Delete"}
+                delay={200}
+                contentClassName=" w-[65px] "
+              >
+                <Button
+                  size="xs"
+                  variant="hide"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeItem();
+                  }}
                 >
-                  <Button
-                    size="xs"
-                    variant="hide"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      duplicateItem();
-                    }}
-                  >
-                    <CopyIcon
-                      className="text-neutral-500 hover:text-neutral-500/80"
-                      size={16}
-                    />
-                  </Button>
-                </EnhancedTooltip>
-                <EnhancedTooltip
-                  description={"Delete"}
-                  delay={200}
-                  contentClassName=" w-[65px] "
-                >
-                  <Button
-                    size="xs"
-                    variant="hide"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeItem();
-                    }}
-                  >
-                    <TrashIcon
-                      className="text-neutral-500 hover:text-destructive"
-                      size={16}
-                    />
-                  </Button>
-                </EnhancedTooltip>
-              </m.div>
-            )}
+                  <TrashIcon
+                    className="text-neutral-500 hover:text-destructive"
+                    size={16}
+                  />
+                </Button>
+              </EnhancedTooltip>
+            </m.div>
+          )}
         </CardHeader>
         <CardContent>
           {getContent()}
