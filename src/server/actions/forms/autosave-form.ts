@@ -19,7 +19,7 @@ export async function autosaveForm(formData: TFormSchema) {
     // Update form title
     await tx
       .update(forms)
-      .set({ title: formData.title })
+      .set({ title: formData.title, settings: formData.settings })
       .where(eq(forms.id, formData.id));
 
     // Get existing formItems

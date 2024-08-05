@@ -31,6 +31,7 @@ export async function getFormById({
       },
       programs: {
         with: {
+          roles: true,
           users: {
             columns: {
               userId: false,
