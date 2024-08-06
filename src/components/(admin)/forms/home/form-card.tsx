@@ -10,113 +10,75 @@ import {
   GraduationCapIcon,
   ClockIcon,
   TrashIcon,
+  ClipboardIcon,
+  EyeIcon,
+  TestTubeIcon,
+  FileQuestionIcon
 } from "lucide-react";
 import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/home/delete-evaluation-dialog";
 import { useRouter } from "next/navigation";
 import { formatDistance } from "date-fns";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { Separator } from "@/components/ui/separator";
-import { formTypeColors } from "@/components/(admin)/forms/home/create-form-dialog";
 import { TFormType } from "@/db/schema";
+import Lottie from "lottie-react";
+
 import ASSIGNMENT_ICON from "public/icons/assessment-accent-secondary.json";
 import QUESTION_MARK_ICON from "public/icons/help-accent.json";
 import EYE_ICON from "public/icons/eye-primary.json";
 import SCIENCE_ICON from "public/icons/science-lavender.json";
-import Lottie from "lottie-react";
+import { QuestionMarkIcon } from "@radix-ui/react-icons";
 
-const formTypeIcon = {
-  OSCE: ASSIGNMENT_ICON,
-  SURVEY: QUESTION_MARK_ICON,
-  DIRECT_OBSERVATION: EYE_ICON,
-  QUIZ: SCIENCE_ICON,
+export const formTypeIcon = {
+  OSCE: ClipboardIcon,
+  SURVEY: FileQuestionIcon,
+  DIRECT_OBSERVATION: EyeIcon,
+  QUIZ: TestTubeIcon,
+};
+
+const typeClasses: Record<TFormType, { hover: string }> = {
+  OSCE: { hover: "border-l-accent-secondary/50" },
+  SURVEY: { hover: "border-l-accent/50" },
+  QUIZ: { hover: "border-l-lavender/50" },
+  DIRECT_OBSERVATION: { hover: "border-l-primary/50" },
 };
 
 export function FormCard({ form }: { form: FormLiteResult }) {
   const router = useRouter();
   const queryClient = new QueryClient();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const handleClick = () => router.push(`/forms/${form.id}`);
-  const handleHover = async () => {
-    await queryClient.fetchQuery({
-      queryKey: ["form", form.id],
-      queryFn: () =>
-        getFormById({
-          formId: form.id,
-          userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-        }),
-    });
-  };
-
-  const getTypeClasses = (type: TFormType) => {
-    switch (type) {
-      case "OSCE":
-        return {
-          hover: "hover:border-r-accent-secondary/50",
-          link: "hover:text-accent-secondary ",
-        };
-      case "SURVEY":
-        return {
-          hover: "hover:text-accent hover:border-r-accent/50",
-          link: "hover:text-accent",
-        };
-      case "QUIZ":
-        return {
-          hover: "hover:border-r-lavender/50",
-          link: "hover:text-lavender",
-        };
-      case "DIRECT_OBSERVATION":
-        return {
-          hover: "hover:border-r-primary/50",
-          link: "hover:text-primary",
-        };
-      default:
-        return {
-          border: "",
-          hover: "",
-          link: "",
-        };
-    }
-  };
-
-  const typeClasses = getTypeClasses(form.type);
-
-  if (!isClient) {
-    return null; // or a loading placeholder
-  }
+  const handleHover = () => queryClient.fetchQuery({
+    queryKey: ["form", form.id],
+    queryFn: () => getFormById({
+      formId: form.id,
+      userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+    }),
+  });
 
   return (
     <div
       className={cn(
-        "group flex items-center flex-row justify-between rounded-lg border bg-white p-4 shadow-sm duration-200",
-        `border-neutral-300 hover:shadow-md`,
-        "border-r-4",
-        typeClasses.hover,
+        "group flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm duration-200",
+        "border-neutral-300 hover:shadow-md",
+        "border-l-1",
       )}
     >
-      <div className="flex flex-row items-center space-x-2" >
-        <span
-          className={cn(
-            "mr-4 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 p-2.5",
-            formTypeColors[form.type].bg,
-            formTypeColors[form.type].foreground,
-          )}
-        >
-          <Lottie autoplay={false} animationData={formTypeIcon[form.type]} />
+      <div className="flex items-center space-x-2">
+        <span className="mr-4 flex h-10 opacity-40 w-10 shrink-0 items-center justify-center rounded-full border-2 border-neutral-500 p-2.5">
+          {(() => {
+            const Icon = formTypeIcon[form.type]
+            return (
+              <Icon size={18} />
+            )
+          })()}
         </span>
 
         <div className="flex min-w-0 flex-col">
           <p
             onMouseEnter={handleHover}
             onClick={handleClick}
-            className={cn(
-              "mb-2 cursor-pointer text-lg font-semibold transition-colors",
-              typeClasses.link,
-            )}
+            className="mb-2 cursor-pointer text-lg font-semibold hover:text-accent-secondary/80 transition-colors"
           >
             {form.title}
           </p>
@@ -129,9 +91,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
             <div className="flex items-center space-x-1.5">
               <ClockIcon size={14} />
               <span>
-                {formatDistance(new Date(form.lastOpenedAt), new Date(), {
-                  addSuffix: true,
-                })}
+                {formatDistance(new Date(form.lastOpenedAt), new Date(), { addSuffix: true })}
               </span>
             </div>
           </div>
