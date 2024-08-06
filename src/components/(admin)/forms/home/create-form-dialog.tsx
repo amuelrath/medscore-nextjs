@@ -75,7 +75,7 @@ export function CreateFormDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="xs" className={cn("font-semibold")} variant="accent">
+        <Button size="xs" className={cn("font-semibold")} variant="accent-secondary">
           <div
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
@@ -163,13 +163,20 @@ const ZCreateFormSchema = z.object({
   programId: z.string(),
 });
 
+const formName = {
+  OSCE: "Untitled OSCE",
+  SURVEY: "Untitled Survey",
+  QUIZ: "Untitled Quiz",
+  DIRECT_OBSERVATION: "Untitled Direct Observation"
+}
+
 const useCreateFormDialog = () => {
   const router = useRouter();
   const [hovering, setHovering] = useState<boolean>(false);
   const [selectedType, setSelectedType] = useState<FormType>("OSCE");
 
   const createFormParams = {
-    title: "Untitled Form",
+    title: formName[selectedType],
     type: selectedType,
     programId: "a5d6ff06-c3c5-44c1-9bb3-8d9641b87081",
   };
@@ -205,35 +212,31 @@ const useCreateFormDialog = () => {
 
 export const formTypeColors = {
   OSCE: {
-    text: "text-accent-secondary",
+    text: "text-teal-900",
     ring: "ring-accent-secondary",
     bg: "border-accent-secondary/40",
-    border: "bg-accent-secondary/40",
-    foreground: "text-teal-900",
+    border: "bg-accent-secondary/20",
     color: "hsl(var(--accent-secondary))",
   },
   SURVEY: {
-    text: "text-accent",
+    text: "text-teal-800",
     ring: "ring-accent",
     bg: "border-accent/40",
-    border: "bg-accent/40",
-    foreground: "text-teal-900",
+    border: "bg-accent/20",
     color: "hsl(var(--accent))",
   },
   QUIZ: {
-    text: "text-lavender",
+    text: "text-purple-900",
     ring: "ring-lavender",
     bg: "border-lavender/50",
-    border: "bg-lavender/40",
-    foreground: "text-purple-900",
+    border: "bg-lavender/20",
     color: "hsl(var(--lavender))",
   },
   DIRECT_OBSERVATION: {
     text: "text-primary",
     ring: "ring-primary",
     bg: "border-primary/40",
-    border: "bg-primary/40",
-    foreground: "text-teal-950",
+    border: "bg-primary/20",
     color: "hsl(var(--primary))",
   },
 };
