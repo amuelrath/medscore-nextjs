@@ -22,6 +22,9 @@ import {
 import { z } from "zod";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
+
+export const responseStatusEnum = pgEnum("response_status", ["STARTED", "NOT_STARTED", "COMPLETED"])
+
 export const formItemTypeEnum = pgEnum("form_item_type", [
   "RANGE",
   "MULTIPLE_CHOICE",
@@ -397,6 +400,7 @@ export const responses = pgTable("responses", {
   evaluateeId: uuid("evaluatee_id").references(() => users.id, {
     onDelete: "cascade",
   }),
+  status: responseStatusEnum("status").notNull().default("NOT_STARTED"),
   duration: integer("duration"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
