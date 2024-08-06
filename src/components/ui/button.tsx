@@ -29,6 +29,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         emerald: "bg-emerald-500 text-primary hover:bg-emerald/90",
         hide: "bg-none border-none",
+        lavender: "bg-lavender hover:bg-lavender/80"
       },
       size: {
         default: "h-10 px-4 py-2",
