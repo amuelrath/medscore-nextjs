@@ -113,7 +113,7 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       fontSize: {
-        "2xs": ["0.6rem", { lineHeight: "0.5rem" }],
+        "2xs": ["0.65rem", { lineHeight: "0.75rem" }],
         "3xl": ["1.875rem", { lineHeight: "2.25rem" }],
       },
       backgroundSize: {
