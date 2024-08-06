@@ -58,7 +58,7 @@ export function AssessmentDropdown() {
   return (
     <DropdownMenu onOpenChange={(o) => setPopoverOpen(o)} open={popoverOpen} modal={false}>
       <DropdownMenuTrigger disabled={!selectedAssessmentId} asChild>
-        <button className="group flex h-12  w-8 flex-row items-center justify-center rounded-md border border-neutral-300 bg-primary/5 px-2 font-medium  text-neutral-600 transition-colors hover:border-neutral-600 disabled:pointer-events-none disabled:opacity-30">
+        <button className="group flex h-7  w-8 flex-row items-center justify-center rounded-md border border-neutral-300 bg-primary/5 px-2 font-medium  text-neutral-600 transition-colors hover:border-neutral-600 disabled:pointer-events-none disabled:opacity-30">
           <DotsHorizontalIcon className="size-4 opacity-50 transition-opacity group-hover:opacity-100" />
         </button>
       </DropdownMenuTrigger>

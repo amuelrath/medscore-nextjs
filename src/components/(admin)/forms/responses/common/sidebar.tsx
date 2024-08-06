@@ -1,36 +1,36 @@
 "use client";
 import { AssessmentSelect } from "@/components/(admin)/forms/responses/common/assessment-select";
 import { GenerateAssessmentReportButton } from "@/components/(admin)/forms/responses/common/generate-assessment-report-button";
-import { useQuery } from "@tanstack/react-query";
-import { useAtom, useAtomValue } from "jotai";
-import { m } from 'framer-motion'
-import {
-  selectedAssessmentIdAtom,
-  selectedResponseIdAtom,
-} from "@/store/form-atoms";
+import { AssessmentDropdown } from "@/components/(admin)/forms/responses/dropdowns/assessment-dropdown";
+import { ResponseDropdown } from "@/components/(admin)/forms/responses/dropdowns/response-dropdown";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getFullName } from "@/lib/helpers/getFullName";
+import { cn } from "@/lib/helpers/utils";
 import {
   AssessmentResponsesResult,
   getAssessmentResponsesWithUsers,
 } from "@/server/actions/responses/get-assessment-responses-with-users";
-import { useState } from "react";
-import { FileCheckIcon, SearchIcon } from "lucide-react";
-import { getFullName } from "@/lib/helpers/getFullName";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/helpers/utils";
-import { AssessmentDropdown } from "@/components/(admin)/forms/responses/dropdowns/assessment-dropdown";
-import { ResponseDropdown } from "@/components/(admin)/forms/responses/dropdowns/response-dropdown";
+import {
+  selectedAssessmentIdAtom,
+  selectedResponseIdAtom,
+} from "@/store/form-atoms";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { useQuery } from "@tanstack/react-query";
+import { m } from "framer-motion";
+import { useAtom, useAtomValue } from "jotai";
+import { FileCheckIcon, SearchIcon } from "lucide-react";
+import { useState } from "react";
 
 export function Sidebar() {
   return (
     <aside className="flex h-full min-w-[265px] flex-col space-y-6 border-r border-neutral-300 bg-card/50 p-2 pb-6">
       <div className="space-y-2">
+        <AssessmentSelect />
         <div className="flex flex-row items-center space-x-2">
-          <AssessmentSelect />
+          <GenerateAssessmentReportButton />
           <AssessmentDropdown />
         </div>
-        <GenerateAssessmentReportButton />
       </div>
       <div className="h-full space-y-2">
         <ResponseCardList />
@@ -108,7 +108,7 @@ function ResponseCard({ response }: ResponseCardProps) {
     setSelectedResponseId(response.id);
   };
 
-  const isSelected =  selectedResponseId === response.id
+  const isSelected = selectedResponseId === response.id;
 
   return (
     <div
@@ -121,23 +121,22 @@ function ResponseCard({ response }: ResponseCardProps) {
       )}
     >
       <div className="flex flex-row space-x-2 items-center">
-      <FileCheckIcon
-        strokeWidth={2}
-        className="size-4 opacity-50 transition-opacity "
-      />
-      <p className="text-sm text-neutral-700 ">
-        {getFullName(response.evaluatee)}
-      </p>
+        <FileCheckIcon
+          strokeWidth={2}
+          className="size-4 opacity-50 transition-opacity "
+        />
+        <p className="text-sm text-neutral-700 ">
+          {getFullName(response.evaluatee)}
+        </p>
       </div>
       {isSelected && (
-      <ResponseDropdown>
-        <m.div
-        initial={{ opacity: 0}}
-        animate={{ opacity: 1 }}
-        >
-        <DotsHorizontalIcon className={cn("opacity-50 hover:opacity-100 transition-opacity")} />
-        </m.div>
-      </ResponseDropdown>
+        <ResponseDropdown>
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <DotsHorizontalIcon
+              className={cn("opacity-50 hover:opacity-100 transition-opacity")}
+            />
+          </m.div>
+        </ResponseDropdown>
       )}
     </div>
   );
