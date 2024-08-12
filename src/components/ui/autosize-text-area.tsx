@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useImperativeHandle } from "react";
+import React, { useEffect, useRef, useState, useImperativeHandle, useCallback } from "react";
 import { cn } from "@/lib/helpers/utils";
 
 interface UseAutosizeTextAreaProps {
@@ -15,18 +15,18 @@ const useAutosizeTextArea = ({
   maxHeight = Number.MAX_SAFE_INTEGER,
   minHeight = 0,
 }: UseAutosizeTextAreaProps) => {
-  const resizeTextArea = () => {
+  const resizeTextArea = useCallback(() => {
     if (textAreaRef) {
       textAreaRef.style.height = "auto";
       const scrollHeight = textAreaRef.scrollHeight;
       const newHeight = Math.max(minHeight, Math.min(scrollHeight, maxHeight));
       textAreaRef.style.height = `${newHeight}px`;
     }
-  };
+  }, [maxHeight, minHeight, textAreaRef]);
 
   useEffect(() => {
     resizeTextArea();
-  }, [textAreaRef, triggerAutoSize, minHeight, maxHeight]);
+  }, [textAreaRef, triggerAutoSize, minHeight, maxHeight, resizeTextArea]);
 
   // Use ResizeObserver to detect width changes
   useEffect(() => {
@@ -41,7 +41,7 @@ const useAutosizeTextArea = ({
         resizeObserver.disconnect();
       };
     }
-  }, [textAreaRef]);
+  }, [resizeTextArea, textAreaRef]);
 };
 
 export type AutosizeTextAreaRef = {
@@ -97,7 +97,7 @@ export const AutosizeTextarea = React.forwardRef<
         value={value}
         ref={textAreaRef}
         className={cn(
-          "flex w-full rounded-md border-0 bg-primary/5 px-3 py-2 text-sm text-neutral-800 ring-offset-background transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/80 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full rounded-md bg-primary/5 resize-none overflow-y-clip focus-visible:border-transparent border border-border px-3 py-2 text-sm text-neutral-800 ring-offset-background transition-all file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/80 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         onChange={(e) => {
