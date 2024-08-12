@@ -48,7 +48,7 @@ export function FilterOption({ tag, checked = false }: FilterOptionProps) {
     <Badge
       onClick={() => setIsChecked(!isChecked)}
       className={cn(
-        isChecked && "ring-2 ring-primary ring-offset-1",
+        isChecked && "ring-2 ring-foreground/80 ring-offset-1",
         "m-1 cursor-pointer truncate transition-all",
       )}
       // @ts-ignore

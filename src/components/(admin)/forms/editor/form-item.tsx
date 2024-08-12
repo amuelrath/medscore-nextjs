@@ -2,14 +2,12 @@ import { FormItemSettingsPopover } from "@/components/(admin)/forms/editor/form-
 import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
 import { MilestoneBadges } from "@/components/(admin)/forms/editor/milestone-badges";
 import { OptionList } from "@/components/(admin)/forms/editor/question-options";
-import { formTypeColors } from "@/components/(admin)/forms/home/create-form-dialog";
 import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { EnhancedTooltip } from "@/components/ui/enhanced-tooltip";
-import { TFormType } from "@/db/schema";
 import { cn } from "@/lib/helpers/utils";
-import { m } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { CopyIcon, MilestoneIcon, TrashIcon } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 import { Control, Controller } from "react-hook-form";
@@ -52,8 +50,6 @@ export function FormItem({
   duplicateItem,
   toggleMilestoneDialog,
 }: FormItemWrapperProps) {
-  const formType = control._defaultValues.type;
-
   const itemRef = useRef<HTMLDivElement>(null);
 
   const updatePosition = useCallback(() => {
@@ -92,32 +88,14 @@ export function FormItem({
         onMouseDown={() => updatePosition()}
         className={cn(
           "relative z-10 origin-center overflow-hidden transition-all",
+          isSelected && "border-foreground"
         )}
       >
-        <m.span
-          initial={false}
-          animate={{
-            width: isSelected ? "100%" : "0%",
-            height:  "6px",
-          }}
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          className={cn(
-            "absolute -top-[3px] left-0 right-0 z-10 origin-center",
-               formTypeColors[formType as TFormType].border,
-          )}
-          style={{
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-        />
         <CardHeader className="flex flex-row items-start">
           <div
             className="flex-grow"
             style={{
-              width:
-                isSelected
-                  ? "calc(100% - 45px)"
-                  : "100%",
+              width: isSelected ? "calc(100% - 45px)" : "100%",
             }}
           >
             <Controller
@@ -138,63 +116,65 @@ export function FormItem({
               )}
             />
           </div>
-          {( isSelected) && (
-            <m.div
-              layoutId={`settings-group-${item.id}`}
-              layout="position"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: "auto", opacity: 1 }}
-              exit={{ width: 0, opacity: 0 }}
-              transition={{ duration: 0.1 }}
-              className="ml-2 flex flex-row items-center will-change-auto overflow-hidden pr-1"
-            >
-              {item.type !== "HEADER" && (
-                <FormItemSettingsPopover
-                  index={index}
-                  type={item.type}
-                  control={control}
-                />
-              )}
-              <EnhancedTooltip
-                description={"Copy"}
-                delay={200}
-                contentClassName=" w-[60px] "
+          <AnimatePresence>
+            {isSelected && (
+              <m.div
+                layoutId={`settings-group-${item.id}`}
+                layout="position"
+                initial={{ width: 0, opacity: 0 }}
+                animate={{ width: "auto", opacity: 1 }}
+                exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.1 }}
+                className="ml-2 flex flex-row items-center will-change-auto overflow-hidden pr-1"
               >
-                <Button
-                  size="xs"
-                  variant="hide"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    duplicateItem();
-                  }}
-                >
-                  <CopyIcon
-                    className="text-neutral-500 hover:text-neutral-500/80"
-                    size={16}
+                {item.type !== "HEADER" && (
+                  <FormItemSettingsPopover
+                    index={index}
+                    type={item.type}
+                    control={control}
                   />
-                </Button>
-              </EnhancedTooltip>
-              <EnhancedTooltip
-                description={"Delete"}
-                delay={200}
-                contentClassName=" w-[65px] "
-              >
-                <Button
-                  size="xs"
-                  variant="hide"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeItem();
-                  }}
+                )}
+                <EnhancedTooltip
+                  description={"Copy"}
+                  delay={200}
+                  contentClassName=" w-[60px] "
                 >
-                  <TrashIcon
-                    className="text-neutral-500 hover:text-destructive"
-                    size={16}
-                  />
-                </Button>
-              </EnhancedTooltip>
-            </m.div>
-          )}
+                  <Button
+                    size="xs"
+                    variant="hide"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateItem();
+                    }}
+                  >
+                    <CopyIcon
+                      className="text-neutral-500 hover:text-neutral-500/80"
+                      size={16}
+                    />
+                  </Button>
+                </EnhancedTooltip>
+                <EnhancedTooltip
+                  description={"Delete"}
+                  delay={200}
+                  contentClassName=" w-[65px] "
+                >
+                  <Button
+                    size="xs"
+                    variant="hide"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeItem();
+                    }}
+                  >
+                    <TrashIcon
+                      className="text-neutral-500 hover:text-destructive"
+                      size={16}
+                    />
+                  </Button>
+                </EnhancedTooltip>
+              </m.div>
+            )}
+          </AnimatePresence>
         </CardHeader>
         <CardContent>
           {getContent()}

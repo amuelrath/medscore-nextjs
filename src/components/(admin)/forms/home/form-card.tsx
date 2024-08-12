@@ -28,6 +28,7 @@ import QUESTION_MARK_ICON from "public/icons/help-accent.json";
 import EYE_ICON from "public/icons/eye-primary.json";
 import SCIENCE_ICON from "public/icons/science-lavender.json";
 import { QuestionMarkIcon } from "@radix-ui/react-icons";
+import { Card } from "@/components/ui/card";
 
 export const formTypeIcon = {
   OSCE: ClipboardIcon,
@@ -57,11 +58,10 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   });
 
   return (
-    <div
+    <Card
       className={cn(
-        "group flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm duration-200",
-        "border-neutral-300 hover:shadow-md",
-        "border-l-1",
+        "group flex flex-shrink-0 items-center justify-between p-4 transition",
+        "hover:drop-shadow-sm",
       )}
     >
       <div className="flex items-center space-x-2">
@@ -118,6 +118,6 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           </Button>
         </DeleteFormDialogTrigger>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -24,12 +24,6 @@ const config = {
 
     extend: {
       colors: {
-        ics: "hsl(var(--ics))",
-        sbp: "hsl(var(--sbp))",
-        pc: "hsl(var(--pc))",
-        p: "hsl(var(--p))",
-        pbli: "hsl(var(--pbli))",
-        mk: "hsl(var(--mk))",
         "accent-secondary": "hsl(var(--accent-secondary))",
         "accent-secondary-background":
           "hsl(var(--accent-secondary-background))",
@@ -88,6 +82,10 @@ const config = {
             opacity: "0",
           },
         },
+        shine: {
+          from: { backgroundPosition: "200% 0" },
+          to: { backgroundPosition: "-200% 0" },
+        },
         marquee: {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(calc(-100% - var(--gap)))" },
@@ -107,6 +105,7 @@ const config = {
       },
       animation: {
         meteor: "meteor 5s linear infinite",
+        "shine": "shine 8s ease-in-out infinite",
         marquee: "marquee var(--duration) linear infinite",
         "marquee-vertical": "marquee-vertical var(--duration) linear infinite",
         "accordion-down": "accordion-down 0.2s ease-out",

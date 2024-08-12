@@ -76,9 +76,11 @@ function ResponseCardList() {
 
   return (
     <div className="space-y-2">
-      <div className="relative border-b">
+      <div className="relative">
         <SearchIcon className="absolute left-2 top-1.5 size-3 opacity-50" />
+
         <Input
+          variant="underline"
           size="xs"
           placeholder="Search results..."
           className={cn("bg-inherit pl-6 font-light")}

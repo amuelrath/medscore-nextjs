@@ -27,7 +27,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
     <TooltipProvider>
       <Tooltip delayDuration={delay} >
         <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
-        <TooltipContent  className="text-xs text-left max-w-64" side={position}>{tooltipContent}</TooltipContent>
+        <TooltipContent  className="text-xs text-left ml-9 max-w-64" side={position}>{tooltipContent}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
