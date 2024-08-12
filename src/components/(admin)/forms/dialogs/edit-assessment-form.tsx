@@ -7,8 +7,8 @@ import { FormErrorMessage } from "@/components/ui/form-error-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LottieHover } from "@/components/ui/lottie-hover";
-import MultipleSelector from "@/components/ui/multiple-selector";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UserSelect } from "@/components/ui/user-select";
 import { useFormResultInEditorQuery } from "@/hooks/queries/use-form-result-in-editor-query";
 import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
 import { getFullName } from "@/lib/helpers/getFullName";
@@ -318,7 +318,7 @@ export function EditAssessmentForm() {
       <h3 className="text-md mb-2 font-semibold leading-none">Details</h3>
       <form
         onSubmit={handleSubmit(submit)}
-        className="flex h-full flex-col justify-between rounded-lg border border-neutral-300 bg-background/10 p-2"
+        className="flex h-full flex-col justify-between rounded-md border p-4 bg-background/10 p-2"
       >
         <div className="space-y-2">
           <div>
@@ -371,39 +371,12 @@ export function EditAssessmentForm() {
               )}
             </div>
           </div>
-          <div>
-            <Label htmlFor="evaluateeIds">Evaluatees</Label>
-            <Controller
-              name="evaluateeIds"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <MultipleSelector
-                    disabled={isPending}
-                    value={field.value?.map((value) => ({
-                      value,
-                      label:
-                        studentOptions?.find((s) => s.value === value)?.label ||
-                        "",
-                    }))}
-                    onChange={(options) => {
-                      const values = options.map((option) => option.value);
-                      field.onChange(values);
-                    }}
-                    defaultOptions={studentOptions}
-                    placeholder="Select Students..."
-                    emptyIndicator={
-                      <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                        No Students Found.
-                      </p>
-                    }
-                  />
-                  {errors.evaluateeIds && (
-                    <FormErrorMessage message={errors.evaluateeIds.message} />
-                  )}
-                </>
-              )}
-            />
+          <div className="flex flex-col gap-1 pt-2" >
+            <Label htmlFor="evaluateeIds">Respondents</Label>
+            <UserSelect control={control} name={`evaluateeIds`} />
+            {errors.evaluateeIds && (
+              <FormErrorMessage message={errors.evaluateeIds.message} />
+            )}
           </div>
           <div className="flex justify-end">
             <Button
@@ -458,7 +431,7 @@ function AssessmentControls({
         <h3 className="text-md font-semibold leading-none">Controls</h3>
         <div
           className={cn(
-            "flex h-12 flex-row items-center justify-center space-x-2 rounded-md border border-neutral-200",
+            "flex h-12 flex-row items-center justify-center space-x-2 rounded-md border",
           )}
         >
           {isActive ? (
