@@ -1,21 +1,21 @@
 "use server";
 import { db } from "@/db";
-import { assessments, assessmentsOnEvaluatees } from "@/db/schema";
+import { assessments, assessmentsOnEvaluatees, TFormType } from "@/db/schema";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { getAssessmentById } from "@/server/actions/responses/get-assessment";
 
 export async function administerForm({
-  isDirectObservation,
   formId,
   userIds,
+  type,
   expiresAt,
   startsAt,
   title,
   tx=db
 }: {
-  isDirectObservation?: boolean;
   formId: string | undefined;
   userIds: string[];
+  type: TFormType;
   startsAt: Date;
   expiresAt: Date;
   title: string;
@@ -42,7 +42,7 @@ export async function administerForm({
       title,
       startsAt,
       expiresAt,
-      isDirectObservation,
+      type
     })
     .returning();
 
