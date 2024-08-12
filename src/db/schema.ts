@@ -25,6 +25,8 @@ export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
 
 export const responseStatusEnum = pgEnum("response_status", ["STARTED", "NOT_STARTED", "COMPLETED"])
 
+export const assessmentTypeEnum = pgEnum("assessment_type", ["REQUEST", "DIRECT_OBSERVATION", "OSCE", "SURVEY", "QUIZ"])
+
 export const formItemTypeEnum = pgEnum("form_item_type", [
   "RANGE",
   "MULTIPLE_CHOICE",
@@ -185,7 +187,7 @@ export type NewUser = typeof users.$inferInsert;
 export const userRelations = relations(users, ({ many }) => ({
   programs: many(usersOnPrograms),
   forms: many(forms),
-  roles: many(rolesOnUsers)
+  roles: many(rolesOnUsers),
 }));
 
 export const usersOnPrograms = pgTable("users_on_programs", {
@@ -397,10 +399,10 @@ export const responses = pgTable("responses", {
   creatorId: uuid("creator_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
+  status: responseStatusEnum("status").default("NOT_STARTED"),
   evaluateeId: uuid("evaluatee_id").references(() => users.id, {
     onDelete: "cascade",
   }),
-  status: responseStatusEnum("status").notNull().default("NOT_STARTED"),
   duration: integer("duration"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -460,15 +462,15 @@ export const assessments = pgTable("assessments", {
   formId: uuid("form_id")
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
-  code: varchar("code", { length: 6 }).notNull(),
   title: text("title").notNull(),
+  code: varchar("code", { length: 6 }).notNull(),
+  type: assessmentTypeEnum("type").notNull(),
   startsAt: timestamp("starts_at").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   canceledAt: timestamp("canceled_at"),
-  isDirectObservation: boolean("is_direct_observation")
-    .notNull()
-    .default(false),
+  metadata: jsonb("metadata")
+
 });
 export type Assessment = typeof assessments.$inferSelect;
 export type NewAssessment = typeof assessments.$inferInsert;
@@ -516,6 +518,7 @@ export const assessmentsOnEvaluateesRelations = relations(
     }),
   }),
 );
+
 
 export const recommendedMilestones = pgTable("recommended_milestones", {
   id: uuid(`id`)
