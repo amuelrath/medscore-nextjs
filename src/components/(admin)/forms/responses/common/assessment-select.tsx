@@ -1,12 +1,3 @@
-import * as React from "react";
-import { useAtom } from "jotai/index";
-import { selectedAssessmentIdAtom } from "@/store/form-atoms";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -15,11 +6,19 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/helpers/utils";
-import { formatDate, isBefore } from "date-fns";
 import { useGetFormAssessments } from "@/hooks/queries/use-get-form-assessments";
-import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/helpers/utils";
+import { selectedAssessmentIdAtom } from "@/store/form-atoms";
+import { formatDate, isBefore } from "date-fns";
+import { useAtom } from "jotai/index";
+import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
 
 function AssessmentSelect() {
   const [open, setOpen] = React.useState(false);
@@ -43,9 +42,9 @@ function AssessmentSelect() {
         >
           <div className="truncate flex flex-col items-start text-sm">
             <p>
-            {selectedAssessment
-              ? selectedAssessment.title
-              : "Select Assessment"}
+              {selectedAssessment
+                ? selectedAssessment.title
+                : "Select Assessment"}
             </p>
             {selectedAssessment && (
               <p className="opacity-50 text-xs">
