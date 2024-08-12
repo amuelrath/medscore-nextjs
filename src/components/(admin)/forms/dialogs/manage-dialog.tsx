@@ -28,6 +28,7 @@ import { AssessmentsResult } from "@/server/actions/responses/get-all-assessment
 export function ManageDialog() {
   const { getValues } = useFormContext();
   const formId = getValues(`id`);
+  const formType = getValues(`type`)
   const [hovering, setHovering] = useState<boolean>(false);
   const [open, setOpen] = useAtom(manageDialogOpenAtom);
   const setActiveCodeId = useSetAtom(manageDialogSelectedAssessmentIdAtom);
@@ -74,7 +75,7 @@ export function ManageDialog() {
       title: "Untitled Assessment",
       startsAt,
       expiresAt,
-      isDirectObservation: false,
+      type: formType,
       formId,
       userIds: [],
     });
