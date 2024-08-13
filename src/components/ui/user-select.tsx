@@ -1,24 +1,35 @@
 "use client";
 import { Avatar, AvatarColor, AvatarStack } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { User } from "@/db/schema";
 import { useFormResultInEditor } from "@/hooks/queries/use-form-result-in-editor";
+import { useMultiselectField } from "@/hooks/use-multiselect-field";
 import { capitalizeFirstLetter } from "@/lib/capitalize-first-letter";
+import { getInitials } from "@/lib/get-initials";
 import { getFullName } from "@/lib/helpers/getFullName";
 import { truncate } from "@/lib/truncate";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useCallback, useEffect, useMemo } from "react";
-import { Control, FieldPath, FieldValues, PathValue, useController } from "react-hook-form";
-import { getInitials } from "@/lib/get-initials";
+import { useMemo } from "react";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
 type UserSelectProps<TSchema extends FieldValues> = {
   control: Control<TSchema>;
   name: FieldPath<TSchema>;
   disabled?: boolean;
 };
-
+// todo make this compatible with groups
 export function UserSelect<T extends FieldValues>({
   disabled,
   name,
@@ -29,45 +40,11 @@ export function UserSelect<T extends FieldValues>({
     return formResult?.programs.users.map((u) => u.user) || [];
   }, [formResult?.programs.users]);
 
-  const { field } = useController<T>({
-    control,
-    name,
-    disabled,
-  });
-
-  const selectedUserIds = useMemo(() => {
-    const value = field.value as unknown;
-    return Array.isArray(value)
-      ? value.filter((id): id is string => typeof id === "string")
-      : [];
-  }, [field.value]);
-
-  const updateFieldValue = useCallback(
-    (newValue: string[]) => {
-      field.onChange(newValue as unknown as PathValue<T, typeof name>);
-    },
-    [field],
-  );
-
-  useEffect(() => {
-    if (field.value === undefined) {
-      updateFieldValue([]);
-    }
-  }, [field.value, updateFieldValue]);
-
-  const handleUserSelect = useCallback(
-    (userId: string) => {
-      updateFieldValue([...selectedUserIds, userId]);
-    },
-    [selectedUserIds, updateFieldValue],
-  );
-
-  const handleUserDeselect = useCallback(
-    (userId: string) => {
-      updateFieldValue(selectedUserIds.filter((id) => id !== userId));
-    },
-    [selectedUserIds, updateFieldValue],
-  );
+  const {
+    selectedIds: selectedUserIds,
+    select,
+    deselect,
+  } = useMultiselectField<T>({ name, control, disabled });
 
   const sortedUsers = useMemo(() => {
     return [
@@ -91,7 +68,11 @@ export function UserSelect<T extends FieldValues>({
   return (
     <Popover>
       <PopoverTrigger className="flex flex-row space-x-3">
-        <Avatar color="border" className="shadow-sm hover:shadow-md" content={<PlusIcon />} />
+        <Avatar
+          color="border"
+          className="shadow-sm hover:shadow-md"
+          content={<PlusIcon />}
+        />
         <AvatarStack
           maxAvatars={4}
           avatars={selectedUserIds.map((id) => {
@@ -116,15 +97,15 @@ export function UserSelect<T extends FieldValues>({
                   key={u.id}
                   onSelect={() =>
                     selectedUserIds.includes(u.id)
-                      ? handleUserDeselect(u.id)
-                      : handleUserSelect(u.id)
+                      ? deselect(u.id)
+                      : select(u.id)
                   }
                 >
                   <UserCard
                     user={u}
                     selected={selectedUserIds.includes(u.id)}
-                    onSelect={handleUserSelect}
-                    onDeselect={handleUserDeselect}
+                    onSelect={select}
+                    onDeselect={deselect}
                   />
                 </CommandItem>
               ))}
@@ -192,4 +173,3 @@ function UserCard({ user, selected, onSelect, onDeselect }: UserCardProps) {
     </div>
   );
 }
-
