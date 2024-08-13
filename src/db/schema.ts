@@ -399,7 +399,7 @@ export const responses = pgTable("responses", {
   creatorId: uuid("creator_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  status: responseStatusEnum("status").default("NOT_STARTED"),
+  status: responseStatusEnum("status").default("NOT_STARTED").notNull(),
   evaluateeId: uuid("evaluatee_id").references(() => users.id, {
     onDelete: "cascade",
   }),
@@ -483,6 +483,8 @@ export const assessmentRelations = relations(assessments, ({ one, many }) => ({
   responses: many(responses),
 }));
 
+// todo rename to something more general.
+// todo also add role enum column (EVALUATOR, EVALUATEE)
 export const assessmentsOnEvaluatees = pgTable(
   "assessments_on_evaluatees",
   {
