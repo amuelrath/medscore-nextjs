@@ -11,24 +11,7 @@ export async function getFormById({
 }) {
   return db.query.forms.findFirst({
     with: {
-      assessments: {
-        with: {
-          evaluatees: {
-            with: {
-              user: {
-                columns: {
-                  id: true,
-                  firstName: true,
-                  email: false,
-                  password: false,
-                  role: true,
-                  lastName: true,
-                },
-              },
-            },
-          },
-        },
-      },
+      assessments: true,
       programs: {
         with: {
           roles: true,
