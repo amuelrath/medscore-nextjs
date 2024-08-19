@@ -17,15 +17,18 @@ import {
   text,
   timestamp,
   uuid,
-  varchar,
 } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
 export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
 
-export const responseStatusEnum = pgEnum("response_status", ["STARTED", "NOT_STARTED", "COMPLETED"])
+export const responseStatusEnum = pgEnum("response_status", [
+  "STARTED",
+  "NOT_STARTED",
+  "COMPLETED",
+]);
 
-export const assessmentTypeEnum = pgEnum("assessment_type", ["REQUEST", "DIRECT_OBSERVATION", "OSCE", "SURVEY", "QUIZ"])
+export type TResponseStatus = "STARTED" | "NOT_STARTED" | "COMPLETED"
 
 export const formItemTypeEnum = pgEnum("form_item_type", [
   "RANGE",
@@ -46,13 +49,13 @@ export type TFormItemType = z.infer<typeof ZFormEnum>;
 export const formTypeEnum = pgEnum("form_type", [
   "OSCE",
   "SURVEY",
-  "QUIZ",
+  "EVALUATION",
   "DIRECT_OBSERVATION",
 ]);
 export const ZFormTypeEnum = z.enum([
   "OSCE",
   "SURVEY",
-  "QUIZ",
+  "EVALUATION",
   "DIRECT_OBSERVATION",
 ]);
 export type TFormType = z.infer<typeof ZFormTypeEnum>;
@@ -169,7 +172,8 @@ export const programRelations = relations(programs, ({ one, many }) => ({
   }),
   users: many(usersOnPrograms),
   forms: many(forms),
-  roles: many(programRoles)
+  roles: many(programRoles),
+  groups: many(groups),
 }));
 
 export const users = pgTable("users", {
@@ -188,6 +192,8 @@ export const userRelations = relations(users, ({ many }) => ({
   programs: many(usersOnPrograms),
   forms: many(forms),
   roles: many(rolesOnUsers),
+  groups: many(groups),
+  assessments: many(assessments),
 }));
 
 export const usersOnPrograms = pgTable("users_on_programs", {
@@ -213,6 +219,56 @@ export const usersOnProgramsRelations = relations(
     }),
   }),
 );
+
+export const groups = pgTable("groups", {
+  id: uuid("id")
+    .notNull()
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  programId: uuid("program_id")
+    .notNull()
+    .references(() => programs.id, { onDelete: "cascade" }),
+});
+export const Group = typeof groups.$inferSelect;
+export const NewGroup = typeof groups.$inferInsert;
+export const groupRelations = relations(groups, ({ many, one }) => ({
+  users: many(usersOnGroups),
+  programs: one(programs, {
+    fields: [groups.programId],
+    references: [programs.id],
+  }),
+}));
+
+export const usersOnGroups = pgTable(
+  "users_on_groups",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    groupId: uuid("group_id")
+      .notNull()
+      .references(() => groups.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => {
+    return {
+      id: primaryKey({ columns: [table.userId, table.groupId] }),
+    };
+  },
+);
+export type UserOnGroup = typeof usersOnGroups.$inferSelect;
+export type NewUserOnGroup = typeof usersOnGroups.$inferInsert;
+export const usersOnGroupRelations = relations(usersOnGroups, ({ one }) => ({
+  user: one(users, {
+    fields: [usersOnGroups.userId],
+    references: [users.id],
+  }),
+  group: one(groups, {
+    fields: [usersOnGroups.groupId],
+    references: [groups.id],
+  }),
+}));
 
 // todo more expansive role permissions
 export const programRoles = pgTable("program_roles", {
@@ -297,6 +353,7 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   assessments: many(assessments),
 }));
 
+// todo nightmare refactor to normalize this
 export const formItems = pgTable("form_items", {
   id: uuid("id")
     .notNull()
@@ -396,10 +453,10 @@ export const responses = pgTable("responses", {
   assessmentId: uuid("assessment_id")
     .notNull()
     .references(() => assessments.id, { onDelete: "cascade" }),
-  creatorId: uuid("creator_id")
+  respondeeId: uuid("respondee_id")
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
-  status: responseStatusEnum("status").default("NOT_STARTED").notNull(),
+  status: responseStatusEnum("status").default("NOT_STARTED").notNull(), // on open, 'started'. on submit, 'completed'
   evaluateeId: uuid("evaluatee_id").references(() => users.id, {
     onDelete: "cascade",
   }),
@@ -409,8 +466,8 @@ export const responses = pgTable("responses", {
 export type Response = DateToString<typeof responses.$inferSelect>;
 export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
-  creator: one(users, {
-    fields: [responses.creatorId],
+  respondee: one(users, {
+    fields: [responses.respondeeId],
     references: [users.id],
   }),
   answers: many(answers),
@@ -439,10 +496,8 @@ export const answers = pgTable("answers", {
     .references(() => formItems.id, { onDelete: "cascade" }),
   textValue: text("text_value"),
 });
-
 export type Answer = typeof answers.$inferSelect;
 export type NewAnswer = typeof answers.$inferInsert;
-
 export const answerRelations = relations(answers, ({ one, many }) => ({
   response: one(responses, {
     fields: [answers.responseId],
@@ -463,14 +518,12 @@ export const assessments = pgTable("assessments", {
     .notNull()
     .references(() => forms.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
-  code: varchar("code", { length: 6 }).notNull(),
-  type: assessmentTypeEnum("type").notNull(),
   startsAt: timestamp("starts_at").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
+  creatorId: uuid("creator_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "set null" }), // to protect assessment data
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  canceledAt: timestamp("canceled_at"),
-  metadata: jsonb("metadata")
-
 });
 export type Assessment = typeof assessments.$inferSelect;
 export type NewAssessment = typeof assessments.$inferInsert;
@@ -479,48 +532,12 @@ export const assessmentRelations = relations(assessments, ({ one, many }) => ({
     fields: [assessments.formId],
     references: [forms.id],
   }),
-  evaluatees: many(assessmentsOnEvaluatees),
   responses: many(responses),
-}));
-
-// todo rename to something more general.
-// todo also add role enum column (EVALUATOR, EVALUATEE)
-export const assessmentsOnEvaluatees = pgTable(
-  "assessments_on_evaluatees",
-  {
-    assessmentId: uuid("assessment_id")
-      .notNull()
-      .references(() => assessments.id, { onDelete: "cascade" }),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    deletedAt: timestamp("deleted_at"),
-  },
-  (table) => {
-    return {
-      id: primaryKey({
-        columns: [table.assessmentId, table.userId],
-      }),
-    };
-  },
-);
-export type AssessmentOnEvaluatee = typeof assessmentsOnEvaluatees.$inferSelect;
-export type NewAssessmentOnEvaluatee =
-  typeof assessmentsOnEvaluatees.$inferInsert;
-export const assessmentsOnEvaluateesRelations = relations(
-  assessmentsOnEvaluatees,
-  ({ one }) => ({
-    assessment: one(assessments, {
-      fields: [assessmentsOnEvaluatees.assessmentId],
-      references: [assessments.id],
-    }),
-    user: one(users, {
-      fields: [assessmentsOnEvaluatees.userId],
-      references: [users.id],
-    }),
+  creator: one(users, {
+    fields: [assessments.creatorId],
+    references: [users.id],
   }),
-);
-
+}));
 
 export const recommendedMilestones = pgTable("recommended_milestones", {
   id: uuid(`id`)
