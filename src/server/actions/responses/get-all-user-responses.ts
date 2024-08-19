@@ -5,10 +5,10 @@ export async function getAllUserResponses() {
   const USER_ID = process.env.NEXT_PUBLIC_DEV_USER_ID!;
 
   return db.query.responses.findMany({
-    where: (r, { eq }) => eq(r.creatorId, USER_ID),
+    where: (r, { eq }) => eq(r.respondeeId, USER_ID),
     columns: {
       id: true,
-      creatorId: false,
+      respondeeId: false,
       status: true,
       assessmentId: false,
       evaluateeId: false,
