@@ -33,28 +33,28 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const formTypeIcon = {
+export const formTypeLottie = {
   OSCE: ASSIGNMENT_ICON,
   SURVEY: QUESTION_MARK_ICON,
   DIRECT_OBSERVATION: EYE_ICON,
-  QUIZ: SCIENCE_ICON,
+  EVALUATION: SCIENCE_ICON,
 };
 
-type FormType = "OSCE" | "SURVEY" | "QUIZ" | "DIRECT_OBSERVATION";
-const formTypes: FormType[] = ["OSCE", "SURVEY", "QUIZ", "DIRECT_OBSERVATION"];
+type FormType = "OSCE" | "SURVEY" | "EVALUATION" | "DIRECT_OBSERVATION";
+const formTypes: FormType[] = ["OSCE", "SURVEY", "EVALUATION", "DIRECT_OBSERVATION"];
 
 export const formTypeContent = {
   OSCE: ClipboardIcon,
   SURVEY: FileQuestionIcon,
   DIRECT_OBSERVATION: EyeIcon,
-  QUIZ: TestTubeIcon,
+  EVALUATION: TestTubeIcon,
 };
 
 const formTypeDescriptions = {
   OSCE: "OSCE: Structured clinical examination for assessing practical skills and competencies.",
   SURVEY:
     "Survey: Collect data and insights through a series of questions. Milestone mapping is disabled.",
-  QUIZ: "Quiz: Test trainee knowledge with scored questions.",
+  EVALUATION: "Evaluation: Create focused performance reviews tailored to your program.",
   DIRECT_OBSERVATION:
     "Direct Observation: Real-time assessment of performance in a clinical setting.",
 };
@@ -159,14 +159,14 @@ export function CreateFormDialog() {
 
 const ZCreateFormSchema = z.object({
   title: z.string(),
-  type: z.enum(["OSCE", "SURVEY", "DIRECT_OBSERVATION", "QUIZ"]),
+  type: z.enum(["OSCE", "SURVEY", "DIRECT_OBSERVATION", "EVALUATION"]),
   programId: z.string(),
 });
 
 const formName = {
   OSCE: "Untitled OSCE",
   SURVEY: "Untitled Survey",
-  QUIZ: "Untitled Quiz",
+  EVALUATION: "Untitled Evaluation",
   DIRECT_OBSERVATION: "Untitled Direct Observation"
 }
 
@@ -225,7 +225,7 @@ export const formTypeColors = {
     border: "bg-accent/20",
     color: "hsl(var(--accent))",
   },
-  QUIZ: {
+  EVALUATION: {
     text: "text-purple-900",
     ring: "ring-lavender",
     bg: "border-lavender/50",
@@ -251,7 +251,7 @@ function FormTypeCard({
   type: FormType;
   handleSelect: (type: FormType) => void;
 }) {
-  const icon = formTypeIcon[type];
+  const icon = formTypeLottie[type];
   const ref = useRef<any>(null);
 
   return (

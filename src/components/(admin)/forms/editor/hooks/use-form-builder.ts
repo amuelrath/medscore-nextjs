@@ -14,7 +14,7 @@ import { z } from "zod";
 export const ZFormSchema = z
   .object({
     id: z.string(),
-    type: z.enum(["OSCE", "SURVEY", "DIRECT_OBSERVATION", "QUIZ"]),
+    type: z.enum(["OSCE", "SURVEY", "DIRECT_OBSERVATION", "EVALUATION"]),
     title: z.string().min(1, "Title is required"),
     settings: ZFormSettingsSchema,
     formItems: ZFormItemsSchema,
