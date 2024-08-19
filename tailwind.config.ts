@@ -136,9 +136,9 @@ const config = {
   plugins: [
     require("tailwindcss-animate"),
     require("@tailwindcss/forms"),
-    require("@tailwindcss/aspect-ratio"),
     require("@tailwindcss/typography"),
     require("tailwindcss-filters"),
+    require("tailwindcss-font-variant-numeric")
   ],
 } satisfies Config;
 
