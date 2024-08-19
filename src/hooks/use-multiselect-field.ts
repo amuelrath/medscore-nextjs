@@ -7,11 +7,12 @@ import {
   useController,
 } from "react-hook-form";
 
-type UseMultiselectField<TSchema extends FieldValues> = {
+export type UseMultiselectField<TSchema extends FieldValues> = {
   control: Control<TSchema>;
   name: FieldPath<TSchema>;
   disabled?: boolean;
   defaultValue?: PathValue<TSchema, FieldPath<TSchema>>;
+  max?: number
 };
 
 export function useMultiselectField<T extends FieldValues>({
@@ -19,6 +20,7 @@ export function useMultiselectField<T extends FieldValues>({
   defaultValue,
   disabled,
   name,
+  max=Infinity
 }: UseMultiselectField<T>) {
   const { formState, fieldState, field } = useController<T>({
     control,
@@ -48,15 +50,17 @@ export function useMultiselectField<T extends FieldValues>({
   }, [field.value, updateFieldValue]);
 
   const select = useCallback(
-    (userId: string) => {
-      updateFieldValue([...selectedIds, userId]);
+    (itemId: string) => {
+      if (selectedIds.length < max ) {
+      updateFieldValue([...selectedIds, itemId]);
+      }
     },
-    [selectedIds, updateFieldValue],
+    [max, selectedIds, updateFieldValue],
   );
 
   const deselect = useCallback(
-    (userId: string) => {
-      updateFieldValue(selectedIds.filter((id) => id !== userId));
+    (itemId: string) => {
+      updateFieldValue(selectedIds.filter((id) => id !== itemId));
     },
     [selectedIds, updateFieldValue],
   );
