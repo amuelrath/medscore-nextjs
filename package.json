@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev-network": "next dev -p 3000 -H 192.168.0.157",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -86,6 +87,7 @@
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "tailwindcss-filters": "^3.0.0",
+    "tailwindcss-font-variant-numeric": "^0.1.3",
     "tailwindcss-scoped-groups": "^2.0.0",
     "ts-node": "^10.9.2",
     "typescipt": "^1.0.0",
