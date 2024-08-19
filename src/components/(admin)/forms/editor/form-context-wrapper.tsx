@@ -1,71 +1,28 @@
 "use client";
 import { useFormBuilder } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
+import { DEFAULT_FORM_SETTINGS } from "@/db/constants";
+import { TFormType } from "@/db/schema";
 import { ZFormSettingsSchema } from "@/lib/zod/form-schema";
 import { FormResult } from "@/server/actions/forms/get-form-by-id";
 import { ReactNode, useMemo } from "react";
 import { FormProvider } from "react-hook-form";
 import { z } from "zod";
 
-type FormType = "OSCE" | "SURVEY" | "DIRECT_OBSERVATION" | "QUIZ";
 type FormSettings = z.infer<typeof ZFormSettingsSchema>;
-
-const DEFAULT_SETTINGS: Record<FormType, FormSettings> = {
-  OSCE: {
-    administerAccess: "JUST_ME",
-    editAccess: "JUST_ME",
-    allowResponseRevisions: false,
-    allowResponseSaveAndQuit: true,
-    allowMultipleSubmissions: false,
-    scoresAffectGrades: true,
-    roleWeights: [],
-    passingCriteria: [],
-  },
-  SURVEY: {
-    administerAccess: "FACULTY_IN_PROGRAM",
-    editAccess: "JUST_ME",
-    allowResponseRevisions: true,
-    allowResponseSaveAndQuit: true,
-    allowMultipleSubmissions: true,
-    scoresAffectGrades: false,
-    roleWeights: [],
-    passingCriteria: [],
-  },
-  DIRECT_OBSERVATION: {
-    administerAccess: "FACULTY_I_CHOOSE",
-    editAccess: "JUST_ME",
-    allowResponseRevisions: false,
-    allowResponseSaveAndQuit: false,
-    allowMultipleSubmissions: true,
-    scoresAffectGrades: true,
-    roleWeights: [],
-    passingCriteria: [],
-  },
-  QUIZ: {
-    administerAccess: "JUST_ME",
-    editAccess: "JUST_ME",
-    allowResponseRevisions: false,
-    allowResponseSaveAndQuit: false,
-    allowMultipleSubmissions: false,
-    scoresAffectGrades: true,
-    roleWeights: [],
-    passingCriteria: [],
-  },
-};
-
 function mergeWithDefaultSettings(
-  formType: FormType,
+  formType: TFormType,
   partialSettings: unknown,
 ): FormSettings {
   try {
     const validatedPartialSettings =
       ZFormSettingsSchema.partial().parse(partialSettings);
     return {
-      ...DEFAULT_SETTINGS[formType],
+      ...DEFAULT_FORM_SETTINGS[formType],
       ...validatedPartialSettings,
     };
   } catch (error) {
     console.error("Invalid settings provided:", error);
-    return DEFAULT_SETTINGS[formType];
+    return DEFAULT_FORM_SETTINGS[formType];
   }
 }
 
