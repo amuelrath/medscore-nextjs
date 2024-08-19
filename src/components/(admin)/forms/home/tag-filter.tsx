@@ -1,10 +1,9 @@
+import { formTypeContent } from "@/components/(admin)/forms/home/create-form-dialog";
 import { Badge } from "@/components/ui/badge";
-import React, { FC, useRef } from "react";
+import { TFormType } from "@/db/schema";
 import { cn } from "@/lib/helpers/utils";
 import { AnimatePresence, motion } from "framer-motion";
-import * as ScrollArea from "@radix-ui/react-scroll-area";
-import { TFormType } from "@/db/schema";
-import { formTypeContent } from "@/components/(admin)/forms/home/create-form-dialog";
+import { FC, useRef } from "react";
 
 interface TagFilterProps {
   tags: TFormType[];
@@ -29,46 +28,38 @@ export const TagFilter: FC<TagFilterProps> = ({
     }
   };
 
-
   return (
-        <div className="flex flex-row items-center space-x-2">
-          <AnimatePresence mode={"popLayout"} initial={false}>
-            {tags.sort().map((tag) => (
-              <motion.div
-                layout
-                key={tag}
-                initial={{ x: -10, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 30 }}
-              >
-                <Badge
-                  variant="hide"
-                  onClick={() => handleTagClick(tag)}
-                  className={cn(
-                    "cursor-pointer h-10 rounded-md truncate border border-border font-normal ",
-                    {
-                      "border-neutral-300 text-foreground": selectedTag === tag,
-                      "text-foreground/50 hover:border-neutral-300  hover:text-foreground":
-                        selectedTag !== tag,
-                    },
-                  )}
-                >
-                  {(() => {
-                    const Content = formTypeContent[tag];
-                    return <Content size={16} />;
-                  })()}
-                </Badge>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+    <div className="flex flex-row items-center space-x-2">
+      <AnimatePresence mode={"popLayout"} initial={false}>
+        {tags.sort().map((tag) => (
+          <motion.div
+            layout
+            key={tag}
+            initial={{ x: -10, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 30 }}
+          >
+            <Badge
+              variant="hide"
+              onClick={() => handleTagClick(tag)}
+              className={cn(
+                "cursor-pointer h-10 rounded-md truncate border border-border font-normal ",
+                {
+                  "border-neutral-300 text-foreground": selectedTag === tag,
+                  "text-foreground/50 hover:border-neutral-300  hover:text-foreground":
+                    selectedTag !== tag,
+                },
+              )}
+            >
+              {(() => {
+                const Content = formTypeContent[tag];
+                return <Content size={16} />;
+              })()}
+            </Badge>
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
   );
-};
-
-const tagText = {
-  OSCE: "OSCE",
-  DIRECT_OBSERVATION: "Direct Observation",
-  SURVEY: "Survey",
-  QUIZ: "Quiz",
 };
