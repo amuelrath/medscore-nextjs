@@ -83,7 +83,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
   return (
     <div className="text-sm">
       {Object.keys(timeLeft).length === 0 ? (
-        <span>Countdown finished!</span>
+        <span>Expired</span>
       ) : (
         renderTimeLeft()
       )}
