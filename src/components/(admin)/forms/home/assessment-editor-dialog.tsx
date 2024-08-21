@@ -80,7 +80,7 @@ const ZRequestResponseFormSchema = z
     },
   );
 
-export type TRequestResponseFormSchema = z.infer<
+export type TAssessmentEditorFormSchema = z.infer<
   typeof ZRequestResponseFormSchema
 >;
 

@@ -1,5 +1,5 @@
 "use server";
-import { TRequestResponseFormSchema } from "@/components/(admin)/forms/home/request-response-dialog";
+import { TAssessmentEditorFormSchema } from "@/components/(admin)/forms/home/assessment-editor-dialog";
 import { db } from "@/db";
 import { assessments, responses } from "@/db/schema";
 import { formatDate } from "date-fns";
@@ -14,7 +14,7 @@ export async function createAssessmentWithRequests({
   respondeeParticipants,
   startsAt,
   expiresAt,
-}: TRequestResponseFormSchema) {
+}: TAssessmentEditorFormSchema) {
   if (formId.length > 1)
     throw new Error(
       "Error: Multiple formIds given when creating an assessment.",
@@ -65,7 +65,7 @@ const transformPairData = ({
   specificPairParticipants,
   assessmentId,
 }: {
-  specificPairParticipants: TRequestResponseFormSchema["specificPairParticipants"];
+  specificPairParticipants: TAssessmentEditorFormSchema["specificPairParticipants"];
   assessmentId: string;
 }) => {
   if (!specificPairParticipants) return [];
