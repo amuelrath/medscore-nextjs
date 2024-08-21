@@ -31,7 +31,6 @@ export const FormEditorNav = () => {
         <SaveFormButton isSaving={isSaving} />
       </div>
       <div className={cn("flex flex-row space-x-2")}>
-        <ManageDialog />
         <SettingsDialog />
       </div>
     </div>
