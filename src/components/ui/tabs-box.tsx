@@ -26,7 +26,7 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
             key={t.id}
             onMouseDown={() => setSelectedTabId(t.id)}
             className={cn(
-              "-mb-[0.75px] ml-[0px] inline-block h-6 w-24 cursor-pointer rounded-tl-md rounded-tr-md border-x-[1px] border-t border-neutral-300 px-4 pt-1.5 text-center text-xs",
+              "-mb-[0.75px] ml-[0px] justify-center inline-block h-[1.85rem] w-24 cursor-pointer rounded-tl-md rounded-tr-md border-x-[1px] border-t px-1 pt-1.5 text-center text-2xs",
               "transition-all duration-200 ease-in-out",
               t.id === selectedTabId
                 ? "-translate-y-[1.5px] scale-y-[110%] border-b border-b-white bg-white"
@@ -44,7 +44,7 @@ export function TabsBox({ defaultTab, tabs }: TabsBoxProps) {
           </div>
         ))}
       </div>
-      <div className="-mt-[1px] flex flex-grow flex-col bg-white rounded-b-md rounded-tr-md border border-neutral-300">
+      <div className="-mt-[1px] flex flex-grow flex-col bg-white rounded-b-md rounded-tr-md border">
         <AnimatePresence mode="wait">
           <motion.div
             key={selectedTabId}
