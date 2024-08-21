@@ -53,3 +53,4 @@ export async function getAllForms({ userId }: { userId: string }) {
 }
 
 export type FormsResult = NonNullable<Awaited<ReturnType<typeof getAllForms>>>;
+export type FormResult = NonNullable<Awaited<ReturnType<typeof getAllForms>>>[number];

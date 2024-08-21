@@ -14,6 +14,11 @@ export async function getAllRequests() {
       where: (a, { eq, and }) =>
         and(sql`${a.expiresAt} > ${now}::timestamp`, eq(a.creatorId, userId)),
       with: {
+        form: {
+          columns: {
+            title: true
+          }
+        },
         responses: {
           columns: {
             id: true,
