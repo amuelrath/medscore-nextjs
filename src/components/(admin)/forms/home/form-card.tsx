@@ -1,47 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
-import { QueryClient } from "@tanstack/react-query";
-import { cn } from "@/lib/helpers/utils";
-import { Button } from "@/components/ui/button";
-import {
-  EditIcon,
-  GraduationCapIcon,
-  ClockIcon,
-  TrashIcon,
-  ClipboardIcon,
-  EyeIcon,
-  TestTubeIcon,
-  FileQuestionIcon
-} from "lucide-react";
 import { DeleteFormDialogTrigger } from "@/components/(admin)/forms/home/delete-evaluation-dialog";
-import { useRouter } from "next/navigation";
-import { formatDistance } from "date-fns";
-import { getFormById } from "@/server/actions/forms/get-form-by-id";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { TFormType } from "@/db/schema";
-import Lottie from "lottie-react";
+import { cn } from "@/lib/helpers/utils";
+import { FormLiteResult } from "@/server/actions/forms/get-all-forms-lite";
+import { getFormById } from "@/server/actions/forms/get-form-by-id";
+import { QueryClient } from "@tanstack/react-query";
+import { formatDistance } from "date-fns";
+import {
+  ClipboardIcon,
+  ClockIcon,
+  EditIcon,
+  EyeIcon,
+  FileQuestionIcon,
+  GraduationCapIcon,
+  TestTubeIcon,
+  TrashIcon,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import ASSIGNMENT_ICON from "public/icons/assessment-accent-secondary.json";
-import QUESTION_MARK_ICON from "public/icons/help-accent.json";
-import EYE_ICON from "public/icons/eye-primary.json";
-import SCIENCE_ICON from "public/icons/science-lavender.json";
-import { QuestionMarkIcon } from "@radix-ui/react-icons";
 import { Card } from "@/components/ui/card";
 
 export const formTypeIcon = {
   OSCE: ClipboardIcon,
   SURVEY: FileQuestionIcon,
   DIRECT_OBSERVATION: EyeIcon,
-  QUIZ: TestTubeIcon,
-};
-
-const typeClasses: Record<TFormType, { hover: string }> = {
-  OSCE: { hover: "border-l-accent-secondary/50" },
-  SURVEY: { hover: "border-l-accent/50" },
-  QUIZ: { hover: "border-l-lavender/50" },
-  DIRECT_OBSERVATION: { hover: "border-l-primary/50" },
+  EVALUATION: TestTubeIcon,
 };
 
 export function FormCard({ form }: { form: FormLiteResult }) {
@@ -49,13 +34,15 @@ export function FormCard({ form }: { form: FormLiteResult }) {
   const queryClient = new QueryClient();
 
   const handleClick = () => router.push(`/forms/${form.id}`);
-  const handleHover = () => queryClient.fetchQuery({
-    queryKey: ["form", form.id],
-    queryFn: () => getFormById({
-      formId: form.id,
-      userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
-    }),
-  });
+  const handleHover = () =>
+    queryClient.fetchQuery({
+      queryKey: ["form", form.id],
+      queryFn: () =>
+        getFormById({
+          formId: form.id,
+          userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
+        }),
+    });
 
   return (
     <Card
@@ -67,10 +54,8 @@ export function FormCard({ form }: { form: FormLiteResult }) {
       <div className="flex items-center space-x-2">
         <span className="mr-4 flex h-10 opacity-40 w-10 shrink-0 items-center justify-center rounded-full border-2 border-neutral-500 p-2.5">
           {(() => {
-            const Icon = formTypeIcon[form.type]
-            return (
-              <Icon size={18} />
-            )
+            const Icon = formTypeIcon[form.type];
+            return <Icon size={18} />;
           })()}
         </span>
 
@@ -78,7 +63,7 @@ export function FormCard({ form }: { form: FormLiteResult }) {
           <p
             onMouseEnter={handleHover}
             onClick={handleClick}
-            className="mb-2 cursor-pointer text-lg font-semibold hover:text-accent-secondary/80 transition-colors"
+            className=" cursor-pointer text-lg font-semibold hover:text-accent-secondary/80 transition-colors"
           >
             {form.title}
           </p>
@@ -91,7 +76,9 @@ export function FormCard({ form }: { form: FormLiteResult }) {
             <div className="flex items-center space-x-1.5">
               <ClockIcon size={14} />
               <span>
-                {formatDistance(new Date(form.lastOpenedAt), new Date(), { addSuffix: true })}
+                {formatDistance(new Date(form.lastOpenedAt), new Date(), {
+                  addSuffix: true,
+                })}
               </span>
             </div>
           </div>
