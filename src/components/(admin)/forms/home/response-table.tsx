@@ -1,20 +1,26 @@
 import { formTypeColors } from "@/components/(admin)/forms/home/create-form-dialog";
 import { formTypeIcon } from "@/components/(admin)/forms/home/form-card";
+import { Avatar, AvatarStack } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import { CountdownTimer } from "@/components/ui/countdown";
 import { TFormType, TResponseStatus } from "@/db/schema";
-import { cn } from "@/lib/helpers/utils";
-import { truncate } from "@/lib/truncate";
-import { formatDate } from "date-fns";
-import { ArrowRightIcon, CalendarIcon, ClockIcon } from "lucide-react";
-import { ReactNode } from "react";
-import { Avatar } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/get-initials";
 import { getFullName } from "@/lib/helpers/getFullName";
+import { cn } from "@/lib/helpers/utils";
+import { truncate } from "@/lib/truncate";
 import { RequestsResult } from "@/server/actions/assessments/get-all-requests";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ArrowRightIcon, ClipboardListIcon, ClockIcon } from "lucide-react";
+import { ReactNode } from "react";
 import { Pie, PieChart } from "recharts";
-import { CountdownTimer } from "@/components/ui/countdown";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface ResponseProps {
   responseId: string;
@@ -23,6 +29,7 @@ interface ResponseProps {
   responseCreatedAt: Date;
   status: "COMPLETED" | "STARTED" | "NOT_STARTED";
   evaluateeName?: string;
+  assessmentExpiresAt: Date;
 }
 
 export function ResponseTable({ children }: { children: ReactNode }) {
@@ -78,23 +85,32 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
           )}
         />
       </span>
-      <span className="col-span-5  h-full flex flex-col justify-center">
+      <span className="col-span-6  h-full flex flex-col justify-center">
         <p className="text-sm font-medium text-nowrap text-left">
           {truncate(response.formTitle, 40)}
         </p>
         <p className="text-sm text-nowrap items-center text-left text-neutral-500">
           <span className="flex flex-row space-x-1 items-center">
-            <CalendarIcon size={12} className="opacity-50" />
-            <p>{formatDate(response.responseCreatedAt, "MM/dd/yyyy")}</p> {/* todo due date or completed date */}
+            <ClockIcon className="text-neutral-400" size={14} />
+            <CountdownTimer
+              targetDate={response.assessmentExpiresAt}
+              showSeconds={false}
+            />
           </span>
         </p>
       </span>
-      <span className="col-span-4 h-full flex flex-row justify-center items-center">
-        <Avatar className="hover:scale-125 transition" tooltip={response.evaluateeName} content={getInitials(response.evaluateeName)} />
+      <span className="col-span-2 h-full flex flex-row justify-start items-center">
+        <Avatar
+          className="hover:scale-125 transition"
+          tooltip={response.evaluateeName}
+          content={getInitials(response.evaluateeName)}
+        />
       </span>
-      <span className="col-span-2 h-full flex items-center justify-end">
+      <span className="col-span-3 h-full flex items-center justify-end">
         <Button
-          className={cn("text-center bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center")}
+          className={cn(
+            "text-center bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center",
+          )}
           variant="expandIcon"
           Icon={ArrowRightIcon}
           iconPlacement="right"
@@ -118,7 +134,6 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
   );
 }
 
-
 const chartConfig = {
   COMPLETED: {
     label: "Completed",
@@ -132,53 +147,56 @@ const chartConfig = {
     label: "Not Started",
     color: "#525252",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 type AssessmentStatusPieChartData = {
-  status: TResponseStatus,
+  status: TResponseStatus;
   count: number;
-}[]
+}[];
 
-export function AssessmentStatusPieChart({ data }: { data: AssessmentStatusPieChartData }) {
+export function AssessmentStatusPieChart({
+  data,
+}: {
+  data: AssessmentStatusPieChartData;
+}) {
   return (
-    <ChartContainer
-      config={chartConfig}
-      className="min-w-[50px] min-h-[50px]"
-    >
-      <PieChart margin={{
-        bottom: 12,
-        right: 6
-      }}  >
+    <ChartContainer config={chartConfig} className="min-w-[50px] min-h-[50px]">
+      <PieChart
+        margin={{
+          bottom: 12,
+          right: 13,
+        }}
+      >
         <ChartTooltip
           cursor={false}
           content={<ChartTooltipContent hideLabel />}
         />
-        <Pie
-          data={data}
-          dataKey="count"
-          nameKey="status"
-          innerRadius={7}
-        />
+        <Pie data={data} dataKey="count" nameKey="status" innerRadius={7} />
       </PieChart>
     </ChartContainer>
-  )
+  );
 }
 
 const getFill = (status: string) => {
   switch (status) {
     case "STARTED":
-      return "hsl(var(--accent)"
+      return "hsl(var(--accent)";
     case "NOT_STARTED":
-      return "hsl(var(--primary))"
+      return "hsl(var(--primary))";
     case "COMPLETED":
-      return "hsl(var(--accent-secondary)"
+      return "hsl(var(--accent-secondary)";
   }
-}
-const transformStatusData = (responses: RequestsResult[0]["responses"]): AssessmentStatusPieChartData => {
-  const statusCounts = responses.reduce((acc, response) => {
-    acc[response.status] = (acc[response.status] || 0) + 1;
-    return acc;
-  }, {} as Record<TResponseStatus, number>);
+};
+const transformStatusData = (
+  responses: RequestsResult[0]["responses"],
+): AssessmentStatusPieChartData => {
+  const statusCounts = responses.reduce(
+    (acc, response) => {
+      acc[response.status] = (acc[response.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<TResponseStatus, number>,
+  );
 
   return Object.entries(statusCounts).map(([status, count]) => ({
     status: status as TResponseStatus,
@@ -188,47 +206,101 @@ const transformStatusData = (responses: RequestsResult[0]["responses"]): Assessm
 };
 
 interface AssessmentRequestTableRowProps {
-  request: RequestsResult[0]
+  request: RequestsResult[0];
 }
 
-export function AssessmentRequestTableRow({  request  }: AssessmentRequestTableRowProps ) {
+export function AssessmentRequestTableRow({
+  request,
+}: AssessmentRequestTableRowProps) {
+  const uniqueRespondees = new Map(
+    request.responses.map((r) => [
+      getFullName(r.respondee),
+      {
+        content: getInitials(getFullName(r.respondee)),
+        tooltip: getFullName(r.respondee),
+        className: "bg-primary",
+      },
+    ]),
+  );
+
+  const requestedRespondeeAvatarData = Array.from(uniqueRespondees.values());
+
   return (
-    <li
-      className="grid grid-cols-12 h-14 mb-2 select-none hover:border-border border border-transparent rounded-md py-2 pr-2 transition">
+    <li className="grid grid-cols-12 h-14 mb-2 select-none hover:border-border border border-transparent rounded-md py-2 ml-1.5 pr-2 transition">
       <div
         className={cn(
           "col-span-1 h-full items-start justify-center flex flex-col",
         )}
       >
-        <AssessmentStatusPieChart data={transformStatusData(request.responses)} />
+        <AssessmentStatusPieChart
+          data={transformStatusData(request.responses)}
+        />
       </div>
-      <span className="col-span-5 h-full flex flex-col justify-center">
+      <span className="col-span-3 h-full flex flex-col justify-center">
         <p className="text-sm font-medium text-nowrap text-left">
-          {truncate(request.title, 40)}
+          {truncate(request.title, 18)}
         </p>
         <p className="text-sm text-nowrap items-center text-left mb-3 text-neutral-500">
           <span className="flex flex-row space-x-1 items-center">
-            <ClockIcon className="text-neutral-400 mb-0.5" size={12}  />
-            <CountdownTimer targetDate={request.expiresAt} showSeconds={false} />
+            <ClipboardListIcon className="text-neutral-400" size={14} />
+            <p>{truncate(request.form.title, 18)}</p>
           </span>
         </p>
       </span>
-      <span className="col-span-4 h-full flex flex-row justify-center items-center">
-        {/* something or nothing */}
+      <span className="col-span-3 h-full flex flex-col justify-end">
+        <p className="text-sm text-nowrap items-center text-left mb-3 text-neutral-500">
+          <span className="flex flex-row space-x-1 items-center">
+            <ClockIcon className="text-neutral-400" size={14} />
+            <CountdownTimer
+              targetDate={request.expiresAt}
+              showSeconds={false}
+            />
+          </span>
+        </p>
       </span>
-      <span className="col-span-2 h-full flex items-center justify-end">
+      <span className="col-span-2 h-full pb-3 flex flex-row justify-start items-center">
+        <AvatarStack avatars={requestedRespondeeAvatarData} />
+      </span>
+      <span className="col-span-3 h-full space-x-2 flex items-center justify-end">
         <Button
-          className={cn("text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center")}
+          className={cn(
+            "text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center",
+          )}
           variant="expandIcon"
           Icon={ArrowRightIcon}
           iconPlacement="right"
           size="xs"
         >
-          <p>
-           Details
-          </p>
+          <p>Details</p>
         </Button>
+       <AssessmentRequestPopover assessmentId={request.id} />
       </span>
     </li>
+  );
+}
+
+
+function AssessmentRequestPopover({ assessmentId }: { assessmentId: string }) {
+
+  // const { mutate: cancelAssessmentMutation } = useMutation({})
+  // const { mutate: deleteAssessmentMutation } = useMutation({})
+
+  return (
+    <Popover>
+      <PopoverTrigger>
+        <Button
+          className={cn(
+            "text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center",
+          )}
+          size="xs"
+        >
+          <DotsHorizontalIcon />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+
+      </PopoverContent>
+    </Popover>
   )
+
 }
