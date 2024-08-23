@@ -1,6 +1,7 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+'use client';
+
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Dialog,
   DialogClose,
@@ -9,54 +10,29 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { LottieHover } from "@/components/ui/lottie-hover";
-import { cn } from "@/lib/helpers/utils";
-import { createForm } from "@/server/actions/forms/create-form";
-import { FormsLiteResult } from "@/server/actions/forms/get-all-forms-lite";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "framer-motion";
-import Lottie from "lottie-react";
-import {
-  ClipboardIcon,
-  EyeIcon,
-  FileQuestionIcon,
-  TestTubeIcon,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import ADD from "public/icons/add-card-teal.json";
-import ASSIGNMENT_ICON from "public/icons/assessment-accent-secondary.json";
-import EYE_ICON from "public/icons/eye-primary.json";
-import QUESTION_MARK_ICON from "public/icons/help-accent.json";
-import SCIENCE_ICON from "public/icons/science-lavender.json";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
+} from '@/components/ui/dialog';
+import { LottieHover } from '@/components/ui/lottie-hover';
+import { cn } from '@/lib/helpers/utils';
+import { createForm } from '@/server/actions/forms/create-form';
+import { FormsLiteResult } from '@/server/actions/forms/get-all-forms-lite';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import ADD from 'public/icons/add-card-teal.json';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { z } from 'zod';
+import { DEFAULT_FORM_NAME, FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
 
-export const formTypeLottie = {
-  OSCE: ASSIGNMENT_ICON,
-  SURVEY: QUESTION_MARK_ICON,
-  DIRECT_OBSERVATION: EYE_ICON,
-  EVALUATION: SCIENCE_ICON,
-};
-
-type FormType = "OSCE" | "SURVEY" | "EVALUATION" | "DIRECT_OBSERVATION";
-const formTypes: FormType[] = ["OSCE", "SURVEY", "EVALUATION", "DIRECT_OBSERVATION"];
-
-export const formTypeContent = {
-  OSCE: ClipboardIcon,
-  SURVEY: FileQuestionIcon,
-  DIRECT_OBSERVATION: EyeIcon,
-  EVALUATION: TestTubeIcon,
-};
+type FormType = 'OSCE' | 'EVALUATION' | 'DIRECT_OBSERVATION';
+const formTypes: FormType[] = ['OSCE', 'EVALUATION', 'DIRECT_OBSERVATION'];
 
 const formTypeDescriptions = {
-  OSCE: "OSCE: Structured clinical examination for assessing practical skills and competencies.",
-  SURVEY:
-    "Survey: Collect data and insights through a series of questions. Milestone mapping is disabled.",
-  EVALUATION: "Evaluation: Create focused performance reviews tailored to your program.",
+  OSCE: 'OSCE: Structured clinical examination for assessing practical skills and competencies.',
+  EVALUATION:
+    'Evaluation: Create focused performance reviews tailored to your program.',
   DIRECT_OBSERVATION:
-    "Direct Observation: Real-time assessment of performance in a clinical setting.",
+    'Direct Observation: Real-time assessment of performance in a clinical setting.',
 };
 
 export function CreateFormDialog() {
@@ -75,19 +51,23 @@ export function CreateFormDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="xs" className={cn("font-semibold")} variant="accent-secondary">
+        <Button
+          size="xs"
+          className={cn('font-semibold')}
+          variant="accent-secondary"
+        >
           <div
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
-            className={cn("flex flex-row items-center space-x-2")}
+            className={cn('flex flex-row items-center space-x-2')}
           >
             <LottieHover
               loop={false}
               isHovering={hovering}
-              size={"xs"}
+              size="xs"
               src={ADD}
             />
-            <span className={cn("text-teal-900")}>New Form</span>
+            <span className={cn('text-teal-900')}>New Form</span>
           </div>
         </Button>
       </DialogTrigger>
@@ -98,12 +78,7 @@ export function CreateFormDialog() {
       >
         <DialogHeader>
           <DialogTitle className="pointer-events-none flex items-center space-x-2">
-            <LottieHover
-              loop={false}
-              isHovering={false}
-              size={"xs"}
-              src={ADD}
-            />
+            <LottieHover loop={false} isHovering={false} size="xs" src={ADD} />
             <p>Create New Form</p>
           </DialogTitle>
           <DialogDescription>
@@ -111,7 +86,7 @@ export function CreateFormDialog() {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center space-y-6">
-          <div className="grid w-full grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="flex flex-row space-x-4 items-center justify-center">
             {formTypes.map((formType) => (
               <FormTypeCard
                 key={formType}
@@ -129,15 +104,15 @@ export function CreateFormDialog() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
-                  transition={{ ease: "easeInOut", duration: 0.15 }}
+                  transition={{ ease: 'easeInOut', duration: 0.15 }}
                   className="absolute origin-center text-sm"
                 >
                   <div className="flex flex-col pr-8">
                     <span className="text-lg font-bold">
-                      {formTypeDescriptions[selectedType].split(":")[0]}:
+                      {formTypeDescriptions[selectedType].split(':')[0]}:
                     </span>
                     <p className="text-wrap">
-                      {formTypeDescriptions[selectedType].split(":")[1]}
+                      {formTypeDescriptions[selectedType].split(':')[1]}
                     </p>
                   </div>
                 </motion.p>
@@ -159,46 +134,38 @@ export function CreateFormDialog() {
 
 const ZCreateFormSchema = z.object({
   title: z.string(),
-  type: z.enum(["OSCE", "SURVEY", "DIRECT_OBSERVATION", "EVALUATION"]),
+  type: z.enum(['OSCE', 'DIRECT_OBSERVATION', 'EVALUATION']),
   programId: z.string(),
 });
-
-const formName = {
-  OSCE: "Untitled OSCE",
-  SURVEY: "Untitled Survey",
-  EVALUATION: "Untitled Evaluation",
-  DIRECT_OBSERVATION: "Untitled Direct Observation"
-}
 
 const useCreateFormDialog = () => {
   const router = useRouter();
   const [hovering, setHovering] = useState<boolean>(false);
-  const [selectedType, setSelectedType] = useState<FormType>("OSCE");
+  const [selectedType, setSelectedType] = useState<FormType>('OSCE');
 
   const createFormParams = {
-    title: formName[selectedType],
+    title: DEFAULT_FORM_NAME[selectedType],
     type: selectedType,
-    programId: "a5d6ff06-c3c5-44c1-9bb3-8d9641b87081",
+    programId: 'a5d6ff06-c3c5-44c1-9bb3-8d9641b87081', // todo fixme
   };
 
   const queryClient = useQueryClient();
   const { mutate: mutateCreateForm } = useMutation({
     mutationFn: () => createForm(ZCreateFormSchema.parse(createFormParams)),
     onSuccess: (newFormData) => {
-      if (!newFormData) return toast.error("Something went wrong.");
+      if (!newFormData) return toast.error('Something went wrong.');
       // put the data in the query cache, redirect to /forms/{id}
       queryClient.setQueryData(
-        ["forms"],
-        (oldData: FormsLiteResult): FormsLiteResult => {
-          return [...oldData, newFormData];
-        },
+        ['forms'],
+        (oldData: FormsLiteResult): FormsLiteResult => [
+          ...oldData,
+          newFormData,
+        ],
       );
 
       return router.push(`/forms/${newFormData.id}`);
     },
-    onError: () => {
-      return toast.error("Something went wrong.");
-    },
+    onError: () => toast.error('Something went wrong.'),
   });
 
   return {
@@ -210,37 +177,6 @@ const useCreateFormDialog = () => {
   };
 };
 
-export const formTypeColors = {
-  OSCE: {
-    text: "text-teal-900",
-    ring: "ring-accent-secondary",
-    bg: "border-accent-secondary/40",
-    border: "bg-accent-secondary/20",
-    color: "hsl(var(--accent-secondary))",
-  },
-  SURVEY: {
-    text: "text-teal-800",
-    ring: "ring-accent",
-    bg: "border-accent/40",
-    border: "bg-accent/20",
-    color: "hsl(var(--accent))",
-  },
-  EVALUATION: {
-    text: "text-purple-900",
-    ring: "ring-lavender",
-    bg: "border-lavender/50",
-    border: "bg-lavender/20",
-    color: "hsl(var(--lavender))",
-  },
-  DIRECT_OBSERVATION: {
-    text: "text-primary",
-    ring: "ring-primary",
-    bg: "border-primary/40",
-    border: "bg-primary/20",
-    color: "hsl(var(--primary))",
-  },
-};
-
 // should i put this in its own file so it isn't affected by the use client?
 function FormTypeCard({
   isSelected,
@@ -249,34 +185,23 @@ function FormTypeCard({
 }: {
   isSelected: boolean;
   type: FormType;
-  handleSelect: (type: FormType) => void;
+  handleSelect: (val: FormType) => void;
 }) {
-  const icon = formTypeLottie[type];
-  const ref = useRef<any>(null);
-
+  const Icon = formTypeContent[type];
   return (
-    <div
-      onClick={() => !isSelected && ref.current.goToAndPlay(1)}
-      className="col-span-1 flex w-full cursor-pointer select-none flex-col space-y-2"
-    >
+    <div className="flex w-full cursor-pointer select-none flex-col space-y-2">
       <Card
         onClick={() => handleSelect(type)}
         className={cn(
-          "col-span-1 flex h-28 w-full items-center justify-center p-4 shadow-sm transition-all duration-200",
-          formTypeColors[type].text,
-          isSelected && `ring-2 ring-offset-2 ${formTypeColors[type].ring}`,
+          'flex h-28 w-full items-center justify-center p-8 shadow-sm transition-all duration-200',
+          FORM_TYPE_COLORS[type].text,
+          isSelected && `ring-2 ring-offset-2 ${FORM_TYPE_COLORS[type].ring}`,
         )}
       >
-        <Lottie
-          animationData={icon}
-          lottieRef={ref}
-          loop={0}
-          autoplay={false}
-          color={formTypeColors[type].color}
-        />
+        <Icon size={80} className="text-neutral-600" />
       </Card>
       <p className="text-center text-xs font-light">
-        {formTypeDescriptions[type].split(":")[0]}
+        {formTypeDescriptions[type].split(':')[0]}
       </p>
     </div>
   );

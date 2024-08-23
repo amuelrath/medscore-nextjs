@@ -1,8 +1,9 @@
 "use server";
+
 import { db } from "@/db";
-import { DEFAULT_FORM_SETTINGS } from "@/db/constants";
 import { forms, TFormType } from "@/db/schema";
 import { getFormLiteById } from "@/server/actions/forms/get-all-forms-lite";
+import { DEFAULT_FORM_SETTINGS } from '@/lib/constants/forms';
 
 export async function createForm({
   title,
