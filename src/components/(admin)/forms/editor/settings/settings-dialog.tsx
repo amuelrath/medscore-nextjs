@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { COMPETENCIES } from "@/db/constants";
 import { ProgramRole, TFormType } from "@/db/schema";
 import { useFormResultInEditor } from "@/hooks/queries/use-form-result-in-editor";
 import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
@@ -52,6 +51,7 @@ import {
   useFormContext,
   useWatch,
 } from "react-hook-form";
+import { COMPETENCIES } from '@/lib/constants/common';
 
 type TSettingsTabs = "GENERAL" | "RESPONSES" | "SCORES" | "WEIGHTS";
 
@@ -394,7 +394,7 @@ function GeneralSettings({
     <div className="space-y-4 p-4 rounded-md border">
       <Controller
         control={control}
-        name={`settings.editAccess`}
+        name="settings.editAccess"
         render={({ field }) => (
           <SelectSetting
             label="Who Can Edit this Form"
@@ -408,7 +408,7 @@ function GeneralSettings({
       <hr />
       <Controller
         control={control}
-        name={`settings.administerAccess`}
+        name="settings.administerAccess"
         render={({ field }) => (
           <SelectSetting
             label="Who Can Administer This Form"
@@ -428,7 +428,7 @@ function ResponseSettings({ control }: { control: Control<TFormSchema> }) {
     <div className="space-y-4 p-4 rounded-md border">
       <Controller
         control={control}
-        name={`settings.allowResponseRevisions`}
+        name="settings.allowResponseRevisions"
         render={({ field }) => (
           <SwitchSetting
             label="Allow Revisions"
@@ -448,7 +448,7 @@ function ResponseSettings({ control }: { control: Control<TFormSchema> }) {
       <hr />
       <Controller
         control={control}
-        name={`settings.allowResponseSaveAndQuit`}
+        name="settings.allowResponseSaveAndQuit"
         render={({ field }) => (
           <SwitchSetting
             label="Allow Save & Quit"
@@ -468,7 +468,7 @@ function ResponseSettings({ control }: { control: Control<TFormSchema> }) {
       <hr />
       <Controller
         control={control}
-        name={`settings.allowMultipleSubmissions`}
+        name="settings.allowMultipleSubmissions"
         render={({ field }) => (
           <SwitchSetting
             label="Allow Multiple Submissions"
@@ -504,7 +504,7 @@ function ScoreSettings({
       <div className="space-y-4 p-4 rounded-md border">
         <Controller
           control={control}
-          name={`settings.scoresAffectGrades`}
+          name="settings.scoresAffectGrades"
           render={({ field }) => (
             <SwitchSetting
               label="Scores Affect Grades"
@@ -534,8 +534,8 @@ const MAX_PRECISION = 2; // Maximum number of decimal places
 function formatWeight(weight: number): string {
   // Round down to MAX_PRECISION decimal places
   const rounded =
-    Math.floor(weight * Math.pow(10, MAX_PRECISION)) /
-    Math.pow(10, MAX_PRECISION);
+    Math.floor(weight * 10**MAX_PRECISION) /
+    10**MAX_PRECISION;
   // Format as string with fixed precision
   return rounded.toFixed(MAX_PRECISION);
 }
@@ -751,9 +751,7 @@ function RoleWeightSettings({
         ))}
       </div>
       <div
-        className={
-          "text-sm select-none flex flex-row space-x-1 items-center text-gray-500"
-        }
+        className="text-sm select-none flex flex-row space-x-1 items-center text-gray-500"
       >
         <p>Total Weight:</p>
         <p
@@ -783,29 +781,22 @@ function PassingCriteriaSettings({
     useGetSubcompetenciesInEditor();
 
   // Figure out which competencies this form tests
-  const questionMilestoneIds = useMemo(() => {
-    return (
+  const questionMilestoneIds = useMemo(() => (
       formResult?.formItems.flatMap((i) =>
         i.milestones.map((m) => m.milestoneId),
       ) || []
-    );
-  }, [formResult?.formItems]);
+    ), [formResult?.formItems]);
 
-  const relevantSubcompetencies = useMemo(() => {
-    return (
+  const relevantSubcompetencies = useMemo(() => (
       subcompetencies?.filter((sc) =>
         sc.milestones.some((m) => questionMilestoneIds.includes(m.id)),
       ) || []
-    );
-  }, [questionMilestoneIds]);
+    ), [questionMilestoneIds]);
 
-  const relevantCompetencyIds = useMemo(() => {
-    return [...new Set(relevantSubcompetencies.map((sc) => sc.competencyId))];
-  }, [relevantSubcompetencies]);
+  const relevantCompetencyIds = useMemo(() => [...new Set(relevantSubcompetencies.map((sc) => sc.competencyId))], [relevantSubcompetencies]);
 
   // Get the relevant aspects (competency abbreviations)
-  const relevantAspects = useMemo(() => {
-    return [
+  const relevantAspects = useMemo(() => [
       "OVERALL",
       ...relevantCompetencyIds
         .map((id) => {
@@ -815,8 +806,7 @@ function PassingCriteriaSettings({
           return competency ? competency.abbrev : null;
         })
         .filter((abbrev): abbrev is TAspect => abbrev !== null),
-    ];
-  }, [relevantCompetencyIds]);
+    ], [relevantCompetencyIds]);
 
   const { fields, append, remove } = useFieldArray<TFormSchema>({
     control,
