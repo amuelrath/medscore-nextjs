@@ -1,26 +1,28 @@
-"use client";
-import { cn } from "@/lib/helpers/utils";
-import React, { ReactNode } from "react";
+'use client';
+
+import { Button } from '@/components/ui/button';
 import {
-  Dialog, DialogClose,
+  Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog";
-import { deleteForm } from "@/server/actions/forms/delete-form";
-import { toast } from "sonner";
-import {
-  FormLiteResult,
-} from "@/server/actions/forms/get-all-forms-lite";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { cn } from '@/lib/helpers/utils';
+import { deleteForm } from '@/server/actions/forms/delete-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { ReactNode } from 'react';
+import { toast } from 'sonner';
+
 export function DeleteFormDialogTrigger({
-  form,
+  title,
+  id,
   children,
 }: {
-  form: FormLiteResult;
+  title: string;
+  id: string;
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
@@ -28,37 +30,39 @@ export function DeleteFormDialogTrigger({
     mutationFn: deleteForm,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["forms"],
+        queryKey: ['forms'],
       });
-      toast.success(`"${form.title}" deleted successfully`);
+      toast.success(`"${title}" deleted successfully`);
     },
   });
 
   const handleDeleteForm = async () => {
     deleteFormMutation.mutate({
-      formId: form.id
+      formId: id,
     });
-    toast.success(`"${form.title}" deleted successfully`);
+    toast.success(`"${title}" deleted successfully`);
   };
 
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className={cn("rounded-md")}>
+      <DialogContent className={cn('rounded-md')}>
         <DialogHeader>
-          <DialogTitle>
-            {`Delete "${form.title}"`}
-          </DialogTitle>
-            <DialogDescription>
-              This action is irreversible. All data will be lost.
-            </DialogDescription>
+          <DialogTitle>{`Delete "${title}"`}</DialogTitle>
+          <DialogDescription>
+            This action is irreversible. All data will be lost.
+          </DialogDescription>
         </DialogHeader>
         <div className="flex flex-row items-center justify-end space-x-2">
-          <Button onClick={handleDeleteForm} variant={"destructive"} className="w-[100px]">
+          <Button
+            onClick={handleDeleteForm}
+            variant="destructive"
+            className="w-[100px]"
+          >
             Delete
           </Button>
           <DialogClose asChild>
-            <Button variant={"secondary"}>Close</Button>
+            <Button variant="secondary">Close</Button>
           </DialogClose>
         </div>
       </DialogContent>
