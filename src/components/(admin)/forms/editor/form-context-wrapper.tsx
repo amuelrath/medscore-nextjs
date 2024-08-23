@@ -1,12 +1,13 @@
-"use client";
-import { useFormBuilder } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { DEFAULT_FORM_SETTINGS } from "@/db/constants";
-import { TFormType } from "@/db/schema";
-import { ZFormSettingsSchema } from "@/lib/zod/form-schema";
-import { FormResult } from "@/server/actions/forms/get-form-by-id";
-import { ReactNode, useMemo } from "react";
-import { FormProvider } from "react-hook-form";
-import { z } from "zod";
+'use client';
+
+import { useFormBuilder } from '@/components/(admin)/forms/editor/hooks/use-form-builder';
+import { TFormType } from '@/db/schema';
+import { DEFAULT_FORM_SETTINGS } from '@/lib/constants/forms';
+import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
+import { FormResult } from '@/server/actions/forms/get-form-by-id';
+import { ReactNode, useMemo } from 'react';
+import { FormProvider } from 'react-hook-form';
+import { z } from 'zod';
 
 type FormSettings = z.infer<typeof ZFormSettingsSchema>;
 function mergeWithDefaultSettings(
@@ -21,13 +22,12 @@ function mergeWithDefaultSettings(
       ...validatedPartialSettings,
     };
   } catch (error) {
-    console.error("Invalid settings provided:", error);
     return DEFAULT_FORM_SETTINGS[formType];
   }
 }
 
-const transform = (formItems: FormResult["formItems"]) => {
-  return formItems.map(
+const transform = (formItems: FormResult['formItems']) =>
+  formItems.map(
     ({
       id,
       text,
@@ -40,31 +40,38 @@ const transform = (formItems: FormResult["formItems"]) => {
       isScored,
     }) => ({
       id,
-      text: text || "",
+      text: text || '',
       type,
       isRequired: !!isRequired,
       isScored,
       description,
       milestoneIds: milestones.map((m) => m.milestoneId),
       position,
-      options: options.map(({ id, text, position, pointValue, isNa }) => ({
-        id,
-        text,
-        position,
-        isNa,
-        pointValue,
-      })),
+      options: options.map(
+        ({
+          id: optionId,
+          text: optionText,
+          position: optionPosition,
+          pointValue,
+          isNa,
+        }) => ({
+          id: optionId,
+          text: optionText,
+          position: optionPosition,
+          isNa,
+          pointValue,
+        }),
+      ),
     }),
   );
-};
 
-export const FormContextWrapper = ({
+export function FormContextWrapper({
   children,
   defaultValues,
 }: {
   children: ReactNode;
   defaultValues: FormResult;
-}) => {
+}) {
   const transformedDefaultValues = useMemo(() => {
     const mergedSettings = mergeWithDefaultSettings(
       defaultValues.type,
@@ -82,5 +89,6 @@ export const FormContextWrapper = ({
 
   const { methods } = useFormBuilder(transformedDefaultValues);
 
+  // eslint-disable-next-line react/jsx-props-no-spreading
   return <FormProvider {...methods}>{children}</FormProvider>;
-};
+}

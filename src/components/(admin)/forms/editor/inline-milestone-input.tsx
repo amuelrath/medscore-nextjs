@@ -1,9 +1,10 @@
 "use client";
+
 import { useState, useEffect } from "react";
-import { COMPETENCIES } from "@/db/constants";
 import {  Controller, Control, useWatch } from "react-hook-form";
 import { CompetencyCard } from "@/components/(admin)/forms/editor/milestone-multiselect";
 import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
+import { COMPETENCIES } from '@/lib/constants/common';
 
 interface InlineMilestoneMultiselectProps {
   control: Control<any>;

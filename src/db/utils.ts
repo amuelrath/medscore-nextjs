@@ -2,18 +2,18 @@ import type {
   BuildQueryResult,
   DBQueryConfig,
   ExtractTablesWithRelations,
-} from "drizzle-orm";
-import * as schema from "./schema";
+} from 'drizzle-orm';
+import * as schema from './schema';
 
 type Schema = typeof schema;
 type TSchema = ExtractTablesWithRelations<Schema>;
 
 export type IncludeRelation<TableName extends keyof TSchema> = DBQueryConfig<
-  "one" | "many",
+  'one' | 'many',
   boolean,
   TSchema,
   TSchema[TableName]
->["with"];
+>['with'];
 
 export type InferResultType<
   TableName extends keyof TSchema,

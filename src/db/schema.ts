@@ -1,5 +1,4 @@
-import { DateToString } from "@/db/utils";
-import { relations, sql } from "drizzle-orm";
+import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
   boolean,
@@ -17,55 +16,53 @@ import {
   text,
   timestamp,
   uuid,
-} from "drizzle-orm/pg-core";
-import { z } from "zod";
+} from 'drizzle-orm/pg-core';
+import { z } from 'zod';
 
-export const roleEnum = pgEnum("role", ["ADMIN", "STUDENT", "FACULTY", "NONE"]);
+export const roleEnum = pgEnum('role', ['ADMIN', 'STUDENT', 'FACULTY', 'NONE']);
 
-export const responseStatusEnum = pgEnum("response_status", [
-  "STARTED",
-  "NOT_STARTED",
-  "COMPLETED",
+export const responseStatusEnum = pgEnum('response_status', [
+  'STARTED',
+  'NOT_STARTED',
+  'COMPLETED',
 ]);
 
-export type TResponseStatus = "STARTED" | "NOT_STARTED" | "COMPLETED"
+export type TResponseStatus = 'STARTED' | 'NOT_STARTED' | 'COMPLETED';
 
-export const formItemTypeEnum = pgEnum("form_item_type", [
-  "RANGE",
-  "MULTIPLE_CHOICE",
-  "SINGLE_CHOICE",
-  "HEADER",
-  "WRITTEN",
+export const formItemTypeEnum = pgEnum('form_item_type', [
+  'RANGE',
+  'MULTIPLE_CHOICE',
+  'SINGLE_CHOICE',
+  'HEADER',
+  'WRITTEN',
 ]);
 export const ZFormEnum = z.enum([
-  "RANGE",
-  "MULTIPLE_CHOICE",
-  "SINGLE_CHOICE",
-  "HEADER",
-  "WRITTEN",
+  'RANGE',
+  'MULTIPLE_CHOICE',
+  'SINGLE_CHOICE',
+  'HEADER',
+  'WRITTEN',
 ]);
 export type TFormItemType = z.infer<typeof ZFormEnum>;
 
-export const formTypeEnum = pgEnum("form_type", [
-  "OSCE",
-  "SURVEY",
-  "EVALUATION",
-  "DIRECT_OBSERVATION",
+export const formTypeEnum = pgEnum('form_type', [
+  'OSCE',
+  'EVALUATION',
+  'DIRECT_OBSERVATION',
 ]);
 export const ZFormTypeEnum = z.enum([
-  "OSCE",
-  "SURVEY",
-  "EVALUATION",
-  "DIRECT_OBSERVATION",
+  'OSCE',
+  'EVALUATION',
+  'DIRECT_OBSERVATION',
 ]);
 export type TFormType = z.infer<typeof ZFormTypeEnum>;
 
-export const behaviors = pgTable("behaviors", {
-  id: uuid("id")
+export const behaviors = pgTable('behaviors', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  description: text("description").notNull(),
-  subcompetencyId: uuid("subcompetency_id")
+  description: text('description').notNull(),
+  subcompetencyId: uuid('subcompetency_id')
     .notNull()
     .references(() => subcompetencies.id),
 });
@@ -79,27 +76,27 @@ export const behaviorRelations = relations(behaviors, ({ one }) => ({
   }),
 }));
 
-export const competencies = pgTable("competencies", {
-  id: uuid("id")
+export const competencies = pgTable('competencies', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
+  name: text('name').notNull().unique(),
 });
 export type Competency = typeof competencies.$inferSelect;
 export const competencyRelations = relations(competencies, ({ many }) => ({
   subcompetencies: many(subcompetencies),
 }));
 
-export const subcompetencies = pgTable("subcompetencies", {
-  id: uuid("id")
+export const subcompetencies = pgTable('subcompetencies', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  level: smallint("level").notNull(),
-  competencyId: uuid("competency_id")
+  name: text('name').notNull(),
+  level: smallint('level').notNull(),
+  competencyId: uuid('competency_id')
     .notNull()
     .references((): AnyPgColumn => competencies.id),
-  specialtyId: uuid("specialty_id")
+  specialtyId: uuid('specialty_id')
     .notNull()
     .references((): AnyPgColumn => specialties.id),
 });
@@ -120,18 +117,18 @@ export const subcompetencyRelations = relations(
   }),
 );
 
-export const milestones = pgTable("milestones", {
-  id: uuid("id")
+export const milestones = pgTable('milestones', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: text("name").notNull(), // eg PC 1.2.3
-  description: text("description").notNull(), // eg "demonstrates knowledge of patient care"
-  level: smallint("level").notNull(), // eg 2
-  sublevel: smallint("sublevel").notNull(), // eg 3
-  subcompetencyId: uuid("subcompetency_id")
+  name: text('name').notNull(), // eg PC 1.2.3
+  description: text('description').notNull(), // eg "demonstrates knowledge of patient care"
+  level: smallint('level').notNull(), // eg 2
+  sublevel: smallint('sublevel').notNull(), // eg 3
+  subcompetencyId: uuid('subcompetency_id')
     .notNull()
     .references((): AnyPgColumn => subcompetencies.id),
-  metadata: json("metadata"),
+  metadata: json('metadata'),
 });
 export type Milestone = typeof milestones.$inferSelect;
 export const milestoneRelations = relations(milestones, ({ one, many }) => ({
@@ -142,24 +139,24 @@ export const milestoneRelations = relations(milestones, ({ one, many }) => ({
   questions: many(milestonesOnFormItems),
 }));
 
-export const specialties = pgTable("specialties", {
-  id: uuid("id")
+export const specialties = pgTable('specialties', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
+  name: text('name').notNull().unique(),
 });
 export type Specialty = typeof specialties.$inferSelect;
 export const specialtyRelations = relations(specialties, ({ many }) => ({
   subcompetencies: many(subcompetencies),
 }));
 
-export const programs = pgTable("programs", {
-  id: uuid("id")
+export const programs = pgTable('programs', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: text("name").notNull().unique(),
-  description: text("description"),
-  specialtyId: uuid("specialty_id").references(
+  name: text('name').notNull().unique(),
+  description: text('description'),
+  specialtyId: uuid('specialty_id').references(
     (): AnyPgColumn => specialties.id,
   ),
 });
@@ -176,15 +173,15 @@ export const programRelations = relations(programs, ({ one, many }) => ({
   groups: many(groups),
 }));
 
-export const users = pgTable("users", {
-  id: uuid("id")
+export const users = pgTable('users', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  email: text("email").notNull().unique(),
-  password: text("password").notNull(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  role: roleEnum("role").notNull().default("NONE"),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  firstName: text('first_name').notNull(),
+  lastName: text('last_name').notNull(),
+  role: roleEnum('role').notNull().default('NONE'),
 });
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -196,11 +193,11 @@ export const userRelations = relations(users, ({ many }) => ({
   assessments: many(assessments),
 }));
 
-export const usersOnPrograms = pgTable("users_on_programs", {
-  userId: uuid("user_id")
+export const usersOnPrograms = pgTable('users_on_programs', {
+  userId: uuid('user_id')
     .notNull()
     .references((): AnyPgColumn => users.id),
-  programId: uuid("program_id")
+  programId: uuid('program_id')
     .notNull()
     .references((): AnyPgColumn => programs.id),
 });
@@ -220,15 +217,15 @@ export const usersOnProgramsRelations = relations(
   }),
 );
 
-export const groups = pgTable("groups", {
-  id: uuid("id")
+export const groups = pgTable('groups', {
+  id: uuid('id')
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: text("name").notNull(),
-  programId: uuid("program_id")
+  name: text('name').notNull(),
+  programId: uuid('program_id')
     .notNull()
-    .references(() => programs.id, { onDelete: "cascade" }),
+    .references(() => programs.id, { onDelete: 'cascade' }),
 });
 export const Group = typeof groups.$inferSelect;
 export const NewGroup = typeof groups.$inferInsert;
@@ -241,21 +238,19 @@ export const groupRelations = relations(groups, ({ many, one }) => ({
 }));
 
 export const usersOnGroups = pgTable(
-  "users_on_groups",
+  'users_on_groups',
   {
-    userId: uuid("user_id")
+    userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    groupId: uuid("group_id")
+      .references(() => users.id, { onDelete: 'cascade' }),
+    groupId: uuid('group_id')
       .notNull()
-      .references(() => groups.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+      .references(() => groups.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
   },
-  (table) => {
-    return {
-      id: primaryKey({ columns: [table.userId, table.groupId] }),
-    };
-  },
+  (table) => ({
+    id: primaryKey({ columns: [table.userId, table.groupId] }),
+  }),
 );
 export type UserOnGroup = typeof usersOnGroups.$inferSelect;
 export type NewUserOnGroup = typeof usersOnGroups.$inferInsert;
@@ -271,18 +266,18 @@ export const usersOnGroupRelations = relations(usersOnGroups, ({ one }) => ({
 }));
 
 // todo more expansive role permissions
-export const programRoles = pgTable("program_roles", {
-  id: uuid("id")
+export const programRoles = pgTable('program_roles', {
+  id: uuid('id')
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  programId: uuid("program_id")
+  programId: uuid('program_id')
     .notNull()
-    .references(() => programs.id, { onDelete: "cascade" }),
-  roleName: text("role_name"),
-  isAdmin: boolean("is_admin"),
-  isStudent: boolean("is_student"),
-  isOwner: boolean("is_owner"),
+    .references(() => programs.id, { onDelete: 'cascade' }),
+  roleName: text('role_name'),
+  isAdmin: boolean('is_admin'),
+  isStudent: boolean('is_student'),
+  isOwner: boolean('is_owner'),
 });
 export type ProgramRole = typeof programRoles.$inferSelect;
 export type NewProgramRole = typeof programRoles.$inferInsert;
@@ -294,22 +289,20 @@ export const programRoleRelations = relations(programRoles, ({ one }) => ({
 }));
 
 export const rolesOnUsers = pgTable(
-  "roles_on_users",
+  'roles_on_users',
   {
-    userId: uuid("user_id")
+    userId: uuid('user_id')
       .notNull()
       .references(() => users.id),
-    roleId: uuid("role_id")
+    roleId: uuid('role_id')
       .notNull()
       .references(() => programRoles.id),
   },
-  (table) => {
-    return {
-      id: primaryKey({
-        columns: [table.userId, table.roleId],
-      }),
-    };
-  },
+  (table) => ({
+    id: primaryKey({
+      columns: [table.userId, table.roleId],
+    }),
+  }),
 );
 export type RoleOnUser = typeof rolesOnUsers.$inferSelect;
 export type NewRoleOnUser = typeof rolesOnUsers.$inferInsert;
@@ -324,19 +317,19 @@ export const rolesOnUserRelations = relations(rolesOnUsers, ({ one }) => ({
   }),
 }));
 
-export const forms = pgTable("forms", {
-  id: uuid("id")
+export const forms = pgTable('forms', {
+  id: uuid('id')
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  title: text("title").notNull().default("Untitled Evaluation"),
-  lastOpenedAt: timestamp("last_opened_at").notNull().defaultNow(),
-  type: formTypeEnum("type").notNull(),
-  settings: jsonb("settings"),
-  programId: uuid("program_id")
+  title: text('title').notNull().default('Untitled Evaluation'),
+  lastOpenedAt: timestamp('last_opened_at').notNull().defaultNow(),
+  type: formTypeEnum('type').notNull(),
+  settings: jsonb('settings'),
+  programId: uuid('program_id')
     .references((): AnyPgColumn => programs.id)
     .notNull(),
-  creatorId: uuid("creator_id").references((): AnyPgColumn => users.id),
+  creatorId: uuid('creator_id').references((): AnyPgColumn => users.id),
 });
 export type Form = typeof forms.$inferSelect;
 export type NewForm = typeof forms.$inferInsert;
@@ -354,21 +347,21 @@ export const formRelations = relations(forms, ({ one, many }) => ({
 }));
 
 // todo nightmare refactor to normalize this
-export const formItems = pgTable("form_items", {
-  id: uuid("id")
+export const formItems = pgTable('form_items', {
+  id: uuid('id')
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formId: uuid("form_id")
+  formId: uuid('form_id')
     .notNull()
-    .references(() => forms.id, { onDelete: "cascade" }),
-  text: text("text"),
-  description: text("description"),
-  type: formItemTypeEnum("type").notNull(),
-  position: integer("position").notNull(),
-  isRequired: boolean("is_required").default(true),
-  isScored: boolean("is_scored").notNull().default(true),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+    .references(() => forms.id, { onDelete: 'cascade' }),
+  text: text('text'),
+  description: text('description'),
+  type: formItemTypeEnum('type').notNull(),
+  position: integer('position').notNull(),
+  isRequired: boolean('is_required').default(true),
+  isScored: boolean('is_scored').notNull().default(true),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
   // todo how to figure out updatedAt
 });
 export type FormItem = typeof formItems.$inferSelect;
@@ -383,19 +376,19 @@ export const formItemRelations = relations(formItems, ({ one, many }) => ({
   recommendedMilestone: one(recommendedMilestones),
 }));
 
-export const options = pgTable("options", {
-  id: uuid("id")
+export const options = pgTable('options', {
+  id: uuid('id')
     .notNull()
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  text: text("text"),
-  position: integer("position").notNull(),
-  pointValue: decimal("point_value", { precision: 10, scale: 2 }),
-  isNa: boolean("is_na").notNull().default(false),
-  formItemId: uuid("form_item_id")
+  text: text('text'),
+  position: integer('position').notNull(),
+  pointValue: decimal('point_value', { precision: 10, scale: 2 }),
+  isNa: boolean('is_na').notNull().default(false),
+  formItemId: uuid('form_item_id')
     .notNull()
-    .references((): AnyPgColumn => formItems.id, { onDelete: "cascade" }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+    .references((): AnyPgColumn => formItems.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 export type Option = typeof options.$inferSelect;
 export type NewOption = typeof options.$inferInsert;
@@ -409,26 +402,24 @@ export const optionRelations = relations(options, ({ one, many }) => ({
 
 // MARK:  Milestones On Questions
 export const milestonesOnFormItems = pgTable(
-  "milestones_on_form_items",
+  'milestones_on_form_items',
   {
-    formItemId: uuid("form_item_id")
+    formItemId: uuid('form_item_id')
       .notNull()
-      .references((): AnyPgColumn => formItems.id, { onDelete: "cascade" }),
-    milestoneId: uuid("milestone_id")
+      .references((): AnyPgColumn => formItems.id, { onDelete: 'cascade' }),
+    milestoneId: uuid('milestone_id')
       .notNull()
       .references((): AnyPgColumn => milestones.id),
   },
-  (table) => {
-    return {
-      id: primaryKey({
-        columns: [table.formItemId, table.milestoneId],
-      }),
-      question: foreignKey({
-        columns: [table.formItemId],
-        foreignColumns: [formItems.id],
-      }),
-    };
-  },
+  (table) => ({
+    id: primaryKey({
+      columns: [table.formItemId, table.milestoneId],
+    }),
+    question: foreignKey({
+      columns: [table.formItemId],
+      foreignColumns: [formItems.id],
+    }),
+  }),
 );
 export type MilestonesOnFormItem = typeof milestonesOnFormItems.$inferSelect;
 export type NewMilestoneOnFormItem = typeof milestonesOnFormItems.$inferInsert;
@@ -446,24 +437,24 @@ export const milestonesOnFormItemRelations = relations(
   }),
 );
 
-export const responses = pgTable("responses", {
-  id: uuid("id")
+export const responses = pgTable('responses', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  assessmentId: uuid("assessment_id")
+  assessmentId: uuid('assessment_id')
     .notNull()
-    .references(() => assessments.id, { onDelete: "cascade" }),
-  respondeeId: uuid("respondee_id")
-    .references(() => users.id, { onDelete: "cascade" })
+    .references(() => assessments.id, { onDelete: 'cascade' }),
+  respondeeId: uuid('respondee_id')
+    .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
-  status: responseStatusEnum("status").default("NOT_STARTED").notNull(), // on open, 'started'. on submit, 'completed'
-  evaluateeId: uuid("evaluatee_id").references(() => users.id, {
-    onDelete: "cascade",
+  status: responseStatusEnum('status').default('NOT_STARTED').notNull(), // on open, 'started'. on submit, 'completed'
+  evaluateeId: uuid('evaluatee_id').references(() => users.id, {
+    onDelete: 'cascade',
   }),
-  duration: integer("duration"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  duration: integer('duration'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
-export type Response = DateToString<typeof responses.$inferSelect>;
+export type Response = typeof responses.$inferSelect;
 export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
   respondee: one(users, {
@@ -481,20 +472,20 @@ export const responseRelations = relations(responses, ({ one, many }) => ({
   }),
 }));
 
-export const answers = pgTable("answers", {
-  id: uuid("id")
+export const answers = pgTable('answers', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  selectedOptionIds: uuid("selected_option_ids")
+  selectedOptionIds: uuid('selected_option_ids')
     .references(() => options.id)
     .array(), // Array of option UUIDs
-  responseId: uuid("response_id")
+  responseId: uuid('response_id')
     .notNull()
-    .references(() => responses.id, { onDelete: "cascade" }),
-  formItemId: uuid("form_item_id")
+    .references(() => responses.id, { onDelete: 'cascade' }),
+  formItemId: uuid('form_item_id')
     .notNull()
-    .references(() => formItems.id, { onDelete: "cascade" }),
-  textValue: text("text_value"),
+    .references(() => formItems.id, { onDelete: 'cascade' }),
+  textValue: text('text_value'),
 });
 export type Answer = typeof answers.$inferSelect;
 export type NewAnswer = typeof answers.$inferInsert;
@@ -510,20 +501,20 @@ export const answerRelations = relations(answers, ({ one, many }) => ({
   selectedOptions: many(options),
 }));
 
-export const assessments = pgTable("assessments", {
-  id: uuid("id")
+export const assessments = pgTable('assessments', {
+  id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formId: uuid("form_id")
+  formId: uuid('form_id')
     .notNull()
-    .references(() => forms.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  startsAt: timestamp("starts_at").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  creatorId: uuid("creator_id")
+    .references(() => forms.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  startsAt: timestamp('starts_at').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  creatorId: uuid('creator_id')
     .notNull()
-    .references(() => users.id, { onDelete: "set null" }), // to protect assessment data
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+    .references(() => users.id, { onDelete: 'set null' }), // to protect assessment data
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 export type Assessment = typeof assessments.$inferSelect;
 export type NewAssessment = typeof assessments.$inferInsert;
@@ -539,19 +530,19 @@ export const assessmentRelations = relations(assessments, ({ one, many }) => ({
   }),
 }));
 
-export const recommendedMilestones = pgTable("recommended_milestones", {
+export const recommendedMilestones = pgTable('recommended_milestones', {
   id: uuid(`id`)
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formItemId: uuid("form_item_id")
+  formItemId: uuid('form_item_id')
     .notNull()
-    .references(() => formItems.id, { onDelete: "cascade" }),
-  milestoneId: uuid("milestone_id")
+    .references(() => formItems.id, { onDelete: 'cascade' }),
+  milestoneId: uuid('milestone_id')
     .notNull()
     .references(() => milestones.id),
-  justification: text("justification").notNull(),
-  score: integer("score").notNull(),
-  isPositiveClassification: boolean("is_positive_classification"),
+  justification: text('justification').notNull(),
+  score: integer('score').notNull(),
+  isPositiveClassification: boolean('is_positive_classification'),
 });
 export type RecommendedMilestone = typeof recommendedMilestones.$inferSelect;
 export type NewRecommendedMilestone = typeof recommendedMilestones.$inferInsert;
@@ -570,96 +561,96 @@ export const recommendedMilestoneRelations = relations(
 );
 
 export const responseQuestionScoresView = pgView(
-  "response_question_scores_view",
+  'response_question_scores_view',
   {
-    responseId: uuid("response_id")
+    responseId: uuid('response_id')
       .references(() => responses.id)
       .notNull(),
-    questionId: uuid("question_id")
+    questionId: uuid('question_id')
       .references(() => formItems.id)
       .notNull(),
-    pointsEarned: decimal("points_earned", { precision: 10, scale: 2 }),
-    pointsAvailable: decimal("points_available", { precision: 10, scale: 2 }),
-    milestoneIds: uuid("milestone_ids").array(),
-    textValue: text("text_value"),
+    pointsEarned: decimal('points_earned', { precision: 10, scale: 2 }),
+    pointsAvailable: decimal('points_available', { precision: 10, scale: 2 }),
+    milestoneIds: uuid('milestone_ids').array(),
+    textValue: text('text_value'),
   },
 ).existing();
 
 export const overallCompetencySummaryView = pgView(
-  "overall_competency_summary_view",
+  'overall_competency_summary_view',
   {
-    evaluateeId: uuid("evaluatee_id")
+    evaluateeId: uuid('evaluatee_id')
       .references(() => users.id)
       .notNull(),
-    competencyId: uuid("competency_id")
+    competencyId: uuid('competency_id')
       .references(() => competencies.id)
       .notNull(),
-    competencyName: text("competency_name").notNull(),
-    avgScore: numeric("average_percentage_score").notNull(),
+    competencyName: text('competency_name').notNull(),
+    avgScore: numeric('average_percentage_score').notNull(),
   },
 ).existing();
 
 export const subcompetencyAverageScoreView = pgView(
-  "subcompetency_average_score_view",
+  'subcompetency_average_score_view',
   {
-    evaluateeId: uuid("evaluatee_id")
+    evaluateeId: uuid('evaluatee_id')
       .references(() => users.id)
       .notNull(),
-    competencyId: uuid("competency_id")
+    competencyId: uuid('competency_id')
       .references(() => competencies.id)
       .notNull(),
-    competencyName: text("competency_name").notNull(),
-    subcompetencyId: uuid("subcompetency_id")
+    competencyName: text('competency_name').notNull(),
+    subcompetencyId: uuid('subcompetency_id')
       .references(() => subcompetencies.id)
       .notNull(),
-    subcompetencyName: text("subcompetency_name").notNull(),
-    avgScore: numeric("average_percentage_score").notNull(),
+    subcompetencyName: text('subcompetency_name').notNull(),
+    avgScore: numeric('average_percentage_score').notNull(),
   },
 ).existing();
 
-export const questionAverageScoreView = pgView("question_average_score_view", {
-  responseId: uuid("response_id")
+export const questionAverageScoreView = pgView('question_average_score_view', {
+  responseId: uuid('response_id')
     .references(() => responses.id)
     .notNull(),
-  questionId: uuid("question_id")
+  questionId: uuid('question_id')
     .references(() => formItems.id)
     .notNull(),
-  avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
+  avgScore: decimal('points_earned', { precision: 10, scale: 2 }), // average of pointsEarned/available
 }).existing();
 
 export const responseCompetencyScoreView = pgView(
-  "response_competency_scores_view",
+  'response_competency_scores_view',
   {
-    responseId: uuid("response_id")
+    responseId: uuid('response_id')
       .references(() => responses.id)
       .notNull(),
-    evaluateeId: uuid("evaluatee_id").references(() => users.id), // can be null
-    responseCreatedAt: timestamp("response_created_at").notNull(),
-    competencyScores: jsonb("competency_scores").notNull(),
+    evaluateeId: uuid('evaluatee_id').references(() => users.id), // can be null
+    responseCreatedAt: timestamp('response_created_at').notNull(),
+    competencyScores: jsonb('competency_scores').notNull(),
   },
 ).existing();
 
-export const responseScoreView = pgView("response_score_view", {
-  responseId: uuid("response_id")
+export const responseScoreView = pgView('response_score_view', {
+  responseId: uuid('response_id')
     .references(() => responses.id)
     .notNull(),
-  responseCreatedAt: timestamp("response_created_at").notNull(),
-  totalPointsEarned: decimal("total_points_earned", {
+  responseCreatedAt: timestamp('response_created_at').notNull(),
+  totalPointsEarned: decimal('total_points_earned', {
     precision: 10,
     scale: 2,
   }),
-  totalPointsAvailable: decimal("total_points_available", {
+  totalPointsAvailable: decimal('total_points_available', {
     precision: 10,
     scale: 2,
   }),
-  responseDuration: integer("response_duration"),
+  responseDuration: integer('response_duration'),
 }).existing();
 
-export const responseAverageScoreView = pgView("response_average_score_view", {
-  responseId: uuid("response_id")
+export const responseAverageScoreView = pgView('response_average_score_view', {
+  responseId: uuid('response_id')
     .references(() => responses.id)
     .notNull(),
-  avgScore: decimal("points_earned", { precision: 10, scale: 2 }), // average of pointsEarned/available
+  avgScore: decimal('points_earned', { precision: 10, scale: 2 }), // average of pointsEarned/available
 }).existing();
 
 // =============================================================================

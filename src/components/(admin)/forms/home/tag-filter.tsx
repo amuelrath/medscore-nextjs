@@ -1,9 +1,9 @@
-import { formTypeContent } from "@/components/(admin)/forms/home/create-form-dialog";
-import { Badge } from "@/components/ui/badge";
-import { TFormType } from "@/db/schema";
-import { cn } from "@/lib/helpers/utils";
-import { AnimatePresence, motion } from "framer-motion";
-import { FC, useRef } from "react";
+import { Badge } from '@/components/ui/badge';
+import { TFormType } from '@/db/schema';
+import { cn } from '@/lib/helpers/utils';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FC } from 'react';
+import { formTypeContent } from '@/lib/constants/forms';
 
 interface TagFilterProps {
   tags: TFormType[];
@@ -18,8 +18,6 @@ export const TagFilter: FC<TagFilterProps> = ({
   onTagRemove,
   selectedTag,
 }) => {
-  const viewportRef = useRef<HTMLDivElement>(null);
-
   const handleTagClick = (tag: TFormType) => {
     if (selectedTag === tag) {
       onTagRemove();
@@ -30,7 +28,7 @@ export const TagFilter: FC<TagFilterProps> = ({
 
   return (
     <div className="flex flex-row items-center space-x-2">
-      <AnimatePresence mode={"popLayout"} initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         {tags.sort().map((tag) => (
           <motion.div
             layout
@@ -38,16 +36,16 @@ export const TagFilter: FC<TagFilterProps> = ({
             initial={{ x: -10, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ type: "spring", stiffness: 200, damping: 30 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 30 }}
           >
             <Badge
               variant="hide"
               onClick={() => handleTagClick(tag)}
               className={cn(
-                "cursor-pointer h-10 rounded-md truncate border border-border font-normal ",
+                'cursor-pointer h-7 rounded-md truncate border border-border font-normal ',
                 {
-                  "border-neutral-300 text-foreground": selectedTag === tag,
-                  "text-foreground/50 hover:border-neutral-300  hover:text-foreground":
+                  'border-neutral-300 text-foreground': selectedTag === tag,
+                  'text-foreground/50 hover:border-neutral-300  hover:text-foreground':
                     selectedTag !== tag,
                 },
               )}

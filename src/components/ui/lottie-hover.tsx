@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import Lottie from "lottie-react";
-import { useEffect, useRef, useState } from "react";
-import { cva, VariantProps } from "class-variance-authority";
+import { cva, VariantProps } from 'class-variance-authority';
+import Lottie from 'lottie-react';
+import { useEffect, useRef, useState } from 'react';
 
-const lottieHoverVariants = cva("cursor-pointer", {
+const lottieHoverVariants = cva('cursor-pointer', {
   variants: {
     size: {
-      xs: "size-5",
-      sm: "size-8",
-      md: "size-12",
-      lg: "w-24 h-24",
+      xs: 'size-5',
+      sm: 'size-8',
+      md: 'size-12',
+      lg: 'w-24 h-24',
     },
   },
   defaultVariants: {
-    size: "md",
+    size: 'md',
   },
 });
 
@@ -22,8 +22,8 @@ interface LottieHoverProps extends VariantProps<typeof lottieHoverVariants> {
   loop?: boolean;
   src: any;
   isHovering?: boolean;
-  inSpeed?: number
-  outSpeed?: number
+  inSpeed?: number;
+  outSpeed?: number;
 }
 
 export function LottieHover({
@@ -31,8 +31,8 @@ export function LottieHover({
   src,
   size,
   loop = false,
-  inSpeed=1,
-  outSpeed=1.5
+  inSpeed = 1,
+  outSpeed = 1.5,
 }: LottieHoverProps) {
   const ref = useRef<any>(null);
   const [internalHover, setInternalHover] = useState(false);
@@ -42,11 +42,11 @@ export function LottieHover({
   useEffect(() => {
     if (hover) {
       ref.current?.setDirection(1);
-      ref.current?.setSpeed(inSpeed)
+      ref.current?.setSpeed(inSpeed);
       ref.current?.play();
     } else {
       ref.current?.setDirection(-1);
-      ref.current?.setSpeed(outSpeed)
+      ref.current?.setSpeed(outSpeed);
       ref.current?.play();
       const stopAnimation = () => {
         if (ref.current?.currentFrame === 0) {
@@ -67,7 +67,7 @@ export function LottieHover({
         animationData={src}
         lottieRef={ref}
         loop={loop}
-        autoplay={true}
+        autoplay
       />
     </div>
   );

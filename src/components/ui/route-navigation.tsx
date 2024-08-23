@@ -1,7 +1,8 @@
-"use client";
-import { useState, useEffect, ReactNode, ReactElement } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/helpers/utils";
+'use client';
+
+import { cn } from '@/lib/helpers/utils';
+import { usePathname, useRouter } from 'next/navigation';
+import { ReactElement, ReactNode, useEffect, useState } from 'react';
 
 interface Tab {
   id: string;
@@ -33,10 +34,8 @@ export function RouteNavigation({ tabs }: Props) {
 
   return (
     <nav>
-      <div
-        className={`flex h-full w-10 flex-col items-center border-r border-neutral-300 bg-primary/5 p-1.5`}
-      >
-        <div className={cn("flex select-none flex-col items-center space-y-3")}>
+      <div className="flex h-full w-10 flex-col items-center border-r border-neutral-300 bg-primary/5 p-1.5">
+        <div className={cn('flex select-none flex-col items-center space-y-3')}>
           {tabs.map((tab) => (
             <div
               key={tab.id}
@@ -46,16 +45,16 @@ export function RouteNavigation({ tabs }: Props) {
                 handleNavigate(tab.href);
               }}
               className={`${
-                activeTab === tab.id ? "" : "hover:text-white/70"
+                activeTab === tab.id ? '' : 'hover:text-white/70'
               } relative z-20 w-full rounded-full py-1.5 text-xs font-medium tracking-wider text-white transition focus-visible:outline-2`}
-              style={{ WebkitTapHighlightColor: "transparent" }}
+              style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <div
                 className={cn(
-                  "flex w-full flex-col items-center  space-y-1 transition-all duration-300",
+                  'flex w-full flex-col items-center  space-y-1 transition-all duration-300',
                   activeTab === tab.id
-                    ? "text-primary"
-                    : "text-primary/50 hover:text-primary/80",
+                    ? 'text-primary'
+                    : 'text-primary/50 hover:text-primary/80',
                 )}
               >
                 {tab.icon}

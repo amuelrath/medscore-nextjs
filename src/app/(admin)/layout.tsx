@@ -1,15 +1,15 @@
-import { RouteNavigation } from "@/components/ui/route-navigation";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ReactNode } from "react";
+import { AppHeader } from '@/components/ui/app-header';
+import { RouteNavigation } from '@/components/ui/route-navigation';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
-  ChartBarIcon,
+  ArrowUpRightFromCircleIcon,
   ClipboardPlusIcon,
   FileStackIcon,
   GaugeIcon,
   GraduationCapIcon,
-  TextSearchIcon, UsersIcon
-} from "lucide-react";
-import { AppHeader } from "@/components/ui/app-header";
+  UsersIcon,
+} from 'lucide-react';
+import { ReactNode } from 'react';
 
 export default async function AppLayout({
   children,
@@ -22,9 +22,7 @@ export default async function AppLayout({
       <ReactQueryDevtools />
       <div className="flex flex-1">
         <RouteNavigation tabs={tabs} />
-        <main className="flex-1 overflow-hidden h-full">
-          {children}
-        </main>
+        <main className="flex-1 flex flex-grow overflow-hidden h-full">{children}</main>
       </div>
     </div>
   );
@@ -32,33 +30,39 @@ export default async function AppLayout({
 
 const tabs = [
   {
-    id: "dashboard",
-    label: "Dashboard",
+    id: 'dashboard',
+    label: 'Dashboard',
     icon: <GaugeIcon size={20} />,
-    href: "/dashboard"
+    href: '/dashboard',
   },
   {
-    id: "Evaluate",
-    label: "Evaluate",
+    id: 'Evaluate',
+    label: 'Evaluate',
     icon: <ClipboardPlusIcon size={20} />,
-    href: "/evaluate"
+    href: '/evaluate',
   },
   {
-    id: "forms",
-    label: "Forms",
+    id: 'forms',
+    label: 'Forms',
     icon: <FileStackIcon size={20} />,
-    href: "/forms",
+    href: '/forms',
   },
   {
-    id: "programs",
-    label: "Reports",
+    id: 'requests',
+    label: 'Requests',
+    icon: <ArrowUpRightFromCircleIcon size={20} />,
+    href: '/requests',
+  },
+  {
+    id: 'programs',
+    label: 'Reports',
     icon: <UsersIcon size={20} />,
-    href: "/programs",
+    href: '/programs',
   },
   {
-    id: "programs",
-    label: "Programs",
+    id: 'programs',
+    label: 'Programs',
     icon: <GraduationCapIcon size={20} />,
-    href: "/reports",
+    href: '/reports',
   },
 ];

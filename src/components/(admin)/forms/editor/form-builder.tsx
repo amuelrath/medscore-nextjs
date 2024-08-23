@@ -1,27 +1,28 @@
-"use client";
-import { AddFormItemDock } from "@/components/(admin)/forms/editor/add-form-item-dock";
-import { FormItem } from "@/components/(admin)/forms/editor/form-item";
-import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import Loading from "@/components/ui/loading";
-import { TFormItemType } from "@/db/schema";
-import { breadcrumbsAtom } from "@/store/global-atoms";
-import { AnimatePresence, domAnimation, LazyMotion, m } from "framer-motion";
-import { useSetAtom } from "jotai/index";
-import dynamic from "next/dynamic";
+'use client';
+
+import { AddFormItemDock } from '@/components/(admin)/forms/editor/add-form-item-dock';
+import { FormItem } from '@/components/(admin)/forms/editor/form-item';
+import { TFormSchema } from '@/components/(admin)/forms/editor/hooks/use-form-builder';
+import Loading from '@/components/ui/loading';
+import { TFormItemType } from '@/db/schema';
+import { breadcrumbsAtom } from '@/store/global-atoms';
+import { AnimatePresence, domAnimation, LazyMotion, m } from 'framer-motion';
+import { useSetAtom } from 'jotai/index';
+import dynamic from 'next/dynamic';
 import React, {
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-} from "react";
-import { Control, useFieldArray, useFormContext } from "react-hook-form";
-import { toast } from "sonner";
-import { v4 } from "uuid";
+} from 'react';
+import { Control, useFieldArray, useFormContext } from 'react-hook-form';
+import { toast } from 'sonner';
+import { v4 } from 'uuid';
 
 const DynamicMilestoneMenu = dynamic(
   () =>
-    import("@/components/(admin)/forms/editor/question-details-menu").then(
+    import('@/components/(admin)/forms/editor/question-details-menu').then(
       (mod) => mod.QuestionDetailsMenu,
     ),
   { ssr: false, loading: () => <Loading /> },
@@ -74,7 +75,7 @@ const FormItems = React.memo(
     </AnimatePresence>
   ),
 );
-FormItems.displayName = "FormItems";
+FormItems.displayName = 'FormItems';
 
 const Dock = React.memo(
   ({
@@ -95,13 +96,13 @@ const Dock = React.memo(
           }}
           exit={{ opacity: 0 }}
           transition={{
-            type: "spring",
+            type: 'spring',
             stiffness: 300,
             damping: 30,
           }}
           style={{
-            position: "absolute",
-            left: "100%",
+            position: 'absolute',
+            left: '100%',
             height: dockPosition.height,
           }}
           className="will-change-transform"
@@ -112,7 +113,7 @@ const Dock = React.memo(
     </AnimatePresence>
   ),
 );
-Dock.displayName = "Dock";
+Dock.displayName = 'Dock';
 
 export function FormBuilder() {
   // update the breadcrumbs
@@ -127,13 +128,13 @@ export function FormBuilder() {
     insert: insertItem,
   } = useFieldArray({
     control,
-    name: "formItems",
+    name: 'formItems',
   });
 
   // set breadcrumbs
   useEffect(() => {
     setBreadcrumbs([
-      { label: "Forms", href: "/forms" },
+      { label: 'Forms', href: '/forms' },
       { label: getValues(`title`), href: `/forms/${getValues(`id`)}` },
     ]);
   }, [setBreadcrumbs, getValues]);
@@ -157,11 +158,11 @@ export function FormBuilder() {
       const newItem = {
         id: v4(),
         options: [],
-        text: "",
+        text: '',
         type,
-        isScored: type !== "HEADER" && type !== "WRITTEN",
-        isRequired: type !== "HEADER",
-        description: type === "HEADER" ? "" : null,
+        isScored: type !== 'HEADER' && type !== 'WRITTEN',
+        isRequired: type !== 'HEADER',
+        description: type === 'HEADER' ? '' : null,
         position: formItems.length + 1,
         milestoneIds: [],
       };
@@ -184,7 +185,7 @@ export function FormBuilder() {
   const handleRemoveItem = useCallback(
     (index: number) => {
       if (formItems.length === 1) {
-        toast.error("You must have at least one question.");
+        toast.error('You must have at least one question.');
       } else {
         removeItem(index);
         setSelectedItemIndex(null);
@@ -198,7 +199,7 @@ export function FormBuilder() {
 
   const handleDuplicateItem = useCallback(
     (index: number) => {
-      const currentQuestions = getValues("formItems");
+      const currentQuestions = getValues('formItems');
       const questionToDuplicate = currentQuestions[index];
       const newQuestion = {
         ...questionToDuplicate,
@@ -224,7 +225,7 @@ export function FormBuilder() {
       setDockPosition({ top: offsetTop, height });
 
       const selectedItem = formItems[index];
-      if (selectedItem && selectedItem.type === "HEADER") {
+      if (selectedItem && selectedItem.type === 'HEADER') {
         setMilestoneDialogOpenIndex(null);
       } else if (milestoneDialogOpenIndex !== null) {
         setMilestoneDialogOpenIndex(index);
@@ -236,7 +237,7 @@ export function FormBuilder() {
   const handleToggleMilestoneDialog = useCallback(
     (index: number) => {
       const selectedItem = formItems[index];
-      if (selectedItem && selectedItem.type !== "HEADER") {
+      if (selectedItem && selectedItem.type !== 'HEADER') {
         setMilestoneDialogOpenIndex((prevIndex) =>
           prevIndex === index ? null : index,
         );
@@ -262,13 +263,10 @@ export function FormBuilder() {
   );
 
   const getPosition = useCallback(
-    (index: number): number => {
-      return (
-        getValues("formItems")
-          .filter((_, itemIndex) => itemIndex < index)
-          .filter((item) => item.type !== "HEADER").length + 1
-      );
-    },
+    (index: number): number =>
+      getValues('formItems')
+        .filter((_, itemIndex) => itemIndex < index)
+        .filter((item) => item.type !== 'HEADER').length + 1,
     [getValues],
   );
 
@@ -311,14 +309,11 @@ export function FormBuilder() {
         />
         <div
           ref={formAreaRef}
-          className="flex w-full flex-grow justify-center overflow-y-scroll"
+          className="grid grid-cols-7 w-full flex-grow justify-center overflow-y-scroll"
           onClick={handleFormAreaClick}
         >
-          <div className="no-scrollbar relative h-[87.3vh] w-full max-w-2xl">
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="mx-auto px-4 pb-52 pt-4"
-            >
+          <div className="no-scrollbar col-start-3 w-full col-span-3 relative h-[87.3vh]">
+            <form onSubmit={(e) => e.preventDefault()} className="pb-52 mr-2 pt-4">
               {memoizedFormItems}
             </form>
             <Dock dockPosition={dockPosition} addQuestion={handleAddQuestion} />

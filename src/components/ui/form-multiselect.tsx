@@ -1,31 +1,27 @@
-"use client";
+'use client';
 
-import {
-  formTypeColors,
-  formTypeLottie,
-} from "@/components/(admin)/forms/home/create-form-dialog";
-import { Card } from "@/components/ui/card";
-import { LottieHover } from "@/components/ui/lottie-hover";
+import { Card } from '@/components/ui/card';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollShadow } from "@/components/ui/scroll-shadow";
-import { SearchInput } from "@/components/ui/search-input";
-import { TFormType } from "@/db/schema";
+} from '@/components/ui/popover';
+import { ScrollShadow } from '@/components/ui/scroll-shadow';
+import { SearchInput } from '@/components/ui/search-input';
+import { TFormType } from '@/db/schema';
 import {
   UseMultiselectField,
   useMultiselectField,
-} from "@/hooks/use-multiselect-field";
-import { cn } from "@/lib/helpers/utils";
-import { truncate } from "@/lib/truncate";
-import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2Icon, PlusCircleIcon } from "lucide-react";
-import { useMemo } from "react";
-import { FieldValues } from "react-hook-form";
+} from '@/hooks/use-multiselect-field';
+import { cn } from '@/lib/helpers/utils';
+import { truncate } from '@/lib/truncate';
+import { getAllFormsLite } from '@/server/actions/forms/get-all-forms-lite';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CheckCircle2Icon, PlusCircleIcon } from 'lucide-react';
+import { useMemo } from 'react';
+import { FieldValues } from 'react-hook-form';
+import { FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
 
 export function FormMultiselect<T extends FieldValues>({
   name,
@@ -44,20 +40,22 @@ export function FormMultiselect<T extends FieldValues>({
 
   // get the forms
   const { data: forms } = useSuspenseQuery({
-    queryKey: ["forms"],
+    queryKey: ['forms'],
     queryFn: () =>
       getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
-  const sortedItems = useMemo(() => {
-    return [...forms]
-      .filter((f) => f.type !== "DIRECT_OBSERVATION")
-      .sort((a, b) => {
-        if (a.id === (selectedIds.at(0) || "")) return -1;
-        if (b.id === (selectedIds.at(0) || "")) return 1;
-        return 0;
-      });
-  }, [forms, selectedIds]);
+  const sortedItems = useMemo(
+    () =>
+      [...forms]
+        .filter((f) => f.type !== 'DIRECT_OBSERVATION')
+        .sort((a, b) => {
+          if (a.id === (selectedIds.at(0) || '')) return -1;
+          if (b.id === (selectedIds.at(0) || '')) return 1;
+          return 0;
+        }),
+    [forms, selectedIds],
+  );
 
   return (
     <Popover modal>
@@ -65,21 +63,21 @@ export function FormMultiselect<T extends FieldValues>({
         <div
           role="button"
           className={cn(
-            "w-[156px] h-[90px] relative overflow-hidden",
-            disabled && "opacity-50 cursor-not-allowed",
+            'w-[156px] h-[90px] relative overflow-hidden',
+            disabled && 'opacity-50 cursor-not-allowed',
           )}
         >
           <div
             className={cn(
-              "absolute transition inset-0 flex items-center justify-center",
-              selectedIds.length > 0 && "hidden",
+              'absolute transition inset-0 flex items-center justify-center',
+              selectedIds.length > 0 && 'hidden',
             )}
           >
             <div className="w-full h-full flex flex-col items-center justify-center hover:border-foreground/50 border transition group border-foreground/30 rounded-md">
               <PlusCircleIcon
                 className={cn(
-                  "text-foreground/30 group-hover:text-foreground/50 transition",
-                  selectedIds.length > 0 && "opacity-0",
+                  'text-foreground/30 group-hover:text-foreground/50 transition',
+                  selectedIds.length > 0 && 'opacity-0',
                 )}
                 strokeWidth={1.25}
               />
@@ -89,9 +87,9 @@ export function FormMultiselect<T extends FieldValues>({
             <div className="absolute w-full">
               <CompactFormCard
                 displayOnly
-                title={forms.find((f) => f.id === selectedIds[0])?.title || ""}
+                title={forms.find((f) => f.id === selectedIds[0])?.title || ''}
                 type={
-                  forms.find((f) => f.id === selectedIds[0])?.type || "OSCE"
+                  forms.find((f) => f.id === selectedIds[0])?.type || 'OSCE'
                 }
               />
             </div>
@@ -102,7 +100,7 @@ export function FormMultiselect<T extends FieldValues>({
         align="start"
         side="left"
         className={cn(
-          "flex flex-col w-[375px] overflow-hidden h-[350px] max-h-[80vh]",
+          'flex flex-col w-[375px] overflow-hidden h-[350px] max-h-[80vh]',
         )}
       >
         <div
@@ -155,7 +153,7 @@ function CompactFormCard({
   isMaxReached,
   displayOnly = false,
 }: CompactFormCardProps) {
-  const iconSrc = formTypeLottie[type];
+  const Icon = formTypeContent[type];
 
   const handleClick = () => {
     if (displayOnly) return;
@@ -173,17 +171,22 @@ function CompactFormCard({
       aria-disabled={disabled && isSelected}
       onClick={handleClick}
       className={cn(
-        "relative h-[90px] overflow-clip",
-        !displayOnly && "cursor-pointer hover:shadow-md transition",
-        formTypeColors[type].border,
+        'relative h-[90px] pt-0.5 overflow-clip',
+        !displayOnly && 'cursor-pointer hover:shadow-md transition',
+        FORM_TYPE_COLORS[type].border,
         disabled &&
           isSelected &&
-          "opacity-50 cursor-not-allowed hover:scale-100",
-        !isSelected && isMaxReached && "opacity-50",
+          'opacity-50 cursor-not-allowed hover:scale-100',
+        !isSelected && isMaxReached && 'opacity-50',
       )}
     >
-      <span className="opacity-30 translate-x-4 shadow-lg pointer-events-none">
-        <LottieHover size="lg" isHovering={false} src={iconSrc} loop={false} />
+      <span
+        className={cn(
+          'translate-x-4 blur-sm -translate-y-4 shadow-lg pointer-events-none',
+          FORM_TYPE_COLORS[type].text,
+        )}
+      >
+        <Icon size={80} />
       </span>
       <span className="absolute flex origin-center font-medium select-none flex-row items-center justify-between w-full p-2 text-xs z-20 h-2/5 backdrop-opacity-20 backdrop-filter bg-card bottom-0">
         <p>{truncate(title, 21)}</p>
@@ -193,7 +196,7 @@ function CompactFormCard({
               initial={{ rotate: 180, scale: 0 }}
               animate={{ rotate: 0, scale: 1 }}
               exit={{ rotate: 180, scale: 0 }}
-              transition={{ duration: 0.2, ease: "circInOut" }}
+              transition={{ duration: 0.2, ease: 'circInOut' }}
             >
               <CheckCircle2Icon className="text-accent-secondary" size={16} />
             </motion.span>
