@@ -1,5 +1,4 @@
-"use client";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -7,76 +6,47 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { FormMultiselect } from "@/components/ui/form-multiselect";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { UserSelect } from "@/components/ui/user-select";
+} from '@/components/ui/dialog';
+import { FormMultiselect } from '@/components/ui/form-multiselect';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { UserSelect } from '@/components/ui/user-select';
+import { ZParticipantsSchema } from '@/lib/zod/participation-schema';
+import { FormResult } from '@/server/actions/forms/get-all-forms';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { PlusCircleIcon, SendHorizonalIcon, XIcon } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import {
-  ZRespondeeParticipationSchema,
-  ZSpecificPairParticipationSchema,
-} from "@/lib/zod/participation-schema";
-import { createAssessmentWithRequests } from "@/server/actions/assessments/create-assessment-with-requests";
-import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import { PlusCircleIcon, SendHorizonalIcon, XIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import {
+  DefaultValues,
+  FieldPath,
   FormProvider,
   useFieldArray,
   useForm,
   useFormContext,
   useWatch,
-} from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
+} from 'react-hook-form';
+import { z } from 'zod';
 
 const ZRequestResponseFormSchema = z
   .object({
     formId: z.array(z.string().uuid()).max(1),
     title: z.string().optional(),
-    formType: z
-      .enum(["OSCE", "SURVEY", "EVALUATION", "DIRECT_OBSERVATION"])
-      .nullable(),
+    formType: z.enum(['OSCE', 'EVALUATION', 'DIRECT_OBSERVATION']).nullable(),
     startsAt: z.string(),
     expiresAt: z.string(),
-    specificPairParticipants: ZSpecificPairParticipationSchema.optional(),
-    respondeeParticipants: ZRespondeeParticipationSchema.optional(),
+    participants: ZParticipantsSchema.optional(),
   })
   .refine(
     (data) => {
-      if (data.formType === ("OSCE" || "EVALUATION")) {
-        return (data.specificPairParticipants?.length || 0) > 0;
+      if (data.formType === ('OSCE' || 'EVALUATION')) {
+        return (data.participants?.length || 0) > 0;
       }
       return true;
     },
     {
       message:
-        "EVALUATION or OSCE form type must have specific pair participants",
-      path: ["specificPairParticipants"],
-    },
-  )
-  .refine(
-    (data) => {
-      const isSpecificPair = Boolean(
-        (data.specificPairParticipants?.length || 0) > 0,
-      );
-      const isRespondees = Boolean(data.respondeeParticipants);
-
-      // Ensure only one type of participation is selected
-      if (isSpecificPair) {
-        return Boolean(!isRespondees);
-      }
-    },
-    {
-      message:
-        "Only one type of participation (specific pair, assessor pool, or respondees) should be selected",
-      path: ["specificPairParticipants", "respondeeParticipants"],
+        'EVALUATION or OSCE form type must have specific pair participants',
+      path: ['specificPairParticipants'],
     },
   );
 
@@ -84,41 +54,35 @@ export type TAssessmentEditorFormSchema = z.infer<
   typeof ZRequestResponseFormSchema
 >;
 
-// todo disallow selecting the logged in user's id
-export function RequestResponseDialog() {
+type AssessmentEditorDialogProps = {
+  disabledFields?: FieldPath<TAssessmentEditorFormSchema>[];
+  disabledSpecificPairFields?: {
+    [index: number]: ('evaluatorId' | 'evaluateeIds')[];
+  };
+  submitFn: (data: TAssessmentEditorFormSchema) => void;
+  defaultValues?: DefaultValues<TAssessmentEditorFormSchema>;
+  forms: Pick<FormResult, 'id' | 'type'>[];
+};
+
+export function AssessmentEditorDialog({
+  disabledFields = [],
+  disabledSpecificPairFields = {},
+  submitFn,
+  defaultValues,
+  forms,
+}: AssessmentEditorDialogProps) {
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 
-  const methods = useForm<TRequestResponseFormSchema>({
+  const methods = useForm<TAssessmentEditorFormSchema>({
     resolver: zodResolver(ZRequestResponseFormSchema),
-  });
-
-  const { data: forms } = useSuspenseQuery({
-    queryKey: ["forms"],
-    queryFn: () =>
-      getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
-  });
-
-  const queryClient = useQueryClient();
-  const { mutate: sendAssessmentRequest } = useMutation({
-    mutationFn: createAssessmentWithRequests,
-    onMutate: (data) => {
-      setDialogOpen(false);
-      // put new requests into the queryCache
-    },
-    onError: () => {
-      toast.error("Something went wrong.");
-    },
-    onSettled: () => {
-      toast.success("Success!");
-    },
+    defaultValues,
   });
 
   // Watch for changes in the formId field
-  const selectedFormId = methods.watch("formId");
+  const selectedFormId = methods.watch('formId');
 
   useEffect(() => {
-    methods.resetField(`respondeeParticipants`);
-    methods.resetField(`specificPairParticipants`);
+    methods.resetField(`participants`);
   }, [methods, selectedFormId]);
 
   useEffect(() => {
@@ -127,19 +91,24 @@ export function RequestResponseDialog() {
         f.id ===
         ((Array.isArray(selectedFormId) && selectedFormId[0]) || undefined),
     )?.type;
-    if (selectedFormType) return methods.setValue("formType", selectedFormType);
+    if (selectedFormType) return methods.setValue('formType', selectedFormType);
+    return methods.setValue('formType', null);
   }, [forms, methods, selectedFormId]);
 
-  const onSubmit = (data: TRequestResponseFormSchema) => {
-    sendAssessmentRequest(data);
+  const onSubmit = (data: TAssessmentEditorFormSchema) => {
+    submitFn(data);
     methods.reset();
-    methods.resetField("startsAt");
-    methods.resetField("expiresAt");
+    methods.resetField('startsAt');
+    methods.resetField('expiresAt');
+    setDialogOpen(false);
   };
+
+  const isFieldDisabled = (name: FieldPath<TAssessmentEditorFormSchema>) =>
+    disabledFields.includes(name);
 
   const renderParticipantsInput = () => {
     if (!selectedFormId || selectedFormId.length === 0) {
-      return <></>;
+      return null;
     }
 
     const selectedForm = forms.find(
@@ -153,12 +122,14 @@ export function RequestResponseDialog() {
     }
 
     switch (selectedForm.type) {
-      case "OSCE":
-        return <SpecificPairsManagerInput />;
-      case "SURVEY":
-        return <RespondeeInput />;
-      case "EVALUATION":
-        return <SpecificPairsManagerInput />;
+      case 'OSCE':
+      case 'EVALUATION':
+        return (
+          <ParticipantManager
+            disabled={isFieldDisabled('participants')}
+            disabledSpecificPairFields={disabledSpecificPairFields}
+          />
+        );
       default:
         return <div>Unsupported form type</div>;
     }
@@ -167,11 +138,7 @@ export function RequestResponseDialog() {
   return (
     <Dialog onOpenChange={(open) => setDialogOpen(open)} open={dialogOpen}>
       <DialogTrigger asChild>
-        <Button
-          size="xs"
-          variant="accent-secondary"
-          className="font-semibold text-teal-900 space-x-2"
-        >
+        <Button size="xs" variant="accent-secondary" className="font-semibold text-teal-950 space-x-2">
           <SendHorizonalIcon size={14} strokeWidth={2.5} />
           <p>Request Assessment</p>
         </Button>
@@ -188,6 +155,7 @@ export function RequestResponseDialog() {
             <p>New Assessment</p>
           </DialogTitle>
         </DialogHeader>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
         <FormProvider {...methods}>
           <form
             onSubmit={methods.handleSubmit(onSubmit)}
@@ -195,8 +163,17 @@ export function RequestResponseDialog() {
           >
             <div className="grid grid-cols-2 gap-4 w-full">
               <div className="col-span-1 flex flex-col mr-6 bg-primary/5 rounded-sm justify-center items-center">
-                <FormMultiselect control={methods.control} name="formId" />
-                <input type="hidden" {...methods.register("formType")} />
+                <FormMultiselect
+                  control={methods.control}
+                  disabled={isFieldDisabled('formId')}
+                  name="formId"
+                />
+                <input
+                  type="hidden"
+                  onChange={methods.register('formType').onChange}
+                  name={methods.register('formType').name}
+                  ref={methods.register('formType').ref}
+                />
               </div>
               <div className="col-span-1 flex flex-col space-y-4">
                 <div className="flex flex-col space-y-2">
@@ -206,7 +183,10 @@ export function RequestResponseDialog() {
                   <Input
                     size="sm"
                     type="datetime-local"
-                    {...methods.register("startsAt")}
+                    disabled={isFieldDisabled('startsAt')}
+                    name={methods.register('startsAt').name}
+                    onChange={methods.register('startsAt').onChange}
+                    ref={methods.register('startsAt').ref}
                   />
                 </div>
                 <div className="flex flex-col space-y-2">
@@ -216,7 +196,10 @@ export function RequestResponseDialog() {
                   <Input
                     size="sm"
                     type="datetime-local"
-                    {...methods.register("expiresAt")}
+                    disabled={isFieldDisabled('expiresAt')}
+                    name={methods.register('expiresAt').name}
+                    onChange={methods.register('expiresAt').onChange}
+                    ref={methods.register('expiresAt').ref}
                   />
                 </div>
               </div>
@@ -231,7 +214,10 @@ export function RequestResponseDialog() {
               <Input
                 size="sm"
                 placeholder="Untitled Assessment"
-                {...methods.register("title")}
+                disabled={isFieldDisabled('title')}
+                name={methods.register('title').name}
+                onChange={methods.register('title').onChange}
+                ref={methods.register('title').ref}
               />
             </div>
             <div className="flex-grow">{renderParticipantsInput()}</div>
@@ -253,34 +239,26 @@ export function RequestResponseDialog() {
   );
 }
 
-function RespondeeInput() {
-  const { control, getValues } = useFormContext<TRequestResponseFormSchema>();
-  const selectedFormId = getValues(`formId`);
-
-  return (
-    <>
-      <div className="flex flex-col border-t pt-2 space-y-2">
-        <Label variant="light">Respondees</Label>
-        <UserSelect
-          control={control}
-          formId={selectedFormId[0]}
-          name="respondeeParticipants"
-        />
-      </div>
-    </>
+function ParticipantManager({
+  disabled = false,
+  disabledSpecificPairFields = {},
+}: {
+  disabled?: boolean;
+  disabledSpecificPairFields?: {
+    [index: number]: ('evaluatorId' | 'evaluateeIds')[];
+  };
+}) {
+  const { control } = useFormContext<TAssessmentEditorFormSchema>();
+  const { fields, append, remove } = useFieldArray<TAssessmentEditorFormSchema>(
+    {
+      control,
+      name: 'participants',
+    },
   );
-}
 
-function SpecificPairsManagerInput() {
-  const { control } = useFormContext<TRequestResponseFormSchema>();
-  const { fields, append, remove } = useFieldArray<TRequestResponseFormSchema>({
+  const participants = useWatch({
     control,
-    name: "specificPairParticipants",
-  });
-
-  const specificPairParticipants = useWatch({
-    control,
-    name: `specificPairParticipants`,
+    name: `participants`,
   });
 
   if (fields.length === 0) {
@@ -291,9 +269,7 @@ function SpecificPairsManagerInput() {
   }
 
   const usedEvaluatorIds =
-    specificPairParticipants
-      ?.map((pair) => pair.evaluatorId[0])
-      .filter(Boolean) || [];
+    participants?.map((pair) => pair.evaluatorId[0]).filter(Boolean) || [];
 
   return (
     <div className="flex flex-col w-full select-none border-b h-44">
@@ -306,20 +282,23 @@ function SpecificPairsManagerInput() {
         </div>
         <div className="col-span-1 flex flex-row justify-end">
           <span
-            role="button"
-            onClick={() => append({ evaluateeIds: [], evaluatorId: [] })} // something weird with UserSelect not liking strings
+            onSelect={() =>
+              !disabled && append({ evaluateeIds: [], evaluatorId: [] })
+            }
           >
             <PlusCircleIcon
               size={16}
-              className=" text-foreground/50 hover:text-foreground/30 transition"
+              className={`text-foreground/50 hover:text-foreground/30 transition ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             />
           </span>
         </div>
       </div>
       <div className="h-40 pt-4 -mr-[0.9rem] pl-1 overflow-y-scroll">
         {fields.map((f, index) => (
-          <SpecificPairInput
+          <ParticipantInput
             key={f.id}
+            disabled={disabled}
+            disabledFields={disabledSpecificPairFields[index] || []}
             index={index}
             remove={() => remove(index)}
             usedEvaluatorIds={usedEvaluatorIds}
@@ -330,28 +309,32 @@ function SpecificPairsManagerInput() {
   );
 }
 
-function SpecificPairInput({
+function ParticipantInput({
   index,
   remove,
   usedEvaluatorIds,
+  disabled = false,
+  disabledFields = [],
 }: {
   index: number;
+  disabled: boolean;
+  disabledFields: ('evaluatorId' | 'evaluateeIds')[];
   remove: () => void;
   usedEvaluatorIds: string[];
 }) {
-  const { control, getValues } = useFormContext<TRequestResponseFormSchema>();
+  const { control, getValues } = useFormContext<TAssessmentEditorFormSchema>();
   const selectedFormId = getValues(`formId`);
 
   const evaluateeIds =
     useWatch({
       control,
-      name: `specificPairParticipants.${index}.evaluateeIds`,
+      name: `participants.${index}.evaluateeIds`,
     }) || []; // Ensure it's always an array
 
   const evaluatorId =
     useWatch({
       control,
-      name: `specificPairParticipants.${index}.evaluatorId`,
+      name: `participants.${index}.evaluatorId`,
     }) || []; // Ensure it's always an array
 
   const disabledEvaluatorIds = [
@@ -364,25 +347,27 @@ function SpecificPairInput({
       <div className="col-span-1 content-center">
         <UserSelect
           control={control}
+          disabled={disabled || disabledFields.includes('evaluatorId')}
           formId={selectedFormId[0]}
           max={1}
-          name={`specificPairParticipants.${index}.evaluatorId`}
+          name={`participants.${index}.evaluatorId`}
           disabledIds={disabledEvaluatorIds}
         />
       </div>
       <div className="col-span-2 content-center">
         <UserSelect
           control={control}
+          disabled={disabled || disabledFields.includes('evaluateeIds')}
           formId={selectedFormId[0]}
-          name={`specificPairParticipants.${index}.evaluateeIds`}
+          name={`participants.${index}.evaluateeIds`}
           disabledIds={evaluatorId}
         />
       </div>
       <div className="justify-end flex items-center col-span-1">
         <XIcon
           size={16}
-          className="opacity-50 cursor-pointer hover:text-destructive hover:opacity-100 transition-all"
-          onClick={remove}
+          className={`opacity-50 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer hover:text-destructive hover:opacity-100'} transition-all`}
+          onClick={() => !disabled && remove()}
         />
       </div>
     </div>
