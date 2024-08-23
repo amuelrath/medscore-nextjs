@@ -1,40 +1,33 @@
-import { formTypeColors } from "@/components/(admin)/forms/home/create-form-dialog";
-import { formTypeIcon } from "@/components/(admin)/forms/home/form-card";
-import { Avatar, AvatarStack } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { CountdownTimer } from "@/components/ui/countdown";
-import { TFormType, TResponseStatus } from "@/db/schema";
-import { getInitials } from "@/lib/get-initials";
-import { getFullName } from "@/lib/helpers/getFullName";
-import { cn } from "@/lib/helpers/utils";
-import { truncate } from "@/lib/truncate";
-import { RequestsResult } from "@/server/actions/assessments/get-all-requests";
-import { ArrowRightIcon, ClipboardListIcon, ClockIcon } from "lucide-react";
-import { ReactNode } from "react";
-import { Pie, PieChart } from "recharts";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Avatar, AvatarStack } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { CountdownTimer } from '@/components/ui/countdown';
+import { TFormType, TResponseStatus } from '@/db/schema';
+import { getInitials } from '@/lib/get-initials';
+import { getFullName } from '@/lib/helpers/getFullName';
+import { cn } from '@/lib/helpers/utils';
+import { truncate } from '@/lib/truncate';
+import { AssessmentsWithRequestsResult } from '@/server/actions/assessments/get-assessments-with-requests';
+import { ArrowRightIcon, ArrowUpRightFromSquareIcon, ClipboardListIcon, ClockIcon } from 'lucide-react';
+import { ReactNode } from 'react';
+import { Pie, PieChart } from 'recharts';
+import { FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
+import { AssessmentRequestDropdown } from '@/components/(admin)/forms/home/assessment-request-popover';
 
 interface ResponseProps {
   responseId: string;
   formTitle: string;
   formType: TFormType;
   responseCreatedAt: Date;
-  status: "COMPLETED" | "STARTED" | "NOT_STARTED";
-  evaluateeName?: string;
+  status: 'COMPLETED' | 'STARTED' | 'NOT_STARTED';
+  evaluateeName: string | undefined;
   assessmentExpiresAt: Date;
 }
 
 export function ResponseTable({ children }: { children: ReactNode }) {
   return (
-    <Card className="row-span-1 col-span-2 mr-[5px] mt-[1px] relative flex flex-col">
+    <Card className="row-span-1 col-span-2 mt-[1px] relative flex flex-col">
       {children}
     </Card>
   );
@@ -49,39 +42,38 @@ export function ResponseTableHeader({ children }: { children: ReactNode }) {
 }
 
 export function ResponseTableNotification({ requests }: { requests: number }) {
-  if (requests < 0) return <></>;
   return (
-    <span className="py-0.5 px-1.5 aspect-square relative rounded-full bg-destructive font-mono text-xs text-white">
-      <p className="">{requests}</p>
+    <span className={cn('py-0.5 px-1.5 aspect-square relative rounded-full bg-destructive font-mono text-xs text-white', !(requests > 0) && "opacity-0" )}>
+      <p >{requests}</p>
     </span>
   );
 }
 
 export function ResponseTableContent({ children }: { children: ReactNode }) {
   return (
-    <ul className="flex-grow relative overflow-y-scroll mb-[6px] shadow-inner space-y-4 px-2 py-2">
+    <ul className="flex-grow relative overflow-y-scroll mb-[6px] space-y-4 px-2 py-2">
       {children}
     </ul>
   );
 }
 
 export function ResponseTableRow({ ...response }: ResponseProps) {
-  const Icon = formTypeIcon[response.formType];
+  const Icon = formTypeContent[response.formType];
 
   return (
     <li className="grid grid-cols-12 h-14 mb-2 select-none hover:border-border border border-transparent rounded-md p-2 transition">
       <span
         className={cn(
-          "col-span-1 h-full justify-center flex flex-col",
-          response.status === "COMPLETED" && "grayscale",
+          'col-span-1 h-full justify-center flex flex-col',
+          response.status === 'COMPLETED' && 'grayscale',
         )}
       >
         <Icon
           size={12}
           className={cn(
-            formTypeColors[response.formType].text,
-            formTypeColors[response.formType].border,
-            "p-2 rounded-full size-8",
+            FORM_TYPE_COLORS[response.formType].text,
+            FORM_TYPE_COLORS[response.formType].border,
+            'p-2 rounded-full size-8',
           )}
         />
       </span>
@@ -109,7 +101,7 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
       <span className="col-span-3 h-full flex items-center justify-end">
         <Button
           className={cn(
-            "text-center bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center",
+            'text-center bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center',
           )}
           variant="expandIcon"
           Icon={ArrowRightIcon}
@@ -119,12 +111,14 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
           <p>
             {(() => {
               switch (response.status) {
-                case "COMPLETED":
-                  return "Review";
-                case "NOT_STARTED":
-                  return "Begin";
-                case "STARTED":
-                  return "Resume";
+                case 'COMPLETED':
+                  return 'Review';
+                case 'NOT_STARTED':
+                  return 'Begin';
+                case 'STARTED':
+                  return 'Resume';
+                default:
+                  throw new Error('status not valid');
               }
             })()}
           </p>
@@ -136,16 +130,16 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
 
 const chartConfig = {
   COMPLETED: {
-    label: "Completed",
-    color: "hsl(var(--accent-secondary)",
+    label: 'Completed',
+    color: 'hsl(var(--accent-secondary)',
   },
   STARTED: {
-    label: "Started",
-    color: "#f59e0b",
+    label: 'Started',
+    color: '#f59e0b',
   },
   NOT_STARTED: {
-    label: "Not Started",
-    color: "#525252",
+    label: 'Not Started',
+    color: '#525252',
   },
 } satisfies ChartConfig;
 
@@ -171,7 +165,13 @@ export function AssessmentStatusPieChart({
           cursor={false}
           content={<ChartTooltipContent hideLabel />}
         />
-        <Pie data={data} dataKey="count" nameKey="status" innerRadius={7} />
+        <Pie
+          animationDuration={0}
+          data={data}
+          dataKey="count"
+          nameKey="status"
+          innerRadius={7}
+        />
       </PieChart>
     </ChartContainer>
   );
@@ -179,16 +179,18 @@ export function AssessmentStatusPieChart({
 
 const getFill = (status: string) => {
   switch (status) {
-    case "STARTED":
-      return "hsl(var(--accent)";
-    case "NOT_STARTED":
-      return "hsl(var(--primary))";
-    case "COMPLETED":
-      return "hsl(var(--accent-secondary)";
+    case 'STARTED':
+      return 'hsl(var(--accent)';
+    case 'NOT_STARTED':
+      return 'hsl(var(--primary))';
+    case 'COMPLETED':
+      return 'hsl(var(--accent-secondary)';
+    default:
+      throw new Error('status not valid');
   }
 };
 const transformStatusData = (
-  responses: RequestsResult[0]["responses"],
+  responses: AssessmentsWithRequestsResult[0]['responses'],
 ): AssessmentStatusPieChartData => {
   const statusCounts = responses.reduce(
     (acc, response) => {
@@ -206,7 +208,7 @@ const transformStatusData = (
 };
 
 interface AssessmentRequestTableRowProps {
-  request: RequestsResult[0];
+  request: AssessmentsWithRequestsResult[0];
 }
 
 export function AssessmentRequestTableRow({
@@ -218,7 +220,7 @@ export function AssessmentRequestTableRow({
       {
         content: getInitials(getFullName(r.respondee)),
         tooltip: getFullName(r.respondee),
-        className: "bg-primary",
+        className: 'bg-primary',
       },
     ]),
   );
@@ -229,7 +231,7 @@ export function AssessmentRequestTableRow({
     <li className="grid grid-cols-12 h-14 mb-2 select-none hover:border-border border border-transparent rounded-md py-2 ml-1.5 pr-2 transition">
       <div
         className={cn(
-          "col-span-1 h-full items-start justify-center flex flex-col",
+          'col-span-1 h-full items-start justify-center flex flex-col',
         )}
       >
         <AssessmentStatusPieChart
@@ -264,43 +266,20 @@ export function AssessmentRequestTableRow({
       <span className="col-span-3 h-full space-x-2 flex items-center justify-end">
         <Button
           className={cn(
-            "text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center",
+            'text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center',
           )}
-          variant="expandIcon"
-          Icon={ArrowRightIcon}
-          iconPlacement="right"
+          variant="outline"
           size="xs"
         >
-          <p>Details</p>
+          <span>
+            <ArrowUpRightFromSquareIcon size={16} className="opacity-50" />
+          </span>
         </Button>
-       <AssessmentRequestPopover assessmentId={request.id} />
+        <AssessmentRequestDropdown assessmentId={request.id} />
       </span>
     </li>
   );
 }
 
 
-function AssessmentRequestPopover({ assessmentId }: { assessmentId: string }) {
 
-  // const { mutate: cancelAssessmentMutation } = useMutation({})
-  // const { mutate: deleteAssessmentMutation } = useMutation({})
-
-  return (
-    <Popover>
-      <PopoverTrigger>
-        <Button
-          className={cn(
-            "text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center",
-          )}
-          size="xs"
-        >
-          <DotsHorizontalIcon />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-
-      </PopoverContent>
-    </Popover>
-  )
-
-}

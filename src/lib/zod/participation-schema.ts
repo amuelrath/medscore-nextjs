@@ -5,7 +5,7 @@ export const ZPairSchema = z.object({
   evaluatorId: z.array(z.string().uuid()),
 });
 
-export const ZSpecificPairParticipationSchema = z.array(ZPairSchema);
+export const ZParticipantsSchema = z.array(ZPairSchema);
 
 export const ZAssessorPoolParticipationSchema = z.object({
   evaluateeIds: z.array(z.string().uuid()), // people allowed to evaluate
@@ -14,6 +14,6 @@ export const ZAssessorPoolParticipationSchema = z.object({
 
 export const ZRespondeeParticipationSchema = z.array(z.string().uuid());
 
-export type TSpecificPairParticipationSchema = z.infer<typeof ZSpecificPairParticipationSchema>
+export type TSpecificPairParticipationSchema = z.infer<typeof ZParticipantsSchema>
 export type TAssessorPoolParticipationSchema = z.infer<typeof ZAssessorPoolParticipationSchema>
 export type TRespondeeParticipationSchema = z.infer<typeof ZRespondeeParticipationSchema>

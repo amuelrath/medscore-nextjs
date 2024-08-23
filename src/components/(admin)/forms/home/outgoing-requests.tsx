@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
 import {
   AssessmentRequestTableRow,
   ResponseTable,
   ResponseTableContent,
   ResponseTableHeader,
-} from "@/components/(admin)/forms/home/response-table";
-import LetterPullup from "@/components/ui/letter-pull-up";
-import { getAllRequests } from "@/server/actions/assessments/get-all-requests";
-import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
-import { useQueries } from "@tanstack/react-query";
-import { CircleArrowOutUpRightIcon } from "lucide-react";
+} from '@/components/(admin)/forms/home/response-table';
+import LetterPullup from '@/components/ui/letter-pull-up';
+import { getAssessmentsWithRequests } from '@/server/actions/assessments/get-assessments-with-requests';
+import { getAllFormsLite } from '@/server/actions/forms/get-all-forms-lite';
+import { useQueries } from '@tanstack/react-query';
+import { CircleArrowOutUpRightIcon } from 'lucide-react';
 
 export function OutgoingRequests() {
   const [requests, forms] = useQueries({
     queries: [
       {
-        queryKey: ["requests"],
-        queryFn: () => getAllRequests(),
+        queryKey: ['assessments'],
+        queryFn: () => getAssessmentsWithRequests(),
       },
       {
-        queryKey: ["forms"],
+        queryKey: ['forms'],
         queryFn: () =>
           getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
       },
@@ -30,7 +30,7 @@ export function OutgoingRequests() {
   const { data: assessmentRequests, isLoading: isRequestsLoading } = requests;
   const { data: allForms, isLoading: isFormsLoading } = forms;
 
-  if (isRequestsLoading || isFormsLoading) return <></>;
+  if (isRequestsLoading || isFormsLoading) return null;
   if (!allForms) return <>no forms</>;
 
   return (
