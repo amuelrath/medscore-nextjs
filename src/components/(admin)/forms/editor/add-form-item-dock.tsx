@@ -23,10 +23,10 @@ export function AddFormItemDock({
         stiffness: 300,
         damping: 30,
       }}
-      className="flex flex-col items-center space-y-2 rounded-lg border border-neutral-300 bg-card p-1 drop-shadow-sm"
+      className="flex flex-col items-center space-y-2 rounded-sm border bg-card p-1 drop-shadow-sm"
     >
       <EnhancedTooltip
-        description={"Single-choice"}
+        description="Single-choice"
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[112px] "
       >
@@ -40,7 +40,7 @@ export function AddFormItemDock({
       </EnhancedTooltip>
 
       <EnhancedTooltip
-        description={"Multiple-choice"}
+        description="Multiple-choice"
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[120px] "
       >
@@ -53,7 +53,7 @@ export function AddFormItemDock({
         </Button>
       </EnhancedTooltip>
       <EnhancedTooltip
-        description={"Written"}
+        description="Written"
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[70px] "
       >
@@ -66,7 +66,7 @@ export function AddFormItemDock({
         </Button>
       </EnhancedTooltip>
       <EnhancedTooltip
-        description={"Heading"}
+        description="Heading"
         delay={0}
         contentClassName="absolute -top-2 left-11 w-[80px] "
       >

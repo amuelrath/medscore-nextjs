@@ -12,6 +12,11 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { LottieHover } from '@/components/ui/lottie-hover';
+import {
+  DEFAULT_FORM_NAME,
+  FORM_TYPE_COLORS,
+  formTypeContent,
+} from '@/lib/constants/forms';
 import { cn } from '@/lib/helpers/utils';
 import { createForm } from '@/server/actions/forms/create-form';
 import { FormsLiteResult } from '@/server/actions/forms/get-all-forms-lite';
@@ -22,7 +27,6 @@ import ADD from 'public/icons/add-card-teal.json';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { DEFAULT_FORM_NAME, FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
 
 type FormType = 'OSCE' | 'EVALUATION' | 'DIRECT_OBSERVATION';
 const formTypes: FormType[] = ['OSCE', 'EVALUATION', 'DIRECT_OBSERVATION'];
@@ -194,11 +198,10 @@ function FormTypeCard({
         onClick={() => handleSelect(type)}
         className={cn(
           'flex h-28 w-full items-center justify-center p-8 shadow-sm transition-all duration-200',
-          FORM_TYPE_COLORS[type].text,
-          isSelected && `ring-2 ring-offset-2 ${FORM_TYPE_COLORS[type].ring}`,
+          isSelected && `ring-2 ring-offset-2 ring-primary`,
         )}
       >
-        <Icon size={80} className="text-neutral-600" />
+        <Icon size={80} className="text-primary" />
       </Card>
       <p className="text-center text-xs font-light">
         {formTypeDescriptions[type].split(':')[0]}

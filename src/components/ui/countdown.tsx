@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useCallback, useEffect, useState } from "react";
 
 interface TimeLeft {
@@ -52,9 +53,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
     return () => clearInterval(timer);
   }, [calculateTimeLeft]);
 
-  const addLeadingZero = (value: number): string => {
-    return value < 10 ? `0${value}` : `${value}`;
-  };
+  const addLeadingZero = (value: number): string => value < 10 ? `0${value}` : `${value}`;
 
   const renderTimeLeft = (): string => {
     const timeComponents: string[] = [];
@@ -81,7 +80,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
   };
 
   return (
-    <div className="text-sm">
+    <div className="text-xs">
       {Object.keys(timeLeft).length === 0 ? (
         <span>Expired</span>
       ) : (

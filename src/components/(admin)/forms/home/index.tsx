@@ -1,36 +1,40 @@
 'use client';
 
+import {
+  AssessmentCreatorDialog,
+  TAssessmentEditorFormSchema,
+} from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
 import { CreateFormDialog } from '@/components/(admin)/forms/home/create-form-dialog';
 import { DeleteFormDialogTrigger } from '@/components/(admin)/forms/home/delete-evaluation-dialog';
-import { QuickEvaluateDialog } from '@/components/(admin)/forms/home/quick-evaluate-dialog';
+import { EvaluateSection } from '@/components/(admin)/forms/home/evaluate-section';
 import { TagFilter } from '@/components/(admin)/forms/home/tag-filter';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { SearchInput } from '@/components/ui/search-input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { TFormType } from '@/db/schema';
-import { FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
+import { formTypeContent } from '@/lib/constants/forms';
 import { cn } from '@/lib/helpers/utils';
 import { truncate } from '@/lib/truncate';
+import { createAssessmentWithRequests } from '@/server/actions/assessments/create-assessment-with-requests';
 import {
   FormLiteResult,
   FormsLiteResult,
   getAllFormsLite,
 } from '@/server/actions/forms/get-all-forms-lite';
 import { breadcrumbsAtom } from '@/store/global-atoms';
-import { useSuspenseQuery } from '@tanstack/react-query';
-import { formatDistance } from 'date-fns';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from '@tanstack/react-query';
+import { addHours, formatDistance } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSetAtom } from 'jotai/index';
 import { ClockIcon, Edit3, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 function FormCard({
   type,
@@ -49,14 +53,12 @@ function FormCard({
   return (
     <Card
       className={cn(
-        'col-span-1 relative hover:shadow-md h-full pt-0.5 overflow-clip',
-        FORM_TYPE_COLORS[type].border,
+        'col-span-1 relative hover:shadow-md h-full pt-0.5 overflow-clip bg-primary/20',
       )}
     >
       <span
         className={cn(
-          'absolute top-5 blur-sm pointer-events-none',
-          FORM_TYPE_COLORS[type].text,
+          'absolute opacity-50 text-primary top-5 blur-sm pointer-events-none',
         )}
       >
         <Icon size={128} />
@@ -104,7 +106,7 @@ interface FormsListProps {
 
 function FormsList({ filteredForms }: FormsListProps) {
   return (
-    <div className="flex-grow gap-4 auto-rows-[10rem] grid grid-cols-4">
+    <div className="flex-grow gap-4 auto-rows-[8.53rem] grid grid-cols-3">
       <AnimatePresence initial={false}>
         {filteredForms.map((form) => (
           <motion.div
@@ -185,26 +187,25 @@ export function FormsHome() {
   return (
     <main className="flex flex-grow flex-col">
       <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border bg-card p-1 pl-4 pr-2">
-        <span className="flex items-center space-x-2">
-          <h3 className={cn('text-2xl font-bold text-neutral-700')}>Forms</h3>
-        </span>
-        <div className="space-x-4 flex flex-row items-center">
-          <CreateFormDialog />
-          <QuickEvaluateDialog />
+        <div className="flex items-center flex-row space-x-4 text-neutral-700">
+          <h3 className={cn('text-md font-medium')}>Forms</h3>
         </div>
+        <div className="space-x-4 flex flex-row items-center" />
       </div>
-      <div className="grid grid-cols-5 gap-4 flex-grow  p-4">
+      <FormsListToolbar
+        handleFilter={handleFilter}
+        handleTagSelect={handleTagSelect}
+        handleTagRemove={handleTagRemove}
+        uniqueTags={uniqueTags as TFormType[]}
+        selectedTag={selectedTag}
+      />
+      <div className="grid grid-cols-6 gap-4 gap-y-0 flex-grow px-4 pb-4 pt-2">
         <div className="flex flex-col col-span-4">
-          <FormsListToolbar
-            handleFilter={handleFilter}
-            handleTagSelect={handleTagSelect}
-            handleTagRemove={handleTagRemove}
-            uniqueTags={uniqueTags as TFormType[]}
-            selectedTag={selectedTag}
-          />
           <FormsList filteredForms={filteredForms} />
         </div>
-        <div className="col-span-1 bg-primary/5 border rounded" />
+        <div className="col-span-2 h-full">
+          <EvaluateSection />
+        </div>
       </div>
     </main>
   );
@@ -225,14 +226,35 @@ function FormsListToolbar({
   uniqueTags,
   selectedTag,
 }: FormsListToolbarProps) {
+  const { data: forms, isLoading } = useQuery({
+    queryKey: ['forms'],
+    queryFn: () =>
+      getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
+  });
+
+  const queryClient = useQueryClient();
+  const { mutate: createAssessmentMutation } = useMutation({
+    mutationFn: createAssessmentWithRequests,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['assessments'] });
+    },
+    onError: () => {
+      toast.error('Something went wrong.');
+    },
+  });
+
+  const submitFn = (data: TAssessmentEditorFormSchema) => {
+    createAssessmentMutation({
+      ...data,
+    });
+  };
+
   return (
-    <div className="mb-4 flex justify-between">
-      <div className="flex items-baseline space-x-4">
-        <SearchInput
+    <div className="px-4 pt-2 flex justify-between">
+      <div className="flex items-center flex-row space-x-4">
+        <Input
           size="xs"
-          variant="underline"
           placeholder="Search my forms..."
-          className={cn('pl-8 font-light')}
           onChange={(e) => handleFilter(e.target.value)}
         />
         <div className="flex items-center space-x-3">
@@ -244,16 +266,19 @@ function FormsListToolbar({
           />
         </div>
       </div>
-      <Select defaultValue="ALL">
-        <SelectTrigger className="max-w-52 max-h-7 text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="ALL">All Forms</SelectItem>
-          <SelectItem value="MY_FORMS">My Forms</SelectItem>
-          <SelectItem value="SHARED">Shared With Me</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex flex-row items-center space-x-2">
+        <CreateFormDialog />
+        {!isLoading && forms && (
+          <AssessmentCreatorDialog
+            forms={forms}
+            defaultValues={{
+              startsAt: new Date().toISOString(),
+              expiresAt: addHours(new Date(), 4).toISOString(),
+            }}
+            submitFn={submitFn}
+          />
+        )}
+      </div>
     </div>
   );
 }

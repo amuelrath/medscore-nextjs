@@ -313,7 +313,10 @@ export function FormBuilder() {
           onClick={handleFormAreaClick}
         >
           <div className="no-scrollbar col-start-3 w-full col-span-3 relative h-[87.3vh]">
-            <form onSubmit={(e) => e.preventDefault()} className="pb-52 mr-2 pt-4">
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="pb-52 mr-2 pt-4"
+            >
               {memoizedFormItems}
             </form>
             <Dock dockPosition={dockPosition} addQuestion={handleAddQuestion} />

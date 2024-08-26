@@ -6,13 +6,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { ScrollShadow } from '@/components/ui/scroll-shadow';
 import { SearchInput } from '@/components/ui/search-input';
 import { TFormType } from '@/db/schema';
 import {
   UseMultiselectField,
   useMultiselectField,
 } from '@/hooks/use-multiselect-field';
+import { FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
 import { cn } from '@/lib/helpers/utils';
 import { truncate } from '@/lib/truncate';
 import { getAllFormsLite } from '@/server/actions/forms/get-all-forms-lite';
@@ -21,7 +21,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2Icon, PlusCircleIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { FieldValues } from 'react-hook-form';
-import { FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
 
 export function FormMultiselect<T extends FieldValues>({
   name,
@@ -60,8 +59,10 @@ export function FormMultiselect<T extends FieldValues>({
   return (
     <Popover modal>
       <PopoverTrigger asChild disabled={disabled}>
-        <div
+        <motion.div
           role="button"
+          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 0.98 }}
           className={cn(
             'w-[156px] h-[90px] relative overflow-hidden',
             disabled && 'opacity-50 cursor-not-allowed',
@@ -94,7 +95,7 @@ export function FormMultiselect<T extends FieldValues>({
               />
             </div>
           )}
-        </div>
+        </motion.div>
       </PopoverTrigger>
       <PopoverContent
         align="start"
@@ -110,21 +111,23 @@ export function FormMultiselect<T extends FieldValues>({
           <SearchInput placeholder="Search forms..." size="xs" />
         </div>
         <div className="relative -mt-1 flex-grow overflow-hidden">
-          <ScrollShadow position="top" />
-          <ScrollShadow position="bottom" />
+          <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-white/80 to-transparent pointer-events-none z-20" />
+          <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-white/80 to-transparent pointer-events-none z-10" />
           <div className="grid grid-cols-2 auto-rows-[90px] gap-3 h-full p-2 overflow-y-auto no-scrollbar">
-            {sortedItems.map((f) => (
-              <CompactFormCard
-                key={f.id}
-                title={f.title}
-                type={f.type}
-                select={() => select(f.id)}
-                deselect={() => deselect(f.id)}
-                isSelected={selectedIds.includes(f.id)}
-                disabled={disabled}
-                isMaxReached={selectedIds.length >= max}
-              />
-            ))}
+            <AnimatePresence>
+              {sortedItems.map((f) => (
+                <CompactFormCard
+                  key={f.id}
+                  title={f.title}
+                  type={f.type}
+                  select={() => select(f.id)}
+                  deselect={() => deselect(f.id)}
+                  isSelected={selectedIds.includes(f.id)}
+                  disabled={disabled}
+                  isMaxReached={selectedIds.length >= max}
+                />
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </PopoverContent>
@@ -142,6 +145,8 @@ interface CompactFormCardProps {
   isMaxReached?: boolean;
   displayOnly?: boolean;
 }
+
+const MotionCard = motion(Card);
 
 function CompactFormCard({
   title,
@@ -167,16 +172,17 @@ function CompactFormCard({
   };
 
   return (
-    <Card
+    <MotionCard
+      layout="position"
+      whileTap={{ scale: 0.9 }}
+      whileHover={{ scale: 0.98 }}
       aria-disabled={disabled && isSelected}
       onClick={handleClick}
       className={cn(
         'relative h-[90px] pt-0.5 overflow-clip',
-        !displayOnly && 'cursor-pointer hover:shadow-md transition',
+        !displayOnly && 'cursor-pointer',
         FORM_TYPE_COLORS[type].border,
-        disabled &&
-          isSelected &&
-          'opacity-50 cursor-not-allowed hover:scale-100',
+        disabled && isSelected && 'opacity-50 cursor-not-allowed',
         !isSelected && isMaxReached && 'opacity-50',
       )}
     >
@@ -203,6 +209,6 @@ function CompactFormCard({
           )}
         </AnimatePresence>
       </span>
-    </Card>
+    </MotionCard>
   );
 }

@@ -1,15 +1,16 @@
-"use client";
-import { FC, ReactNode, useEffect } from "react";
+'use client';
+
+import { FormEditorNav } from '@/components/(admin)/forms/editor/form-editor-nav';
 import {
   DirectionAwareContent,
   DirectionAwareTabsProvider,
-} from "@/components/ui/direction-aware-tabs";
-import { FormEditorNav } from "@/components/(admin)/forms/editor/form-editor-nav";
-import { useSetAtom } from "jotai";
+} from '@/components/ui/direction-aware-tabs';
 import {
   selectedAssessmentIdAtom,
   selectedResponseIdAtom,
-} from "@/store/form-atoms";
+} from '@/store/form-atoms';
+import { useSetAtom } from 'jotai';
+import { ReactNode, useEffect } from 'react';
 
 interface FormLayoutProps {
   editor: ReactNode;
@@ -18,11 +19,7 @@ interface FormLayoutProps {
 }
 
 // separates the tabs and tabs content
-export const FormLayout: FC<FormLayoutProps> = ({
-  editor,
-  responses,
-  formId,
-}) => {
+export function FormLayout({ editor, responses, formId }: FormLayoutProps) {
   const setSelectedResponseId = useSetAtom(selectedResponseIdAtom);
   const setSelectedFormCodeId = useSetAtom(selectedAssessmentIdAtom);
 
@@ -33,8 +30,8 @@ export const FormLayout: FC<FormLayoutProps> = ({
   }, [formId, setSelectedFormCodeId, setSelectedResponseId]);
 
   const tabs = [
-    { id: 0, label: "Editor", content: editor },
-    { id: 1, label: "Responses", content: responses },
+    { id: 0, label: 'Editor', content: editor },
+    { id: 1, label: 'Responses', content: responses },
   ];
 
   return (
@@ -45,4 +42,4 @@ export const FormLayout: FC<FormLayoutProps> = ({
       </div>
     </DirectionAwareTabsProvider>
   );
-};
+}

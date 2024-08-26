@@ -8,7 +8,7 @@ const inputVariants = cva(
   {
     variants: {
       size: {
-        xs: "h-6 text-2xs",
+        xs: "h-7 text-2xs",
         sm: "h-8 text-xs",
         md: "h-10 text-sm",
         lg: "h-12 text-base",
@@ -37,8 +37,7 @@ export interface InputProps
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, autocomplete, size, variant, ...props }, ref) => {
-    return (
+  ({ className, type, autocomplete, size, variant, ...props }, ref) => (
       <input
         type={type}
         autoComplete={autocomplete ? "on" : "off"}
@@ -46,8 +45,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         {...props}
       />
-    );
-  },
+    ),
 );
 
 Input.displayName = "Input";
