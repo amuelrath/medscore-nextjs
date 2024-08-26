@@ -4,6 +4,7 @@ import { cn } from '@/lib/helpers/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FC } from 'react';
 import { formTypeContent } from '@/lib/constants/forms';
+import { Button } from '@/components/ui/button';
 
 interface TagFilterProps {
   tags: TFormType[];
@@ -38,11 +39,12 @@ export const TagFilter: FC<TagFilterProps> = ({
             exit={{ opacity: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 30 }}
           >
-            <Badge
-              variant="hide"
+            <Button
+              variant="outline"
+              size="xs"
               onClick={() => handleTagClick(tag)}
               className={cn(
-                'cursor-pointer h-7 rounded-md truncate border border-border font-normal ',
+                'cursor-pointer truncate min-h-7',
                 {
                   'border-neutral-300 text-foreground': selectedTag === tag,
                   'text-foreground/50 hover:border-neutral-300  hover:text-foreground':
@@ -54,7 +56,7 @@ export const TagFilter: FC<TagFilterProps> = ({
                 const Content = formTypeContent[tag];
                 return <Content size={16} />;
               })()}
-            </Badge>
+            </Button>
           </motion.div>
         ))}
       </AnimatePresence>
