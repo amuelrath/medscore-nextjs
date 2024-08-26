@@ -1,6 +1,6 @@
 'use server';
 
-import { TAssessmentEditorFormSchema } from '@/components/(admin)/forms/home/assessment-editor-dialog';
+import { TAssessmentEditorFormSchema } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
 import { db } from '@/db';
 import { assessments, responses } from '@/db/schema';
 import { formatDate } from 'date-fns';
