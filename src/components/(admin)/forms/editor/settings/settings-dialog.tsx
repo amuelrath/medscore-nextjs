@@ -1,6 +1,6 @@
 // SettingsDialog.tsx
-import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { Button } from "@/components/ui/button";
+import { TFormSchema } from '@/components/(admin)/forms/editor/hooks/use-form-builder';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -8,25 +8,26 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import EasyTooltip from "@/components/ui/easy-tooltip";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/dialog';
+import EasyTooltip from '@/components/ui/easy-tooltip';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Switch } from "@/components/ui/switch";
-import { ProgramRole, TFormType } from "@/db/schema";
-import { useFormResultInEditor } from "@/hooks/queries/use-form-result-in-editor";
-import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
-import { capitalizeFirstLetter } from "@/lib/capitalize-first-letter";
-import { cn } from "@/lib/helpers/utils";
-import { motion, useScroll } from "framer-motion";
+} from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { ProgramRole, TFormType } from '@/db/schema';
+import { useFormResultInEditor } from '@/hooks/queries/use-form-result-in-editor';
+import { useGetSubcompetenciesInEditor } from '@/hooks/queries/use-get-form-subcompetencies';
+import { capitalizeFirstLetter } from '@/lib/capitalize-first-letter';
+import { COMPETENCIES } from '@/lib/constants/common';
+import { cn } from '@/lib/helpers/utils';
+import { motion, useScroll } from 'framer-motion';
 import {
   BarChartIcon,
   FileTextIcon,
@@ -36,24 +37,23 @@ import {
   PlusIcon,
   SettingsIcon,
   WeightIcon,
-} from "lucide-react";
+} from 'lucide-react';
 import React, {
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
-} from "react";
+} from 'react';
 import {
   Control,
   Controller,
   useFieldArray,
   useFormContext,
   useWatch,
-} from "react-hook-form";
-import { COMPETENCIES } from '@/lib/constants/common';
+} from 'react-hook-form';
 
-type TSettingsTabs = "GENERAL" | "RESPONSES" | "SCORES" | "WEIGHTS";
+type TSettingsTabs = 'GENERAL' | 'RESPONSES' | 'SCORES' | 'WEIGHTS';
 
 // Utility Components
 const Section: React.FC<{ children: React.ReactNode; id: TSettingsTabs }> = ({
@@ -62,7 +62,7 @@ const Section: React.FC<{ children: React.ReactNode; id: TSettingsTabs }> = ({
 }) => <motion.section id={id}>{children}</motion.section>;
 
 // Tab Components
-const tabNames: TSettingsTabs[] = ["GENERAL", "RESPONSES", "SCORES", "WEIGHTS"];
+const tabNames: TSettingsTabs[] = ['GENERAL', 'RESPONSES', 'SCORES', 'WEIGHTS'];
 
 const tabIcons = {
   GENERAL: FileTextIcon,
@@ -85,10 +85,10 @@ const SettingsTabs: React.FC<{
           variant="hide"
           type="button"
           className={cn(
-            "text-neutral-700 justify-start flex w-full rounded-md transition-colors",
+            'text-neutral-700 justify-start flex w-full rounded-md transition-colors',
             activeTab === name
-              ? "bg-primary/5 "
-              : "hover:bg-primary/5 text-neutral-500",
+              ? 'bg-primary/5 '
+              : 'hover:bg-primary/5 text-neutral-500',
           )}
           key={name}
         >
@@ -103,15 +103,15 @@ const SettingsTabs: React.FC<{
 // Main SettingsDialog Component
 export function SettingsDialog() {
   const { getValues, control } = useFormContext<TFormSchema>();
-  const formType = getValues("type") as TFormType;
-  const [activeTab, setActiveTab] = useState<TSettingsTabs>("GENERAL");
+  const formType = getValues('type') as TFormType;
+  const [activeTab, setActiveTab] = useState<TSettingsTabs>('GENERAL');
   const contentRef = useRef<HTMLDivElement>(null);
 
   const scrollToSection = (tab: TSettingsTabs) => {
     const element = document.getElementById(tab);
     if (element && contentRef.current) {
       const yOffset = element.offsetTop - contentRef.current.offsetTop;
-      contentRef.current.scrollTo({ top: yOffset, behavior: "smooth" });
+      contentRef.current.scrollTo({ top: yOffset, behavior: 'smooth' });
     }
   };
 
@@ -196,7 +196,7 @@ function SettingsContent({
       }
     };
 
-    const unsubscribe = scrollY.on("change", handleScroll);
+    const unsubscribe = scrollY.on('change', handleScroll);
     return () => unsubscribe();
   }, [scrollY, setActiveTab]);
 
@@ -213,18 +213,18 @@ function SettingsContent({
             {capitalizeFirstLetter(tab)}
           </h3>
           <div>
-            {tab === "GENERAL" && (
+            {tab === 'GENERAL' && (
               <GeneralSettings control={control} type={formType} />
             )}
-            {tab === "RESPONSES" && <ResponseSettings control={control} />}
-            {tab === "SCORES" && (
+            {tab === 'RESPONSES' && <ResponseSettings control={control} />}
+            {tab === 'SCORES' && (
               <ScoreSettings
                 control={control}
                 type={formType}
                 programRoles={programRoles}
               />
             )}
-            {tab === "WEIGHTS" && (
+            {tab === 'WEIGHTS' && (
               <RoleWeightSettings
                 control={control}
                 roles={programRoles}
@@ -241,7 +241,7 @@ function SettingsContent({
 // Reusable Components
 type SettingTooltipProps = {
   title: string;
-  type: "description" | "enabledDisabled";
+  type: 'description' | 'enabledDisabled';
   description?: string;
   enabledDescription?: string;
   disabledDescription?: string;
@@ -257,7 +257,7 @@ function SettingTooltip({
   const content = (
     <div className="flex flex-col space-y-2 max-w-xs">
       <h6 className="font-semibold underline">{title}</h6>
-      {type === "description" ? (
+      {type === 'description' ? (
         <p className="font-light">{description}</p>
       ) : (
         <>
@@ -302,8 +302,8 @@ function SwitchSetting({
   return (
     <div
       className={cn(
-        "w-full transition-colors flex flex-row items-center justify-between",
-        disabled && "opacity-50",
+        'w-full transition-colors flex flex-row items-center justify-between',
+        disabled && 'opacity-50',
       )}
     >
       <div className="flex items-center space-x-2">
@@ -346,8 +346,8 @@ function SelectSetting({
   return (
     <div
       className={cn(
-        "w-full transition-colors flex flex-row items-center justify-between",
-        disabled && "opacity-50",
+        'w-full transition-colors flex flex-row items-center justify-between',
+        disabled && 'opacity-50',
       )}
     >
       <div className="flex items-center space-x-2">
@@ -378,9 +378,9 @@ function SelectSetting({
 
 // Settings Section Components
 const accessOptions = [
-  { label: "Just Me", value: "JUST_ME" },
-  { label: "Faculty in my Program", value: "FACULTY_IN_PROGRAM" },
-  { label: "Faculty I choose", value: "FACULTY_I_CHOOSE" },
+  { label: 'Just Me', value: 'JUST_ME' },
+  { label: 'Faculty in my Program', value: 'FACULTY_IN_PROGRAM' },
+  { label: 'Faculty I choose', value: 'FACULTY_I_CHOOSE' },
 ];
 
 function GeneralSettings({
@@ -498,7 +498,7 @@ function ScoreSettings({
   control: Control<TFormSchema>;
   programRoles: ProgramRole[];
 }) {
-  const disabled = type === "SURVEY";
+  const disabled = type === 'SURVEY';
   return (
     <div className="space-y-4">
       <div className="space-y-4 p-4 rounded-md border">
@@ -534,8 +534,7 @@ const MAX_PRECISION = 2; // Maximum number of decimal places
 function formatWeight(weight: number): string {
   // Round down to MAX_PRECISION decimal places
   const rounded =
-    Math.floor(weight * 10**MAX_PRECISION) /
-    10**MAX_PRECISION;
+    Math.floor(weight * 10 ** MAX_PRECISION) / 10 ** MAX_PRECISION;
   // Format as string with fixed precision
   return rounded.toFixed(MAX_PRECISION);
 }
@@ -544,12 +543,12 @@ function formatWeight(weight: number): string {
 function useWeights(control: Control<TFormSchema>, roles: ProgramRole[]) {
   const { fields, append, remove, update } = useFieldArray({
     control,
-    name: "settings.roleWeights",
+    name: 'settings.roleWeights',
   });
 
   const weights = useWatch({
     control,
-    name: "settings.roleWeights",
+    name: 'settings.roleWeights',
   });
 
   const [localWeights, setLocalWeights] = useState<string[]>(
@@ -674,7 +673,7 @@ function RoleWeightSettings({
   return (
     <div
       className={cn(
-        "w-full p-4 border rounded-md transition-colors flex flex-col space-y-4",
+        'w-full p-4 border rounded-md transition-colors flex flex-col space-y-4',
       )}
     >
       <div className="flex justify-between items-center w-full">
@@ -750,13 +749,11 @@ function RoleWeightSettings({
           </div>
         ))}
       </div>
-      <div
-        className="text-sm select-none flex flex-row space-x-1 items-center text-gray-500"
-      >
+      <div className="text-sm select-none flex flex-row space-x-1 items-center text-gray-500">
         <p>Total Weight:</p>
         <p
           className={cn(
-            totalWeight !== 1 ? "text-destructive" : "text-emerald-400",
+            totalWeight !== 1 ? 'text-destructive' : 'text-emerald-400',
           )}
         >
           {formatWeight(totalWeight)}
@@ -766,8 +763,8 @@ function RoleWeightSettings({
   );
 }
 
-const ASPECTS = ["OVERALL", "ICS", "MK", "SBP", "PBLI", "PC", "PROF"];
-type TAspect = "OVERALL" | "ICS" | "MK" | "SBP" | "PBLI" | "PC" | "PROF";
+const ASPECTS = ['OVERALL', 'ICS', 'MK', 'SBP', 'PBLI', 'PC', 'PROF'];
+type TAspect = 'OVERALL' | 'ICS' | 'MK' | 'SBP' | 'PBLI' | 'PC' | 'PROF';
 
 function PassingCriteriaSettings({
   control,
@@ -781,23 +778,31 @@ function PassingCriteriaSettings({
     useGetSubcompetenciesInEditor();
 
   // Figure out which competencies this form tests
-  const questionMilestoneIds = useMemo(() => (
+  const questionMilestoneIds = useMemo(
+    () =>
       formResult?.formItems.flatMap((i) =>
         i.milestones.map((m) => m.milestoneId),
-      ) || []
-    ), [formResult?.formItems]);
+      ) || [],
+    [formResult?.formItems],
+  );
 
-  const relevantSubcompetencies = useMemo(() => (
+  const relevantSubcompetencies = useMemo(
+    () =>
       subcompetencies?.filter((sc) =>
         sc.milestones.some((m) => questionMilestoneIds.includes(m.id)),
-      ) || []
-    ), [questionMilestoneIds]);
+      ) || [],
+    [questionMilestoneIds],
+  );
 
-  const relevantCompetencyIds = useMemo(() => [...new Set(relevantSubcompetencies.map((sc) => sc.competencyId))], [relevantSubcompetencies]);
+  const relevantCompetencyIds = useMemo(
+    () => [...new Set(relevantSubcompetencies.map((sc) => sc.competencyId))],
+    [relevantSubcompetencies],
+  );
 
   // Get the relevant aspects (competency abbreviations)
-  const relevantAspects = useMemo(() => [
-      "OVERALL",
+  const relevantAspects = useMemo(
+    () => [
+      'OVERALL',
       ...relevantCompetencyIds
         .map((id) => {
           const competency = Object.values(COMPETENCIES).find(
@@ -806,14 +811,16 @@ function PassingCriteriaSettings({
           return competency ? competency.abbrev : null;
         })
         .filter((abbrev): abbrev is TAspect => abbrev !== null),
-    ], [relevantCompetencyIds]);
+    ],
+    [relevantCompetencyIds],
+  );
 
   const { fields, append, remove } = useFieldArray<TFormSchema>({
     control,
-    name: "settings.passingCriteria",
+    name: 'settings.passingCriteria',
   });
 
-  const aspects = useWatch({ control, name: "settings.passingCriteria" });
+  const aspects = useWatch({ control, name: 'settings.passingCriteria' });
 
   const addAspect = useCallback(() => {
     const usedAspects = new Set(aspects.map((a) => a.aspect));
@@ -879,7 +886,7 @@ function PassingCriteriaSettings({
                             value={aspect}
                             disabled={isUsed && aspect !== field.value}
                           >
-                            {aspect === "OVERALL"
+                            {aspect === 'OVERALL'
                               ? capitalizeFirstLetter(aspect)
                               : aspect}
                           </SelectItem>

@@ -1,4 +1,3 @@
-import { COMPETENCIES } from "@/db/constants";
 import { TCompetencyScores } from "@/db/schema";
 import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
 import useGetSelectedResponse from "@/hooks/queries/use-get-selected-response";
@@ -22,6 +21,7 @@ import {
 import { analyzeTrend } from "@/lib/analyze-trend";
 import { Card } from "@/components/ui/card";
 import { addHours, isBefore } from "date-fns";
+import { COMPETENCIES } from '@/lib/constants/common';
 
 export const getRowsByCompetencyId = (
   competencyId: string,
@@ -185,7 +185,7 @@ export function CompetencyScores({
   );
 }
 
-const PerformanceCard = ({
+function PerformanceCard({
   trendData,
   percentScore,
   competencyName,
@@ -193,7 +193,7 @@ const PerformanceCard = ({
   trendData: { date: Date; score: number; responseId: string }[];
   percentScore: number;
   competencyName: string;
-}) => {
+}) {
   const { remark, color } = getPerformanceRemarks(percentScore);
   const {
     trendDescription,
@@ -262,7 +262,7 @@ const PerformanceCard = ({
       </AnimatePresence>
     </div>
   );
-};
+}
 
 function analyzeResponse({
                            response,
