@@ -1,11 +1,5 @@
-import { IncomingRequests } from "@/components/(admin)/forms/home/incoming-requests";
-import { OutgoingRequests } from "@/components/(admin)/forms/home/outgoing-requests";
+import { AssessmentRequestContent } from '@/components/(admin)/forms/home/assessment-request-content';
 
 export function EvaluateSection() {
-  return (
-    <>
-      <IncomingRequests />
-      <OutgoingRequests />
-    </>
-  );
+  return <AssessmentRequestContent />;
 }
