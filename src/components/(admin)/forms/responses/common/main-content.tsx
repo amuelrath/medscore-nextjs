@@ -1,4 +1,5 @@
 "use client";
+
 import { Tab, TabsBox } from "@/components/ui/tabs-box";
 import { Suspense } from "react";
 import Loading from "@/components/ui/loading";
