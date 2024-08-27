@@ -1,21 +1,29 @@
-"use server";
-import { db } from "@/db";
-import { responses } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { isAfter, isBefore } from "date-fns";
+'use server';
+
+import { db } from '@/db';
+import { assessments, forms, responses } from '@/db/schema';
+import { isAfter, isBefore } from 'date-fns';
+import { eq } from 'drizzle-orm';
 
 export async function getEvaluationForm({
   responseId,
 }: {
   responseId: string;
 }) {
-  console.log("Received responseId:", responseId);
-  const now = new Date()
+  const now = new Date();
   const response = await db.query.responses.findFirst({
     where: eq(responses.id, responseId),
     with: {
+      answers: {
+        columns: {
+          id: true,
+          formItemId: true,
+          textValue: true,
+          selectedOptionIds: true,
+        },
+      },
       // todo use session instead of this when we have auth done
-      creator: {
+      respondee: {
         columns: {
           id: true,
           role: true,
@@ -41,52 +49,52 @@ export async function getEvaluationForm({
     },
   });
 
-  if (!response) throw new Error("Form code not found");
+  if (!response) throw new Error('Form code not found');
 
   if (
     isBefore(now, response.assessment.startsAt) ||
-    isAfter(now, response.assessment.expiresAt) ||
-    response.assessment.canceledAt
+    isAfter(now, response.assessment.expiresAt)
   )
-    throw new Error("Form code has expired or not yet valid");
+    throw new Error('Form code has expired or not yet valid');
 
   const form = await db.query.forms.findFirst({
-    where: (f, { eq }) => eq(f.id, response.assessment.formId),
+    where: eq(forms.id, response.assessment.formId),
     columns: {
       id: true,
       title: true,
+      settings: true,
     },
     with: {
       assessments: {
         limit: 1,
-        where: (fc, { eq }) => eq(fc.id, response.assessment.id),
+        where: eq(assessments.id, response.assessment.id),
         columns: {
-          formId: false,
-          code: false,
-          id: false,
-          title: false,
-          isDirectObservation: true,
-          canceledAt: true,
+          title: true,
           startsAt: true,
           expiresAt: true,
-          createdAt: false,
         },
         with: {
-          evaluatees: {
+          responses: {
             columns: {
-              userId: false,
-              assessmentId: false,
-              deletedAt: false,
+              id: true,
+              status: true,
+              duration: true,
             },
             with: {
-              user: {
+              respondee: {
                 columns: {
                   id: true,
                   firstName: true,
                   lastName: true,
                   role: true,
-                  email: false,
-                  password: false,
+                },
+              },
+              evaluatee: {
+                columns: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  role: true,
                 },
               },
             },
@@ -117,7 +125,7 @@ export async function getEvaluationForm({
     },
   });
 
-  if (!form) throw new Error("form not found");
+  if (!form) throw new Error('form not found');
 
   return { form, response };
 }
