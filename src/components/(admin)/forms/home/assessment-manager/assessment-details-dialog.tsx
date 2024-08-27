@@ -126,8 +126,16 @@ function transformToDefaultValues(
       evaluatorId: r.respondee?.id ? [r.respondee.id] : [],
       status: r.status,
     })),
-    expiresAt: assessment.expiresAt.toISOString().slice(0, 16),
-    startsAt: assessment.startsAt.toISOString().slice(0, 16),
+    expiresAt: new Date(assessment.expiresAt)
+      .toLocaleString('sv-SE', {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+      .slice(0, 16),
+    startsAt: new Date(assessment.startsAt)
+      .toLocaleString('sv-SE', {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      })
+      .slice(0, 16),
     formType: assessment.form.type,
   };
 }

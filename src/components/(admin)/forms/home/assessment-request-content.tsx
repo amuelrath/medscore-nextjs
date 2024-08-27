@@ -1,6 +1,5 @@
 import {
   AssessmentRequestTableRow,
-  ResponseTableNotification,
   ResponseTableRow,
 } from '@/components/(admin)/forms/home/response-table';
 import { Label } from '@/components/ui/label';
@@ -169,7 +168,6 @@ export function AssessmentRequestContent() {
       label: (
         <div className="flex justify-center items-center space-x-1">
           <span>Requests</span>
-          <ResponseTableNotification requests={requested.length} />
         </div>
       ),
       content: (

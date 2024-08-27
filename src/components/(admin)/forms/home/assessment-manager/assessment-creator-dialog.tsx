@@ -74,10 +74,18 @@ export function AssessmentCreatorDialog({
   const formattedDefaultValues = {
     ...defaultValues,
     startsAt: defaultValues?.startsAt
-      ? new Date(defaultValues?.startsAt || '').toISOString().slice(0, 16)
+      ? new Date(defaultValues.startsAt)
+          .toLocaleString('sv-SE', {
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          })
+          .slice(0, 16)
       : defaultValues?.startsAt,
     expiresAt: defaultValues?.expiresAt
-      ? new Date(defaultValues?.expiresAt || '').toISOString().slice(0, 16)
+      ? new Date(defaultValues.expiresAt)
+          .toLocaleString('sv-SE', {
+            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          })
+          .slice(0, 16)
       : defaultValues?.expiresAt,
   };
 
