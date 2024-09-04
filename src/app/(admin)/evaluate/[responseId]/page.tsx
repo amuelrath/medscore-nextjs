@@ -4,7 +4,7 @@ import {
   QueryClient,
 } from "@tanstack/react-query";
 import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
-import { EvaluationForm } from "@/components/(admin)/evaluate/forms/evaluation-form";
+import { WebEvaluationForm } from '@/components/(evaluation)/evaluation-form';
 
 export default async function EvaluateFormPage({
   params,
@@ -29,7 +29,7 @@ export default async function EvaluateFormPage({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <EvaluationForm responseId={responseId} />
+      <WebEvaluationForm responseId={responseId} />
     </HydrationBoundary>
   );
 }
