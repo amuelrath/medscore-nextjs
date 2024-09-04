@@ -273,10 +273,10 @@ export function AssessmentDetailsDialog({
                 </div>
               </div>
               <div className="col-span-2 h-64 mt-4 flex flex-grow">
-                <ParticipantManager type="EDIT" />
+                <ParticipantManager assessmentId={assessmentId} type="EDIT" />
               </div>
             </div>
-            <div className="flex mt-4 flex-row items-center space-x-2 justify-end">
+            <div className="flex mt-4 text-xs flex-row items-center space-x-2 justify-end">
               <Button
                 size="sm"
                 className="w-32 transition"

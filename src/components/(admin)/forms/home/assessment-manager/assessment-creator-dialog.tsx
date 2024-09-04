@@ -151,8 +151,8 @@ export function AssessmentCreatorDialog({
       <DialogTrigger asChild>
         <Button
           size="xs"
-          variant="accent-secondary"
-          className="font-semibold text-teal-950 space-x-2"
+          variant="accent-secondary-background"
+          className="font-semibold text-teal-950 w-[200px] space-x-2"
         >
           <SendHorizonalIcon size={14} strokeWidth={2.5} />
           <p>Request Assessment</p>
