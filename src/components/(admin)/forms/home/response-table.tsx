@@ -10,7 +10,10 @@ import { getFullName } from '@/lib/helpers/getFullName';
 import { cn } from '@/lib/helpers/utils';
 import { truncate } from '@/lib/truncate';
 import { AssessmentsWithRequestsResult } from '@/server/actions/assessments/get-assessments-with-requests';
+import { updateResponseStatus } from '@/server/actions/responses/update-status';
+import { useMutation } from '@tanstack/react-query';
 import { ArrowRightIcon, ClipboardListIcon, ClockIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
 
 interface ResponseProps {
@@ -61,6 +64,26 @@ export function ResponseTableContent({ children }: { children: ReactNode }) {
 }
 
 export function ResponseTableRow({ ...response }: ResponseProps) {
+  const router = useRouter();
+
+  const { mutate: mutateUpdateStatus } = useMutation({
+    mutationFn: updateResponseStatus,
+  });
+
+  const handleClick = () => {
+    if (response.status === 'NOT_STARTED') {
+      mutateUpdateStatus({
+        responseId: response.responseId,
+        status: 'STARTED',
+      });
+    }
+
+    if (response.status === 'COMPLETED')
+      throw new Error('Response has already been completed');
+
+    return router.push(`/evaluate/${response.responseId}`);
+  };
+
   return (
     <li className="grid grid-cols-3 h-14 mb-2 select-none hover:border-border border border-transparent rounded-md p-2 transition">
       <span className="col-span-1 h-full flex flex-col justify-center">
@@ -92,6 +115,7 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
           )}
           variant="expandIcon"
           Icon={ArrowRightIcon}
+          onClick={handleClick}
           iconPlacement="right"
           size="xs"
         >
@@ -149,7 +173,7 @@ export function AssessmentRequestTableRow({
         </p>
       </span>
 
-      <span className="col-span-1 h-full pb-3 flex flex-row justify-start pl-7 items-center">
+      <span className="col-span-1 h-full pb-3 flex flex-row justify-start pl-8 items-center">
         <AvatarStack avatars={requestedRespondeeAvatarData} />
       </span>
       <span className="col-span-1 h-full space-x-2 flex items-center justify-end">
