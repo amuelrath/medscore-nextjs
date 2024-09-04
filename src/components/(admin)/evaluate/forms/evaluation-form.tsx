@@ -1,85 +1,86 @@
-"use client";
-import React, { useMemo } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
-import { EvaluateNav } from "@/components/(admin)/evaluate/forms/evaluate-nav";
+'use client';
+
+import { EvaluateNav } from '@/components/(admin)/evaluate/forms/evaluate-nav';
+import { AutosizeTextarea } from '@/components/ui/autosize-text-area';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { AutosizeTextarea } from "@/components/ui/autosize-text-area";
-import { Button } from "@/components/ui/button";
-import { FormErrorMessage } from "@/components/ui/form-error-message";
-import { getFullName } from "@/lib/helpers/getFullName";
-import { submitResponse } from "@/server/actions/responses/submit-response";
-import { toast } from "sonner";
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormErrorMessage } from '@/components/ui/form-error-message';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { getFullName } from '@/lib/helpers/getFullName';
+import { getEvaluationForm } from '@/server/actions/evaluate/get-evaluation-form';
+import { submitResponse } from '@/server/actions/responses/submit-response';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { z } from 'zod';
 
 const ZEvaluationFormSchema = z.object({
   id: z.string().uuid({
-    message: "ERR: Response Id could not be located. Refresh the page.",
+    message: 'ERR: Response Id could not be located. Refresh the page.',
   }),
   duration: z.number(),
-  answers: z.array(
+  optionAnswers: z.array(
     z
       .object({
         formItemId: z
           .string()
-          .uuid({ message: "ERR: A Question Id could not be located." }),
-        type: z.enum(["WRITTEN", "MULTIPLE_CHOICE", "SINGLE_CHOICE", "RANGE"]),
+          .uuid({ message: 'ERR: A Question Id could not be located.' }),
+        type: z.enum(['WRITTEN', 'MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'RANGE']),
         optionIds: z.array(z.string().uuid()).optional(),
         textValue: z.string().optional(),
         isRequired: z.boolean(),
       })
       .superRefine((answer, ctx) => {
         if (answer.isRequired) {
-          if (answer.type === "WRITTEN" && !answer.textValue) {
+          if (answer.type === 'WRITTEN' && !answer.textValue) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: "This question is required.",
-              path: ["textValue"],
+              message: 'This question is required.',
+              path: ['textValue'],
             });
           } else if (
-            ["MULTIPLE_CHOICE", "SINGLE_CHOICE"].includes(answer.type) &&
+            ['MULTIPLE_CHOICE', 'SINGLE_CHOICE'].includes(answer.type) &&
             (!answer.optionIds || answer.optionIds.length === 0)
           ) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: "This question is required.",
-              path: ["optionIds"],
+              message: 'This question is required.',
+              path: ['optionIds'],
             });
           }
         }
 
         if (
-          answer.type === "SINGLE_CHOICE" &&
+          answer.type === 'SINGLE_CHOICE' &&
           answer.optionIds &&
           answer.optionIds.length > 1
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "Please select only one option.",
-            path: ["optionIds"],
+            message: 'Please select only one option.',
+            path: ['optionIds'],
           });
         }
 
         if (
-          answer.type === "WRITTEN" &&
+          answer.type === 'WRITTEN' &&
           answer.optionIds &&
           answer.optionIds.length > 0
         ) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "Written questions should not have any selected options.",
-            path: ["optionIds"],
+            message: 'Written questions should not have any selected options.',
+            path: ['optionIds'],
           });
         }
       }),
@@ -89,14 +90,14 @@ export type TEvaluationFormSchema = z.infer<typeof ZEvaluationFormSchema>;
 
 export function EvaluationForm({ responseId }: { responseId: string }) {
   const { data: evaluation } = useSuspenseQuery({
-    queryKey: ["evaluation-form", responseId],
+    queryKey: ['evaluation-form', responseId],
     queryFn: () => getEvaluationForm({ responseId }),
   });
 
   const { indexMap, nonHeaderItems } = useMemo(() => {
     const map = new Map<string, number>();
     const nonHeaders = evaluation.form.formItems.filter(
-      (item) => item.type !== "HEADER",
+      (item) => item.type !== 'HEADER',
     );
     nonHeaders.forEach((item, index) => {
       map.set(item.id, index);
@@ -106,15 +107,15 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
 
   const methods = useForm<TEvaluationFormSchema>({
     resolver: zodResolver(ZEvaluationFormSchema),
-    mode: "onChange",
+    mode: 'onChange',
     defaultValues: {
       id: responseId,
       duration: 0,
-      answers: nonHeaderItems.map((i) => ({
-        type: i.type as "WRITTEN" | "SINGLE_CHOICE" | "MULTIPLE_CHOICE",
+      optionAnswers: nonHeaderItems.map((i) => ({
+        type: i.type as 'WRITTEN' | 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE',
         formItemId: i.id,
         optionIds: [],
-        textValue: "",
+        textValue: '',
         isRequired: !!i.isRequired,
       })),
     },
@@ -123,36 +124,47 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
   const { mutate: submitMutate, isPending } = useMutation({
     mutationFn: submitResponse,
     onSuccess: (data) => {
-      if (!data.success) return toast.error("Oops! Something went wrong.");
-      return toast.success("Evaluation submitted successfully.");
+      if (!data.success) return toast.error('Oops! Something went wrong.');
+      return toast.success('Evaluation submitted successfully.');
     },
-    onError: () => {
-      return toast.error("Oops! Something went wrong.");
-    },
+    onError: () => toast.error('Oops! Something went wrong.'),
   });
 
   const onSubmit = async (data: TEvaluationFormSchema) => {
-    console.log("Form data before submission:", data);
     submitMutate(data);
   };
 
   const getEvaluatee = () => {
-    if (!evaluation || !evaluation) throw new Error("No form!");
+    if (!evaluation || !evaluation) throw new Error('No form!');
     if (evaluation.form.assessments[0]) {
-      return evaluation.form.assessments[0].evaluatees.find(
-        (u) => u.user.id === evaluation.response.evaluateeId,
-      )?.user;
+      const evaluatee = evaluation.form.assessments[0].responses.find(
+        (r) => r.id === responseId,
+      )?.evaluatee;
+      if (!evaluatee) throw new Error("Evaluatee couldn't be found.");
+      return evaluatee;
     }
+    throw new Error("Evaluatee couldn't be found.");
   };
 
   const getEvaluator = () => {
-    if (!evaluation || !evaluation) throw new Error("No form!");
+    if (!evaluation || !evaluation) throw new Error('No form!');
     if (evaluation.form.assessments[0]) {
-      return evaluation.response.creator;
+      const respondee = evaluation.form.assessments[0].responses.find(
+        (r) => r.id === responseId,
+      )?.respondee;
+      if (!respondee) throw new Error("respondee couldn't be found.");
+      return respondee;
     }
+    throw new Error("respondee couldn't be found.");
   };
 
-  const errors = methods.formState.errors;
+  const { errors } = methods.formState;
+
+  if (evaluation.form.assessments[0]) {
+    const isResponseCompleted = evaluation.response.status === 'COMPLETED';
+    if (isResponseCompleted)
+      throw new Error('Response has already been completed.');
+  }
 
   return (
     <FormProvider {...methods}>
@@ -161,7 +173,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
         className="flex w-full flex-col"
       >
         <EvaluateNav
-          formTitle={evaluation?.form.title || ""}
+          formTitle={evaluation?.form.title || ''}
           evaluatorName={getFullName(getEvaluator())}
           evaluateeName={getFullName(getEvaluatee())}
         />
@@ -173,10 +185,10 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                 const answerIndex = indexMap.get(fi.id);
 
                 if (answerIndex === undefined) {
-                  return fi.type === "HEADER" ? (
+                  return fi.type === 'HEADER' ? (
                     <Card
                       key={fi.id}
-                      className="mb-4 border-t-[12px] border-t-primary/80"
+                      className="mb-4"
                     >
                       <CardHeader>
                         <CardTitle>{fi.text}</CardTitle>
@@ -187,10 +199,10 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                 }
 
                 // @ts-expect-error i have no idea but this works and 'isRequired' doesn't
-                const fieldError = errors.answers?.[answerIndex]?.value;
+                const fieldError = errors.optionAnswers?.[answerIndex]?.value;
 
                 switch (fi.type) {
-                  case "SINGLE_CHOICE":
+                  case 'SINGLE_CHOICE':
                     return (
                       <Card key={fi.id} className="mb-4">
                         <CardHeader>
@@ -205,10 +217,9 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                             render={({ field }) => (
                               <RadioGroup
                                 onValueChange={(value) => {
-                                  console.log("Single choice selected:", value);
                                   field.onChange([value]);
                                 }}
-                                value={field.value?.[0] || ""}
+                                value={field.value?.[0] || ''}
                                 className="flex flex-col relative"
                               >
                                 {fi.options.map((o) => (
@@ -220,7 +231,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                                       indicatorClassName="top-[-1px]"
                                       value={o.id}
                                       id={o.id}
-                                      label={o.text || ""}
+                                      label={o.text || ''}
                                     />
                                   </div>
                                 ))}
@@ -233,7 +244,10 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                             render={({ field }) => (
                               <AutosizeTextarea
                                 placeholder="Comments/Feedback (optional)"
-                                {...field}
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                name={field.name}
+                                value={field.value}
                               />
                             )}
                           />
@@ -243,7 +257,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                         </CardContent>
                       </Card>
                     );
-                  case "MULTIPLE_CHOICE":
+                  case 'MULTIPLE_CHOICE':
                     return (
                       <Card key={fi.id} className="mb-4">
                         <CardHeader>
@@ -341,7 +355,10 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                             render={({ field }) => (
                               <AutosizeTextarea
                                 placeholder="Comments/Feedback (optional)"
-                                {...field}
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                name={field.name}
+                                value={field.value}
                               />
                             )}
                           />
@@ -351,7 +368,7 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                         </CardContent>
                       </Card>
                     );
-                  case "WRITTEN":
+                  case 'WRITTEN':
                     return (
                       <Card key={fi.id} className="mb-4">
                         <CardHeader>
@@ -366,7 +383,10 @@ export function EvaluationForm({ responseId }: { responseId: string }) {
                             render={({ field }) => (
                               <AutosizeTextarea
                                 placeholder="Written response."
-                                {...field}
+                                ref={field.ref}
+                                onChange={field.onChange}
+                                name={field.name}
+                                value={field.value}
                               />
                             )}
                           />
