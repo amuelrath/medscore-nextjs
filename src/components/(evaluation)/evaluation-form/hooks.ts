@@ -13,114 +13,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { isAfter, isBefore } from 'date-fns';
 import { isEqual } from 'lodash';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
-
-type TMode = 'readonly' | 'edit' | 'default';
-
-interface UseEvaluationForm {
-  responseId: string;
-  mode?: TMode;
-  maxDebounceTime?: number;
-  incrementDebounceTime?: number;
-  maxActiveTime?: number;
-}
-
-export function useEvaluationForm({
-  responseId,
-  mode = 'default',
-  maxDebounceTime = 2000,
-  incrementDebounceTime = 1000,
-  maxActiveTime = 15000,
-}: UseEvaluationForm) {
-  const {
-    data: { form, response },
-  } = useSuspenseQuery({
-    queryKey: ['evaluation-form', responseId],
-    queryFn: () => getEvaluationForm({ responseId }),
-  });
-
-  const methods = useForm<TEvaluationForm>({
-    defaultValues: transformToSchema({ form, response }),
-    resolver: zodResolver(ZEvaluationFormSchema),
-  });
-
-  const data = useWatch({
-    control: methods.control,
-    name: 'answers',
-  });
-
-  const [prev, setPrev] = useState<TEvaluationForm['answers']>(data);
-  const saveQueueRef = useRef<TEvaluationForm['answers'][]>([]);
-  const savingRef = useRef(false);
-
-  const { mutate: mutateAutosaveResponse } = useMutation({
-    mutationFn: saveResponse,
-    onSuccess: () => {
-      setPrev(data);
-      savingRef.current = false;
-      processQueue();
-    },
-    onError: (error) => {
-      console.error('Error saving response:', error);
-      savingRef.current = false;
-      processQueue();
-    },
-  });
-
-  validateResponseIsAllowed({ form, response, mode });
-
-  const saveForm = useCallback(
-    (formData: TEvaluationForm['answers']) => {
-      const responseToSave = ZEvaluationFormSchema.safeParse({
-        ...methods.getValues(),
-        answers: formData,
-      });
-      if (responseToSave.success) {
-        mutateAutosaveResponse(responseToSave.data);
-      }
-    },
-    [methods, mutateAutosaveResponse],
-  );
-
-  const processQueue = useCallback(() => {
-    if (saveQueueRef.current.length > 0 && !savingRef.current) {
-      const nextSave = saveQueueRef.current.shift();
-      if (nextSave) {
-        savingRef.current = true;
-        saveForm(nextSave);
-      }
-    }
-  }, [saveForm]);
-
-  useEffect(() => {
-    if (!isEqual(prev, data)) {
-      saveQueueRef.current.push(data);
-      processQueue();
-    }
-  }, [data, prev, processQueue]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      processQueue();
-    }, maxDebounceTime);
-
-    return () => clearInterval(interval);
-  }, [maxDebounceTime, processQueue]);
-
-  useEffect(() => {
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (saveQueueRef.current.length > 0) {
-        event.preventDefault();
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
-
-  return { form, response, methods };
-}
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface ValidateResponseIsAllowed {
   form: Pick<EvaluationFormResult['form'], 'settings'>;
@@ -168,3 +63,91 @@ const validateResponseIsAllowed = ({
     throw new Error('Only completed responses can be viewed in readonly mode.');
   }
 };
+
+type TMode = 'readonly' | 'edit' | 'default';
+
+interface UseEvaluationForm {
+  responseId: string;
+  mode?: TMode;
+  maxDebounceTime?: number;
+  incrementDebounceTime?: number;
+  maxActiveTime?: number;
+}
+
+export function useEvaluationForm({
+  responseId,
+  mode = 'default',
+  maxDebounceTime = 2000,
+}: UseEvaluationForm) {
+  const { data } = useSuspenseQuery({
+    queryKey: ['evaluation-form', responseId],
+    queryFn: () => getEvaluationForm({ responseId }),
+  });
+
+  const { form, response } = data;
+
+  const methods = useForm<TEvaluationForm>({
+    defaultValues: useMemo(
+      () => transformToSchema({ form, response }),
+      [form, response],
+    ),
+    resolver: zodResolver(ZEvaluationFormSchema),
+  });
+
+  const answersRef = useRef(methods.getValues('answers'));
+  // eslint-disable-next-line no-undef
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { mutate: mutateAutosaveResponse } = useMutation({
+    mutationFn: saveResponse,
+    onError: () => toast.error("Error saving changes."),
+  });
+
+  useEffect(() => {
+    validateResponseIsAllowed({ form, response, mode });
+  }, [form, response, mode]);
+
+  const saveForm = useCallback(
+    (formData: TEvaluationForm['answers']) => {
+      const responseToSave = ZEvaluationFormSchema.safeParse({
+        ...methods.getValues(),
+        answers: formData,
+      });
+      if (responseToSave.success) {
+        mutateAutosaveResponse(responseToSave.data);
+      }
+    },
+    [methods, mutateAutosaveResponse],
+  );
+
+  useEffect(() => {
+    const subscription = methods.watch((value, { name, type }) => {
+      if (name?.startsWith('answers.') && type === 'change') {
+        answersRef.current = value.answers as TEvaluationForm['answers'];
+
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+
+        saveTimeoutRef.current = setTimeout(() => {
+          saveForm(answersRef.current);
+        }, maxDebounceTime);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [methods, maxDebounceTime, saveForm]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!isEqual(answersRef.current, methods.getValues('answers'))) {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [methods]);
+
+  return { form, response, methods };
+}

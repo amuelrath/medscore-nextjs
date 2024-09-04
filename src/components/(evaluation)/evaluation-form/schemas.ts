@@ -46,49 +46,52 @@ export const transformToSchema = ({
 
   const transformedAnswers = form.formItems
     .filter((f) => f.type !== 'HEADER')
+    .sort((a, b) => a.position - b.position) // not sorting will break the form
     .map((formItem): TAnswer => {
       const existingAnswer = answers.find((a) => a.formItemId === formItem.id);
-
-      if (
-        formItem.type !== 'MULTIPLE_CHOICE' &&
-        formItem.type !== 'SINGLE_CHOICE' &&
-        formItem.type !== 'WRITTEN'
-      ) {
-        throw new Error(
-          `Unsupported form item type: ${formItem.type} for item ID: ${formItem.id}`,
-        );
-      }
+      const validOptionIds = new Set(formItem.options?.map((o) => o.id) || []);
 
       const baseFields = {
-        id: existingAnswer?.id || v4(), // use the existingAnswer's id or generate a new one on the client
+        id: existingAnswer?.id || v4(),
         formItemId: formItem.id,
         type: formItem.type,
         textValue: existingAnswer?.textValue ?? null,
       };
 
-      switch (formItem.type) {
-        case 'WRITTEN':
-          return {
-            ...baseFields,
-            type: 'WRITTEN',
-          };
-        case 'SINGLE_CHOICE':
-          return {
-            ...baseFields,
-            type: 'SINGLE_CHOICE',
-            selectedOptionId:
-              existingAnswer?.answerOptions[0]?.optionId ?? null,
-          };
-        case 'MULTIPLE_CHOICE':
-          return {
-            ...baseFields,
-            type: 'MULTIPLE_CHOICE',
-            selectedOptionIds:
-              existingAnswer?.answerOptions.map((o) => o.optionId) ?? [],
-          };
-        default:
-          throw new Error('Encountered Unsupported Question Type!');
+      if (formItem.type === 'WRITTEN') {
+        return {
+          ...baseFields,
+          type: 'WRITTEN',
+        };
       }
+
+      if (formItem.type === 'SINGLE_CHOICE') {
+        const selectedOptionId = existingAnswer?.answerOptions[0]?.optionId;
+        return {
+          ...baseFields,
+          type: 'SINGLE_CHOICE',
+          selectedOptionId:
+            selectedOptionId && validOptionIds.has(selectedOptionId)
+              ? selectedOptionId
+              : null,
+        };
+      }
+
+      if (formItem.type === 'MULTIPLE_CHOICE') {
+        const selectedOptionIds =
+          existingAnswer?.answerOptions.map((o) => o.optionId) ?? [];
+        return {
+          ...baseFields,
+          type: 'MULTIPLE_CHOICE',
+          selectedOptionIds: selectedOptionIds.filter((id) =>
+            validOptionIds.has(id),
+          ),
+        };
+      }
+
+      throw new Error(
+        `Unsupported form item type: ${formItem.type} for item ID: ${formItem.id}`,
+      );
     });
 
   return {

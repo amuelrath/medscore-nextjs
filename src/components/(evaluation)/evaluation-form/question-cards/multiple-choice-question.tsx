@@ -2,13 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
-import {
-  Control,
-  Controller,
-  FieldPath,
-  FieldValues,
-  UseFormRegisterReturn,
-} from 'react-hook-form';
+import { Control, Controller, FieldPath, FieldValues } from 'react-hook-form';
 
 interface Option {
   id: string;
@@ -20,8 +14,6 @@ interface Option {
 interface MultipleChoiceQuestionProps<
   TSchema extends FieldValues,
   TName extends FieldPath<TSchema>,
-  TTypeName extends FieldPath<TSchema>,
-  TAnswerIdName extends FieldPath<TSchema>,
 > {
   control: Control<TSchema>;
   name: TName;
@@ -29,16 +21,11 @@ interface MultipleChoiceQuestionProps<
   disabled?: boolean;
   max?: number;
   options: Option[];
-  registerQuestionId: UseFormRegisterReturn<TName>;
-  registerQuestionType: UseFormRegisterReturn<TTypeName>;
-  registerAnswerId: UseFormRegisterReturn<TAnswerIdName>;
 }
 
 export function MultipleChoiceQuestion<
   TSchema extends FieldValues,
   TName extends FieldPath<TSchema>,
-  TTypeName extends FieldPath<TSchema>,
-  TAnswerIdName extends FieldPath<TSchema>,
 >({
   control,
   name,
@@ -46,10 +33,7 @@ export function MultipleChoiceQuestion<
   disabled,
   max,
   options,
-  registerQuestionId,
-  registerQuestionType,
-  registerAnswerId,
-}: MultipleChoiceQuestionProps<TSchema, TName, TTypeName, TAnswerIdName>) {
+}: MultipleChoiceQuestionProps<TSchema, TName>) {
   const [previousSelections, setPreviousSelections] = useState<string[]>([]);
 
   return (
@@ -58,27 +42,6 @@ export function MultipleChoiceQuestion<
         <CardTitle>{text}</CardTitle>
       </CardHeader>
       <CardContent>
-        <input
-          type="text"
-          hidden
-          name={registerQuestionId.name}
-          ref={registerQuestionId.ref}
-          onChange={registerQuestionId.onChange}
-        />
-        <input
-          type="text"
-          hidden
-          name={registerQuestionType.name}
-          ref={registerQuestionType.ref}
-          onChange={registerQuestionType.onChange}
-        />
-        <input
-          type="text"
-          hidden
-          name={registerAnswerId.name}
-          ref={registerAnswerId.ref}
-          onChange={registerAnswerId.onChange}
-        />
         <Controller<TSchema, TName>
           name={name}
           control={control}
