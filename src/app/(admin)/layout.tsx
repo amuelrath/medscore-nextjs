@@ -21,7 +21,7 @@ export default async function AppLayout({
       <ReactQueryDevtools />
       <div className="flex flex-1">
         <RouteNavigation tabs={tabs} />
-        <main className="flex-1 rounded-tl outline bg-white outline-teal-950 flex flex-grow overflow-hidden h-full">
+        <main className="flex-1 rounded-tl outline bg-white outline-accent-secondary flex flex-grow overflow-hidden h-full">
           {children}
         </main>
       </div>
