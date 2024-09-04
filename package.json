@@ -97,7 +97,8 @@
     "typescipt": "^1.0.0",
     "uuid": "^9.0.1",
     "vaul": "^0.9.0",
-    "zod": "^3.23.4"
+    "zod": "^3.23.4",
+    "zod-validation-error": "^3.3.1"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.24.1",
