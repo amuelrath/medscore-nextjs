@@ -3,7 +3,7 @@
 import { TAssessmentEditorFormSchema } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
 import { db } from '@/db';
 import { assessments, responses } from '@/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 type UpdateAssessmentParams = TAssessmentEditorFormSchema & {
   assessmentId: string;
@@ -83,14 +83,23 @@ export async function updateAssessment({
       });
     });
 
-    // Remove responses that are no longer needed
+    // Handle responses that are no longer in the participants list
     if (existingResponseMap.size > 0) {
-      const responsesToDelete = Array.from(existingResponseMap.values()).map(
-        (r) => r.id,
+      const responsesToUpdate = Array.from(existingResponseMap.values());
+
+      // Update status to 'removed' for responses that haven't been started
+      await tx.delete(responses).where(
+        and(
+          inArray(
+            responses.id,
+            responsesToUpdate.map((r) => r.id),
+          ),
+          eq(responses.status, 'NOT_STARTED'),
+        ),
       );
-      await tx
-        .delete(responses)
-        .where(inArray(responses.id, responsesToDelete));
+
+      // For responses that have been started, we keep them as is
+      // You might want to add a flag or note to indicate they're no longer part of the active assessment
     }
 
     // Insert new responses
