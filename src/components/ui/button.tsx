@@ -13,7 +13,7 @@ const buttonVariants = cva(
         'accent-secondary':
           'bg-accent-secondary text-teal-950 hover:bg-accent-secondary/90',
         'accent-secondary-background':
-          'bg-accent-secondary-background text-teal-950 border border-accent-secondary hover:bg-accent-secondary-background/90',
+          'bg-accent-secondary-background text-teal-950 hover:bg-accent-secondary-background/80',
         foreground: 'bg-foreground text-white hover:bg-foreground/90',
         popover: 'bg-card transition hover:bg-primary/5',
         accent: 'bg-accent text-background hover:bg-accent/90',
