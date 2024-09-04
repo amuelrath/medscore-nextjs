@@ -1,3 +1,4 @@
+import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
 import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
@@ -7,14 +8,13 @@ import {
   integer,
   json,
   jsonb,
-  numeric,
   pgEnum,
   pgTable,
-  pgView,
   primaryKey,
   smallint,
   text,
   timestamp,
+  unique,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
@@ -30,14 +30,12 @@ export const responseStatusEnum = pgEnum('response_status', [
 export type TResponseStatus = 'STARTED' | 'NOT_STARTED' | 'COMPLETED';
 
 export const formItemTypeEnum = pgEnum('form_item_type', [
-  'RANGE',
   'MULTIPLE_CHOICE',
   'SINGLE_CHOICE',
   'HEADER',
   'WRITTEN',
 ]);
 export const ZFormEnum = z.enum([
-  'RANGE',
   'MULTIPLE_CHOICE',
   'SINGLE_CHOICE',
   'HEADER',
@@ -325,7 +323,7 @@ export const forms = pgTable('forms', {
   title: text('title').notNull().default('Untitled Evaluation'),
   lastOpenedAt: timestamp('last_opened_at').notNull().defaultNow(),
   type: formTypeEnum('type').notNull(),
-  settings: jsonb('settings'),
+  settings: jsonb('settings').$type<z.infer<typeof ZFormSettingsSchema>>(),
   programId: uuid('program_id')
     .references((): AnyPgColumn => programs.id)
     .notNull(),
@@ -476,16 +474,13 @@ export const answers = pgTable('answers', {
   id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  selectedOptionIds: uuid('selected_option_ids')
-    .references(() => options.id)
-    .array(), // Array of option UUIDs
   responseId: uuid('response_id')
     .notNull()
     .references(() => responses.id, { onDelete: 'cascade' }),
+  textValue: text('text_value'),
   formItemId: uuid('form_item_id')
     .notNull()
     .references(() => formItems.id, { onDelete: 'cascade' }),
-  textValue: text('text_value'),
 });
 export type Answer = typeof answers.$inferSelect;
 export type NewAnswer = typeof answers.$inferInsert;
@@ -498,7 +493,38 @@ export const answerRelations = relations(answers, ({ one, many }) => ({
     fields: [answers.formItemId],
     references: [formItems.id],
   }),
-  selectedOptions: many(options),
+  answerOptions: many(answerOptions),
+}));
+
+export const answerOptions = pgTable(
+  'answer_options',
+  {
+    id: uuid('id')
+      .notNull()
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    optionId: uuid('option_id')
+      .notNull()
+      .references(() => options.id, { onDelete: 'cascade' }),
+    answerId: uuid('answer_id')
+      .notNull()
+      .references(() => answers.id, { onDelete: 'cascade' }),
+  },
+  (table) => ({
+    unq: unique().on(table.optionId, table.answerId),
+  }),
+);
+export type AnswerOption = typeof answerOptions.$inferSelect;
+export type NewAnswerOption = typeof answerOptions.$inferInsert;
+export const answerOptionRelations = relations(answerOptions, ({ one }) => ({
+  answer: one(answers, {
+    fields: [answerOptions.answerId],
+    references: [answers.id],
+  }),
+  option: one(options, {
+    fields: [answerOptions.optionId],
+    references: [options.id],
+  }),
 }));
 
 export const assessments = pgTable('assessments', {
@@ -559,137 +585,3 @@ export const recommendedMilestoneRelations = relations(
     }),
   }),
 );
-
-export const responseQuestionScoresView = pgView(
-  'response_question_scores_view',
-  {
-    responseId: uuid('response_id')
-      .references(() => responses.id)
-      .notNull(),
-    questionId: uuid('question_id')
-      .references(() => formItems.id)
-      .notNull(),
-    pointsEarned: decimal('points_earned', { precision: 10, scale: 2 }),
-    pointsAvailable: decimal('points_available', { precision: 10, scale: 2 }),
-    milestoneIds: uuid('milestone_ids').array(),
-    textValue: text('text_value'),
-  },
-).existing();
-
-export const overallCompetencySummaryView = pgView(
-  'overall_competency_summary_view',
-  {
-    evaluateeId: uuid('evaluatee_id')
-      .references(() => users.id)
-      .notNull(),
-    competencyId: uuid('competency_id')
-      .references(() => competencies.id)
-      .notNull(),
-    competencyName: text('competency_name').notNull(),
-    avgScore: numeric('average_percentage_score').notNull(),
-  },
-).existing();
-
-export const subcompetencyAverageScoreView = pgView(
-  'subcompetency_average_score_view',
-  {
-    evaluateeId: uuid('evaluatee_id')
-      .references(() => users.id)
-      .notNull(),
-    competencyId: uuid('competency_id')
-      .references(() => competencies.id)
-      .notNull(),
-    competencyName: text('competency_name').notNull(),
-    subcompetencyId: uuid('subcompetency_id')
-      .references(() => subcompetencies.id)
-      .notNull(),
-    subcompetencyName: text('subcompetency_name').notNull(),
-    avgScore: numeric('average_percentage_score').notNull(),
-  },
-).existing();
-
-export const questionAverageScoreView = pgView('question_average_score_view', {
-  responseId: uuid('response_id')
-    .references(() => responses.id)
-    .notNull(),
-  questionId: uuid('question_id')
-    .references(() => formItems.id)
-    .notNull(),
-  avgScore: decimal('points_earned', { precision: 10, scale: 2 }), // average of pointsEarned/available
-}).existing();
-
-export const responseCompetencyScoreView = pgView(
-  'response_competency_scores_view',
-  {
-    responseId: uuid('response_id')
-      .references(() => responses.id)
-      .notNull(),
-    evaluateeId: uuid('evaluatee_id').references(() => users.id), // can be null
-    responseCreatedAt: timestamp('response_created_at').notNull(),
-    competencyScores: jsonb('competency_scores').notNull(),
-  },
-).existing();
-
-export const responseScoreView = pgView('response_score_view', {
-  responseId: uuid('response_id')
-    .references(() => responses.id)
-    .notNull(),
-  responseCreatedAt: timestamp('response_created_at').notNull(),
-  totalPointsEarned: decimal('total_points_earned', {
-    precision: 10,
-    scale: 2,
-  }),
-  totalPointsAvailable: decimal('total_points_available', {
-    precision: 10,
-    scale: 2,
-  }),
-  responseDuration: integer('response_duration'),
-}).existing();
-
-export const responseAverageScoreView = pgView('response_average_score_view', {
-  responseId: uuid('response_id')
-    .references(() => responses.id)
-    .notNull(),
-  avgScore: decimal('points_earned', { precision: 10, scale: 2 }), // average of pointsEarned/available
-}).existing();
-
-// =============================================================================
-//                           JSONB Column Validation
-// =============================================================================
-
-export const ZCompetencyScoresSchema = z.object({
-  competencies: z.array(
-    z.object({
-      id: z.string().uuid(),
-      name: z.string(),
-      pointsEarned: z.number(),
-      pointsAvailable: z.number(),
-      subcompetencies: z.array(
-        z.object({
-          id: z.string().uuid(),
-          name: z.string(),
-          pointsEarned: z.number(),
-          pointsAvailable: z.number(),
-          abbrevName: z.string(),
-          milestones: z.array(
-            z.object({
-              id: z.string().uuid(),
-              name: z.string(),
-              level: z.number(),
-              sublevel: z.number(),
-              pointsEarned: z.number(),
-              pointsAvailable: z.number(),
-            }),
-          ),
-        }),
-      ),
-    }),
-  ),
-});
-
-export type TCompetencyScoreSchema = z.infer<typeof ZCompetencyScoresSchema>;
-
-export type TCompetencyScores = {
-  responseId: string;
-  responseCreatedAt: Date;
-} & TCompetencyScoreSchema;
