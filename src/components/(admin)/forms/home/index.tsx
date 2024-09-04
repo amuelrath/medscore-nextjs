@@ -24,7 +24,6 @@ import {
 import { breadcrumbsAtom } from '@/store/global-atoms';
 import {
   useMutation,
-  useQuery,
   useQueryClient,
   useSuspenseQuery,
 } from '@tanstack/react-query';
@@ -53,47 +52,46 @@ function FormCard({
   return (
     <Card
       className={cn(
-        'col-span-1 relative hover:shadow-md h-full pt-0.5 overflow-clip bg-primary/20',
+        'col-span-1 relative hover:shadow-md h-full pt-0.5 overflow-clip bg-[#F7EBE8]',
       )}
     >
-      <span
-        className={cn(
-          'absolute opacity-50 text-primary top-5 blur-sm pointer-events-none',
-        )}
-      >
-        <Icon size={128} />
-      </span>
-      <div className="absolute text-nowrap flex origin-center font-medium select-none  flex-col w-full p-2 text-sm z-20 h-14 backdrop-opacity-20 backdrop-filter bg-card bottom-0">
-        <div className="justify-between items-center flex flex-row">
+      <span className="absolute top-4 left-4" />
+      <div className="absolute text-nowrap flex font-medium select-none flex-col w-full p-2 text-sm z-20 h-14 aspect-square backdrop-opacity-20 backdrop-filter bg-card bottom-0">
+        <div className="space-x-1.5 items-center flex flex-row">
+          <Icon size={12} className="text-foreground" />
           <p className="underline underline-offset-2">{truncate(title, 20)}</p>
-          <div className="flex h-6 flex-row justify-end items-center space-x-2">
+        </div>
+        <div className="flex flex-row items-center justify-between">
+          <div className="flex items-center opacity-50 text-xs flex-row space-x-1.5">
+            <ClockIcon size={12} />
+            <span>
+              {formatDistance(new Date(lastOpenedAt), new Date(), {
+                addSuffix: true,
+              })
+                .replace(/\babout\s*/i, '')
+                .trim()}
+            </span>
+          </div>
+          <div className="flex flex-row justify-end items-end space-x-2">
             <Button
               size="xs"
               variant="hide"
               onClick={() => router.push(`/forms/${id}`)}
             >
               <Edit3
-                size={16}
+                size={12}
                 className="opacity-50 hover:opacity-100 transition-opacity"
               />
             </Button>
             <DeleteFormDialogTrigger id={id} title={title}>
               <Button size="xs" variant="hide">
                 <TrashIcon
-                  size={16}
+                  size={12}
                   className="opacity-50 hover:opacity-100 transition-opacity"
                 />
               </Button>
             </DeleteFormDialogTrigger>
           </div>
-        </div>
-        <div className="flex items-center opacity-50 text-xs flex-row space-x-1.5">
-          <ClockIcon size={10} />
-          <span>
-            {formatDistance(new Date(lastOpenedAt), new Date(), {
-              addSuffix: true,
-            })}
-          </span>
         </div>
       </div>
     </Card>
@@ -106,7 +104,7 @@ interface FormsListProps {
 
 function FormsList({ filteredForms }: FormsListProps) {
   return (
-    <div className="flex-grow gap-4 auto-rows-[8.53rem] grid grid-cols-3">
+    <div className="flex-grow gap-4 auto-rows-[10rem] grid grid-cols-4">
       <AnimatePresence initial={false}>
         {filteredForms.map((form) => (
           <motion.div
@@ -145,13 +143,30 @@ export function FormsHome() {
     setBreadcrumbs([{ label: 'Forms', href: '/forms' }]);
   }, [setBreadcrumbs]);
 
-  const { data: forms } = useSuspenseQuery({
+  const { data: forms, isLoading } = useSuspenseQuery({
     queryKey: ['forms'],
     queryFn: () =>
       getAllFormsLite({
         userId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
       }),
   });
+
+  const queryClient = useQueryClient();
+  const { mutate: createAssessmentMutation } = useMutation({
+    mutationFn: createAssessmentWithRequests,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['assessments'] });
+    },
+    onError: () => {
+      toast.error('Something went wrong.');
+    },
+  });
+
+  const submitFn = (data: TAssessmentEditorFormSchema) => {
+    createAssessmentMutation({
+      ...data,
+    });
+  };
 
   useEffect(() => {
     const orderedForms = forms.sort(
@@ -186,9 +201,22 @@ export function FormsHome() {
 
   return (
     <main className="flex flex-grow flex-col">
-      <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border bg-card p-1 pl-4 pr-2">
-        <div className="flex items-center flex-row space-x-4 text-neutral-700">
-          <h3 className={cn('text-md font-medium')}>Forms</h3>
+      <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border bg-card">
+        <div className="flex w-full px-4 items-center flex-row justify-between text-foreground">
+          <h3 className={cn('text-2xl font-semibold')}>Forms</h3>
+          <div className="flex flex-row items-center space-x-4">
+            <CreateFormDialog />
+            {!isLoading && forms && (
+              <AssessmentCreatorDialog
+                forms={forms}
+                defaultValues={{
+                  startsAt: new Date().toISOString(),
+                  expiresAt: addHours(new Date(), 4).toISOString(),
+                }}
+                submitFn={submitFn}
+              />
+            )}
+          </div>
         </div>
         <div className="space-x-4 flex flex-row items-center" />
       </div>
@@ -226,38 +254,16 @@ function FormsListToolbar({
   uniqueTags,
   selectedTag,
 }: FormsListToolbarProps) {
-  const { data: forms, isLoading } = useQuery({
-    queryKey: ['forms'],
-    queryFn: () =>
-      getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
-  });
-
-  const queryClient = useQueryClient();
-  const { mutate: createAssessmentMutation } = useMutation({
-    mutationFn: createAssessmentWithRequests,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['assessments'] });
-    },
-    onError: () => {
-      toast.error('Something went wrong.');
-    },
-  });
-
-  const submitFn = (data: TAssessmentEditorFormSchema) => {
-    createAssessmentMutation({
-      ...data,
-    });
-  };
-
   return (
-    <div className="px-4 pt-2 flex justify-between">
-      <div className="flex items-center flex-row space-x-4">
-        <Input
-          size="xs"
-          placeholder="Search my forms..."
-          onChange={(e) => handleFilter(e.target.value)}
-        />
-        <div className="flex items-center space-x-3">
+    <div className="px-4 pt-2 w-full grid grid-cols-6">
+      <div className="col-span-6 flex flex-row justify-between">
+        <div className="flex items-center flex-row space-x-4">
+          <Input
+            size="xs"
+            className="w-[200px]"
+            placeholder="Search my forms..."
+            onChange={(e) => handleFilter(e.target.value)}
+          />
           <TagFilter
             tags={uniqueTags}
             onTagSelect={handleTagSelect}
@@ -265,19 +271,6 @@ function FormsListToolbar({
             selectedTag={selectedTag}
           />
         </div>
-      </div>
-      <div className="flex flex-row items-center space-x-2">
-        <CreateFormDialog />
-        {!isLoading && forms && (
-          <AssessmentCreatorDialog
-            forms={forms}
-            defaultValues={{
-              startsAt: new Date().toISOString(),
-              expiresAt: addHours(new Date(), 4).toISOString(),
-            }}
-            submitFn={submitFn}
-          />
-        )}
       </div>
     </div>
   );
