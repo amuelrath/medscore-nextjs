@@ -1,19 +1,20 @@
-"use client";
-import React, { useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
-import { Badge } from "@/components/ui/badge";
-import { TFormSchema } from "@/components/(admin)/forms/editor/hooks/use-form-builder";
-import { cn } from "@/lib/helpers/utils";
-import { TrashIcon } from "lucide-react";
-import { m } from "framer-motion";
+'use client';
+
+import { TFormSchema } from '@/components/(admin)/forms/editor/hooks/use-form-builder';
+import { Badge } from '@/components/ui/badge';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { useGetSubcompetenciesInEditor } from "@/hooks/queries/use-get-form-subcompetencies";
-import { SubcompetencyResult } from "@/server/actions/forms/get-subcompetencies";
+} from '@/components/ui/tooltip';
+import { useGetSubcompetenciesInEditor } from '@/hooks/queries/use-get-form-subcompetencies';
+import { cn } from '@/lib/helpers/utils';
+import { SubcompetencyResult } from '@/server/actions/forms/get-subcompetencies';
+import { m } from 'framer-motion';
+import { TrashIcon } from 'lucide-react';
+import { useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 // Individual MilestoneBadge component
 export function MilestoneBadge({
@@ -21,7 +22,7 @@ export function MilestoneBadge({
   onRemove,
   showRemoveButton = false,
 }: {
-  milestone: SubcompetencyResult[0]["milestones"][0];
+  milestone: SubcompetencyResult[0]['milestones'][0];
   onRemove?: (id: string) => void;
   showRemoveButton?: boolean;
 }) {
@@ -32,7 +33,7 @@ export function MilestoneBadge({
       <Tooltip>
         <TooltipTrigger asChild className="select-none">
           <m.div
-            layout={"position"}
+            layout="position"
             initial={{ opacity: 0, x: -5 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.2 }}
@@ -43,16 +44,15 @@ export function MilestoneBadge({
               className={cn(
                 `group relative select-none bg-accent-secondary-background text-xs font-medium`,
               )}
-              size={"xs"}
-              onMouseEnter={() => setIsHovered(true)}
+                onMouseEnter={() => setIsHovered(true)}
               onMouseLeave={() => setIsHovered(false)}
             >
               <span
                 className={cn(
-                  "origin-center transition-all duration-200 ease-in-out",
+                  'origin-center transition-all duration-200 ease-in-out',
                   isHovered && showRemoveButton
-                    ? "scale-x-0 opacity-0"
-                    : "scale-x-100 opacity-100",
+                    ? 'scale-x-0 opacity-0'
+                    : 'scale-x-100 opacity-100',
                 )}
               >
                 {milestone.name}
@@ -63,7 +63,7 @@ export function MilestoneBadge({
                   onClick={() => onRemove?.(milestone.id)}
                   className={cn(
                     `absolute left-1/2 top-1/2 origin-center -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-opacity duration-200`,
-                    isHovered ? "opacity-100" : "opacity-0",
+                    isHovered ? 'opacity-100' : 'opacity-0',
                   )}
                 />
               )}
