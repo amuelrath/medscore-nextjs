@@ -2,21 +2,35 @@ import { TAssessmentEditorFormSchema } from '@/components/(admin)/forms/home/ass
 import { Badge } from '@/components/ui/badge';
 import ConfirmDialog from '@/components/ui/confirm-dialog';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { UserSelect } from '@/components/ui/user-select';
 import { ZPairSchema } from '@/lib/zod/participation-schema';
+import { deleteResponseByAssessmentEvaluatorEvaluatee } from '@/server/actions/responses/delete-response-by-assessment-evaluator-evaluatee';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { PlusCircleIcon, XIcon } from 'lucide-react';
 import React from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { Separator } from '@/components/ui/separator';
 
-type ParticipantManagerProps = {
+type ParticipantManagerBaseProps = {
   disabled?: boolean;
-  type?: 'EDIT' | 'CREATE';
   disabledSpecificPairFields?: {
     [index: number]: ('evaluatorId' | 'evaluateeIds')[];
   };
 };
+
+type ParticipantManagerEditProps = ParticipantManagerBaseProps & {
+  type: 'EDIT';
+  assessmentId: string;
+};
+
+type ParticipantManagerCreateProps = ParticipantManagerBaseProps & {
+  type: 'CREATE';
+};
+
+type ParticipantManagerProps =
+  | ParticipantManagerEditProps
+  | ParticipantManagerCreateProps;
 
 type ParticipantInputProps = {
   index: number;
@@ -27,7 +41,7 @@ type ParticipantInputProps = {
   usedEvaluatorIds: string[];
 };
 
-export function ParticipantInput({
+function ParticipantInput({
   index,
   onRemove,
   disabled,
@@ -118,15 +132,20 @@ export function ParticipantInput({
   );
 }
 
-export function ParticipantManager({
-  disabled = false,
-  type = 'EDIT',
-  disabledSpecificPairFields = {},
-}: ParticipantManagerProps) {
+export function ParticipantManager(props: ParticipantManagerProps) {
+  const { type, disabled = false, disabledSpecificPairFields = {} } = props;
   const { control } = useFormContext<TAssessmentEditorFormSchema>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'participants',
+  });
+
+  const queryClient = useQueryClient();
+  const { mutate: mutateDeleteResponse } = useMutation({
+    mutationFn: deleteResponseByAssessmentEvaluatorEvaluatee,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['assessments'] });
+    },
   });
 
   const participants =
@@ -152,6 +171,19 @@ export function ParticipantManager({
       });
       append(newParticipant);
     }
+  };
+
+  const handleRemoveParticipant = (index: number) => {
+    if (type === 'EDIT') {
+      const { evaluatorId, evaluateeIds } = fields[index];
+      mutateDeleteResponse({
+        evaluatorId: evaluatorId[0],
+        evaluateeId: evaluateeIds[0],
+        // eslint-disable-next-line react/destructuring-assignment
+        assessmentId: props.assessmentId,
+      });
+    }
+    remove(index);
   };
 
   return (
@@ -182,18 +214,17 @@ export function ParticipantManager({
       </div>
       <div className="flex-grow pt-2 space-y-2 -mr-[0.9rem] overflow-y-scroll">
         {fields.map((field, index) => (
-          <>
+          <React.Fragment key={field.id}>
             <ParticipantInput
-              key={field.id}
               disabled={disabled}
               disabledFields={disabledSpecificPairFields[index] || []}
               index={index}
               type={type}
-              onRemove={() => remove(index)}
+              onRemove={() => handleRemoveParticipant(index)}
               usedEvaluatorIds={usedEvaluatorIds}
             />
             <Separator className="h-[0.5px] opacity-50" />
-          </>
+          </React.Fragment>
         ))}
       </div>
     </div>
