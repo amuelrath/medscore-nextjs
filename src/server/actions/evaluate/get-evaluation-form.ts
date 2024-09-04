@@ -15,11 +15,13 @@ export async function getEvaluationForm({
     where: eq(responses.id, responseId),
     with: {
       answers: {
-        columns: {
-          id: true,
-          formItemId: true,
-          textValue: true,
-          selectedOptionIds: true,
+        with: {
+          answerOptions: {
+            columns: {
+              id: true,
+              optionId: true,
+            },
+          },
         },
       },
       // todo use session instead of this when we have auth done
