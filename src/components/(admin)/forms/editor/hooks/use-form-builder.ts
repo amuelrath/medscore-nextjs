@@ -1,4 +1,5 @@
 "use client";
+
 import { isSavingAtom } from "@/components/(admin)/forms/editor/atoms";
 import { ZFormItemsSchema, ZFormSettingsSchema } from "@/lib/zod/form-schema";
 import { autosaveForm } from "@/server/actions/forms/autosave-form";
@@ -63,7 +64,7 @@ export type TFormSchema = z.infer<typeof ZFormSchema>;
 export const useFormBuilder = (initialData?: TFormSchema) => {
   const methods = useForm<TFormSchema>({
     resolver: zodResolver(ZFormSchema),
-    defaultValues: !!initialData?.formItems.length
+    defaultValues: initialData?.formItems.length
       ? initialData
       : {
         id: initialData?.id ?? v4(),
@@ -88,6 +89,7 @@ export const useFormBuilder = (initialData?: TFormSchema) => {
 
   const [isSaving, setIsSaving] = useAtom(isSavingAtom);
   const previousStateRef = useRef<TFormSchema | null>(null);
+  // eslint-disable-next-line no-undef
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const latestFormDataRef = useRef<TFormSchema | null>(null);
 
