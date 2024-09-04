@@ -16,12 +16,12 @@ export default async function AppLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className="flex flex-col h-screen overflow-clip">
+    <div className="flex flex-col h-screen bg-primary overflow-clip">
       <AppHeader />
       <ReactQueryDevtools />
       <div className="flex flex-1">
         <RouteNavigation tabs={tabs} />
-        <main className="flex-1 flex flex-grow overflow-hidden h-full">
+        <main className="flex-1 rounded-tl outline bg-white outline-teal-950 flex flex-grow overflow-hidden h-full">
           {children}
         </main>
       </div>
