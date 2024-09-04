@@ -28,7 +28,7 @@ export const TagFilter: FC<TagFilterProps> = ({
   };
 
   return (
-    <div className="flex flex-row items-center space-x-2">
+    <div className="flex flex-row w-[200px] items-center space-x-2">
       <AnimatePresence mode="popLayout" initial={false}>
         {tags.sort().map((tag) => (
           <motion.div
