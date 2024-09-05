@@ -5,11 +5,20 @@ import { Header } from '@/components/(evaluation)/evaluation-form/question-cards
 import { MultipleChoiceQuestion } from '@/components/(evaluation)/evaluation-form/question-cards/multiple-choice-question';
 import { SingleChoiceQuestion } from '@/components/(evaluation)/evaluation-form/question-cards/single-choice-question';
 import { WrittenQuestion } from '@/components/(evaluation)/evaluation-form/question-cards/written-question';
+import { Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { User } from '@/db/schema';
+import { getInitials } from '@/lib/get-initials';
+import { getFullName } from '@/lib/helpers/getFullName';
 import { TODO } from '@/types';
+import { DevTool } from '@hookform/devtools';
+import { ClipboardListIcon } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 
 export function WebEvaluationForm({ responseId }: { responseId: string }) {
-  const { form, methods } = useEvaluationForm({ responseId });
+  const { form, methods, response, submitForm } = useEvaluationForm({
+    responseId,
+  });
   const [isFieldsRegistered, setIsFieldsRegistered] = useState(false);
 
   useEffect(() => {
@@ -34,7 +43,7 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
     let questionCount = 0;
     return form.formItems
       .sort((a, b) => a.position - b.position)
-      .map((f: TODO): ReactNode => {
+      .map((f): ReactNode => {
         const questionIndex = questionCount;
 
         let component: ReactNode;
@@ -43,8 +52,8 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
             component = (
               <MultipleChoiceQuestion
                 key={f.id}
-                questionIndex={questionIndex}
                 options={f.options || []}
+                required={f.isRequired}
                 text={f.text}
                 control={methods.control}
                 name={`answers.${questionIndex}.selectedOptionIds` as const}
@@ -57,6 +66,7 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
               <WrittenQuestion
                 key={f.id}
                 control={methods.control}
+                required={f.isRequired}
                 name={`answers.${questionIndex}.textValue` as const}
                 text={f.text}
               />
@@ -67,8 +77,8 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
             component = (
               <SingleChoiceQuestion
                 key={f.id}
-                questionIndex={questionIndex}
                 control={methods.control}
+                required
                 name={`answers.${questionIndex}.selectedOptionId` as const}
                 options={f.options || []}
                 text={f.text}
@@ -81,7 +91,6 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
               <Header key={f.id} text={f.text} description={f.description} />
             );
             break;
-          case 'RANGE':
           default:
             throw new Error(`Item of type '${f.type}' is unsupported.`);
         }
@@ -95,10 +104,53 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
   }
 
   return (
-    <main className="grid md:grid-cols-7 w-full p-4 overflow-y-scroll h-[calc(100vh-40px)]">
-      <div className="md:col-span-3 md:col-start-3 col-start-2 space-y-4">
-        {formComponents}
+    <main className="">
+      <DevTool control={methods.control} />
+      <WebEvaluationFormHeader
+        title={form.title}
+        evaluatee={response.evaluatee}
+        onSaveAndQuitClick={submitForm}
+      />
+      <div className="grid md:grid-cols-7 p-4 w-full overflow-y-scroll h-[calc(100vh-96px)]">
+        <div className="md:col-span-3 md:col-start-3 col-start-2 space-y-4">
+          {formComponents}
+        </div>
       </div>
     </main>
+  );
+}
+
+interface WebEvaluationFormHeaderProps {
+  title: string;
+  evaluatee: Pick<User, 'id' | 'firstName' | 'lastName'>;
+  onSaveAndQuitClick?: () => void;
+}
+
+function WebEvaluationFormHeader({
+  title,
+  evaluatee,
+  onSaveAndQuitClick,
+}: WebEvaluationFormHeaderProps) {
+  const evaluateeName = getFullName(evaluatee);
+  const evaluateeInitials = getInitials(evaluateeName);
+  return (
+    <header className="flex h-12 col-span-full w-full flex-row items-center justify-between border-b border-neutral-300 bg-card/50 p-1 px-2">
+      <div className="flex flex-row space-x-4 items-center">
+        <h2 className="text-2xl flex items-center space-x-1 font-semibold">
+          <ClipboardListIcon className="opacity-50" />
+          <p>{title}</p>
+        </h2>
+        <Avatar size="sm" content={evaluateeInitials} tooltip={evaluateeName} />
+      </div>
+
+      <div className="flex flex-row items-center space-x-2">
+        <Button size="sm" onClick={onSaveAndQuitClick}>
+          Submit
+        </Button>
+        <Button type="button" variant="secondary" size="sm">
+          Save & Quit
+        </Button>
+      </div>
+    </header>
   );
 }
