@@ -16,6 +16,9 @@ import { isEqual } from 'lodash';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { z } from 'zod'
+
+type TMode = 'readonly' | 'edit' | 'default';
 
 interface ValidateResponseIsAllowed {
   form: Pick<EvaluationFormResult['form'], 'settings'>;
@@ -64,8 +67,6 @@ const validateResponseIsAllowed = ({
   }
 };
 
-type TMode = 'readonly' | 'edit' | 'default';
-
 interface UseEvaluationForm {
   responseId: string;
   mode?: TMode;
@@ -100,7 +101,7 @@ export function useEvaluationForm({
 
   const { mutate: mutateAutosaveResponse } = useMutation({
     mutationFn: saveResponse,
-    onError: () => toast.error("Error saving changes."),
+    onError: () => toast.error('Error saving changes.'),
   });
 
   useEffect(() => {
@@ -120,6 +121,58 @@ export function useEvaluationForm({
     [methods, mutateAutosaveResponse],
   );
 
+  const submitForm = async () => {
+    const answers = methods.getValues('answers');
+    let hasErrors = false;
+
+    answers.forEach((answer, index) => {
+      const formItem = form.formItems.find((f) => f.id === answer.formItemId);
+      const isRequired = formItem?.isRequired || false;
+
+      if (
+        isRequired &&
+        answer.type === 'SINGLE_CHOICE' &&
+        !answer.selectedOptionId
+      ) {
+        methods.setError(`answers.${index}.selectedOptionId`, {
+          type: 'required',
+          message: 'This question is required',
+        });
+        hasErrors = true;
+      } else {
+        // Clear the error if it's no longer applicable
+        methods.clearErrors(`answers.${index}.selectedOptionId`);
+      }
+    });
+
+    if (hasErrors) {
+      toast.error('Please answer all required questions');
+      return;
+    }
+
+    try {
+      const parsedData = ZEvaluationFormSchema.parse(methods.getValues());
+      mutateAutosaveResponse({ ...parsedData, status: 'COMPLETED' });
+      toast.success('Form submitted successfully');
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          // Handle Zod validation errors
+          // @ts-expect-error
+          methods.setError(err.path.join('.'), {
+            type: 'validation',
+            message: err.message,
+          });
+        });
+        toast.error('Validation Error: Please check your answers');
+      } else {
+        console.error('Unexpected error:', error);
+        toast.error('An unexpected error occurred');
+      }
+    }
+  };
+
+  // FIXME this doesn't always work as intended
   useEffect(() => {
     const subscription = methods.watch((value, { name, type }) => {
       if (name?.startsWith('answers.') && type === 'change') {
@@ -149,5 +202,5 @@ export function useEvaluationForm({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [methods]);
 
-  return { form, response, methods };
+  return { form, response, methods, submitForm };
 }
