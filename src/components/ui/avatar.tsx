@@ -5,13 +5,13 @@ import { ClassValue } from "clsx";
 import { ReactNode } from "react";
 
 const avatarVariants = cva(
-  "rounded-full border-2 p-2 border-white transition-all duration-400 flex items-center text-center flex-col justify-center",
+  "rounded-full border-2 p-2 select-none border-white transition-all duration-400 flex items-center text-center flex-col justify-center",
   {
     variants: {
       size: {
         sm: "size-8 text-xs",
-        md: "size-10 text-sm",
-        lg: "size-12",
+        md: "size-[36px] text-sm",
+        lg: "size-10",
       },
       color: {
         accent: "bg-teal-600 text-white",
