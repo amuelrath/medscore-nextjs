@@ -357,7 +357,7 @@ export const formItems = pgTable('form_items', {
   description: text('description'),
   type: formItemTypeEnum('type').notNull(),
   position: integer('position').notNull(),
-  isRequired: boolean('is_required').default(true),
+  isRequired: boolean('is_required').notNull().default(true),
   isScored: boolean('is_scored').notNull().default(true),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   // todo how to figure out updatedAt
@@ -446,9 +446,11 @@ export const responses = pgTable('responses', {
     .references(() => users.id, { onDelete: 'cascade' })
     .notNull(),
   status: responseStatusEnum('status').default('NOT_STARTED').notNull(), // on open, 'started'. on submit, 'completed'
-  evaluateeId: uuid('evaluatee_id').references(() => users.id, {
-    onDelete: 'cascade',
-  }),
+  evaluateeId: uuid('evaluatee_id')
+    .notNull()
+    .references(() => users.id, {
+      onDelete: 'cascade',
+    }),
   duration: integer('duration'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });

@@ -7,6 +7,7 @@ export interface CustomInput<TSchema extends FieldValues> {
   control: Control<TSchema>;
   name: FieldPath<TSchema>;
   disabled?: boolean;
+  required?: boolean;
   defaultValue?: PathValue<TSchema, FieldPath<TSchema>>;
 }
 
