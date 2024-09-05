@@ -1,8 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { CustomInput } from '@/types';
 import { useState } from 'react';
-import { Control, Controller, FieldPath, FieldValues } from 'react-hook-form';
+import { Controller, FieldValues } from 'react-hook-form';
 
 interface Option {
   id: string;
@@ -11,29 +12,22 @@ interface Option {
   isNa: boolean;
 }
 
-interface MultipleChoiceQuestionProps<
-  TSchema extends FieldValues,
-  TName extends FieldPath<TSchema>,
-> {
-  control: Control<TSchema>;
-  name: TName;
+interface MultipleChoiceQuestionProps<TSchema extends FieldValues>
+  extends CustomInput<TSchema> {
   text: string | null;
-  disabled?: boolean;
   max?: number;
   options: Option[];
 }
 
-export function MultipleChoiceQuestion<
-  TSchema extends FieldValues,
-  TName extends FieldPath<TSchema>,
->({
+export function MultipleChoiceQuestion<TSchema extends FieldValues>({
   control,
   name,
   text,
   disabled,
   max,
   options,
-}: MultipleChoiceQuestionProps<TSchema, TName>) {
+  required = false,
+}: MultipleChoiceQuestionProps<TSchema>) {
   const [previousSelections, setPreviousSelections] = useState<string[]>([]);
 
   return (
@@ -42,9 +36,10 @@ export function MultipleChoiceQuestion<
         <CardTitle>{text}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Controller<TSchema, TName>
+        <Controller<TSchema>
           name={name}
           control={control}
+          rules={{ required }}
           render={({ field }) => {
             const sortedOptions = [...options].sort(
               (a, b) => a.position - b.position,
