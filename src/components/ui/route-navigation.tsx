@@ -34,8 +34,8 @@ export function RouteNavigation({ tabs }: Props) {
 
   return (
     <nav>
-      <div className="flex h-full w-12 flex-col items-center bg-primary p-1.5">
-        <div className={cn('flex select-none flex-col items-center space-y-3')}>
+      <div className="flex h-full w-12 pt-12 flex-col items-center bg-primary">
+        <div className={cn('flex select-none w-full flex-col items-center')}>
           {tabs.map((tab) => (
             <div
               key={tab.id}
@@ -45,8 +45,8 @@ export function RouteNavigation({ tabs }: Props) {
                 handleNavigate(tab.href);
               }}
               className={`${
-                activeTab === tab.id ? '' : 'hover:text-primary/5'
-              } relative z-20 w-full rounded-full py-1.5 text-xs font-medium tracking-wider text-white transition focus-visible:outline-2`}
+                activeTab === tab.id ? 'bg-accent-secondary' : 'hover:text-primary/5'
+              } relative z-20 w-full text-xs font-medium tracking-wider p-3 text-white transition focus-visible:outline-2`}
               style={{ WebkitTapHighlightColor: 'transparent' }}
             >
               <div
