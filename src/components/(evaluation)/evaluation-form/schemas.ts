@@ -55,7 +55,7 @@ export const transformToSchema = ({
         id: existingAnswer?.id || v4(),
         formItemId: formItem.id,
         type: formItem.type,
-        textValue: existingAnswer?.textValue ?? null,
+        textValue: existingAnswer?.textValue,
       };
 
       if (formItem.type === 'WRITTEN') {
