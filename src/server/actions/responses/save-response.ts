@@ -102,7 +102,16 @@ export async function saveResponse(formData: TEvaluationForm): Promise<void> {
       },
     });
 
+    // update the submission status if we are submitting rather than autosaving
+    if (formData.status === 'COMPLETED') {
+      await tx
+        .update(responses)
+        .set({ status: 'COMPLETED' })
+        .where(eq(responses.id, formData.id));
+    }
+
     const updatePromises = formData.answers.map(async (formAnswer) => {
+      if (!formAnswer) return;
       const existingAnswer = existingFormData?.answers.find(
         (a) => a.id === formAnswer.id,
       );
