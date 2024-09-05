@@ -35,6 +35,16 @@ export async function getEvaluationForm({
           lastName: true,
         },
       },
+      evaluatee: {
+        columns: {
+          id: true,
+          role: true,
+          email: true,
+          password: false,
+          firstName: true,
+          lastName: true,
+        },
+      },
       assessment: {
         with: {
           form: {
