@@ -14,6 +14,7 @@ export function WrittenQuestion<TSchema extends FieldValues>({
   defaultValue,
   disabled,
   text,
+  required=false
 }: WrittenQuestionProps<TSchema>) {
   return (
     <Card>
@@ -26,6 +27,7 @@ export function WrittenQuestion<TSchema extends FieldValues>({
         <Controller
           control={control}
           name={name}
+          rules={{ required }}
           disabled={disabled}
           defaultValue={defaultValue}
           render={({ field }) => (
