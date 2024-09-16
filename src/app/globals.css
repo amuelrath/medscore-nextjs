@@ -131,3 +131,31 @@ input:focus {
     margin: 0;
   }
 }
+
+
+.no-input-border {
+  box-shadow: none !important;
+  border: 0 none transparent !important;
+  outline: transparent none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+}
+
+.no-input-border:focus,
+.no-input-border:active,
+.no-input-border:hover,
+.no-input-border:focus-visible {
+  box-shadow: none !important;
+  border: 0 none transparent !important;
+  outline: transparent none !important;
+}
+
+/* If using a framework that adds focus rings */
+.no-input-border:focus-visible {
+  --tw-ring-offset-width: 0px !important;
+  --tw-ring-offset-color: transparent !important;
+  --tw-ring-color: transparent !important;
+  --tw-ring-offset-shadow: none !important;
+  --tw-ring-shadow: none !important;
+}
