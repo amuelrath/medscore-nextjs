@@ -23,6 +23,9 @@ const config = {
     },
 
     extend: {
+      height: {
+        '18': '72px',
+      },
       colors: {
         'accent-secondary': 'hsl(var(--accent-secondary))',
         'accent-secondary-background':
