@@ -17,10 +17,10 @@ export default async function AppLayout({
 }>) {
   return (
     <div className="flex flex-row h-screen bg-primary overflow-clip">
-        <RouteNavigation tabs={tabs} />
+      <RouteNavigation tabs={tabs} />
       <ReactQueryDevtools />
       <div className="flex flex-col flex-1">
-      <AppHeader />
+        <AppHeader />
         <main className="flex-1 rounded-tl outline bg-white outline-accent-secondary flex flex-grow overflow-hidden h-full">
           {children}
         </main>
