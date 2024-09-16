@@ -34,12 +34,14 @@ export const formItemTypeEnum = pgEnum('form_item_type', [
   'SINGLE_CHOICE',
   'HEADER',
   'WRITTEN',
+  'RANGE'
 ]);
 export const ZFormEnum = z.enum([
   'MULTIPLE_CHOICE',
   'SINGLE_CHOICE',
   'HEADER',
   'WRITTEN',
+  'RANGE'
 ]);
 export type TFormItemType = z.infer<typeof ZFormEnum>;
 
@@ -359,6 +361,8 @@ export const formItems = pgTable('form_items', {
   position: integer('position').notNull(),
   isRequired: boolean('is_required').notNull().default(true),
   isScored: boolean('is_scored').notNull().default(true),
+  minValue: integer('min_value'),
+  maxValue: integer('max_value'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   // todo how to figure out updatedAt
 });
