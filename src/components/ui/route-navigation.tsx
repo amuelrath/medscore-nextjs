@@ -34,7 +34,7 @@ export function RouteNavigation({ tabs }: Props) {
 
   return (
     <nav>
-      <div className="flex h-full w-12 pt-12 flex-col items-center bg-primary">
+      <div className="flex h-full min-h-[100vh] w-10 pt-10 flex-col items-center bg-primary">
         <div className={cn('flex select-none w-full flex-col items-center')}>
           {tabs.map((tab) => (
             <div
