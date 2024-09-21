@@ -49,15 +49,15 @@ const tabs = [
     href: '/forms',
   },
   {
-    id: 'programs',
+    id: 'reports',
     label: 'Reports',
     icon: <UsersIcon size={20} />,
-    href: '/programs',
+    href: '/reports',
   },
   {
     id: 'programs',
     label: 'Programs',
     icon: <GraduationCapIcon size={20} />,
-    href: '/reports',
+    href: '/programs',
   },
 ];
