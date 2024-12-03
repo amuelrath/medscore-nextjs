@@ -1,111 +1,33 @@
 'use client';
 
-import { FormItem } from '@/components/(admin)/forms/form-builder/form-items';
+import { FormBuilderMilestoneMenu } from '@/components/(admin)/forms/form-builder/milestone-sidebar';
+import { FormBuilderSidebar } from '@/components/(admin)/forms/form-builder/sidebar';
 import { FormBuilderToolbar } from '@/components/(admin)/forms/form-builder/toolbar';
-import { FormBuilderMilestoneMenu } from '@/components/(admin)/milestone-menu';
-import { cn } from '@/lib/helpers/utils';
-
+import { TFormItemSchema } from '@/components/(admin)/forms/form-builder/types';
 import {
   closestCorners,
   DndContext,
+  DragCancelEvent,
   DragEndEvent,
   DragMoveEvent,
   DragOverEvent,
-  DragOverlay,
   DragStartEvent,
   MeasuringStrategy,
-  useDraggable,
-  useDroppable,
 } from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { v4 } from 'uuid';
+import { arrayMove } from '@dnd-kit/sortable';
+import dynamic from 'next/dynamic';
 import { useFormBuilderStore } from './store';
 
-function FormBuilderContent() {
-  const { items, activeItemId } = useFormBuilderStore();
-  const { setNodeRef, active } = useDroppable({ id: 'items' });
+// requires document to be defined.
+const FormBuilderContent = dynamic(
+  () =>
+    import('@/components/(admin)/forms/form-builder/form-builder-content').then(
+      (module) => module.FormBuilderContent,
+    ),
+  { ssr: false },
+);
 
-  const activeItem = items.find((i) => i.id === activeItemId);
-  const activeIndex = items.findIndex((i) => i.id === activeItemId);
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        'md:col-span-3 flex flex-col flex-grow min-h-[calc(100vh-40px-70.73px)] max-h-[calc(100vh-40px-70.73px)] col-span-5 p-4',
-      )}
-    >
-      <SortableContext
-        strategy={verticalListSortingStrategy}
-        items={items.map((item) => item.id)}
-      >
-        {items.map((item, index) => (
-          <FormItem key={item.id} item={item} index={index} isClone={false} />
-        ))}
-      </SortableContext>
-      {active &&
-        active.data.current?.type === 'item' &&
-        createPortal(
-          <DragOverlay>
-            <FormItem
-              key={active.id}
-              isClone
-              item={activeItem!}
-              index={activeIndex!}
-            />
-          </DragOverlay>,
-          document.body,
-        )}
-    </div>
-  );
-}
-
-function NewFormItem() {
-  const { setNodeRef, transform, isDragging, attributes, listeners } =
-    useDraggable({
-      id: 'new-item',
-      data: {
-        type: 'new-item',
-        item: {
-          id: v4(),
-          type: 'WRITTEN',
-          text: `New Item, ${v4()}`,
-        },
-      },
-    });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="col-span-2 border rounded-md"
-    >
-      Drag Me!
-    </div>
-  );
-}
-
-function FormBuilderSidebar() {
-  return (
-    <aside className="col-span-2 w-full flex-col border-r flex flex-grow">
-      <h3 className="text-center">Components</h3>
-      <NewFormItem />
-    </aside>
-  );
-}
+const DROP_ACTIVATION_DISTANCE = 130;
 
 const measuringConfig = {
   droppable: {
@@ -123,32 +45,45 @@ export function FormBuilder() {
     setItemDropIndex,
   } = useFormBuilderStore();
 
-  const handleDragStart = useCallback(
-    (event: DragStartEvent) => {
-      const { active } = event;
-      if (active.data.current?.type === 'item') {
-        setActiveItemId(active.id.toString());
-      }
-    },
-    [setActiveItemId],
-  );
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+
+    // we are dragging an item
+    if (active.data.current?.type === 'item') {
+      setActiveItemId(active.id.toString());
+    }
+  };
 
   const handleDragMove = (event: DragMoveEvent) => {
     const { over, active } = event;
-    if (!over) return;
+
+    // if we aren't dragging over anything, we don't need a drop index
+    if (!over) {
+      setItemDropIndex(null);
+      return;
+    }
+
     // figure out where we are trying to add the new question
     const activeY = active.rect.current.translated?.bottom;
     const overY = over.rect.bottom;
+    const activeX = active.rect.current.translated?.left || 0;
+    const overX = over.rect?.left || 0;
+    const xDistance = Math.abs(activeX - overX);
 
     const isAbove = activeY && activeY < overY;
 
     if (
-      active.data.current?.type === 'new-item' &&
+      active.id.toString().startsWith('new-item') &&
       over.data.current?.type === 'item' &&
       activeY
     ) {
       // ...we are dragging a new item and want to add it
       const overIndex = items.findIndex((i) => i.id === over.id);
+
+      if (xDistance >= DROP_ACTIVATION_DISTANCE) {
+        setItemDropIndex(null);
+        return;
+      }
 
       if (!isAbove) {
         // we are trying to add below the active index
@@ -178,10 +113,31 @@ export function FormBuilder() {
       setActiveItemId(null);
     }
 
-    if (active.data.current?.type === 'new-item' && over) {
-      addItem({ id: v4(), text: 'new item' }, itemDropIndex || 0);
-      setItemDropIndex(null);
+    if (active.id.toString().startsWith('new-item') && over) {
+      const activeType = active.data.current
+        ?.itemType as TFormItemSchema['type'];
+
+      // if there are no items, add a new one
+      if (items.length === 0) {
+        addItem(activeType, 0);
+      }
+
+      const activeX = active.rect.current.translated?.left || 0;
+      const overX = over.rect?.left || 0;
+      const xDistance = Math.abs(activeX - overX);
+
+      if (xDistance < DROP_ACTIVATION_DISTANCE) {
+        addItem(activeType, itemDropIndex || 0);
+        setItemDropIndex(null);
+      } else {
+        setItemDropIndex(null);
+      }
     }
+  };
+
+  const handleDragCancel = (event: DragCancelEvent) => {
+    setActiveItemId(null);
+    setItemDropIndex(null);
   };
 
   return (
@@ -190,12 +146,13 @@ export function FormBuilder() {
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
+      onDragCancel={handleDragCancel}
       measuring={measuringConfig}
       collisionDetection={closestCorners}
     >
       <section className="flex flex-col flex-grow h-[calc(100vh-40px)]">
         <FormBuilderToolbar />
-        <div className="grid grid-cols-7 min-h-[calc(100vh-40px-70.73px)] max-h-[calc(100vh-40px-70.73px)]">
+        <div className="grid grid-cols-12 min-h-[calc(100vh-40px-70.73px)] max-h-[calc(100vh-40px-70.73px)]">
           <FormBuilderSidebar />
           <FormBuilderContent />
           <FormBuilderMilestoneMenu />
