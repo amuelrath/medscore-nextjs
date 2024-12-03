@@ -1,36 +1,47 @@
-import {
-  TestItem,
-  useFormBuilderStore,
-} from '@/components/(admin)/forms/form-builder/store';
+import { HeaderItem } from '@/components/(admin)/forms/form-builder/form-items/header-item';
+import { MultipleChoiceQuestion } from '@/components/(admin)/forms/form-builder/form-items/multiple-choice-question';
+import { ParagraphItem } from '@/components/(admin)/forms/form-builder/form-items/paragraph-item';
+import { RangeQuestion } from '@/components/(admin)/forms/form-builder/form-items/range-question';
+import { SingleChoiceQuestion } from '@/components/(admin)/forms/form-builder/form-items/single-choice-question';
+import { WrittenQuestion } from '@/components/(admin)/forms/form-builder/form-items/written-question';
+import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import { TFormItemSchema } from '@/components/(admin)/forms/form-builder/types';
 import { CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/helpers/utils';
 import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { motion } from 'framer-motion';
 import { CopyIcon, GripVerticalIcon, XIcon } from 'lucide-react';
-import React, { useRef } from 'react';
+import React, { JSXElementConstructor } from 'react';
+
+const formItemContent: Record<
+  TFormItemSchema['type'],
+  JSXElementConstructor<{ id: string }>
+> = {
+  WRITTEN: WrittenQuestion,
+  HEADER: HeaderItem,
+  PARAGRAPH: ParagraphItem,
+  RANGE: RangeQuestion,
+  SINGLE_CHOICE: SingleChoiceQuestion,
+  MULTIPLE_CHOICE: MultipleChoiceQuestion,
+};
 
 interface FormItemProps {
-  item: TestItem;
+  id: string;
   index: number;
-  isClone: boolean;
+  type: TFormItemSchema['type'];
+  isClone?: boolean;
 }
 
-function animateLayoutChanges(args: any) {
+const animateLayoutChanges = (args: any) => {
   const { isSorting, wasSorting } = args;
-
-  if (isSorting || wasSorting) {
-    return defaultAnimateLayoutChanges(args);
-  }
-
-  return true;
-}
+  return isSorting || wasSorting ? defaultAnimateLayoutChanges(args) : true;
+};
 
 export const FormItem = React.memo(
-  ({ item, index, isClone }: FormItemProps) => {
-    const { removeItem, itemDropIndex } = useFormBuilderStore();
-    const length = useFormBuilderStore((state) => state.items.length);
-    const itemRef = useRef<HTMLDivElement>(null);
+  ({ id, type, index, isClone }: FormItemProps) => {
+    const { removeItem, itemDropIndex, duplicateItem, activeItemId, items, setSelectedItemId, selectedItemId } =
+      useFormBuilderStore();
 
     const {
       attributes,
@@ -42,47 +53,65 @@ export const FormItem = React.memo(
       isSorting,
       active,
     } = useSortable({
-      id: item.id,
-      data: {
-        type: 'item',
-      },
+      id,
+      data: { type: 'item' },
       animateLayoutChanges,
     });
 
-    const isActiveTypeNewItem =
-      active && active.data.current?.type === 'new-item';
+    const isActiveTypeNewItem = active?.id.toString().startsWith('new-item');
+    const isActive = activeItemId === id;
+    const isSelected = selectedItemId === id;
 
-    // if we are are dragging a new item, we dont want to transform
     const style = {
       transform: isActiveTypeNewItem
         ? undefined
         : CSS.Translate.toString(transform),
-      transition,
+      transition: `${transition}, border 200ms ease, border-color 200ms ease`,
+      border: isActive ? '1.55px solid' : '1.5px solid',
+      borderColor: isActive
+        ? 'hsl(var(--foreground) / 0.3)'
+        : 'hsl(var(--border))',
     };
 
     const handleDelete = (e: React.MouseEvent) => {
       e.stopPropagation();
-      removeItem(item.id);
+      removeItem(id);
     };
 
     const handleCopy = (e: React.MouseEvent) => {
       e.stopPropagation();
-      // onCopyClick();
+      duplicateItem(id);
     };
+
+    const handleSelect = (e: React.MouseEvent) => {
+      e.stopPropagation() // not sure if i need this
+      setSelectedItemId(id)
+    }
 
     const position = index + 1;
 
+    const Content = formItemContent[type];
+
     return (
       <motion.div
-        initial={{ y: isClone ? 0 : -10, opacity: isClone ? 1 : 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className={cn('flex origin-center flex-col')}
+        initial={{ scale: 1 }}
+        animate={{ scale: isActive ? 1.025 : 1 }}
+        className={cn(
+          'col-start-2 col-span-6 flex origin-center flex-col',
+          isActive && 'z-40 drop-shadow-xl ease-in duration-300',
+          isDragging && !isClone && 'opacity-0',
+        )}
+        style={{
+          transitionProperty: 'filter',
+          transitionDuration: '500ms',
+          transitionTimingFunction: 'ease',
+        }}
       >
         {!isClone && (
           <span
             className={cn(
               'h-1 mb-2 bg-accent-secondary/40 w-full rounded-full',
+              isSorting && 'transition-opacity duration-100 ease-in',
               isActiveTypeNewItem && itemDropIndex === index
                 ? 'opacity-100'
                 : 'opacity-0',
@@ -92,28 +121,26 @@ export const FormItem = React.memo(
         <div
           ref={setNodeRef}
           style={style}
-          className={cn(
-            'flex bg-white flex-row rounded border shadow-sm mb-2',
-            isDragging && 'opacity-0',
-          )}
+          className="flex bg-white flex-row rounded shadow-sm mb-2"
         >
-          <div className="flex flex-col p-1 justify-start items-center cursor-grab">
+          <div className="flex flex-col p-1 justify-center items-center">
             <GripVerticalIcon
               {...listeners}
               {...attributes}
               role="button"
               size={20}
-              className="text-primary/40 hover:text-primary/70 transition-colors"
+              className={cn(
+                'text-primary/40 hover:text-primary/70 transition-colors',
+                isClone && 'pointer-events-none',
+              )}
             />
           </div>
-          <div className="space-y-2  select-none flex-grow pr-7 pl-0.5">
+          <div onMouseDown={handleSelect} className="space-y-2 select-none flex-grow pr-7 pl-0.5">
             <div className="w-full h-6 flex flex-row justify-between">
-              <div className="flex flex-row space-x-4">
-                <span className="text-white flex items-center justify-center text-sm w-8 rounded-b bg-primary/60">
-                  {position}
-                </span>
-              </div>
-              <div className="flex text-center justify-center px-4 rounded-b bg-primary/60 space-x-4 items-center">
+              <span className={cn('text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]', isSelected ? "bg-primary/90" : "bg-primary/60")}>
+                {position}
+              </span>
+              <div className={cn('flex text-center justify-center px-4 rounded-b space-x-4 items-center transition-colors ease-out duration-[50ms]', isSelected ? "bg-primary/90" : "bg-primary/60")}>
                 <CopyIcon
                   onClick={handleCopy}
                   role="button"
@@ -128,15 +155,16 @@ export const FormItem = React.memo(
                 />
               </div>
             </div>
-            <CardContent className="flex-grow pb-2 px-0" ref={itemRef}>
-              {item.text}
+            <CardContent className="flex-grow pb-2 px-0">
+              <Content id={id} />
             </CardContent>
           </div>
         </div>
-        {!isClone && index === length - 1 && (
+        {!isClone && index === items.length - 1 && (
           <span
             className={cn(
               'h-1 bg-accent-secondary/40 w-full rounded-full',
+              isSorting && 'transition-opacity duration-100 ease-in',
               isActiveTypeNewItem && itemDropIndex === index + 1
                 ? 'opacity-100'
                 : 'opacity-0',
