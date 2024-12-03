@@ -146,7 +146,7 @@ export function useEvaluationForm({
     });
 
     if (hasErrors) {
-      toast.error('Please answer all required questions');
+      toast.error('Please answer all required form-items');
       return;
     }
 
