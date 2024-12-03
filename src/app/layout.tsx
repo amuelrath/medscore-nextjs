@@ -2,7 +2,7 @@ import { cn } from '@/lib/helpers/utils';
 import Provider from '@/server/provider';
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
-import { ReactNode, StrictMode } from 'react';
+import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
 
@@ -48,14 +48,12 @@ export default function RootLayout({
         <title>medscore</title>
       </head>
       <html lang="en">
-        <StrictMode>
-          <Provider>
-            <body className={cn(poppins.className, 'bg-white')}>
-              {children}
-              <Toaster />
-            </body>
-          </Provider>
-        </StrictMode>
+        <Provider>
+          <body className={cn(poppins.className, 'bg-white')}>
+            {children}
+            <Toaster />
+          </body>
+        </Provider>
       </html>
     </>
   );
