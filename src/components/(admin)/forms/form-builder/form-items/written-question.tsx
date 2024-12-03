@@ -1,56 +1,48 @@
-import { Base } from '@/components/(admin)/forms/form-builder/form-items/base';
-import { TFormBuilderSchema } from '@/components/(admin)/forms/form-builder/form-items/types';
-import { AutosizeTextarea } from '@/components/ui/autosize-text-area';
-import { Control, Controller } from 'react-hook-form';
+import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import { isWritten } from '@/components/(admin)/forms/form-builder/types';
+import {
+  AutosizeTextarea,
+  AutosizeTextAreaRef,
+} from '@/components/ui/autosize-text-area';
+import { ChangeEvent, useRef } from 'react';
 
 interface WrittenQuestionProps {
   id: string;
-  index: number;
-  required?: boolean;
-  disabled?: boolean;
-  control: Control<TFormBuilderSchema>;
-  remove: () => void;
 }
 
-export function WrittenQuestion({
-  index,
-  required,
-  id,
-  control,
-  disabled,
-  remove
-}: WrittenQuestionProps) {
+export function WrittenQuestion({ id }: WrittenQuestionProps) {
+  const ref = useRef<AutosizeTextAreaRef>(null);
+  const { updateItem } = useFormBuilderStore();
+  const question = useFormBuilderStore((state) =>
+    state.items.find((i) => i.id === id),
+  );
+
+  if (!question || !isWritten(question)) {
+    throw new Error('Question is not of correct type');
+  }
+
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    updateItem(id, (item) => ({
+      ...item,
+      text: e.target.value,
+    }));
+  };
+
   return (
-    <Base
-      key={id}
-      required={required}
-      onCopyClick={() => null}
-      index={index}
-      onDeleteClick={remove}
-    >
-      <div className="space-y-6 pb-6">
-        <Controller
-          control={control}
-          name={`formItems.${index}.text`}
-          disabled={disabled}
-          render={({ field }) => (
-            <AutosizeTextarea
-              className="text-sm font-medium"
-              variant="typography"
-              name={field.name}
-              disabled={field.disabled}
-              value={field.value}
-              ref={field.ref}
-              onChange={field.onChange}
-            />
-          )}
-        />
-        <div className="flex flex-col">
-          <span className="border-b border-primary/60 border-dashed" />
-          <span className="border-b border-primary/60 py-3 border-dashed" />
-          <span className="border-b border-primary/60 py-3 border-dashed" />
-        </div>
+    <div className="space-y-6 pb-6">
+      <AutosizeTextarea
+        placeholder="Question"
+        ref={ref}
+        className="text-sm font-medium"
+        variant="typography"
+        onChange={handleChange}
+        value={question.text}
+      />
+      <div className="flex flex-col">
+        <span className="border-b border-primary/60 border-dashed" />
+        <span className="border-b border-primary/60 py-3 border-dashed" />
+        <span className="border-b border-primary/60 py-3 border-dashed" />
       </div>
-    </Base>
+    </div>
   );
 }

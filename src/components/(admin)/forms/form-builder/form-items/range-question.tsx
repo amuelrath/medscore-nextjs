@@ -1,90 +1,75 @@
-import { Base } from '@/components/(admin)/forms/form-builder/form-items/base';
-import { TFormBuilderSchema } from '@/components/(admin)/forms/form-builder/form-items/types';
+import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import { isRange } from '@/components/(admin)/forms/form-builder/types';
 import { AutosizeTextarea } from '@/components/ui/autosize-text-area';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { Control, Controller } from 'react-hook-form';
+import { ChangeEvent } from 'react';
 
 interface RangeQuestionProps {
   id: string;
-  index: number;
-  required?: boolean;
-  disabled?: boolean;
-  control: Control<TFormBuilderSchema>;
-  remove: () => void;
 }
 
-export function RangeQuestion({
-  id,
-  index,
-  required,
-  disabled,
-  control,
-  remove,
-}: RangeQuestionProps) {
+export function RangeQuestion({ id }: RangeQuestionProps) {
+  const { updateItem } = useFormBuilderStore();
+  const question = useFormBuilderStore((state) =>
+    state.items.find((i) => i.id === id),
+  );
+
+  if (!question || !isRange(question)) {
+    throw new Error('Question is not of correct type');
+  }
+
+  const handleQuestionTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    updateItem(id, (item) => ({
+      ...item,
+      text: e.target.value,
+    }));
+  };
+
+  const handleMinChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const min = parseInt(e.target.value, 10);
+    updateItem(id, (item) => ({
+      ...item,
+      minValue: min ? 0 : min,
+    }));
+  };
+
+  const handleMaxChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const max = parseInt(e.target.value, 10);
+    updateItem(id, (item) => ({
+      ...item,
+      maxValue: max ? 100 : max,
+    }));
+  };
+
   return (
-    <Base
-      key={id}
-      required={required}
-      onCopyClick={() => null}
-      index={index}
-      onDeleteClick={remove}
-    >
-      <div className="space-y-6 pb-6">
-        <Controller
-          control={control}
-          name={`formItems.${index}.text`}
-          disabled={disabled}
-          render={({ field }) => (
-            <AutosizeTextarea
-              className="text-sm font-medium"
-              variant="typography"
-              name={field.name}
-              disabled={field.disabled}
-              value={field.value}
-              ref={field.ref}
-              onChange={field.onChange}
-            />
-          )}
+    <div className="space-y-6 pb-6">
+      <AutosizeTextarea
+        value={question.text}
+        onChange={handleQuestionTextChange}
+        placeholder="Question"
+        className="text-sm font-medium"
+        variant="typography"
+      />
+      <div className="flex flex-row space-x-4">
+        <Input
+          className="max-w-16 text-center text-sm"
+          size="xs"
+          placeholder="Min"
+          value={question.minValue}
+          onChange={handleMinChange}
+          type="number"
         />
-        <div className="flex flex-row space-x-4">
-          <Controller
-            control={control}
-            name={`formItems.${index}.minValue`}
-            disabled={disabled}
-            render={({ field }) => (
-              <Input
-                className="max-w-16 text-center text-sm"
-                size="xs"
-                placeholder="Min"
-                name={field.name}
-                disabled={field.disabled}
-                value={field.value}
-                ref={field.ref}
-                onChange={field.onChange}
-              />
-            )}
-          />
-          <Slider defaultValue={[50]} disabled max={100} min={0} step={1} />
-          <Controller
-            control={control}
-            name={`formItems.${index}.maxValue`}
-            disabled={disabled}
-            render={({ field }) => (
-              <Input
-                className="max-w-16 text-center text-sm"
-                size="xs"
-                placeholder="Min"
-                name={field.name}
-                disabled={field.disabled}
-                value={field.value}
-                ref={field.ref}
-                onChange={field.onChange}
-              />
-            )}
-          />
-        </div>
+        <Slider disabled defaultValue={[0.5]} max={1} min={0} step={0.5} />
+        <Input
+          className="max-w-16 text-center text-sm"
+          size="xs"
+          placeholder="Max"
+          value={question.maxValue}
+          onChange={handleMaxChange}
+          type="number"
+        />
       </div>
-    </Base>
+    </div>
   );
 }

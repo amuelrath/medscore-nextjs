@@ -1,49 +1,55 @@
-import { Base } from '@/components/(admin)/forms/form-builder/form-items/base';
-import { TFormBuilderSchema } from '@/components/(admin)/forms/form-builder/form-items/types';
+import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import {
+  isSingleChoice,
+  TOptionSchema,
+} from '@/components/(admin)/forms/form-builder/types';
 import { AutosizeTextarea } from '@/components/ui/autosize-text-area';
 import { Input } from '@/components/ui/input';
-import { SquareIcon, XIcon } from 'lucide-react';
-import { forwardRef, HTMLProps } from 'react';
-import { Control, Controller, useFieldArray } from 'react-hook-form';
-import { v4 } from 'uuid';
+import { CircleIcon, XIcon } from 'lucide-react';
+import React, { ChangeEvent, forwardRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface SingleChoiceOptionProps {
-  control: Control<TFormBuilderSchema>;
-  optionIndex: number;
-  questionIndex: number;
-  onRemove: () => void;
+  id: string;
+  itemId: string;
 }
 
-function SingleChoiceOption({
-  control,
-  optionIndex,
-  questionIndex,
-  onRemove,
-}: SingleChoiceOptionProps) {
+function SingleChoiceOption({ id, itemId }: SingleChoiceOptionProps) {
+  const { updateOption, removeOption } = useFormBuilderStore();
+  const option = useFormBuilderStore((state) => {
+    const question = state.items.find((i) => i.id === itemId);
+    if (question && isSingleChoice(question)) {
+      return question.options.find((o) => o.id === id);
+    }
+    return null;
+  });
+
+  if (!option) return null;
+
+  const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+    updateOption(itemId, id, e.target.value);
+  };
+
+  const handleRemoveOption = () => {
+    removeOption(itemId, id);
+  };
+
   return (
     <div className="flex flex-row bg-primary/[3%] rounded px-4 py-1 focus-within:bg-primary/5 transition-colors items-center space-x-2">
-      <SquareIcon className="text-primary/40" size={16} />
-      <Controller
-        control={control}
-        name={`formItems.${questionIndex}.options.${optionIndex}.text`}
-        render={({ field }) => (
-          <Input
-            size="xs"
-            variant="transparent"
-            className="text-xs"
-            name={field.name}
-            disabled={field.disabled}
-            value={field.value}
-            ref={field.ref}
-            onChange={field.onChange}
-          />
-        )}
+      <CircleIcon className="text-primary/40" size={16} />
+      <Input
+        value={option.text}
+        onChange={handleTextChange}
+        placeholder="Option"
+        size="xs"
+        variant="transparent"
+        className="text-xs"
       />
       <XIcon
         role="button"
         className="text-primary/40 hover:text-destructive/70 transition-colors"
         size={18}
-        onClick={onRemove}
+        onClick={handleRemoveOption}
       />
     </div>
   );
@@ -51,7 +57,7 @@ function SingleChoiceOption({
 
 const AddOptionButton = forwardRef<
   HTMLButtonElement,
-  HTMLProps<HTMLButtonElement>
+  React.HTMLProps<HTMLButtonElement>
 >(({ onClick }, ref) => (
   <button
     ref={ref}
@@ -63,78 +69,54 @@ const AddOptionButton = forwardRef<
   </button>
 ));
 
+AddOptionButton.displayName = 'AddOptionButton';
+
 interface SingleChoiceQuestionProps {
   id: string;
-  index: number;
-  required?: boolean;
-  disabled?: boolean;
-  control: Control<TFormBuilderSchema>;
-  remove: () => void;
 }
 
-export function SingleChoiceQuestion({
-  id,
-  index,
-  required,
-  disabled,
-  control,
-  remove,
-}: SingleChoiceQuestionProps) {
-  const {
-    append,
-    fields,
-    remove: removeOption,
-  } = useFieldArray({
-    control,
-    name: `formItems.${index}.options`,
-  });
+export function SingleChoiceQuestion({ id }: SingleChoiceQuestionProps) {
+  const { updateItem, addOption } = useFormBuilderStore();
+  const question = useFormBuilderStore((state) =>
+    state.items.find((i) => i.id === id),
+  );
+
+  if (!question || !isSingleChoice(question)) {
+    throw new Error('Question was rendered as the wrong type');
+  }
+
+  const handleQuestionTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    updateItem(id, (item) => ({
+      ...item,
+      text: e.target.value,
+    }));
+  };
 
   const handleAddOption = () => {
-    append({
-      id: v4(),
+    const newOption: TOptionSchema = {
+      id: uuidv4(),
       text: '',
+      isNa: false,
       pointValue: 0,
-    });
+    };
+    addOption(id, newOption);
   };
 
   return (
-    <Base
-      key={id}
-      required={required}
-      onCopyClick={() => null}
-      index={index}
-      onDeleteClick={remove}
-    >
-      <div className="space-y-2 pb-6">
-        <Controller
-          control={control}
-          name={`formItems.${index}.text`}
-          disabled={disabled}
-          render={({ field }) => (
-            <AutosizeTextarea
-              className="text-sm font-medium"
-              variant="typography"
-              name={field.name}
-              disabled={field.disabled}
-              value={field.value}
-              ref={field.ref}
-              onChange={field.onChange}
-            />
-          )}
-        />
-        <div className="flex flex-col space-y-2">
-          {fields.map((field, optionIndex) => (
-            <SingleChoiceOption
-              key={field.id}
-              optionIndex={optionIndex}
-              questionIndex={index}
-              control={control}
-              onRemove={() => removeOption(optionIndex)}
-            />
-          ))}
-          <AddOptionButton onClick={handleAddOption} />
-        </div>
+    <div className="space-y-2 pb-6">
+      <AutosizeTextarea
+        value={question.text}
+        onChange={handleQuestionTextChange}
+        placeholder="Question"
+        className="text-sm font-medium"
+        variant="typography"
+      />
+      <div className="flex flex-col space-y-2">
+        {question.options.map((o) => (
+          <SingleChoiceOption key={o.id} id={o.id} itemId={id} />
+        ))}
+        <AddOptionButton onClick={handleAddOption} />
       </div>
-    </Base>
+    </div>
   );
 }
