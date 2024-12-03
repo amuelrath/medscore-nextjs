@@ -68,7 +68,7 @@ const textareaVariants = cva(
         primary:
           'bg-primary/5 border-border text-neutral-800 focus-visible:ring-foreground/80',
         typography:
-          'bg-transparent py-1 px-2 border-transparent hover:border-primary focus-visible:border-primary focus-visible:ring-transparent transition-colors',
+          'bg-transparent py-1 px-2 border-x-transparent border-t-transparent border-b-[1.75px] border-b-primary/30 hover:border-b-primary/60 focus-visible:border-b-primary rounded-none focus-visible:ring-transparent transition-colors',
         secondary:
           'bg-secondary/5 border-secondary text-neutral-700 focus-visible:ring-secondary/80',
       },
