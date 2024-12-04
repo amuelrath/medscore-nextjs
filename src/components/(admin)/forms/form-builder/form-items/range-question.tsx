@@ -1,75 +1,121 @@
-import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
-import { isRange } from '@/components/(admin)/forms/form-builder/types';
+'use client'
+
+import { useFormItemConfig } from '@/components/(admin)/forms/form-builder/hooks/use-form-item-config';
 import { AutosizeTextarea } from '@/components/ui/autosize-text-area';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { ChangeEvent } from 'react';
+import { useCallback } from 'react';
+
+interface UseRangeQuestionProps {
+  id: string;
+}
+
+export function useRangeQuestion({ id }: UseRangeQuestionProps) {
+  const { config, updateConfig } = useFormItemConfig({
+    id,
+    type: 'RANGE',
+  });
+
+  const handleTextChange = useCallback(
+    (text: string) => {
+      updateConfig('text', text);
+    },
+    [updateConfig],
+  );
+
+  const handleMinChange = useCallback(
+    (value: string) => {
+      const min = parseInt(value, 10);
+      // Ensure we don't set invalid values
+      if (!Number.isNaN(min) && min >= 0) {
+        updateConfig('minValue', min);
+      }
+    },
+    [updateConfig],
+  );
+
+  const handleMaxChange = useCallback(
+    (value: string) => {
+      const max = parseInt(value, 10);
+      // Ensure we don't set invalid values and maintain max > min
+      if (!Number.isNaN(max) && max <= 10) {
+        updateConfig('maxValue', max);
+      }
+    },
+    [updateConfig],
+  );
+
+  return {
+    config,
+    handleTextChange,
+    handleMinChange,
+    handleMaxChange,
+  } as const;
+}
+
+interface RangeConfigProps {
+  min: number;
+  max: number;
+  onMinChange: (value: string) => void;
+  onMaxChange: (value: string) => void;
+}
+
+function RangeConfig({ min, max, onMinChange, onMaxChange }: RangeConfigProps) {
+  return (
+    <div className="flex flex-row space-x-4">
+      <Input
+        className="max-w-16 text-center text-sm"
+        size="xs"
+        placeholder="Min"
+        value={min}
+        onChange={(e) => onMinChange(e.target.value)}
+        type="number"
+        min={0}
+        max={max}
+      />
+      <Slider
+        defaultValue={[Math.floor((max + min) / 2)]}
+        max={max}
+        min={min}
+        step={1}
+      />
+      <Input
+        className="max-w-16 text-center text-sm"
+        size="xs"
+        placeholder="Max"
+        value={max}
+        onChange={(e) => onMaxChange(e.target.value)}
+        type="number"
+        min={min}
+        max={10}
+      />
+    </div>
+  );
+}
 
 interface RangeQuestionProps {
   id: string;
 }
 
 export function RangeQuestion({ id }: RangeQuestionProps) {
-  const { updateItem } = useFormBuilderStore();
-  const question = useFormBuilderStore((state) =>
-    state.items.find((i) => i.id === id),
-  );
-
-  if (!question || !isRange(question)) {
-    throw new Error('Question is not of correct type');
-  }
-
-  const handleQuestionTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateItem(id, (item) => ({
-      ...item,
-      text: e.target.value,
-    }));
-  };
-
-  const handleMinChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const min = parseInt(e.target.value, 10);
-    updateItem(id, (item) => ({
-      ...item,
-      minValue: min ? 0 : min,
-    }));
-  };
-
-  const handleMaxChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const max = parseInt(e.target.value, 10);
-    updateItem(id, (item) => ({
-      ...item,
-      maxValue: max ? 100 : max,
-    }));
-  };
+  const { config, handleTextChange, handleMinChange, handleMaxChange } =
+    useRangeQuestion({ id });
 
   return (
     <div className="space-y-6 pb-6">
       <AutosizeTextarea
-        value={question.text}
-        onChange={handleQuestionTextChange}
+        value={config.text}
+        onChange={(e) => handleTextChange(e.target.value)}
         placeholder="Question"
         className="text-sm font-medium"
         variant="typography"
       />
-      <div className="flex flex-row space-x-4">
-        <Input
-          className="max-w-16 text-center text-sm"
-          size="xs"
-          placeholder="Min"
-          value={question.minValue}
-          onChange={handleMinChange}
-          type="number"
-        />
-        <Slider disabled defaultValue={[0.5]} max={1} min={0} step={0.5} />
-        <Input
-          className="max-w-16 text-center text-sm"
-          size="xs"
-          placeholder="Max"
-          value={question.maxValue}
-          onChange={handleMaxChange}
-          type="number"
-        />
-      </div>
+      <RangeConfig
+        min={config.minValue}
+        max={config.maxValue}
+        onMinChange={handleMinChange}
+        onMaxChange={handleMaxChange}
+      />
     </div>
   );
 }

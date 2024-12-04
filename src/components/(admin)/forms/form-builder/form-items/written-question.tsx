@@ -1,48 +1,85 @@
-import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
-import { isWritten } from '@/components/(admin)/forms/form-builder/types';
+import { useFormItemConfig } from '@/components/(admin)/forms/form-builder/hooks/use-form-item-config';
 import {
   AutosizeTextarea,
   AutosizeTextAreaRef,
 } from '@/components/ui/autosize-text-area';
-import { ChangeEvent, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 
-interface WrittenQuestionProps {
+interface UseWrittenQuestionProps {
   id: string;
 }
 
-export function WrittenQuestion({ id }: WrittenQuestionProps) {
-  const ref = useRef<AutosizeTextAreaRef>(null);
-  const { updateItem } = useFormBuilderStore();
-  const question = useFormBuilderStore((state) =>
-    state.items.find((i) => i.id === id),
+export function useWrittenQuestion({ id }: UseWrittenQuestionProps) {
+  const { config, updateConfig } = useFormItemConfig({
+    id,
+    type: 'WRITTEN',
+  });
+
+  const handleTextChange = useCallback(
+    (text: string) => {
+      updateConfig('text', text);
+    },
+    [updateConfig],
   );
 
-  if (!question || !isWritten(question)) {
-    throw new Error('Question is not of correct type');
-  }
+  return {
+    config,
+    handleTextChange,
+  } as const;
+}
 
-  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    updateItem(id, (item) => ({
-      ...item,
-      text: e.target.value,
-    }));
-  };
+interface WrittenResponseAreaProps {
+  lines?: number;
+}
+
+function WrittenResponseArea({ lines = 3 }: WrittenResponseAreaProps) {
+  return (
+    <div className="flex flex-col">
+      {Array.from({ length: lines }).map((_, index) => (
+        <span
+          className="border-b border-primary/60 border-dashed"
+          style={{ paddingTop: index > 0 ? '1.25rem' : undefined }}
+        />
+      ))}
+    </div>
+  );
+}
+
+interface WrittenQuestionContentProps {
+  value: string;
+  onChange: (text: string) => void;
+  textareaRef?: React.RefObject<AutosizeTextAreaRef>;
+}
+
+function WrittenQuestionContent({
+  value,
+  onChange,
+  textareaRef,
+}: WrittenQuestionContentProps) {
+  return (
+    <AutosizeTextarea
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="Question"
+      ref={textareaRef}
+      className="text-sm font-medium"
+      variant="typography"
+    />
+  );
+}
+
+export function WrittenQuestion({ id }: { id: string }) {
+  const textareaRef = useRef<AutosizeTextAreaRef>(null);
+  const { config, handleTextChange } = useWrittenQuestion({ id });
 
   return (
     <div className="space-y-6 pb-6">
-      <AutosizeTextarea
-        placeholder="Question"
-        ref={ref}
-        className="text-sm font-medium"
-        variant="typography"
-        onChange={handleChange}
-        value={question.text}
+      <WrittenQuestionContent
+        value={config.text}
+        onChange={handleTextChange}
+        textareaRef={textareaRef}
       />
-      <div className="flex flex-col">
-        <span className="border-b border-primary/60 border-dashed" />
-        <span className="border-b border-primary/60 py-3 border-dashed" />
-        <span className="border-b border-primary/60 py-3 border-dashed" />
-      </div>
+      <WrittenResponseArea />
     </div>
   );
 }

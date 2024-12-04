@@ -1,8 +1,12 @@
-import { HeaderItem } from '@/components/(admin)/forms/form-builder/form-items/header-item';
-import { MultipleChoiceQuestion } from '@/components/(admin)/forms/form-builder/form-items/multiple-choice-question';
-import { ParagraphItem } from '@/components/(admin)/forms/form-builder/form-items/paragraph-item';
+import {
+  MultipleChoiceQuestion,
+  SingleChoiceQuestion,
+} from '@/components/(admin)/forms/form-builder/form-items/choice-question';
 import { RangeQuestion } from '@/components/(admin)/forms/form-builder/form-items/range-question';
-import { SingleChoiceQuestion } from '@/components/(admin)/forms/form-builder/form-items/single-choice-question';
+import {
+  HeaderItem,
+  ParagraphItem,
+} from '@/components/(admin)/forms/form-builder/form-items/text-item';
 import { WrittenQuestion } from '@/components/(admin)/forms/form-builder/form-items/written-question';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
 import { TFormItemSchema } from '@/components/(admin)/forms/form-builder/types';
@@ -40,8 +44,15 @@ const animateLayoutChanges = (args: any) => {
 
 export const FormItem = React.memo(
   ({ id, type, index, isClone }: FormItemProps) => {
-    const { removeItem, itemDropIndex, duplicateItem, activeItemId, items, setSelectedItemId, selectedItemId } =
-      useFormBuilderStore();
+    const {
+      removeItem,
+      itemDropIndex,
+      duplicateItem,
+      activeItemId,
+      items,
+      setSelectedItemId,
+      selectedItemId,
+    } = useFormBuilderStore();
 
     const {
       attributes,
@@ -84,9 +95,9 @@ export const FormItem = React.memo(
     };
 
     const handleSelect = (e: React.MouseEvent) => {
-      e.stopPropagation() // not sure if i need this
-      setSelectedItemId(id)
-    }
+      e.stopPropagation(); // not sure if i need this
+      setSelectedItemId(id);
+    };
 
     const position = index + 1;
 
@@ -135,12 +146,25 @@ export const FormItem = React.memo(
               )}
             />
           </div>
-          <div onMouseDown={handleSelect} className="space-y-2 select-none flex-grow pr-7 pl-0.5">
+          <div
+            onMouseUp={handleSelect}
+            className="space-y-2 select-none flex-grow pr-7 pl-0.5"
+          >
             <div className="w-full h-6 flex flex-row justify-between">
-              <span className={cn('text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]', isSelected ? "bg-primary/90" : "bg-primary/60")}>
+              <span
+                className={cn(
+                  'text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]',
+                  isSelected ? 'bg-primary/90' : 'bg-primary/60',
+                )}
+              >
                 {position}
               </span>
-              <div className={cn('flex text-center justify-center px-4 rounded-b space-x-4 items-center transition-colors ease-out duration-[50ms]', isSelected ? "bg-primary/90" : "bg-primary/60")}>
+              <div
+                className={cn(
+                  'flex text-center justify-center px-4 rounded-b space-x-4 items-center transition-colors ease-out duration-[50ms]',
+                  isSelected ? 'bg-primary/90' : 'bg-primary/60',
+                )}
+              >
                 <CopyIcon
                   onClick={handleCopy}
                   role="button"
