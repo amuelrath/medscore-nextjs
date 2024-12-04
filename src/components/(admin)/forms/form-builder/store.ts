@@ -204,7 +204,15 @@ export const useFormBuilderStore = create<FormBuilderState>()(
           return { items: newItems };
         }),
       removeItem: (id) =>
-        set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
+        set((state) => {
+          if (state.selectedItemId === id) {
+            return {
+              items: state.items.filter((i) => i.id !== id),
+              selectedItemId: null,
+            };
+          }
+          return { items: state.items.filter((i) => i.id !== id) };
+        }),
       setItemDropIndex: (idx) => set(() => ({ itemDropIndex: idx })),
       updateItem: (id, updater) =>
         set((state) => {
