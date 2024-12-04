@@ -14,7 +14,7 @@ import { CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/helpers/utils';
 import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CopyIcon, GripVerticalIcon, XIcon } from 'lucide-react';
 import React, { JSXElementConstructor } from 'react';
 
@@ -180,7 +180,9 @@ export const FormItem = React.memo(
               </div>
             </div>
             <CardContent className="flex-grow pb-2 px-0">
+              <AnimatePresence initial={false} >
               <Content id={id} />
+              </AnimatePresence>
             </CardContent>
           </div>
         </div>

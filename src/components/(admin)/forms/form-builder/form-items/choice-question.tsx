@@ -1,7 +1,10 @@
 import { useFormItemConfig } from '@/components/(admin)/forms/form-builder/hooks/use-form-item-config';
 import { ChoiceConfig } from '@/components/(admin)/forms/form-builder/types';
 import { AutosizeTextarea } from '@/components/ui/autosize-text-area';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/helpers/utils';
+import { motion } from 'framer-motion';
 import { CircleIcon, SquareIcon, XIcon } from 'lucide-react';
 import React, { forwardRef, useCallback, useMemo } from 'react';
 import { v4 } from 'uuid';
@@ -85,6 +88,7 @@ interface ChoiceOptionProps {
   option: ChoiceConfig['options'][number];
   onUpdate: (updates: Partial<ChoiceConfig['options'][number]>) => void;
   onRemove: () => void;
+  isScored?: boolean;
   variant: 'single' | 'multiple';
 }
 
@@ -92,28 +96,96 @@ export function ChoiceOption({
   option,
   onUpdate,
   onRemove,
+  isScored = true,
   variant,
 }: ChoiceOptionProps) {
   const Icon = variant === 'single' ? CircleIcon : SquareIcon;
 
+  const pointDisplayValue = React.useMemo(() => {
+    if (option.pointValue === undefined || option.pointValue === null)
+      return '';
+    return Number.isInteger(option.pointValue)
+      ? option.pointValue.toString()
+      : option.pointValue.toFixed(1);
+  }, [option.pointValue]);
+
+  const handlePointValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    if (!value) {
+      onUpdate({ pointValue: 0 });
+      return;
+    }
+    const numValue = parseFloat(value);
+    if (!Number.isNaN(numValue)) {
+      onUpdate({ pointValue: numValue });
+    }
+  };
+
+  // Consolidate container width and visibility logic
+  const containerWidths = {
+    main: isScored ? '80%' : '100%',
+    points: isScored ? '20%' : '0%',
+  };
+
+  // Common container styles
+  const commonContainerStyles =
+    'flex flex-row bg-primary/[3%] rounded py-1 transition-colors';
+
   return (
-    <div className="flex flex-row bg-primary/[3%] rounded px-4 py-1 focus-within:bg-primary/5 transition-colors items-center space-x-2">
-      <Icon className="text-primary/40" size={16} />
-      <Input
-        value={option.text}
-        onChange={(e) => onUpdate({ text: e.target.value })}
-        disabled={option.isNa}
-        placeholder="Option"
-        size="xs"
-        variant="transparent"
-        className="text-xs"
-      />
-      <XIcon
-        role="button"
-        className="text-primary/40 hover:text-destructive/70 transition-colors"
-        size={18}
-        onClick={onRemove}
-      />
+    <div className="flex flex-row items-center space-x-2">
+      <motion.div
+        animate={{ width: containerWidths.main }}
+        initial={{ width: '100%' }}
+        className={cn(
+          commonContainerStyles,
+          'px-4 focus-within:bg-primary/5 items-center space-x-2',
+        )}
+      >
+        <Icon className="text-primary/40" size={16} />
+        <Input
+          value={option.text}
+          onChange={(e) => onUpdate({ text: e.target.value })}
+          disabled={option.isNa}
+          placeholder="Option"
+          size="xs"
+          variant="transparent"
+          className="text-xs w-full"
+        />
+        <Button variant="hide" size="xs">
+          <XIcon
+            className="text-primary/40 hover:text-destructive/70 transition-colors"
+            size={18}
+            onClick={onRemove}
+          />
+        </Button>
+      </motion.div>
+
+      {isScored && (
+        <motion.div
+          initial={{ scaleX: 0, width: '0%' }}
+          animate={{
+            scaleX: 1,
+            width: containerWidths.points,
+          }}
+          className={cn(
+            commonContainerStyles,
+            'origin-right focus-within:bg-primary/5 px-1 overflow-hidden',
+            option.isNa && 'opacity-0 disabled:cursor-default',
+          )}
+        >
+          <Input
+            type="number"
+            value={pointDisplayValue}
+            onChange={handlePointValueChange}
+            disabled={option.isNa}
+            placeholder="Pts"
+            size="xs"
+            variant="transparent"
+            className="text-xs font-mono text-center w-full"
+            step="0.1"
+          />
+        </motion.div>
+      )}
     </div>
   );
 }
@@ -185,6 +257,7 @@ export function ChoiceQuestion({ id, type }: ChoiceQuestionProps) {
             onUpdate={(updates) => handleUpdateOption(option.id, updates)}
             onRemove={() => handleRemoveOption(option.id)}
             variant={type === 'SINGLE_CHOICE' ? 'single' : 'multiple'}
+            isScored={config.isScored}
           />
         ))}
         <div className="flex flex-row items-center space-x-2">
