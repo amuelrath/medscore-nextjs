@@ -1,5 +1,6 @@
-'use client'
+'use client';
 
+import { DRAG_AND_DROP } from '@/components/(admin)/forms/form-builder/constants';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
 import { TFormItemSchema } from '@/components/(admin)/forms/form-builder/types';
 import {
@@ -9,8 +10,6 @@ import {
   DragStartEvent,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { DRAG_AND_DROP } from '@/components/(admin)/forms/form-builder/constants';
-
 
 export function useFormBuilderDrag() {
   const {
@@ -27,6 +26,18 @@ export function useFormBuilderDrag() {
     if (active.data.current?.type === 'item') {
       setActiveItemId(active.id.toString());
     }
+  };
+
+  const calculateCenterDistance = (active: any, over: any) => {
+    const activeRect = active.rect.current.translated;
+    const overRect = over.rect;
+
+    if (!activeRect || !overRect) return Infinity;
+
+    const activeCenter = activeRect.left + activeRect.width / 2;
+    const overCenter = overRect.left + overRect.width / 2;
+
+    return Math.abs(activeCenter - overCenter);
   };
 
   const handleDragMove = (event: DragMoveEvent) => {
@@ -47,9 +58,7 @@ export function useFormBuilderDrag() {
 
     const activeY = active.rect.current.translated?.bottom;
     const overY = over.rect.bottom;
-    const activeX = active.rect.current.translated?.left || 0;
-    const overX = over.rect?.left || 0;
-    const xDistance = Math.abs(activeX - overX);
+    const xDistance = calculateCenterDistance(active, over);
 
     if (!activeY) {
       return;
@@ -105,9 +114,7 @@ export function useFormBuilderDrag() {
       return;
     }
 
-    const activeX = active.rect.current.translated?.left || 0;
-    const overX = over.rect?.left || 0;
-    const xDistance = Math.abs(activeX - overX);
+    const xDistance = calculateCenterDistance(active, over);
 
     if (xDistance < DRAG_AND_DROP.DROP_ACTIVATION_DISTANCE) {
       addItem(activeType, itemDropIndex || 0);
