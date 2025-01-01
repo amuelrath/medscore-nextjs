@@ -3,7 +3,7 @@ import { CheckboxIcon, HeadingIcon, InputIcon, PilcrowIcon, RadiobuttonIcon, Sli
 import { NewFormItemProps } from '@/components/(admin)/forms/form-builder/types';
 
 export const DRAG_AND_DROP = {
-  DROP_ACTIVATION_DISTANCE: 130,
+  DROP_ACTIVATION_DISTANCE: 300,
   MEASURING_STRATEGY: {
     droppable: {
       strategy: MeasuringStrategy.Always,
