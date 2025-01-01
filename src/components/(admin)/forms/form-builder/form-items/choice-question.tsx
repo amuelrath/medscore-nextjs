@@ -149,7 +149,7 @@ export function ChoiceOption({
           placeholder="Option"
           size="xs"
           variant="transparent"
-          className="text-xs w-full"
+          className="text-sm w-full"
         />
         <Button variant="hide" size="xs">
           <XIcon
@@ -181,7 +181,7 @@ export function ChoiceOption({
             placeholder="Pts"
             size="xs"
             variant="transparent"
-            className="text-xs font-mono text-center w-full"
+            className="text-sm text-center w-full"
             step="0.1"
           />
         </motion.div>
