@@ -35,6 +35,7 @@ export function useChoiceQuestion({ id, type }: UseChoiceQuestionProps) {
       text: '',
       pointValue: 0,
       isNa: false,
+      position: config.options.length + 1,
     };
     updateConfig('options', [...config.options, newOption]);
   }, [config.options, updateConfig]);
@@ -47,6 +48,7 @@ export function useChoiceQuestion({ id, type }: UseChoiceQuestionProps) {
       text: 'N/A',
       pointValue: 0,
       isNa: true,
+      position: config.options.length + 1,
     };
     updateConfig('options', [...config.options, newOption]);
   }, [config.options, hasNAOption, updateConfig]);
