@@ -44,3 +44,10 @@ export const NEW_FORM_ITEMS: NewFormItemProps[] = [
     label: 'Range',
   },
 ];
+export const LAYOUT = {
+  HEADER_HEIGHT: 40,
+  TOOLBAR_HEIGHT: 70.73,
+  CANVAS_HEIGHT: `calc(100vh-${40}px-${70.73}px)`,
+  CANVAS_CLASSES:
+    'md:col-span-6 col-span-5 overflow-y-scroll relative flex-grow p-4 pb-64 px-16',
+} as const;
