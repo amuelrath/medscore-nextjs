@@ -8,14 +8,7 @@ import { DragOverlayState } from '@/components/(admin)/forms/form-builder/types'
 import { cn } from '@/lib/helpers/utils';
 import { DragOverlay, useDroppable } from '@dnd-kit/core';
 import { createPortal } from 'react-dom';
-
-const LAYOUT = {
-  HEADER_HEIGHT: 40,
-  TOOLBAR_HEIGHT: 70.73,
-  CANVAS_HEIGHT: `calc(100vh-${40}px-${70.73}px)`,
-  CANVAS_CLASSES:
-    'md:col-span-6 col-span-5 overflow-y-scroll relative flex-grow p-4 pb-64 px-16',
-} as const;
+import { LAYOUT } from '@/components/(admin)/forms/form-builder/constants';
 
 export function FormBuilderCanvas() {
   const { items, activeItemId } = useFormBuilderStore();
