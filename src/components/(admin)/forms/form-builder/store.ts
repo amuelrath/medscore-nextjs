@@ -1,4 +1,6 @@
 import {
+  isChoiceItem,
+  isRangeItem,
   TChoiceItemSchema,
   TFormItemSchema,
   THeaderItemSchema,
@@ -21,12 +23,14 @@ const DEFAULT_FORM_ITEMS: TFormItemSchema[] = [
         text: 'Option 1',
         pointValue: 0,
         isNa: false,
+        position: 1,
       },
       {
         id: '261394f4-9cn5-4820-86fc-d0c773ba0be3',
         text: 'Option 1',
         pointValue: 0,
         isNa: false,
+        position: 2,
       },
     ],
     isScored: true,
@@ -80,6 +84,7 @@ const createDefaultSingleChoice = (): TChoiceItemSchema => ({
       text: 'Option 1',
       pointValue: 0,
       isNa: false,
+      position: 1,
     },
   ],
   text: 'Question Text',
@@ -96,6 +101,7 @@ const createDefaultMultipleChoice = (): TChoiceItemSchema => ({
       text: 'Option 1',
       pointValue: 0,
       isNa: false,
+      position: 1,
     },
   ],
   text: 'Question Text',
@@ -165,10 +171,19 @@ export interface FormBuilderState {
     updater: (item: TFormItemSchema) => TFormItemSchema,
   ) => void;
 
+  // managing milestones
+  addMilestone: (itemId: string, milestoneId: string) => void;
+  removeMilestone: (itemId: string, milestoneId: string) => void;
+
   // managing options
   addOption: (itemId: string, option: { id: string; text: string }) => void;
   removeOption: (itemId: string, optionId: string) => void;
-  updateOption: (itemId: string, optionId: string, newText: string) => void;
+  updateOption: (
+    itemId: string,
+    optionId: string,
+    newText?: string,
+    newPointValue?: number,
+  ) => void;
 }
 
 export const useFormBuilderStore = create<FormBuilderState>()(
@@ -222,18 +237,58 @@ export const useFormBuilderStore = create<FormBuilderState>()(
           newItems[index] = updater(newItems[index]);
           return { items: newItems };
         }),
+      addMilestone: (itemId, milestoneId) =>
+        set((state) => {
+          const updatedItems = state.items.map((item) => {
+            if (item.id === itemId) {
+              if (isRangeItem(item) || isChoiceItem(item)) {
+                return {
+                  ...item,
+                  milestoneIds: [...(item.milestoneIds || ''), milestoneId],
+                };
+              }
+            }
+            return item;
+          });
+
+          return { items: updatedItems };
+        }),
+      removeMilestone: (itemId, milestoneId) =>
+        set((state) => {
+          const updatedItems = state.items.map((item) => {
+            if (item.id === itemId) {
+              if (isRangeItem(item) || isChoiceItem(item)) {
+                return {
+                  ...item,
+                  milestoneIds: [
+                    ...(item.milestoneIds?.filter((m) => m !== milestoneId) ||
+                      []),
+                  ],
+                };
+              }
+            }
+            return item;
+          });
+
+          return { items: updatedItems };
+        }),
       addOption: (itemId, option) =>
         set((state) => {
           const updatedItems = state.items.map((item) => {
             if (item.id === itemId) {
-              if (
-                item.type === 'MULTIPLE_CHOICE' ||
-                item.type === 'SINGLE_CHOICE'
-              ) {
+              if (isChoiceItem(item)) {
                 return {
                   ...item,
-                  options: [...(item as TChoiceItemSchema).options, option],
-                } as TChoiceItemSchema;
+                  options: [
+                    ...item.options,
+                    {
+                      ...option,
+                      isNa: false,
+                      pointValue: 0,
+                      position: item.options.length + 1,
+                    },
+                  ],
+                };
               }
             }
             return item;
@@ -242,24 +297,35 @@ export const useFormBuilderStore = create<FormBuilderState>()(
           return { items: updatedItems };
         }),
       removeOption: (itemId, optionId) =>
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === itemId && 'options' in item
-              ? {
+        set((state) => {
+          const updatedItems = state.items.map((item) => {
+            if (item.id === itemId) {
+              if (isChoiceItem(item)) {
+                return {
                   ...item,
-                  options: item.options.filter((opt) => opt.id !== optionId),
-                }
-              : item,
-          ),
-        })),
-      updateOption: (itemId, optionId, newText) =>
+                  options: [...item.options.filter((o) => o.id !== optionId)],
+                };
+              }
+            }
+            return item;
+          });
+
+          return { items: updatedItems };
+        }),
+      updateOption: (itemId, optionId, newText, newPointValue) =>
         set((state) => ({
           items: state.items.map((item) =>
-            item.id === itemId && 'options' in item
+            item.id === itemId && isChoiceItem(item)
               ? {
                   ...item,
                   options: item.options.map((opt) =>
-                    opt.id === optionId ? { ...opt, text: newText } : opt,
+                    opt.id === optionId
+                      ? {
+                          ...opt,
+                          text: newText ?? opt.text,
+                          pointValue: newPointValue ?? opt.pointValue,
+                        }
+                      : opt,
                   ),
                 }
               : item,
