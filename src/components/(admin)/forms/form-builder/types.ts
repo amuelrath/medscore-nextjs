@@ -13,6 +13,7 @@ export const ZOptionSchema = z.object({
   text: z.string(),
   pointValue: z.number().nullable(),
   isNa: z.boolean(),
+  position: z.number(),
 });
 
 export const ZWrittenQuestionSchema = ZBaseFormItemSchema.extend({
@@ -54,10 +55,10 @@ export const ZFormBuilderSchema = z.object({
       ZChoiceQuestionSchema,
       ZRangeQuestionSchema,
       ZHeaderSchema,
+      ZParagraphSchema,
     ]),
   ),
 });
-
 
 export type TFormBuilderSchema = z.infer<typeof ZFormBuilderSchema>;
 export type TOptionSchema = z.infer<typeof ZOptionSchema>;
@@ -72,6 +73,23 @@ export type TFormItemSchema =
   | TRangeItemSchema
   | THeaderItemSchema
   | TParagraphItemSchema;
+
+// Type Guards
+
+export function isChoiceItem(item: TFormItemSchema): item is TChoiceItemSchema {
+  return item.type === "SINGLE_CHOICE" || item.type === "MULTIPLE_CHOICE"
+}
+
+export function isWrittenItem(item: TFormItemSchema): item is TWrittenItemSchema {
+  return item.type === "WRITTEN"
+}
+
+export function isRangeItem(item: TFormItemSchema): item is TRangeItemSchema {
+  return item.type === "RANGE"
+}
+
+
+// Other jazz
 
 export interface DragOverlayState {
   isNewFormItem: boolean;
