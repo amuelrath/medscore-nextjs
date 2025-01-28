@@ -1,7 +1,8 @@
 import { NEW_FORM_ITEMS } from '@/components/(admin)/forms/form-builder/constants';
 import { FormItem } from '@/components/(admin)/forms/form-builder/form-items';
-import { NewFormItem } from '@/components/(admin)/forms/form-builder/sidebar';
 import { DragOverlayState } from '@/components/(admin)/forms/form-builder/types';
+
+import { NewFormItem } from '@/components/(admin)/forms/form-builder/sidebar/sidebar-form-item-list';
 
 interface FormBuilderOverlayProps {
   state: DragOverlayState;
