@@ -56,10 +56,10 @@ function SidebarSection({
   label: string;
 }) {
   return (
-    <div className="col-span-3 space-y-2 px-2">
+    <div className="col-span-3 space-y-2">
       <hr />
-      <p className="text-sm font-medium">{label}</p>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-4 px-4">
+      <p className="text-sm font-medium col-span-full">{label}</p>
         {NEW_FORM_ITEMS.filter((i) => itemTypes.includes(i.itemType)).map(
           (props) => (
             <NewFormItem key={props.itemType} {...props} />
