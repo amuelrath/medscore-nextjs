@@ -17,8 +17,9 @@ const inputVariants = cva(
       variant: {
         default: 'border-border bg-primary/5',
         underline:
-          'bg-white border-x-0 rounded-none focus-visible:border-x-none focus-visible:border-t-none focus-visible:rounded-md border-t-0 border-b border-b-border',
-        outline: 'leading-none py-1 px-2 border-transparent hover:border-primary',
+          'bg-white border-0 focus:border-0 transition-none focus-visible:ring-0 ring-0 rounded-none',
+        outline:
+          'leading-none py-1 px-2 border-transparent hover:border-primary',
         transparent:
           'bg-transparent no-input-border focus-visible:ring-transparent ring-0 transition-none',
       },
