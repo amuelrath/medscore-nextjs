@@ -1,8 +1,16 @@
-import { SubcompetencyResult } from '@/server/actions/forms/get-subcompetencies';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
-import { isChoiceItem, isRangeItem } from '@/components/(admin)/forms/form-builder/types';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  isChoiceItem,
+  isRangeItem,
+} from '@/components/(admin)/forms/form-builder/types';
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { cn } from '@/lib/helpers/utils';
+import { SubcompetencyResult } from '@/server/actions/forms/get-subcompetencies';
 import { motion } from 'framer-motion';
 import { PlusIcon } from 'lucide-react';
 
@@ -40,7 +48,7 @@ export function MilestoneCard({ milestone }: MilestoneCardProps) {
         hasMilestone && 'border-accent-secondary/60',
       )}
     >
-      <CardHeader>
+      <CardHeader className="p-4" >
         <CardTitle className="text-md font-semibold">
           {milestone.name}
         </CardTitle>
@@ -54,7 +62,7 @@ export function MilestoneCard({ milestone }: MilestoneCardProps) {
         type="button"
         className={cn(
           'absolute disabled:cursor-not-allowed shadow-sm flex group justify-center transition-colors flex-row' +
-          'items-center -bottom-3 rounded-sm bg-white right-3 cursor-pointer w-12 h-6 border border-neutral-300',
+            'items-center -bottom-3 rounded-sm bg-white right-3 cursor-pointer w-12 h-6 border border-neutral-300',
           hasMilestone ? 'border-accent-secondary' : 'hover:border-neutral-500',
         )}
       >
