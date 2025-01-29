@@ -76,16 +76,16 @@ export type TFormItemSchema =
 
 // Type Guards
 
-export function isChoiceItem(item: TFormItemSchema): item is TChoiceItemSchema {
-  return item.type === "SINGLE_CHOICE" || item.type === "MULTIPLE_CHOICE"
+export function isChoiceItem(item: TFormItemSchema | undefined): item is TChoiceItemSchema {
+  return item?.type === "SINGLE_CHOICE" || item?.type === "MULTIPLE_CHOICE"
 }
 
-export function isWrittenItem(item: TFormItemSchema): item is TWrittenItemSchema {
-  return item.type === "WRITTEN"
+export function isWrittenItem(item: TFormItemSchema | undefined): item is TWrittenItemSchema {
+  return item?.type === "WRITTEN"
 }
 
-export function isRangeItem(item: TFormItemSchema): item is TRangeItemSchema {
-  return item.type === "RANGE"
+export function isRangeItem(item: TFormItemSchema | undefined): item is TRangeItemSchema {
+  return item?.type === "RANGE"
 }
 
 
