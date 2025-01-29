@@ -1,5 +1,5 @@
+import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-sidebar/milestone-card';
 import { SidebarCompetencyContent } from '@/components/(admin)/forms/form-builder/milestone-sidebar/sidebar-competency-content';
-import { SearchContent } from '@/components/(admin)/forms/form-builder/milestone-sidebar/sidebar-search-content';
 import { Accordion } from '@/components/ui/accordion';
 import {
   DirectionAwareContent,
@@ -7,10 +7,15 @@ import {
   DirectionAwareTabHeader,
   DirectionAwareTabsProvider,
 } from '@/components/ui/direction-aware-carousel';
+import { Input } from '@/components/ui/input';
 import { COMPETENCIES } from '@/lib/constants/common';
+import { cn } from '@/lib/helpers/utils';
 import { getSubcompetencies } from '@/server/actions/forms/get-subcompetencies';
 import { useQuery } from '@tanstack/react-query';
+import FuzzySearch from 'fuzzy-search';
+import { SearchIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import { useState } from 'react';
 
 export function useFormBuilderMilestones() {
   // First we should get the form's id from search params
@@ -30,17 +35,15 @@ export function useFormBuilderMilestones() {
 export function FormBuilderMilestoneMenu() {
   const { data, isLoading, isError } = useFormBuilderMilestones();
 
+  const [searchValue, setSearchValue] = useState<string>('');
+  const isSearching = searchValue.length > 0;
+
   if (isLoading) return <>loading</>;
   if (!data) return <>no data</>;
 
   const tabs = [
     {
       id: 0,
-      label: 'Search',
-      content: <SearchContent subcompetencies={data} />,
-    },
-    {
-      id: 1,
       label: 'Patient Care',
       content: (
         <SidebarCompetencyContent
@@ -51,7 +54,7 @@ export function FormBuilderMilestoneMenu() {
       ),
     },
     {
-      id: 2,
+      id: 1,
       label: 'Medical Knowledge',
       content: (
         <SidebarCompetencyContent
@@ -62,7 +65,7 @@ export function FormBuilderMilestoneMenu() {
       ),
     },
     {
-      id: 3,
+      id: 2,
       label: 'Interpersonal & Communication Skills',
       content: (
         <SidebarCompetencyContent
@@ -73,7 +76,7 @@ export function FormBuilderMilestoneMenu() {
       ),
     },
     {
-      id: 4,
+      id: 3,
       label: 'Practice-Based Learning & Improvement',
       content: (
         <SidebarCompetencyContent
@@ -84,7 +87,7 @@ export function FormBuilderMilestoneMenu() {
       ),
     },
     {
-      id: 5,
+      id: 4,
       label: 'Systems-Based Practice',
       content: (
         <SidebarCompetencyContent
@@ -95,7 +98,7 @@ export function FormBuilderMilestoneMenu() {
       ),
     },
     {
-      id: 6,
+      id: 5,
       label: 'Professionalism',
       content: (
         <SidebarCompetencyContent
@@ -108,20 +111,55 @@ export function FormBuilderMilestoneMenu() {
   ];
 
   return (
-    <div className="md:col-span-3 overflow-hidden flex flex-col p-2 col-span-1 bg-background border-l">
+    <div className="md:col-span-3 overflow-hidden flex flex-col col-span-1 bg-background">
       <DirectionAwareTabsProvider tabs={tabs}>
-        <header className="w-full relative flex flex-row text-center px-2 h-14 mb-4 items-center ">
+        <header className="w-full relative flex flex-row text-center text-sm h-10 mb-4 items-center ">
           <DirectionAwareTabHeader />
           <div className="absolute -bottom-2.5 left-[38%]">
             <DirectionAwareDots />
           </div>
         </header>
+        <div className="relative w-full border-t">
+          <Input
+            onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+            variant="transparent"
+            placeholder="Search All Milestones . . ."
+            size="sm"
+            className="pl-8"
+          />
+          <SearchIcon
+            size={12}
+            className="absolute left-3 top-[0.7rem] opacity-50"
+          />
+        </div>
         <hr />
-        <div className="max-h-[490px] flex-grow overflow-y-scroll overflow-x-hidden">
-          {/* TODO make this responsive!! */}
-          <Accordion type="multiple">
-            <DirectionAwareContent />
-          </Accordion>
+        <div
+          className={cn(
+            'relative h-[56vh] space-y-4 flex-grow overflow-y-scroll overflow-x-hidden pl-4 pr-2',
+            isSearching && 'pt-4',
+          )}
+        >
+          {isSearching ? (
+            data.map((s) => {
+              const searcher = new FuzzySearch(
+                s.milestones,
+                ['description', 'name'],
+                {
+                  caseSensitive: false,
+                  sort: true,
+                },
+              );
+
+              return searcher
+                .search(searchValue)
+                .map((m) => <MilestoneCard key={m.id} milestone={m} />);
+            })
+          ) : (
+            <Accordion type="multiple">
+              <DirectionAwareContent />
+            </Accordion>
+          )}
         </div>
       </DirectionAwareTabsProvider>
     </div>
