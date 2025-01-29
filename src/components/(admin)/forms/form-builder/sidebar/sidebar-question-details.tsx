@@ -1,36 +1,44 @@
-import { useFormBuilderMilestones } from '@/components/(admin)/forms/form-builder/milestone-sidebar';
+import {
+  FormBuilderMilestoneMenu,
+  useFormBuilderMilestones,
+} from '@/components/(admin)/forms/form-builder/milestone-sidebar';
+import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-sidebar/milestone-card';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import {
+  DirectionAwareContent,
+  DirectionAwareTabs,
+  DirectionAwareTabsProvider,
+} from '@/components/ui/direction-aware-tabs';
 import { Switch } from '@/components/ui/switch';
-import { AnimatePresence, motion } from 'framer-motion';
-import { MilestoneCardProps } from '@/components/(admin)/forms/form-builder/milestone-sidebar/milestone-card';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/helpers/utils';
-import { InfoIcon, XIcon } from 'lucide-react';
 
-export function SmallMilestoneCard({ milestone }: MilestoneCardProps) {
+function SettingScoredSwitch() {
+  const { items, selectedItemId, updateItem } = useFormBuilderStore();
+  const selectedItem = items.find((i) => i.id === selectedItemId);
+
+  const handleUpdateScored = (checked: boolean) => {
+    if (!selectedItemId || !selectedItem || !('isScored' in selectedItem))
+      return;
+    updateItem(selectedItemId, (i) => ({ ...i, isScored: checked }));
+  };
+
+  if (!selectedItem) return null;
+  if (!('isScored' in selectedItem)) return null;
+
   return (
-    <Card className={cn('relative transition')}>
-      <CardHeader className="flex flex-row items-center justify-between pr-3">
-        <CardTitle className="text-md text-center font-semibold">
-          {milestone.name}
-        </CardTitle>
-        <div className="absolute p-1 px-2 border bg-white -bottom-3 right-12 rounded-md">
-          <InfoIcon className="opacity-50" size={16} />
-        </div>
-        <div className="absolute p-1 px-2 border bg-white -bottom-3 right-2 rounded-md">
-          <XIcon className="opacity-50" size={16} />
-        </div>
-      </CardHeader>
-    </Card>
+    <div className="flex flex-row items-center space-x-4 text-sm">
+      <Switch
+        checked={selectedItem.isScored}
+        onCheckedChange={handleUpdateScored}
+        size="sm"
+      />
+      <p>Scored</p>
+    </div>
   );
 }
 
-export function SidebarQuestionDetails() {
-  const { items, selectedItemId, updateItem, removeMilestone } =
-    useFormBuilderStore();
-
-  const { data, isLoading, isError } = useFormBuilderMilestones();
-
+function SettingRequiredSwitch() {
+  const { items, selectedItemId, updateItem } = useFormBuilderStore();
   const selectedItem = items.find((i) => i.id === selectedItemId);
 
   const handleUpdateRequired = (checked: boolean) => {
@@ -39,70 +47,98 @@ export function SidebarQuestionDetails() {
     updateItem(selectedItemId, (i) => ({ ...i, isRequired: checked }));
   };
 
-  const handleUpdateScored = (checked: boolean) => {
-    if (!selectedItemId || !selectedItem) return;
-    updateItem(selectedItemId, (i) => ({ ...i, isScored: checked }));
-  };
-
-  const handleRemoveMilestone = () => {};
-
   if (!selectedItem) return null;
+  if (!('isRequired' in selectedItem)) return null;
 
   return (
-    <div className="col-span-3 flex flex-col space-y-2 px-2">
+    <div className="flex flex-row items-center space-x-4 text-sm">
+      <Switch
+        checked={selectedItem.isRequired}
+        onCheckedChange={handleUpdateRequired}
+        size="sm"
+      />
+      <p>Required</p>
+    </div>
+  );
+}
+
+function SettingMilestones() {
+  const { data, isLoading, isError } = useFormBuilderMilestones();
+  const { items, selectedItemId } = useFormBuilderStore();
+  const selectedItem = items.find((i) => i.id === selectedItemId);
+
+  const getMilestone = (id: string) =>
+    data?.flatMap((s) => s.milestones).find((m) => m.id === id);
+
+  if (!selectedItem) return null;
+  if (!('milestoneIds' in selectedItem)) return null;
+  if (!selectedItem.milestoneIds) return null;
+
+  if (isLoading) return 'loading'; // TODO add loading spinner or skeleton
+
+  return (
+    <>
+      <p className="text-sm font-medium">Applied Milestones</p>
+
+      <div
+        className={cn(
+          'space-y-4 h-[52vh] pr-2 overflow-y-scroll',
+          !(selectedItem.milestoneIds.length > 0) &&
+            'flex flex-col items-center justify-center',
+        )}
+      >
+        {selectedItem.milestoneIds.length > 0 ? (
+          selectedItem.milestoneIds.map((m) => {
+            const milestone = getMilestone(m);
+            if (!milestone) return null;
+            return <MilestoneCard milestone={milestone} />;
+          })
+        ) : (
+          <p className="text-md font-semibold text-center opacity-50">
+            No Milestones Selected
+          </p>
+        )}
+      </div>
+    </>
+  );
+}
+
+function SettingsContent() {
+  return (
+    <div className="space-y-4 pl-4">
+      <div className="space-y-2">
+        <p className="text-sm font-medium mb-4">Settings</p>
+        <SettingRequiredSwitch />
+        <SettingScoredSwitch />
+      </div>
       <hr />
-      <p className="text-sm font-medium">Settings</p>
-      {'isRequired' in selectedItem && (
-        <div className="flex flex-row items-center space-x-4 text-sm">
-          <Switch
-            checked={selectedItem.isRequired}
-            onCheckedChange={handleUpdateRequired}
-            size="sm"
-          />
-          <p>Required</p>
-        </div>
-      )}
-      {'isScored' in selectedItem && (
-        <div className="flex flex-row items-center space-x-4 text-sm">
-          <Switch
-            checked={selectedItem.isScored}
-            onCheckedChange={handleUpdateScored}
-            size="sm"
-          />
-          <p>Scored</p>
-        </div>
-      )}
-      {'milestoneIds' in selectedItem && (
-        <>
-          <hr />
-          <p className="text-sm font-medium">Milestones</p>
-          <ul className="flex-grow gap-4 grid grid-cols-2">
-            <AnimatePresence>
-              {selectedItem.milestoneIds?.map((m) => {
-                const milestone = data
-                  ?.flatMap((s) => s.milestones)
-                  .find((i) => i.id === m);
+      <SettingMilestones />
+    </div>
+  );
+}
 
-                if (!milestone) return <div />;
+const tabs = [
+  {
+    id: 0,
+    label: 'Details',
+    content: <SettingsContent />,
+  },
+  {
+    id: 1,
+    label: 'Milestones',
+    content: <FormBuilderMilestoneMenu />,
+  },
+];
 
-                return (
-                  <motion.div
-                    className="col-span-1"
-                    layout="position"
-                    layoutId={m}
-                    initial={{ y: -10, opacity: 0 }}
-                    animate={{ y: 0, opacity: 100 }}
-                    exit={{ y: 10, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <SmallMilestoneCard milestone={milestone} />
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </ul>
-        </>
-      )}
+export function SidebarQuestionDetails() {
+  return (
+    <div className="col-span-3 flex flex-col space-y-2">
+      <DirectionAwareTabsProvider tabs={tabs}>
+        <DirectionAwareTabs />
+        <div className="">
+          <DirectionAwareContent />
+        </div>
+      </DirectionAwareTabsProvider>
     </div>
   );
 }
