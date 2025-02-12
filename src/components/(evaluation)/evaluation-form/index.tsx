@@ -8,8 +8,8 @@ import { WrittenQuestion } from '@/components/(evaluation)/evaluation-form/quest
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { User } from '@/db/schema';
-import { getInitials } from '@/lib/get-initials';
-import { getFullName } from '@/lib/helpers/getFullName';
+import { getInitials } from '@/lib/helpers/get-initials';
+import { getFullName } from '@/lib/helpers/get-full-name';
 import { TODO } from '@/types';
 import { ClipboardListIcon } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
