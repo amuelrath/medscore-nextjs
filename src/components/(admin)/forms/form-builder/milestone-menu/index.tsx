@@ -1,5 +1,6 @@
-import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-sidebar/milestone-card';
-import { SidebarCompetencyContent } from '@/components/(admin)/forms/form-builder/milestone-sidebar/sidebar-competency-content';
+import { useFormBuilderMilestones } from '@/components/(admin)/forms/form-builder/hooks/use-form-builder-milestones';
+import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-menu/milestone-card';
+import { SidebarCompetencyContent } from '@/components/(admin)/forms/form-builder/milestone-menu/sidebar-competency-content';
 import { Accordion } from '@/components/ui/accordion';
 import {
   DirectionAwareContent,
@@ -10,29 +11,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { COMPETENCIES } from '@/lib/constants/common';
 import { cn } from '@/lib/helpers/utils';
-import { getSubcompetencies } from '@/server/actions/forms/get-subcompetencies';
-import { useQuery } from '@tanstack/react-query';
 import FuzzySearch from 'fuzzy-search';
 import { SearchIcon } from 'lucide-react';
-import { useParams } from 'next/navigation';
 import { useState } from 'react';
 
-export function useFormBuilderMilestones() {
-  // First we should get the form's id from search params
-  const params = useParams();
-  const formId = params.formId.toString();
-
-  // Get the subcompetency data
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['milestones', formId], // TODO use specialty id instead of formId
-    queryFn: () => getSubcompetencies({ formId }),
-    staleTime: 1000 * 60 * 60 * 24 * 7, // 7 days
-  });
-
-  return { data, isLoading, isError };
-}
-
-export function FormBuilderMilestoneMenu() {
+export function MilestoneContent() {
   const { data, isLoading, isError } = useFormBuilderMilestones();
 
   const [searchValue, setSearchValue] = useState<string>('');
