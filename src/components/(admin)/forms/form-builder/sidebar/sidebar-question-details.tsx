@@ -1,8 +1,4 @@
-import {
-  FormBuilderMilestoneMenu,
-  useFormBuilderMilestones,
-} from '@/components/(admin)/forms/form-builder/milestone-sidebar';
-import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-sidebar/milestone-card';
+import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-menu/milestone-card';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
 import {
   DirectionAwareContent,
@@ -11,6 +7,8 @@ import {
 } from '@/components/ui/direction-aware-tabs';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/helpers/utils';
+import { useFormBuilderMilestones } from '@/components/(admin)/forms/form-builder/hooks/use-form-builder-milestones';
+import { MilestoneContent } from '../milestone-menu';
 
 function SettingScoredSwitch() {
   const { items, selectedItemId, updateItem } = useFormBuilderStore();
@@ -126,14 +124,14 @@ const tabs = [
   {
     id: 1,
     label: 'Milestones',
-    content: <FormBuilderMilestoneMenu />,
+    content: <MilestoneContent />,
   },
 ];
 
 export function SidebarQuestionDetails() {
   return (
     <div className="col-span-3 flex flex-col space-y-2">
-      <DirectionAwareTabsProvider tabs={tabs}>
+      <DirectionAwareTabsProvider bubbleId="question-details-sidebar" tabs={tabs}>
         <DirectionAwareTabs />
         <div className="">
           <DirectionAwareContent />

@@ -1,4 +1,4 @@
-import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-sidebar/milestone-card';
+import { MilestoneCard } from '@/components/(admin)/forms/form-builder/milestone-menu/milestone-card';
 import {
   AccordionContent,
   AccordionItem,

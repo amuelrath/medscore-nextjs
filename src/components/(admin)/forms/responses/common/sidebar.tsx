@@ -1,11 +1,12 @@
 "use client";
+
 import { AssessmentSelect } from "@/components/(admin)/forms/responses/common/assessment-select";
 import { GenerateAssessmentReportButton } from "@/components/(admin)/forms/responses/common/generate-assessment-report-button";
 import { AssessmentDropdown } from "@/components/(admin)/forms/responses/dropdowns/assessment-dropdown";
 import { ResponseDropdown } from "@/components/(admin)/forms/responses/dropdowns/response-dropdown";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getFullName } from "@/lib/helpers/getFullName";
+import { getFullName } from "@/lib/helpers/get-full-name";
 import { cn } from "@/lib/helpers/utils";
 import {
   AssessmentResponsesResult,
