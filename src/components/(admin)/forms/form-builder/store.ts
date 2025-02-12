@@ -19,7 +19,7 @@ const createDefaultSingleChoice = (): Omit<TChoiceItemSchema, 'position'> => ({
   options: [
     {
       id: v4(),
-      text: 'Option 1',
+      text: '',
       pointValue: 0,
       isNa: false,
       position: 1,
@@ -36,7 +36,7 @@ const createDefaultMultipleChoice = (): Omit<TChoiceItemSchema, 'position'> => (
   options: [
     {
       id: v4(),
-      text: 'Option 1',
+      text: '',
       pointValue: 0,
       isNa: false,
       position: 1,
@@ -52,26 +52,26 @@ const createDefaultRange = (): Omit<TRangeItemSchema, 'position'> => ({
   isScored: true,
   minValue: 0,
   maxValue: 7,
-  text: 'Question Text',
+  text: '',
   type: 'RANGE',
 });
 
 const createDefaultWritten = (): Omit<TWrittenItemSchema, 'position'> => ({
   id: v4(),
   isRequired: true,
-  text: 'Question Text',
+  text: '',
   type: 'WRITTEN',
 });
 
 const createDefaultHeader = (): Omit<THeaderItemSchema, 'position'> => ({
   id: v4(),
-  text: 'Header Text',
+  text: '',
   type: 'HEADER',
 });
 
 const createDefaultParagraph = (): Omit<TParagraphItemSchema, 'position'> => ({
   id: v4(),
-  text: 'Paragraph Text',
+  text: '',
   type: 'PARAGRAPH',
 });
 
@@ -140,7 +140,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
         set((state) => {
           const insertIndex = index ?? state.items.length;
           const newItems = [...state.items];
-          newItems.splice(insertIndex, 0, { ...DEFAULT_NEW_FORM_ITEMS[type](), position: state.items.length + 1});
+          newItems.splice(insertIndex, 0, { ...DEFAULT_NEW_FORM_ITEMS[type](), position: insertIndex + 1});
           return { items: newItems, insertIndex: null };
         }),
       duplicateItem: (id) =>
@@ -153,6 +153,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
           const newItem = {
             ...itemToCopy,
             id: newId,
+            position: insertIndex
           };
           const newItems = [...state.items];
           newItems.splice(insertIndex, 0, newItem);
@@ -272,6 +273,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
           ),
         })),
     }),
-    { name: 'FormBuilder Store' },
+    { name: 'FormBuilder Store',  trace: true, },
+
   ),
 );
