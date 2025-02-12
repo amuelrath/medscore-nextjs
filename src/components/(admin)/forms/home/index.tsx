@@ -4,24 +4,23 @@ import {
   AssessmentCreatorDialog,
   TAssessmentEditorFormSchema,
 } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
+import { AssessmentRequestContent } from '@/components/(admin)/forms/home/assessment-request-content';
 import { CreateFormDialog } from '@/components/(admin)/forms/home/create-form-dialog';
 import { DeleteFormDialogTrigger } from '@/components/(admin)/forms/home/delete-evaluation-dialog';
-import { EvaluateSection } from '@/components/(admin)/forms/home/evaluate-section';
 import { TagFilter } from '@/components/(admin)/forms/home/tag-filter';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { TFormType } from '@/db/schema';
 import { formTypeContent } from '@/lib/constants/forms';
+import { truncate } from '@/lib/helpers/truncate';
 import { cn } from '@/lib/helpers/utils';
-import { truncate } from '@/lib/truncate';
 import { createAssessmentWithRequests } from '@/server/actions/assessments/create-assessment-with-requests';
 import {
   FormLiteResult,
   FormsLiteResult,
   getAllFormsLite,
 } from '@/server/actions/forms/get-all-forms-lite';
-import { breadcrumbsAtom } from '@/store/global-atoms';
 import {
   useMutation,
   useQueryClient,
@@ -29,7 +28,6 @@ import {
 } from '@tanstack/react-query';
 import { addHours, formatDistance } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useSetAtom } from 'jotai/index';
 import { ClockIcon, Edit3, TrashIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -134,14 +132,9 @@ function FormsList({ filteredForms }: FormsListProps) {
 }
 
 export function FormsHome() {
-  const setBreadcrumbs = useSetAtom(breadcrumbsAtom);
   const [filteredForms, setFilteredForms] = useState<FormsLiteResult>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<TFormType | null>(null);
-
-  useEffect(() => {
-    setBreadcrumbs([{ label: 'Forms', href: '/forms' }]);
-  }, [setBreadcrumbs]);
 
   const { data: forms, isLoading } = useSuspenseQuery({
     queryKey: ['forms'],
@@ -232,7 +225,7 @@ export function FormsHome() {
           <FormsList filteredForms={filteredForms} />
         </div>
         <div className="col-span-2 h-full">
-          <EvaluateSection />
+          <AssessmentRequestContent />
         </div>
       </div>
     </main>
