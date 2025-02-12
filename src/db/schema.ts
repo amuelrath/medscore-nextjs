@@ -1,4 +1,4 @@
-import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
+import { ZFormSettingsSchema } from '@/lib/helpers/zod/form-schema';
 import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
