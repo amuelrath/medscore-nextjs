@@ -32,11 +32,12 @@ export function FormBuilderCanvas() {
       ref={setNodeRef}
       className={cn(
         LAYOUT.CANVAS_CLASSES,
+        LAYOUT.CANVAS_BACKGROUND_CLASSES,
         `min-h-[${LAYOUT.CANVAS_HEIGHT}]`,
         `max-h-[${LAYOUT.CANVAS_HEIGHT}]`,
+
       )}
     >
-      <CanvasBackgroundPattern />
       <CanvasContent items={items} />
       {createPortal(
         <DragOverlay transition="transform 75ms ease">
