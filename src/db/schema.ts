@@ -34,16 +34,20 @@ export const formItemTypeEnum = pgEnum('form_item_type', [
   'SINGLE_CHOICE',
   'HEADER',
   'WRITTEN',
-  'RANGE'
+  'RANGE',
+  'PARAGRAPH'
 ]);
+
 export const ZFormEnum = z.enum([
   'MULTIPLE_CHOICE',
   'SINGLE_CHOICE',
   'HEADER',
   'WRITTEN',
-  'RANGE'
-]);
-export type TFormItemType = z.infer<typeof ZFormEnum>;
+  'RANGE',
+  'PARAGRAPH'
+]); // TODO DEPRECATED
+
+export type TFormItemType = z.infer<typeof ZFormEnum>; // TODO DEPRECATED
 
 export const formTypeEnum = pgEnum('form_type', [
   'OSCE',
