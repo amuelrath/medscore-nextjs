@@ -12,69 +12,7 @@ import { v4 } from 'uuid';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-const DEFAULT_FORM_ITEMS: TFormItemSchema[] = [
-  {
-    id: '277affed-4419-4809-a868-063d988a6c6c',
-    type: 'SINGLE_CHOICE',
-    text: 'Test Question 1: Single Choice',
-    options: [
-      {
-        id: '261394f4-9ce5-4820-86fc-d0c773ba0be3',
-        text: 'Option 1',
-        pointValue: 0,
-        isNa: false,
-        position: 1,
-      },
-      {
-        id: '261394f4-9cn5-4820-86fc-d0c773ba0be3',
-        text: 'Option 1',
-        pointValue: 0,
-        isNa: false,
-        position: 2,
-      },
-    ],
-    isScored: true,
-    isRequired: true,
-    milestoneIds: [],
-  },
-  {
-    id: '277affed-4469-4809-a868-063d988a6c6c',
-    type: 'RANGE',
-    text: 'Test Question 2: Range',
-    maxValue: 7,
-    minValue: 0,
-    isScored: true,
-    isRequired: true,
-    milestoneIds: [],
-  },
-  {
-    id: '977affed-4419-4809-a868-063d988a6c6c',
-    type: 'WRITTEN',
-    text: 'Test Question 3: Written',
-    isRequired: true,
-  },
-];
-
-const DEFAULT_MILESTONES: { id: string; text: string }[] = [
-  {
-    id: '00c70422-4e76-491d-bb7f-78aac16076fc',
-    text: 'PC 1.1.1',
-  },
-  {
-    id: '07539f73-778b-4c92-bf30-456b4ef47ff4',
-    text: 'PC 1.1.2',
-  },
-  {
-    id: '0bf09b3b-8a57-4396-87a8-40dff8f6afed',
-    text: 'MK 1.1.1',
-  },
-  {
-    id: '094e8d63-734a-46d6-8785-2fcedf0416ce',
-    text: 'ICS 1.1.1',
-  },
-];
-
-const createDefaultSingleChoice = (): TChoiceItemSchema => ({
+const createDefaultSingleChoice = (): Omit<TChoiceItemSchema, 'position'> => ({
   id: v4(),
   isRequired: true,
   isScored: true,
@@ -91,7 +29,7 @@ const createDefaultSingleChoice = (): TChoiceItemSchema => ({
   type: 'SINGLE_CHOICE',
 });
 
-const createDefaultMultipleChoice = (): TChoiceItemSchema => ({
+const createDefaultMultipleChoice = (): Omit<TChoiceItemSchema, 'position'> => ({
   id: v4(),
   isRequired: true,
   isScored: true,
@@ -108,7 +46,7 @@ const createDefaultMultipleChoice = (): TChoiceItemSchema => ({
   type: 'MULTIPLE_CHOICE',
 });
 
-const createDefaultRange = (): TRangeItemSchema => ({
+const createDefaultRange = (): Omit<TRangeItemSchema, 'position'> => ({
   id: v4(),
   isRequired: true,
   isScored: true,
@@ -118,20 +56,20 @@ const createDefaultRange = (): TRangeItemSchema => ({
   type: 'RANGE',
 });
 
-const createDefaultWritten = (): TWrittenItemSchema => ({
+const createDefaultWritten = (): Omit<TWrittenItemSchema, 'position'> => ({
   id: v4(),
   isRequired: true,
   text: 'Question Text',
   type: 'WRITTEN',
 });
 
-const createDefaultHeader = (): THeaderItemSchema => ({
+const createDefaultHeader = (): Omit<THeaderItemSchema, 'position'> => ({
   id: v4(),
   text: 'Header Text',
   type: 'HEADER',
 });
 
-const createDefaultParagraph = (): TParagraphItemSchema => ({
+const createDefaultParagraph = (): Omit<TParagraphItemSchema, 'position'> => ({
   id: v4(),
   text: 'Paragraph Text',
   type: 'PARAGRAPH',
@@ -184,12 +122,14 @@ export interface FormBuilderState {
     newText?: string,
     newPointValue?: number,
   ) => void;
+
+  // manage overall state
 }
 
 export const useFormBuilderStore = create<FormBuilderState>()(
   devtools(
     (set) => ({
-      items: DEFAULT_FORM_ITEMS,
+      items: [],
       activeItemId: null,
       itemDropIndex: null,
       selectedItemId: null,
@@ -200,7 +140,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
         set((state) => {
           const insertIndex = index ?? state.items.length;
           const newItems = [...state.items];
-          newItems.splice(insertIndex, 0, DEFAULT_NEW_FORM_ITEMS[type]());
+          newItems.splice(insertIndex, 0, { ...DEFAULT_NEW_FORM_ITEMS[type](), position: state.items.length + 1});
           return { items: newItems, insertIndex: null };
         }),
       duplicateItem: (id) =>
