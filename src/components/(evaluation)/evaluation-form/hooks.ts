@@ -3,7 +3,7 @@ import {
   transformToSchema,
   ZEvaluationFormSchema,
 } from '@/components/(evaluation)/evaluation-form/schemas';
-import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
+import { ZFormSettingsSchema } from '@/lib/helpers/zod/form-schema';
 import {
   EvaluationFormResult,
   getEvaluationForm,

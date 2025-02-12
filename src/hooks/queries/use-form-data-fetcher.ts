@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { getSubcompetencies } from "@/server/actions/forms/get-subcompetencies";
 
-export const fetchFormData = async (formId: string) => {
+export const useFormDataFetcher = async (formId: string) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {

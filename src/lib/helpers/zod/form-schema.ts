@@ -1,4 +1,4 @@
-import { findDuplicates } from "@/lib/find-duplicates";
+import { findDuplicates } from "@/lib/helpers/find-duplicates";
 import { z } from "zod";
 
 const ZRoleScoreWeightSchema = z
@@ -11,9 +11,7 @@ const ZRoleScoreWeightSchema = z
   .refine(
     (data) => {
       // total weight cannot sum to a value greater than 1
-      const totalWeight = Object.values(data).reduce((total, current) => {
-        return total + current.weight;
-      }, 0);
+      const totalWeight = Object.values(data).reduce((total, current) => total + current.weight, 0);
 
       return totalWeight <= 1;
     },

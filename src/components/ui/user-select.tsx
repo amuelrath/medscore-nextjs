@@ -1,4 +1,5 @@
 "use client";
+
 import { Avatar, AvatarColor, AvatarStack } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,11 +19,11 @@ import {
   UseMultiselectField,
   useMultiselectField,
 } from "@/hooks/use-multiselect-field";
-import { capitalizeFirstLetter } from "@/lib/capitalize-first-letter";
-import { getInitials } from "@/lib/get-initials";
-import { getFullName } from "@/lib/helpers/getFullName";
+import { capitalizeFirstLetter } from "@/lib/helpers/capitalize-first-letter";
+import { getInitials } from "@/lib/helpers/get-initials";
+import { getFullName } from "@/lib/helpers/get-full-name";
 import { cn } from "@/lib/helpers/utils";
-import { truncate } from "@/lib/truncate";
+import { truncate } from "@/lib/helpers/truncate";
 import { getFormById } from "@/server/actions/forms/get-form-by-id";
 import { useQuery } from "@tanstack/react-query";
 import { MinusIcon, PlusIcon } from "lucide-react";
@@ -51,9 +52,7 @@ export function UserSelect<T extends FieldValues>({
       getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
-  const users = useMemo(() => {
-    return formResult?.programs.users.map((u) => u.user).filter(u => !disabledIds?.includes(u.id)) || [];
-  }, [disabledIds, formResult?.programs.users]);
+  const users = useMemo(() => formResult?.programs.users.map((u) => u.user).filter(u => !disabledIds?.includes(u.id)) || [], [disabledIds, formResult?.programs.users]);
 
   const {
     selectedIds: selectedUserIds,
@@ -61,12 +60,12 @@ export function UserSelect<T extends FieldValues>({
     deselect,
   } = useMultiselectField<T>({ name, control, disabled, max, defaultValue });
 
-  const sortedUsers = useMemo(() => {
-    return [
+  const sortedUsers = useMemo(() => 
+     [
       ...users.filter((user) => selectedUserIds.includes(user.id)),
       ...users.filter((user) => !selectedUserIds.includes(user.id)),
-    ].filter(user => !disabledIds?.includes(user.id)); // Filter out disabled users
-  }, [users, selectedUserIds, disabledIds]);
+    ].filter(user => !disabledIds?.includes(user.id)) // Filter out disabled users
+  , [users, selectedUserIds, disabledIds]);
 
   const isMaxReached = selectedUserIds.length >= max;
 

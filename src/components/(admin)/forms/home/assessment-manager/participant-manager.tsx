@@ -4,7 +4,7 @@ import ConfirmDialog from '@/components/ui/confirm-dialog';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { UserSelect } from '@/components/ui/user-select';
-import { ZPairSchema } from '@/lib/zod/participation-schema';
+import { ZPairSchema } from '@/lib/helpers/zod/participation-schema';
 import { deleteResponseByAssessmentEvaluatorEvaluatee } from '@/server/actions/responses/delete-response-by-assessment-evaluator-evaluatee';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';

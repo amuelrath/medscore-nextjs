@@ -1,5 +1,5 @@
 import { TFormType } from '@/db/schema';
-import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
+import { ZFormSettingsSchema } from '@/lib/helpers/zod/form-schema';
 import { ClipboardPenIcon, ClipboardPlusIcon, EyeIcon } from 'lucide-react';
 import { z } from 'zod';
 

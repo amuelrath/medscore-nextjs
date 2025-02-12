@@ -1,10 +1,9 @@
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { TFormType } from '@/db/schema';
+import { formTypeContent } from '@/lib/constants/forms';
 import { cn } from '@/lib/helpers/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FC } from 'react';
-import { formTypeContent } from '@/lib/constants/forms';
-import { Button } from '@/components/ui/button';
 
 interface TagFilterProps {
   tags: TFormType[];
@@ -43,14 +42,11 @@ export const TagFilter: FC<TagFilterProps> = ({
               variant="outline"
               size="xs"
               onClick={() => handleTagClick(tag)}
-              className={cn(
-                'cursor-pointer truncate min-h-7',
-                {
-                  'border-neutral-300 text-foreground': selectedTag === tag,
-                  'text-foreground/50 hover:border-neutral-300  hover:text-foreground':
-                    selectedTag !== tag,
-                },
-              )}
+              className={cn('cursor-pointer truncate min-h-7', {
+                'border-neutral-300 text-foreground': selectedTag === tag,
+                'text-foreground/50 hover:border-neutral-300  hover:text-foreground':
+                  selectedTag !== tag,
+              })}
             >
               {(() => {
                 const Content = formTypeContent[tag];

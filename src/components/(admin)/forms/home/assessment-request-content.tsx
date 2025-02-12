@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import Loading from '@/components/ui/loading';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tab, TabsBox } from '@/components/ui/tabs-box';
-import { getFullName } from '@/lib/helpers/getFullName';
+import { getFullName } from '@/lib/helpers/get-full-name';
 import { getAssessmentsWithRequests } from '@/server/actions/assessments/get-assessments-with-requests';
 import { useQuery } from '@tanstack/react-query';
 import { isBefore } from 'date-fns';
