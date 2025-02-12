@@ -35,41 +35,52 @@ const measuringConfig = {
   },
 };
 
-function transformFormData({ data }: { data: FormResult | undefined }): TFormBuilderSchema | undefined {
-  if (!data) return undefined ;
+const SCHEMA_MAP = {
+  MULTIPLE_CHOICE: ZChoiceQuestionSchema,
+  SINGLE_CHOICE: ZChoiceQuestionSchema,
+  RANGE: ZRangeQuestionSchema,
+  WRITTEN: ZWrittenQuestionSchema,
+  PARAGRAPH: ZParagraphSchema,
+  HEADER: ZHeaderSchema,
+} as const;
 
-  // transform the form items
-  const rawChoice = data.formItems.filter(
-    (i) => i.type === 'MULTIPLE_CHOICE' || i.type === 'SINGLE_CHOICE',
-  );
-  const rawRange = data.formItems.filter((i) => i.type === 'RANGE');
-  const rawWritten = data.formItems.filter((i) => i.type === 'WRITTEN');
-  const rawParagraph = data.formItems.filter((i) => i.type === 'PARAGRAPH');
-  const rawHeader = data.formItems.filter((i) => i.type === 'HEADER');
+function transformFormData({
+  data,
+}: {
+  data: FormResult | undefined;
+}): TFormBuilderSchema | undefined {
+  if (!data) return undefined;
 
-  // get the milestones in there
-  const rawRangeWithMilestones = rawRange.map(r =>( { ...r, milestoneIds: [...r.milestones.map(m => m.milestoneId)] }))
-  const rawChoiceWithMilestones = rawChoice.map(r =>( { ...r, milestoneIds: [...r.milestones.map(m => m.milestoneId)] }))
+  const addMilestoneIds = (item: FormResult['formItems'][number]) => ({
+    ...item,
+    milestoneIds:
+      item.milestones?.map(
+        (m: FormResult['formItems'][number]['milestones'][number]) =>
+          m.milestoneId,
+      ) ?? [],
+  });
 
-  // zod parse!!
-  const parsedChoice = rawChoiceWithMilestones.map((c) => ZChoiceQuestionSchema.parse(c));
-  const parsedRange = rawRangeWithMilestones.map((r) => ZRangeQuestionSchema.parse(r));
-  const parsedWritten = rawWritten.map((w) => ZWrittenQuestionSchema.parse(w));
-  const parsedParagraph = rawParagraph.map((p) => ZParagraphSchema.parse(p));
-  const parsedHeader = rawHeader.map((h) => ZHeaderSchema.parse(h));
+  const parseFormItem = (item: FormResult['formItems'][number]) => {
+    const schema = SCHEMA_MAP[item.type];
+    const itemWithMilestones = [
+      'MULTIPLE_CHOICE',
+      'SINGLE_CHOICE',
+      'RANGE',
+    ].includes(item.type)
+      ? addMilestoneIds(item)
+      : item;
 
-  const allQuestions = [
-    ...parsedChoice,
-    ...parsedRange,
-    ...parsedWritten,
-    ...parsedParagraph,
-    ...parsedHeader,
-  ].sort((a, b) => a.position - b.position);
+    return schema.parse(itemWithMilestones);
+  };
+
+  const formItems = data.formItems
+    .map(parseFormItem)
+    .sort((a, b) => a.position - b.position);
 
   return {
     id: data.id,
     title: data.title,
-    formItems: allQuestions,
+    formItems,
   };
 }
 
@@ -88,7 +99,6 @@ export function FormBuilder() {
       getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
     staleTime: 60 ** 3, // one hour
   });
-
 
   useEffect(() => {
     if (data) {
