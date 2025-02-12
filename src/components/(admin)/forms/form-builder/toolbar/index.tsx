@@ -1,4 +1,3 @@
-import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
 import { Input } from '@/components/ui/input';
 import {
   Menubar,
@@ -12,7 +11,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from '@/components/ui/menubar';
-import { SaveIcon } from 'lucide-react';
+import { LockOpenIcon, SaveIcon } from 'lucide-react';
 
 function FormBuilderMenubar() {
   return (
@@ -95,6 +94,7 @@ export function FormBuilderToolbar() {
           size="sm"
         />
         <SaveIcon className="opacity-50" size={16} />
+        <LockOpenIcon className="opacity-50" size={16} />
       </div>
       <div className="bg-primary/5 w-full rounded">
         <FormBuilderMenubar />
