@@ -141,7 +141,7 @@ export const FormItem = React.memo(
               role="button"
               size={20}
               className={cn(
-                'text-primary/40 hover:text-primary/70 transition-colors',
+                'text-primary/40 cursor-move hover:text-primary/70 transition-colors',
                 isClone && 'pointer-events-none',
               )}
             />
