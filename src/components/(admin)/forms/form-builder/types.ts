@@ -6,6 +6,7 @@ import { Active } from '@dnd-kit/core';
 export const ZBaseFormItemSchema = z.object({
   id: z.string().uuid().describe("The Form Item's ID"),
   text: z.string(),
+  position: z.number()
 });
 
 export const ZOptionSchema = z.object({
