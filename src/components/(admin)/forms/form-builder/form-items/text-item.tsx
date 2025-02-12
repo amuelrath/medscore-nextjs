@@ -39,7 +39,7 @@ function TextContent({
   placeholder,
   variant,
 }: TextContentProps) {
-  const className = variant === 'header' ? 'text-md font-semibold' : 'text-sm';
+  const className = variant === 'header' ? 'text-2xl font-semibold' : 'text-sm';
 
   return (
     <AutosizeTextarea
