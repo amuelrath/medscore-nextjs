@@ -54,32 +54,3 @@ export const ZFormSettingsSchema = z.object({
   passingCriteria: ZPassingCriteriaSchema
 });
 
-export const ZFormItemsSchema = z.array(
-  z.object({
-    id: z.string(),
-    text: z.string().nullable(),
-    type: z.enum([
-      "MULTIPLE_CHOICE",
-      "SINGLE_CHOICE",
-      "HEADER",
-      "RANGE",
-      "WRITTEN",
-    ]),
-    description: z.string().nullable(),
-    position: z.number(),
-    isRequired: z.boolean(),
-    isScored: z.boolean(),
-    milestoneIds: z.array(z.string()).default([]),
-    options: z
-      .array(
-        z.object({
-          id: z.string(),
-          text: z.string().optional().nullable(),
-          pointValue: z.union([z.number(), z.string()]).nullable().optional(),
-          isNa: z.boolean().default(false),
-          position: z.number(),
-        }),
-      )
-      .default([]),
-  }),
-);
