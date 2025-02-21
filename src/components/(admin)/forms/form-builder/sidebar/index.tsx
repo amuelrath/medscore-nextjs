@@ -22,7 +22,7 @@ export function FormBuilderSidebar() {
 
   return (
     <aside className="col-span-3 w-full bg-background flex-grow border-r">
-      <header className="grid grid-cols-3 px-2 items-center h-14 p-4">
+      <header className={cn('grid grid-cols-3 px-2 p-4', selectedItemType ? "h-14" : "h-[91.5px]")}>
         <ArrowLeftIcon
           className={cn(
             'col-span-1 cursor-pointer',
@@ -33,7 +33,7 @@ export function FormBuilderSidebar() {
           size={20}
           onClick={handleDeselectItem}
         />
-        <p className="col-start-2 col-span-1 text-md text-center font-semibold">
+        <p className="col-start-2 col-span-1 text-lg text-center font-semibold self-start">
           {selectedItemId
             ? `Question ${items.findIndex((i) => i.id === selectedItemId) + 1}`
             : 'Components'}
@@ -44,8 +44,8 @@ export function FormBuilderSidebar() {
             selectedItemType ? 'opacity-60' : 'opacity-0',
           )}
         >
-          {SelectedItemIcon && <SelectedItemIcon className="size-6" />}
-        </span>
+    {SelectedItemIcon && <SelectedItemIcon className="size-6" />}
+  </span>
       </header>
       <div className="space-y-4">
         {selectedItemId ? <SidebarQuestionDetails /> : <SidebarFormItemList />}
