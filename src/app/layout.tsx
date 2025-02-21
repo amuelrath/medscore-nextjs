@@ -11,7 +11,7 @@ const poppins = Poppins({
   display: 'auto',
   subsets: ['latin', 'latin-ext'],
   style: ['italic', 'normal'],
-  preload: true,
+  preload: false, // making this true causes the font to break.
 });
 
 export const metadata: Metadata = {
