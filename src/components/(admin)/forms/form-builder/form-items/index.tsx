@@ -16,24 +16,24 @@ import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CopyIcon, GripVerticalIcon, XIcon } from 'lucide-react';
-import React, { JSXElementConstructor } from 'react';
+import React, { JSXElementConstructor, useCallback, useMemo } from 'react';
 
+// Memoized form item components map
 const formItemContent: Record<
   TFormItemSchema['type'],
   JSXElementConstructor<{ id: string }>
 > = {
-  WRITTEN: WrittenQuestion,
-  HEADER: HeaderItem,
-  PARAGRAPH: ParagraphItem,
-  RANGE: RangeQuestion,
-  SINGLE_CHOICE: SingleChoiceQuestion,
-  MULTIPLE_CHOICE: MultipleChoiceQuestion,
+  WRITTEN: React.memo(WrittenQuestion),
+  HEADER: React.memo(HeaderItem),
+  PARAGRAPH: React.memo(ParagraphItem),
+  RANGE: React.memo(RangeQuestion),
+  SINGLE_CHOICE: React.memo(SingleChoiceQuestion),
+  MULTIPLE_CHOICE: React.memo(MultipleChoiceQuestion),
 };
 
 interface FormItemProps {
   id: string;
   index: number;
-  type: TFormItemSchema['type'];
   isClone?: boolean;
 }
 
@@ -42,162 +42,172 @@ const animateLayoutChanges = (args: any) => {
   return isSorting || wasSorting ? defaultAnimateLayoutChanges(args) : true;
 };
 
-export const FormItem = React.memo(
-  ({ id, type, index, isClone }: FormItemProps) => {
-    const {
-      removeItem,
-      itemDropIndex,
-      duplicateItem,
-      activeItemId,
-      items,
-      setSelectedItemId,
-      selectedItemId,
-    } = useFormBuilderStore();
+export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
+  // Use selector pattern to minimize re-renders
+  const item = useFormBuilderStore(state => state.items.find(i => i.id === id));
+  const activeItemId = useFormBuilderStore(state => state.activeItemId);
+  const selectedItemId = useFormBuilderStore(state => state.selectedItemId);
+  const duplicateItem = useFormBuilderStore(state => state.duplicateItem);
+  const removeItem = useFormBuilderStore(state => state.removeItem);
+  const setSelectedItemId = useFormBuilderStore(state => state.setSelectedItemId);
+  const itemDropIndex = useFormBuilderStore(state => state.itemDropIndex);
+  const itemsLength = useFormBuilderStore(state => state.items.length);
 
-    const {
-      attributes,
-      listeners,
-      setNodeRef,
-      transform,
-      transition,
-      isDragging,
-      isSorting,
-      active,
-    } = useSortable({
-      id,
-      data: { type: 'item' },
-      animateLayoutChanges,
-    });
+  // Compute derived state
+  const isActive = activeItemId === id;
+  const isSelected = selectedItemId === id;
 
-    const isActiveTypeNewItem = active?.id.toString().startsWith('new-item');
-    const isActive = activeItemId === id;
-    const isSelected = selectedItemId === id;
+  // Memoize event handlers
+  const handleDelete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeItem(id);
+  }, [id, removeItem]);
 
-    const style = {
-      transform: isActiveTypeNewItem
-        ? undefined
-        : CSS.Translate.toString(transform),
-      transition: `${transition}, border 200ms ease, border-color 200ms ease`,
-      border: isActive ? '1.55px solid' : '1.5px solid',
-      borderColor: isActive
-        ? 'hsl(var(--foreground) / 0.3)'
-        : 'hsl(var(--border))',
-    };
+  const handleCopy = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    duplicateItem(id);
+  }, [id, duplicateItem]);
 
-    const handleDelete = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      removeItem(id);
-    };
+  const handleSelect = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedItemId(id);
+  }, [id, setSelectedItemId]);
 
-    const handleCopy = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      duplicateItem(id);
-    };
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+    isSorting,
+    active,
+  } = useSortable({
+    id,
+    data: { type: 'item' },
+    animateLayoutChanges,
+  });
 
-    const handleSelect = (e: React.MouseEvent) => {
-      e.stopPropagation(); // not sure if i need this
-      setSelectedItemId(id);
-    };
 
-    const position = index + 1;
+  const isActiveTypeNewItem = active?.id.toString().startsWith('new-item');
 
-    const Content = formItemContent[type];
+  // Memoize styles
+  const style = useMemo(() => ({
+    transform: isActiveTypeNewItem
+      ? undefined
+      : CSS.Translate.toString(transform),
+    transition: `${transition}, border 200ms ease, border-color 200ms ease`,
+    border: isActive ? '1.55px solid' : '1.5px solid',
+    borderColor: isActive
+      ? 'hsl(var(--foreground) / 0.3)'
+      : 'hsl(var(--border))',
+  }), [isActiveTypeNewItem, transform, transition, isActive]);
 
-    return (
-      <motion.div
-        initial={{ scale: 1 }}
-        animate={{ scale: isActive ? 1.025 : 1 }}
-        className={cn(
-          'col-start-2 col-span-6 flex origin-center flex-col',
-          isActive && 'z-40 drop-shadow-xl ease-in duration-300',
-          isDragging && !isClone && 'opacity-0',
-        )}
-        style={{
-          transitionProperty: 'filter',
-          transitionDuration: '500ms',
-          transitionTimingFunction: 'ease',
-        }}
+  const motionAnimateStyle = useMemo(() => ({
+    scale: isActive ? 1.025 : 1
+  }), [isActive]);
+
+  const transitionStyle = useMemo(() => ({
+    transitionProperty: 'filter',
+    transitionDuration: '500ms',
+    transitionTimingFunction: 'ease',
+  }), []);
+
+  if (!item) return null;
+
+  const position = index + 1;
+  const Content = formItemContent[item.type];
+
+  return (
+    <motion.div
+      initial={{ scale: 1 }}
+      animate={motionAnimateStyle}
+      className={cn(
+        'col-start-2 col-span-6 flex origin-center flex-col',
+        isActive && 'z-40 drop-shadow-xl ease-in duration-300',
+        isDragging && !isClone && 'opacity-0',
+      )}
+      style={transitionStyle}
+    >
+      {!isClone && (
+        <span
+          className={cn(
+            'h-1 mb-2 bg-accent-secondary/40 w-full rounded-full',
+            isSorting && 'transition-opacity duration-100 ease-in',
+            isActiveTypeNewItem && itemDropIndex === index
+              ? 'opacity-100'
+              : 'opacity-0',
+          )}
+        />
+      )}
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex bg-white flex-row rounded shadow-sm mb-2"
       >
-        {!isClone && (
-          <span
+        <div className="flex flex-col p-1 justify-center items-center">
+          <GripVerticalIcon
+            {...listeners}
+            {...attributes}
+            role="button"
+            size={20}
             className={cn(
-              'h-1 mb-2 bg-accent-secondary/40 w-full rounded-full',
-              isSorting && 'transition-opacity duration-100 ease-in',
-              isActiveTypeNewItem && itemDropIndex === index
-                ? 'opacity-100'
-                : 'opacity-0',
+              'text-primary/40 cursor-move hover:text-primary/70 transition-colors',
+              isClone && 'pointer-events-none',
             )}
           />
-        )}
-        <div
-          ref={setNodeRef}
-          style={style}
-          className="flex bg-white flex-row rounded shadow-sm mb-2"
-        >
-          <div className="flex flex-col p-1 justify-center items-center">
-            <GripVerticalIcon
-              {...listeners}
-              {...attributes}
-              role="button"
-              size={20}
-              className={cn(
-                'text-primary/40 cursor-move hover:text-primary/70 transition-colors',
-                isClone && 'pointer-events-none',
-              )}
-            />
-          </div>
-          <div
-            onMouseUp={handleSelect}
-            className="space-y-2 select-none flex-grow pr-7 pl-0.5"
-          >
-            <div className="w-full h-6 flex flex-row justify-between">
-              <span
-                className={cn(
-                  'text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]',
-                  isSelected ? 'bg-primary/90' : 'bg-primary/60',
-                )}
-              >
-                {position}
-              </span>
-              <div
-                className={cn(
-                  'flex text-center justify-center px-4 rounded-b space-x-4 items-center transition-colors ease-out duration-[50ms]',
-                  isSelected ? 'bg-primary/90' : 'bg-primary/60',
-                )}
-              >
-                <CopyIcon
-                  onClick={handleCopy}
-                  role="button"
-                  size={13}
-                  className="text-white hover:text-accent transition-colors"
-                />
-                <XIcon
-                  onClick={handleDelete}
-                  role="button"
-                  size={16}
-                  className="text-white hover:text-destructive transition-colors"
-                />
-              </div>
-            </div>
-            <CardContent className="flex-grow pb-2 px-0">
-              <AnimatePresence initial={false} >
-              <Content id={id} />
-              </AnimatePresence>
-            </CardContent>
-          </div>
         </div>
-        {!isClone && index === items.length - 1 && (
-          <span
-            className={cn(
-              'h-1 bg-accent-secondary/40 w-full rounded-full',
-              isSorting && 'transition-opacity duration-100 ease-in',
-              isActiveTypeNewItem && itemDropIndex === index + 1
-                ? 'opacity-100'
-                : 'opacity-0',
-            )}
-          />
-        )}
-      </motion.div>
-    );
-  },
-);
+        <div
+          onMouseUp={handleSelect}
+          className="space-y-2 select-none flex-grow pr-7 pl-0.5"
+        >
+          <div className="w-full h-6 flex flex-row justify-between">
+            <span
+              className={cn(
+                'text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]',
+                isSelected ? 'bg-primary/90' : 'bg-primary/60',
+              )}
+            >
+              {position}
+            </span>
+            <div
+              className={cn(
+                'flex text-center justify-center px-4 rounded-b space-x-4 items-center transition-colors ease-out duration-[50ms]',
+                isSelected ? 'bg-primary/90' : 'bg-primary/60',
+              )}
+            >
+              <CopyIcon
+                onClick={handleCopy}
+                role="button"
+                size={13}
+                className="text-white hover:text-accent transition-colors"
+              />
+              <XIcon
+                onClick={handleDelete}
+                role="button"
+                size={16}
+                className="text-white hover:text-destructive transition-colors"
+              />
+            </div>
+          </div>
+          <CardContent className="flex-grow pb-2 px-0">
+            <AnimatePresence initial={false}>
+              <Content id={id} />
+            </AnimatePresence>
+          </CardContent>
+        </div>
+      </div>
+      {!isClone && index === itemsLength - 1 && (
+        <span
+          className={cn(
+            'h-1 bg-accent-secondary/40 w-full rounded-full',
+            isSorting && 'transition-opacity duration-100 ease-in',
+            isActiveTypeNewItem && itemDropIndex === index + 1
+              ? 'opacity-100'
+              : 'opacity-0',
+          )}
+        />
+      )}
+    </motion.div>
+  );
+});
