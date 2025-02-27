@@ -13,7 +13,7 @@ export function useFormItemConfig<T extends FormItemType>({
   id,
   type,
 }: UseFormItemConfigProps<T>) {
-  const { updateItem } = useFormBuilderStore();
+  const updateItem = useFormBuilderStore((state) => state.updateItem);
 
   // Explicitly type the store item
   const item = useFormBuilderStore((state) =>
