@@ -3,7 +3,10 @@
 import { AssessmentSidebar } from '@/components/(admin)/forms/form-builder/assessment-sidebar';
 import { useFormBuilderDrag } from '@/components/(admin)/forms/form-builder/hooks/use-form-builder-drag';
 import { FormBuilderSidebar } from '@/components/(admin)/forms/form-builder/sidebar';
-import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import {
+  DEFAULT_SETTINGS,
+  useFormBuilderStore,
+} from '@/components/(admin)/forms/form-builder/store';
 import { FormBuilderToolbar } from '@/components/(admin)/forms/form-builder/toolbar';
 import {
   TFormBuilderSchema,
@@ -44,12 +47,11 @@ const SCHEMA_MAP = {
   HEADER: ZHeaderSchema,
 } as const;
 
-function transformFormData({
+function apiToState({
   data,
 }: {
-  data: FormResult | undefined;
-}): TFormBuilderSchema | undefined {
-  if (!data) return undefined;
+  data: FormResult;
+}): TFormBuilderSchema {
 
   const addMilestoneIds = (item: FormResult['formItems'][number]) => ({
     ...item,
@@ -80,14 +82,12 @@ function transformFormData({
   return {
     id: data.id,
     title: data.title,
+    settings: data.settings ?? DEFAULT_SETTINGS,
     formItems,
   };
 }
 
 export function FormBuilder() {
-  const { setItems } = useFormBuilderStore();
-  const dragHandlers = useFormBuilderDrag();
-
   // first we should get the form's id from search params
   const params = useParams();
   const formId = params.formId.toString();
@@ -102,15 +102,33 @@ export function FormBuilder() {
 
   useEffect(() => {
     if (data) {
-      const transformedData = transformFormData({ data });
-      setItems(transformedData?.formItems || []);
+      const transformedData = apiToState({ data });
+      useFormBuilderStore.setState({
+        items: transformedData.formItems,
+        settings: transformedData.settings,
+        title: transformedData.title,
+        activeItemId: null,
+        selectedItemId: null,
+      });
+      console.log("Initial data loaded and set")
     }
-  }, [data, setItems]);
+  }, [data]);
 
   if (isLoading) return 'Loading';
   if (!data) return 'no data!!!';
 
   // initialize autosave
+
+  return (
+    <section className="flex flex-col flex-grow h-[calc(100vh-40px)]">
+      <FormBuilderToolbar />
+      <DragAndDropWrapper />
+    </section>
+  );
+}
+
+function DragAndDropWrapper() {
+  const { ...dragHandlers } = useFormBuilderDrag();
 
   return (
     <DndContext
@@ -122,14 +140,11 @@ export function FormBuilder() {
       measuring={measuringConfig}
       collisionDetection={closestCorners}
     >
-      <section className="flex flex-col flex-grow h-[calc(100vh-40px)]">
-        <FormBuilderToolbar />
-        <div className="grid grid-cols-12 min-h-[calc(100vh-40px-70.73px)] max-h-[calc(100vh-40px-70.73px)]">
-          <FormBuilderSidebar />
-          <FormBuilderCanvas />
-          <AssessmentSidebar />
-        </div>
-      </section>
+      <div className="grid grid-cols-12 min-h-[calc(100vh-40px-70.73px)] max-h-[calc(100vh-40px-70.73px)]">
+        <FormBuilderSidebar />
+        <FormBuilderCanvas />
+        <AssessmentSidebar />
+      </div>
     </DndContext>
   );
 }
