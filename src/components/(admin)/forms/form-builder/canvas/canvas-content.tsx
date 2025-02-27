@@ -1,25 +1,34 @@
-import { TFormItemSchema } from '@/components/(admin)/forms/form-builder/types';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { FormItem } from '@/components/(admin)/forms/form-builder/form-items';
+import { hasOrderChanged } from '@/components/(admin)/forms/form-builder/hooks/use-form-builder-drag';
+import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useEffect, useState } from 'react';
 
-interface CanvasContentProps {
-  items: TFormItemSchema[];
-}
+export function CanvasContent() {
+  const [ids, setIds] = useState<string[]>(
+    useFormBuilderStore.getState().items.map((i) => i.id),
+  );
 
-export function CanvasContent({ items }: CanvasContentProps) {
+  useEffect(
+    () =>
+      useFormBuilderStore.subscribe(
+        (state) => state.items,
+        (items, prevItems) => {
+          if (hasOrderChanged(items, prevItems)) {
+            setIds([...items.map((i) => i.id)]);
+          }
+        },
+      ),
+    [],
+  );
+
   return (
-    <SortableContext
-      strategy={verticalListSortingStrategy}
-      items={items.map(item => item.id)}
-    >
-      {items.map((item, index) => (
-        <FormItem
-          key={item.id}
-          id={item.id}
-          type={item.type}
-          index={index}
-          isClone={false}
-        />
+    <SortableContext strategy={verticalListSortingStrategy} items={ids}>
+      {ids.map((id, index) => (
+        <FormItem id={id} key={id} index={index} isClone={false} />
       ))}
     </SortableContext>
   );
