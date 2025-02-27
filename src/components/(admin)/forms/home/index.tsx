@@ -1,5 +1,6 @@
 'use client';
 
+import { LAYOUT } from '@/components/(admin)/forms/form-builder/constants';
 import {
   AssessmentCreatorDialog,
   TAssessmentEditorFormSchema,
@@ -193,7 +194,12 @@ export function FormsHome() {
   };
 
   return (
-    <main className="flex flex-grow flex-col">
+    <main
+      className={cn(
+        'flex flex-grow  flex-col',
+        LAYOUT.CANVAS_BACKGROUND_CLASSES,
+      )}
+    >
       <div className="flex h-12 flex-shrink-0 items-center justify-between border-b border-border bg-card">
         <div className="flex w-full px-4 items-center flex-row justify-between text-foreground">
           <h3 className={cn('text-2xl font-semibold')}>Forms</h3>

@@ -12,11 +12,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { LottieHover } from '@/components/ui/lottie-hover';
-import {
-  DEFAULT_FORM_NAME,
-  FORM_TYPE_COLORS,
-  formTypeContent,
-} from '@/lib/constants/forms';
+import { DEFAULT_FORM_NAME, formTypeContent } from '@/lib/constants/forms';
 import { cn } from '@/lib/helpers/utils';
 import { createForm } from '@/server/actions/forms/create-form';
 import { FormsLiteResult } from '@/server/actions/forms/get-all-forms-lite';
@@ -76,20 +72,31 @@ export function CreateFormDialog() {
         </Button>
       </DialogTrigger>
       <DialogContent
-        className="min-h-[400px] min-w-[550px]"
         onCloseAutoFocus={(e) => e.preventDefault()}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader>
+        <DialogHeader className="space-y-2">
           <DialogTitle className="pointer-events-none flex items-center space-x-2">
-            <LottieHover loop={false} isHovering={false} size="xs" src={ADD} />
-            <p>Create New Form</p>
+            <span className="p-1.5 rounded-full bg-primary/10">
+              <LottieHover
+                loop={false}
+                isHovering={false}
+                size="xs"
+                src={ADD}
+              />
+            </span>
           </DialogTitle>
-          <DialogDescription>
-            Select the form type that best fits your requirements.
-          </DialogDescription>
+          <div className="space-y-1">
+            <DialogTitle>
+              <p>Create New Form</p>
+            </DialogTitle>
+            <DialogDescription>
+              Select the form type that best fits your requirements.
+            </DialogDescription>
+          </div>
         </DialogHeader>
-        <div className="flex flex-col items-center space-y-6">
+        <hr />
+        <div className="flex flex-col items-center space-y-4">
           <div className="flex flex-row space-x-4 items-center justify-center">
             {formTypes.map((formType) => (
               <FormTypeCard
@@ -100,7 +107,7 @@ export function CreateFormDialog() {
               />
             ))}
           </div>
-          <div className="flex min-h-[40px] w-full items-center overflow-hidden">
+          <div className="flex min-h-[40px] pb-2 w-full items-center overflow-hidden">
             <AnimatePresence mode="wait" initial={false}>
               {selectedType && (
                 <motion.p
@@ -123,7 +130,7 @@ export function CreateFormDialog() {
               )}
             </AnimatePresence>
           </div>
-          <hr className="w-full " />
+          <hr className="w-full mb-2" />
           <div className="flex w-full flex-row items-center justify-end space-x-2">
             <Button onClick={() => mutateCreateForm()}>Create</Button>
             <DialogClose asChild>
@@ -201,7 +208,7 @@ function FormTypeCard({
           isSelected && `ring-2 ring-offset-2 ring-primary`,
         )}
       >
-        <Icon size={80} className="text-primary" />
+        <Icon size={64} strokeWidth={1} className="text-primary" />
       </Card>
       <p className="text-center text-xs font-light">
         {formTypeDescriptions[type].split(':')[0]}
