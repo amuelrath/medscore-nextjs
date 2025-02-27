@@ -17,8 +17,7 @@ export function FormBuilderOverlay({ state }: FormBuilderOverlayProps) {
   if (isExistingFormItem && activeItem) {
     return (
       <FormItem
-        id={activeItem.id}
-        type={activeItem.type}
+        id={activeItem}
         index={activeIndex}
         isClone
       />
