@@ -2,6 +2,7 @@ import {
   isChoiceItem,
   isRangeItem,
   TChoiceItemSchema,
+  TFormBuilderSettingsSchema,
   TFormItemSchema,
   THeaderItemSchema,
   TParagraphItemSchema,
@@ -9,8 +10,8 @@ import {
   TWrittenItemSchema,
 } from '@/components/(admin)/forms/form-builder/types';
 import { v4 } from 'uuid';
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
+import { create, StateCreator, StoreMutators } from 'zustand';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 const createDefaultSingleChoice = (): Omit<TChoiceItemSchema, 'position'> => ({
   id: v4(),
@@ -29,7 +30,10 @@ const createDefaultSingleChoice = (): Omit<TChoiceItemSchema, 'position'> => ({
   type: 'SINGLE_CHOICE',
 });
 
-const createDefaultMultipleChoice = (): Omit<TChoiceItemSchema, 'position'> => ({
+const createDefaultMultipleChoice = (): Omit<
+  TChoiceItemSchema,
+  'position'
+> => ({
   id: v4(),
   isRequired: true,
   isScored: true,
@@ -84,9 +88,157 @@ const DEFAULT_NEW_FORM_ITEMS = {
   PARAGRAPH: createDefaultParagraph,
 };
 
+export const DEFAULT_SETTINGS: TFormBuilderSettingsSchema = {
+  editAccess: 'ME',
+  editAccessUserIds: [],
+  allowMultipleResponses: true,
+  allowResponseRevisions: false,
+  allowSaveAndQuit: true,
+  enableScoring: true,
+  passingCriteria: [],
+};
+
+type SliceCreator<
+  T, // Combined state type (intersection of all slices)
+  S, // S represents the specific slice type being created
+  Middlewares extends [keyof StoreMutators<unknown, unknown>, unknown][] = [
+    ['zustand/devtools', never],
+    ['zustand/subscribeWithSelector', never],
+  ],
+> = StateCreator<
+  T,
+  Middlewares,
+  [],
+  S // This represents the slice you're creating
+>;
+
+// TODO LATER: Split up state into slices.
+
+interface IFormDetailsSlice {
+  title: string;
+  settings: TFormBuilderSettingsSchema;
+  setTitle: (title: string) => void;
+  setSettings: (settings: TFormBuilderSettingsSchema) => void;
+}
+
+interface IFormItemsSlice {
+  itemIds: string[];
+  itemsById: Record<string, Omit<TFormItemSchema, 'id'>>;
+  setItems: (items: TFormItemSchema[]) => void;
+  addItem: (item: TFormItemSchema) => void;
+  removeItem: (id: string) => void;
+  updateItem: (id: string, updates: Partial<TFormItemSchema>) => void;
+  getItemById: (id: string) => Omit<TFormItemSchema, 'id'> | undefined;
+}
+
+interface IDragAndDropSlice {
+  activeItemId: string | null;
+  selectedItemId: string | null;
+  itemDropIndex: number | null;
+  setActiveItemId: (id: string | null) => void;
+  setSelectedItemId: (id: string | null) => void;
+  setItemDropIndex: (index: number | null) => void;
+}
+
+type Store = IFormDetailsSlice & IFormItemsSlice & IDragAndDropSlice;
+
+const createFormDetailsSlice: SliceCreator<Store, IFormDetailsSlice> = (
+  set,
+) => ({
+  title: '',
+  settings: DEFAULT_SETTINGS,
+  setTitle: (title) => set({ title }),
+  setSettings: (settings) => set({ settings }),
+});
+
+const createFormItemsSlice: SliceCreator<Store, IFormItemsSlice> = (
+  set,
+  get,
+) => ({
+  itemIds: [],
+  itemsById: {}, // Object, not array
+  setItems: (items) =>
+    set((state) => {
+      const itemIds = items.map((item) => item.id);
+      const itemsById = items.reduce(
+        (acc: Record<string, TFormItemSchema>, item) => {
+          acc[item.id] = item;
+          return acc;
+        },
+        {},
+      );
+      return {
+        ...state,
+        itemIds,
+        itemsById,
+      };
+    }),
+  addItem: (item) =>
+    set((state) => ({
+      ...state,
+      itemIds: [...state.itemIds, item.id],
+      itemsById: { ...state.itemsById, [item.id]: item },
+    })),
+  updateItem: (id, updates) =>
+    set((state) => ({
+      ...state,
+      itemsById: {
+        ...state.itemsById,
+        [id]: { ...state.itemsById[id], ...updates },
+      },
+    })),
+  removeItem: (id) =>
+    set((state) => {
+      const newItemsById = { ...state.itemsById };
+      delete newItemsById[id];
+
+      return {
+        ...state,
+        itemIds: state.itemIds.filter((itemId) => itemId !== id),
+        itemsById: newItemsById,
+      };
+    }),
+  getItemById: (id) => get().itemsById[id],
+});
+
+const createDragAndDropSlice: SliceCreator<Store, IDragAndDropSlice> = (
+  set,
+) => ({
+  activeItemId: null,
+  itemDropIndex: null,
+  selectedItemId: null,
+  setActiveItemId: (id) => set({ activeItemId: id }),
+  setItemDropIndex: (index) => set({ itemDropIndex: index }),
+  setSelectedItemId: (id) => set({ selectedItemId: id }),
+});
+
+export const useFormBuilderStore2 = create<Store>()(
+  devtools(
+    subscribeWithSelector((...a) => ({
+      ...createFormDetailsSlice(...a),
+      ...createFormItemsSlice(...a),
+      ...createDragAndDropSlice(...a),
+    })),
+    { name: 'FormBuilderStore2' },
+  ),
+);
+
 export interface FormBuilderState {
+  isInitialized: boolean;
+  setIsInitialized: (val: boolean) => void;
+
+  // other
+  id: string | null;
+  title: string;
+  setTitle: (title: string) => void;
+
+  // settings
+  settings: TFormBuilderSettingsSchema;
+  setSettings: (data: TFormBuilderSettingsSchema) => void;
+
   items: TFormItemSchema[];
   setItems: (items: TFormItemSchema[]) => void;
+  reorderItems: (ids: string[]) => void;
 
   // for question selection / detail viewing
   selectedItemId: string | null;
@@ -122,54 +274,127 @@ export interface FormBuilderState {
     newText?: string,
     newPointValue?: number,
   ) => void;
-
-  // manage overall state
 }
+
+// Helper function to update positions based on array order
+const updatePositions = (items: TFormItemSchema[]): TFormItemSchema[] =>
+  items.map((item, index) => ({
+    ...item,
+    position: index + 1, // Position is 1-based
+  }));
 
 export const useFormBuilderStore = create<FormBuilderState>()(
   devtools(
-    (set) => ({
+    subscribeWithSelector((set) => ({
+      isInitialized: false,
+      id: null,
+      setIsInitialized: (val) => set({ isInitialized: val }),
+      title: '',
+      setTitle: (title) => set({ title }),
+      settings: DEFAULT_SETTINGS,
+      setSettings: (settings) => set({ settings }),
       items: [],
       activeItemId: null,
       itemDropIndex: null,
       selectedItemId: null,
       setSelectedItemId: (selectedItemId) => set({ selectedItemId }),
+
+      // Set items from API data
       setItems: (items) => set({ items }),
+
+      // Reorder items with position updates
+      reorderItems: (ids) =>
+        set((state) => {
+          // Create a mapping of id -> item for quick lookup
+          const itemMap = state.items.reduce(
+            (acc: Record<string, TFormItemSchema>, item) => {
+              acc[item.id] = item;
+              return acc;
+            },
+            {},
+          );
+
+          // Create a new array of items ordered according to the ids
+          const reorderedItems = ids.map((id) => itemMap[id]);
+
+          // Update positions based on new order
+          return { items: updatePositions(reorderedItems) };
+        }),
+
       setActiveItemId: (activeItemId) => set({ activeItemId }),
+
+      // Add item with proper position updates
       addItem: (type, index) =>
         set((state) => {
           const insertIndex = index ?? state.items.length;
           const newItems = [...state.items];
-          newItems.splice(insertIndex, 0, { ...DEFAULT_NEW_FORM_ITEMS[type](), position: insertIndex + 1});
-          return { items: newItems, insertIndex: null };
+
+          // Insert with temporary position
+          newItems.splice(insertIndex, 0, {
+            ...DEFAULT_NEW_FORM_ITEMS[type](),
+            position: insertIndex + 1, // Initial position
+          });
+
+          // Update all positions to ensure consistency
+          return { items: updatePositions(newItems), itemDropIndex: null };
         }),
+
+      // Duplicate item with proper position updates
       duplicateItem: (id) =>
         set((state) => {
           const itemToCopy = state.items.find((i) => i.id === id);
           const insertIndex = state.items.findIndex((i) => i.id === id) + 1;
           if (!itemToCopy) throw new Error('Item to copy not found');
 
-          const newId = v4();
-          const newItem = {
-            ...itemToCopy,
-            id: newId,
-            position: insertIndex
-          };
           const newItems = [...state.items];
-          newItems.splice(insertIndex, 0, newItem);
-          return { items: newItems };
+
+          // If it has options, we need to create new ids for those as well
+          if (isChoiceItem(itemToCopy)) {
+            const newItem = {
+              ...itemToCopy,
+              id: v4(),
+              position: insertIndex + 1, // Initial position
+              options: itemToCopy.options.map((option) => ({
+                ...option,
+                id: v4(), // Create new UUID for each option
+              })),
+            };
+
+            newItems.splice(insertIndex, 0, newItem);
+          } else {
+            const newId = v4();
+            const newItem = {
+              ...itemToCopy,
+              id: newId,
+              position: insertIndex + 1, // Initial position
+            };
+            newItems.splice(insertIndex, 0, newItem);
+          }
+
+          // Update all positions to ensure consistency
+          return { items: updatePositions(newItems) };
         }),
+
+      // Remove item with proper position updates
       removeItem: (id) =>
         set((state) => {
+          const newItems = state.items.filter((i) => i.id !== id);
+
+          // Update positions after removal
+          const updatedItems = updatePositions(newItems);
+
           if (state.selectedItemId === id) {
             return {
-              items: state.items.filter((i) => i.id !== id),
+              items: updatedItems,
               selectedItemId: null,
             };
           }
-          return { items: state.items.filter((i) => i.id !== id) };
+          return { items: updatedItems };
         }),
+
       setItemDropIndex: (idx) => set(() => ({ itemDropIndex: idx })),
+
+      // Update item without changing positions
       updateItem: (id, updater) =>
         set((state) => {
           const index = state.items.findIndex((i) => i.id === id);
@@ -178,6 +403,8 @@ export const useFormBuilderStore = create<FormBuilderState>()(
           newItems[index] = updater(newItems[index]);
           return { items: newItems };
         }),
+
+      // Rest of your functions without changes...
       addMilestone: (itemId, milestoneId) =>
         set((state) => {
           const updatedItems = state.items.map((item) => {
@@ -185,7 +412,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
               if (isRangeItem(item) || isChoiceItem(item)) {
                 return {
                   ...item,
-                  milestoneIds: [...(item.milestoneIds || ''), milestoneId],
+                  milestoneIds: [...(item.milestoneIds || []), milestoneId],
                 };
               }
             }
@@ -194,6 +421,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
           return { items: updatedItems };
         }),
+
       removeMilestone: (itemId, milestoneId) =>
         set((state) => {
           const updatedItems = state.items.map((item) => {
@@ -213,6 +441,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
           return { items: updatedItems };
         }),
+
       addOption: (itemId, option) =>
         set((state) => {
           const updatedItems = state.items.map((item) => {
@@ -237,6 +466,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
           return { items: updatedItems };
         }),
+
       removeOption: (itemId, optionId) =>
         set((state) => {
           const updatedItems = state.items.map((item) => {
@@ -253,6 +483,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
 
           return { items: updatedItems };
         }),
+
       updateOption: (itemId, optionId, newText, newPointValue) =>
         set((state) => ({
           items: state.items.map((item) =>
@@ -272,8 +503,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
               : item,
           ),
         })),
-    }),
-    { name: 'FormBuilder Store',  trace: true, },
-
+    })),
+    { name: 'FormBuilder Store', trace: true },
   ),
 );
