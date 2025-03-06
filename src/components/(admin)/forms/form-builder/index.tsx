@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
+import { Loader } from 'lucide-react';
 
 // requires document to be defined.
 const FormBuilderCanvas = dynamic(
@@ -47,12 +48,7 @@ const SCHEMA_MAP = {
   HEADER: ZHeaderSchema,
 } as const;
 
-function apiToState({
-  data,
-}: {
-  data: FormResult;
-}): TFormBuilderSchema {
-
+function apiToState({ data }: { data: FormResult }): TFormBuilderSchema {
   const addMilestoneIds = (item: FormResult['formItems'][number]) => ({
     ...item,
     milestoneIds:
@@ -92,6 +88,11 @@ export function FormBuilder() {
   const params = useParams();
   const formId = params.formId.toString();
 
+  const setIsInitialized = useFormBuilderStore(
+    (state) => state.setIsInitialized,
+  );
+  const isInitialized = useFormBuilderStore((state) => state.isInitialized);
+
   // get the data
   const { data, isLoading, isError } = useQuery({
     queryKey: ['form', formId],
@@ -101,28 +102,52 @@ export function FormBuilder() {
   });
 
   useEffect(() => {
+    // Reset initialized state while loading
+    if (isLoading) {
+      setIsInitialized(false);
+      return;
+    }
+
     if (data) {
       const transformedData = apiToState({ data });
+
+      // Set all state in one update
       useFormBuilderStore.setState({
+        id: transformedData.id,
         items: transformedData.formItems,
         settings: transformedData.settings,
         title: transformedData.title,
         activeItemId: null,
         selectedItemId: null,
+        isInitialized: true,
       });
-      console.log("Initial data loaded and set")
+
+      console.log('Initial data loaded and set, isInitialized = true');
+    } else {
+      setIsInitialized(false);
+      console.log('No data available, isInitialized = false');
     }
-  }, [data]);
+  }, [data, isLoading, setIsInitialized]);
 
   if (isLoading) return 'Loading';
   if (!data) return 'no data!!!';
 
-  // initialize autosave
-
   return (
     <section className="flex flex-col flex-grow h-[calc(100vh-40px)]">
-      <FormBuilderToolbar />
-      <DragAndDropWrapper />
+      {/* Only render toolbar when initialization is complete */}
+      {isInitialized ? (
+        <>
+          <FormBuilderToolbar />
+          <DragAndDropWrapper />
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-full">
+          <div className="flex flex-col items-center space-y-4">
+            <Loader size={24} />
+            <p>Preparing form builder...</p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
