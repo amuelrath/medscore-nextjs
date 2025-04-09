@@ -18,6 +18,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
+import { ZFormBuilderSettingsSchema } from '@/components/(admin)/forms/form-builder/types';
 
 export const roleEnum = pgEnum('role', ['ADMIN', 'STUDENT', 'FACULTY', 'NONE']);
 
@@ -318,7 +319,7 @@ export const forms = pgTable('forms', {
   title: text('title').notNull().default('Untitled Evaluation'),
   lastOpenedAt: timestamp('last_opened_at').notNull().defaultNow(),
   type: formTypeEnum('type').notNull(),
-  settings: jsonb('settings').$type<z.infer<typeof ZFormSettingsSchema>>(),
+  settings: jsonb('settings').$type<z.infer<typeof ZFormBuilderSettingsSchema>>(),
   programId: uuid('program_id')
     .references((): AnyPgColumn => programs.id)
     .notNull(),
