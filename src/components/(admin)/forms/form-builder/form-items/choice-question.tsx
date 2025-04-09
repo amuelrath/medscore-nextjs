@@ -15,7 +15,7 @@ interface UseChoiceQuestionProps {
 }
 
 export function useChoiceQuestion({ id, type }: UseChoiceQuestionProps) {
-  const { config, updateConfig } = useFormItemConfig({ id, type });
+  const { config, updateConfig, scoringEnabled } = useFormItemConfig({ id, type });
 
   const hasNAOption = useMemo(
     () => config.options.some((option) => option.isNa),
@@ -77,6 +77,7 @@ export function useChoiceQuestion({ id, type }: UseChoiceQuestionProps) {
 
   return {
     config,
+    scoringEnabled,
     hasNAOption,
     handleAddOption,
     handleTextChange,
@@ -92,6 +93,7 @@ interface ChoiceOptionProps {
   onRemove: () => void;
   isScored?: boolean;
   variant: 'single' | 'multiple';
+  scoringEnabled: boolean;
 }
 
 export function ChoiceOption({
@@ -100,6 +102,7 @@ export function ChoiceOption({
   onRemove,
   isScored = true,
   variant,
+  scoringEnabled
 }: ChoiceOptionProps) {
   const Icon = variant === 'single' ? CircleIcon : SquareIcon;
 
@@ -125,8 +128,8 @@ export function ChoiceOption({
 
   // Consolidate container width and visibility logic
   const containerWidths = {
-    main: isScored ? '80%' : '100%',
-    points: isScored ? '20%' : '0%',
+    main: isScored && scoringEnabled ? '80%' : '100%',
+    points: isScored && scoringEnabled ? '20%' : '0%',
   };
 
   // Common container styles
@@ -135,6 +138,7 @@ export function ChoiceOption({
 
   return (
     <div className="flex flex-row items-center space-x-2">
+
       <motion.div
         animate={{ width: containerWidths.main }}
         initial={{ width: '100%' }}
@@ -161,8 +165,7 @@ export function ChoiceOption({
           />
         </Button>
       </motion.div>
-
-      {isScored && (
+      {isScored && scoringEnabled && (
         <motion.div
           initial={{ scaleX: 0, width: '0%' }}
           animate={{
@@ -234,6 +237,7 @@ interface ChoiceQuestionProps {
 export function ChoiceQuestion({ id, type }: ChoiceQuestionProps) {
   const {
     config,
+    scoringEnabled,
     hasNAOption,
     handleTextChange,
     handleAddOption,
@@ -257,6 +261,7 @@ export function ChoiceQuestion({ id, type }: ChoiceQuestionProps) {
             key={option.id}
             option={option}
             onUpdate={(updates) => handleUpdateOption(option.id, updates)}
+            scoringEnabled={scoringEnabled}
             onRemove={() => handleRemoveOption(option.id)}
             variant={type === 'SINGLE_CHOICE' ? 'single' : 'multiple'}
             isScored={config.isScored}
