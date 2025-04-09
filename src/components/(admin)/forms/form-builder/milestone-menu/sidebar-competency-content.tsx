@@ -21,7 +21,9 @@ export function SidebarCompetencyContent({
               <span className="size-6 text-xs flex items-center flex-row justify-center aspect-square rounded-full border text-black/90">
                 {s.level}
               </span>
-              <p className="text-xs text-left text-black/90  flex-grow">{s.name}</p>
+              <p className="text-xs text-left text-black/90  flex-grow">
+                {s.name}
+              </p>
             </AccordionTrigger>
             <AccordionContent>
               <div className="space-y-4">
