@@ -55,7 +55,7 @@ const createDefaultRange = (): Omit<TRangeItemSchema, 'position'> => ({
   isRequired: true,
   isScored: true,
   minValue: 0,
-  maxValue: 7,
+  maxValue: 1,
   text: '',
   type: 'RANGE',
 });
@@ -223,7 +223,11 @@ export const useFormBuilderStore2 = create<Store>()(
   ),
 );
 
+// END TESTING =======================================
+
 export interface FormBuilderState {
+  // to cope with some weird event loop stuff that caused autosave when
+  // initializing a form from empty state to the api data
   isInitialized: boolean;
   setIsInitialized: (val: boolean) => void;
 
