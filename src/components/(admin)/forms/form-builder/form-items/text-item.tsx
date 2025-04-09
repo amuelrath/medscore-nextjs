@@ -64,7 +64,13 @@ function TextItem({ id, type }: TextItemProps) {
   const variant = type === 'HEADER' ? 'header' : 'paragraph';
 
   return (
-    <motion.div layoutId={id} layout="position" className="space-y-3 pb-6">
+    <motion.div
+      key={id}
+      layoutId={id}
+      layout="position"
+      transition={{ duration: 0.02}}
+      className="space-y-3 pb-6"
+    >
       <TextContent
         value={config.text}
         onChange={handleTextChange}
