@@ -19,10 +19,10 @@ import {
 import { FormResult, getFormById } from '@/server/actions/forms/get-form-by-id';
 import { closestCorners, DndContext, MeasuringStrategy } from '@dnd-kit/core';
 import { useQuery } from '@tanstack/react-query';
+import { Loader } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { Loader } from 'lucide-react';
 
 // requires document to be defined.
 const FormBuilderCanvas = dynamic(
@@ -121,11 +121,10 @@ export function FormBuilder() {
         selectedItemId: null,
         isInitialized: true,
       });
-
-      console.log('Initial data loaded and set, isInitialized = true');
+      // console.log('Initial data loaded and set, isInitialized = true');
     } else {
       setIsInitialized(false);
-      console.log('No data available, isInitialized = false');
+      // console.log('No data available, isInitialized = false');
     }
   }, [data, isLoading, setIsInitialized]);
 
