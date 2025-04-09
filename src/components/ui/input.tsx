@@ -38,18 +38,75 @@ export interface InputProps
   autocomplete?: boolean;
   size?: InputVariantsProps['size'];
   variant?: InputVariantsProps['variant'];
+  format?: (value: string) => string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, autocomplete, size, variant, ...props }, ref) => (
-    <input
-      type={type}
-      autoComplete={autocomplete ? 'on' : 'off'}
-      className={cn(inputVariants({ size, variant, className }))}
-      ref={ref}
-      {...props}
-    />
-  ),
+  (
+    {
+      className,
+      type,
+      autocomplete,
+      size,
+      variant,
+      format,
+      value,
+      onChange,
+      onFocus,
+      onBlur,
+      ...props
+    },
+    ref,
+  ) => {
+    const [isFocused, setIsFocused] = React.useState(false);
+
+    // Show raw value when focused, formatted value when not focused
+    const displayValue =
+      format && value !== undefined && !isFocused
+        ? format(value.toString())
+        : value;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (onChange) {
+        if (format) {
+          const syntheticEvent = {
+            ...e,
+            target: {
+              ...e.target,
+              value: e.target.value.replace(/[^\d.-]/g, ''),
+            },
+          };
+          onChange(syntheticEvent as React.ChangeEvent<HTMLInputElement>);
+        } else {
+          onChange(e);
+        }
+      }
+    };
+
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true);
+      onFocus?.(e);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(false);
+      onBlur?.(e);
+    };
+
+    return (
+      <input
+        type={type}
+        autoComplete={autocomplete ? 'on' : 'off'}
+        className={cn(inputVariants({ size, variant, className }))}
+        ref={ref}
+        value={displayValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        {...props}
+      />
+    );
+  },
 );
 
 Input.displayName = 'Input';
