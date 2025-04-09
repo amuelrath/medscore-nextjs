@@ -102,7 +102,6 @@ export function useAutosave<T>({
     if (isEqual(data, savedVersionRef.current)) return;
 
     setIsSaving(true);
-    console.log('Executing save');
 
     try {
       await saveFn(data, savedVersionRef.current);
