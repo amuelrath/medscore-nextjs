@@ -23,6 +23,12 @@
     "react/prop-types": "off",
     "jsx-a11y/control-has-associated-label": "off",
     "jsx-a11y/label-has-associated-control": "off",
-    "react/jsx-props-no-spreading": "off"
+    "react/jsx-props-no-spreading": "off",
+    "consistent-return": "warn",
+    "prefer-destructuring": "off",
+    "no-shadow": "off",
+    "no-restricted-syntax": "off",
+    "no-plusplus": "off",
+    "no-await-in-loop": "off"
   }
 }
