@@ -14,6 +14,7 @@ export function useFormItemConfig<T extends FormItemType>({
   type,
 }: UseFormItemConfigProps<T>) {
   const updateItem = useFormBuilderStore((state) => state.updateItem);
+  const scoringEnabled = useFormBuilderStore((state) => state.settings.enableScoring)
 
   // Explicitly type the store item
   const item = useFormBuilderStore((state) =>
@@ -36,6 +37,7 @@ export function useFormItemConfig<T extends FormItemType>({
 
   return {
     config: item,
+    scoringEnabled,
     updateConfig,
   } as const;
 }
