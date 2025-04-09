@@ -6,6 +6,7 @@ import {
 import { cn } from '@/lib/helpers/utils';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { motion } from 'framer-motion';
 
 export function NewFormItem({
   itemType,
@@ -23,28 +24,35 @@ export function NewFormItem({
 
   const style = {
     transform: CSS.Translate.toString(transform),
-    transition: `border 200ms ease, border-color 200ms ease`,
-    border: isClone ? '1.55px solid' : '1.5px solid',
-    borderColor: isClone
-      ? 'hsl(var(--foreground) / 0.3)'
-      : 'hsl(var(--border))',
+    transitionProperty: 'filter',
+    transitionDuration: '300ms',
+    transitionTimingFunction: 'ease',
   };
 
   return (
-    <div
+    <motion.div
+      layoutId={`new-item-${itemType}`}
+      initial={false}
+      animate={{
+        scale: isClone ? 1.025 : 1,
+        border: isClone ? '1.55px solid' : '1.5px solid',
+        borderColor: isClone
+          ? 'hsl(var(--foreground) / 0.3)'
+          : 'hsl(var(--border))',
+      }}
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
       className={cn(
-        'border flex flex-col bg-white items-center justify-center rounded-md h-24',
+        'flex flex-col bg-white items-center justify-center rounded-md h-24',
         isDragging && !isClone && 'opacity-0',
-        isClone ? 'z-40 drop-shadow-xl' : 'drop-shadow-none',
+        isClone && 'z-40 drop-shadow-xl',
       )}
     >
       <Icon className="opacity-40 size-8 mb-2" />
       <span className="text-xs text-center">{label}</span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -59,7 +67,7 @@ function SidebarSection({
     <div className="col-span-3 space-y-2">
       <hr />
       <div className="grid grid-cols-3 gap-4 px-4">
-      <p className="text-sm font-medium col-span-full">{label}</p>
+        <p className="text-sm font-medium col-span-full">{label}</p>
         {NEW_FORM_ITEMS.filter((i) => itemTypes.includes(i.itemType)).map(
           (props) => (
             <NewFormItem key={props.itemType} {...props} />
