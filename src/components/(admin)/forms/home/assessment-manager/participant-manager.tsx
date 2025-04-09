@@ -1,4 +1,4 @@
-import { TAssessmentEditorFormSchema } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
+import { type TAssessmentEditorFormSchema } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
 import { Badge } from '@/components/ui/badge';
 import ConfirmDialog from '@/components/ui/confirm-dialog';
 import { Label } from '@/components/ui/label';
