@@ -11,7 +11,7 @@ import { useFormBuilderMilestones } from '@/components/(admin)/forms/form-builde
 import { MilestoneContent } from '../milestone-menu';
 
 function SettingScoredSwitch() {
-  const { items, selectedItemId, updateItem } = useFormBuilderStore();
+  const { items, selectedItemId, updateItem, settings } = useFormBuilderStore();
   const selectedItem = items.find((i) => i.id === selectedItemId);
 
   const handleUpdateScored = (checked: boolean) => {
@@ -26,11 +26,12 @@ function SettingScoredSwitch() {
   return (
     <div className="flex flex-row items-center space-x-4 text-sm">
       <Switch
-        checked={selectedItem.isScored}
+        checked={selectedItem.isScored && settings.enableScoring}
+        disabled={!settings.enableScoring}
         onCheckedChange={handleUpdateScored}
         size="sm"
       />
-      <p>Scored</p>
+      <p className={cn(settings.enableScoring ? '' : 'opacity-50')} >Scored</p>
     </div>
   );
 }
@@ -75,7 +76,7 @@ function SettingMilestones() {
   if (isLoading) return 'loading'; // TODO add loading spinner or skeleton
 
   return (
-    <>
+    <div className="pl-4 space-y-4">
       <p className="text-sm font-medium">Applied Milestones</p>
 
       <div
@@ -89,7 +90,7 @@ function SettingMilestones() {
           selectedItem.milestoneIds.map((m) => {
             const milestone = getMilestone(m);
             if (!milestone) return null;
-            return <MilestoneCard milestone={milestone} />;
+            return <MilestoneCard milestone={milestone}  />;
           })
         ) : (
           <p className="text-md font-semibold text-center opacity-50">
@@ -97,14 +98,14 @@ function SettingMilestones() {
           </p>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
 function SettingsContent() {
   return (
-    <div className="space-y-4 pl-4">
-      <div className="space-y-2">
+    <div className="space-y-4">
+      <div className="space-y-2 pl-4">
         <p className="text-sm font-medium mb-4">Settings</p>
         <SettingRequiredSwitch />
         <SettingScoredSwitch />
