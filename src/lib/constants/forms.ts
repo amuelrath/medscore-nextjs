@@ -1,40 +1,34 @@
+import { TFormBuilderSettingsSchema } from '@/components/(admin)/forms/form-builder/types';
 import { TFormType } from '@/db/schema';
-import { ZFormSettingsSchema } from '@/lib/helpers/zod/form-schema';
 import { ClipboardPenIcon, ClipboardPlusIcon, EyeIcon } from 'lucide-react';
-import { z } from 'zod';
 
-type FormSettings = z.infer<typeof ZFormSettingsSchema>;
-
-export const DEFAULT_FORM_SETTINGS: Record<TFormType, FormSettings> = {
+export const DEFAULT_FORM_SETTINGS: Record<
+  TFormType,
+  TFormBuilderSettingsSchema
+> = {
   OSCE: {
-    administerAccess: 'JUST_ME',
-    editAccess: 'JUST_ME',
+    editAccess: 'ME',
     allowResponseRevisions: false,
-    allowResponseSaveAndQuit: true,
-    allowMultipleSubmissions: false,
-    scoresAffectGrades: true,
-    roleWeights: [],
     passingCriteria: [],
+    allowMultipleResponses: false,
+    allowSaveAndQuit: false,
+    enableScoring: false,
   },
   DIRECT_OBSERVATION: {
-    administerAccess: 'FACULTY_I_CHOOSE',
-    editAccess: 'JUST_ME',
+    editAccess: 'ME',
     allowResponseRevisions: false,
-    allowResponseSaveAndQuit: false,
-    allowMultipleSubmissions: true,
-    scoresAffectGrades: true,
-    roleWeights: [],
     passingCriteria: [],
+    allowMultipleResponses: false,
+    allowSaveAndQuit: false,
+    enableScoring: false,
   },
   EVALUATION: {
-    administerAccess: 'JUST_ME',
-    editAccess: 'JUST_ME',
-    allowResponseRevisions: true,
-    allowResponseSaveAndQuit: true,
-    allowMultipleSubmissions: false,
-    scoresAffectGrades: false,
-    roleWeights: [],
+    editAccess: 'ME',
+    allowResponseRevisions: false,
     passingCriteria: [],
+    allowMultipleResponses: false,
+    allowSaveAndQuit: false,
+    enableScoring: false,
   },
 };
 export const DEFAULT_FORM_NAME = {
