@@ -238,7 +238,7 @@ export function AssessmentCreatorDialog({
               />
             </div>
             <div className="flex h-52">{renderParticipantsInput()}</div>
-
+            <hr />
             <div className="flex select-none flex-row justify-end items-baseline space-x-2">
               <Button disabled={methods.formState.isSubmitting} type="submit">
                 Send
