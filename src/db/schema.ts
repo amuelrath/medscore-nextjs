@@ -1,4 +1,4 @@
-import { ZFormSettingsSchema } from '@/lib/helpers/zod/form-schema';
+import { ZFormBuilderSettingsSchema } from '@/components/(admin)/forms/form-builder/types';
 import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
@@ -18,7 +18,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
-import { ZFormBuilderSettingsSchema } from '@/components/(admin)/forms/form-builder/types';
 
 export const roleEnum = pgEnum('role', ['ADMIN', 'STUDENT', 'FACULTY', 'NONE']);
 
@@ -38,6 +37,14 @@ export const formItemTypeEnum = pgEnum('form_item_type', [
   'RANGE',
   'PARAGRAPH',
 ]);
+
+export type TFormItemType =
+  | 'MULTIPLE_CHOICE'
+  | 'SINGLE_CHOICE'
+  | 'HEADER'
+  | 'WRITTEN'
+  | 'RANGE'
+  | 'PARAGRAPH';
 
 export const formTypeEnum = pgEnum('form_type', [
   'OSCE',
@@ -185,6 +192,7 @@ export const userRelations = relations(users, ({ many }) => ({
   roles: many(rolesOnUsers),
   groups: many(groups),
   assessments: many(assessments),
+  formFolders: many(formFolders),
 }));
 
 export const usersOnPrograms = pgTable('users_on_programs', {
@@ -319,9 +327,10 @@ export const forms = pgTable('forms', {
   title: text('title').notNull().default('Untitled Evaluation'),
   lastOpenedAt: timestamp('last_opened_at').notNull().defaultNow(),
   type: formTypeEnum('type').notNull(),
-  settings: jsonb('settings').$type<z.infer<typeof ZFormBuilderSettingsSchema>>(),
+  settings:
+    jsonb('settings').$type<z.infer<typeof ZFormBuilderSettingsSchema>>(),
   programId: uuid('program_id')
-    .references((): AnyPgColumn => programs.id)
+    .references(() => programs.id)
     .notNull(),
   creatorId: uuid('creator_id').references(() => users.id),
   folderId: uuid('folder_id').references(() => formFolders.id, {
@@ -412,7 +421,7 @@ export const milestonesOnFormItems = pgTable(
       .references((): AnyPgColumn => formItems.id, { onDelete: 'cascade' }),
     milestoneId: uuid('milestone_id')
       .notNull()
-      .references((): AnyPgColumn => milestones.id),
+      .references((): AnyPgColumn => milestones.id, { onDelete: 'cascade' }),
   },
   (table) => ({
     id: primaryKey({
@@ -424,6 +433,7 @@ export const milestonesOnFormItems = pgTable(
     }),
   }),
 );
+
 export type MilestonesOnFormItem = typeof milestonesOnFormItems.$inferSelect;
 export type NewMilestoneOnFormItem = typeof milestonesOnFormItems.$inferInsert;
 export const milestonesOnFormItemRelations = relations(
