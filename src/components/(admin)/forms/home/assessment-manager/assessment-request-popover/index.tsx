@@ -1,4 +1,4 @@
-import { useAssessmentRequestActions } from '@/components/(admin)/forms/home/assessment-request-popover/hooks';
+import { useAssessmentRequestActions } from '@/components/(admin)/forms/home/assessment-manager/assessment-request-popover/hooks';
 import { Button } from '@/components/ui/button';
 import ConfirmDialog from '@/components/ui/confirm-dialog';
 import {

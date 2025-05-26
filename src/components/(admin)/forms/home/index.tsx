@@ -4,7 +4,7 @@ import {
   AssessmentCreatorDialog,
   TAssessmentEditorFormSchema,
 } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
-import { AssessmentRequestContent } from '@/components/(admin)/forms/home/assessment-request-content';
+import { AssessmentRequestContent } from '@/components/(admin)/forms/home/assessment-manager/assessment-request-content';
 import { FoldersList } from '@/components/(admin)/forms/home/folders/folders-list';
 import { FormCardDragOverlay } from '@/components/(admin)/forms/home/form-cards/form-card';
 import { FormsList } from '@/components/(admin)/forms/home/form-cards/forms-list';

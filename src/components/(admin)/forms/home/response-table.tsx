@@ -1,5 +1,4 @@
 import { AssessmentDetailsDialog } from '@/components/(admin)/forms/home/assessment-manager/assessment-details-dialog';
-import { AssessmentRequestDropdown } from '@/components/(admin)/forms/home/assessment-request-popover';
 import { Avatar, AvatarStack } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -15,6 +14,9 @@ import { useMutation } from '@tanstack/react-query';
 import { ArrowRightIcon, ClipboardListIcon, ClockIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
+import {
+  AssessmentRequestDropdown
+} from '@/components/(admin)/forms/home/assessment-manager/assessment-request-popover';
 
 interface ResponseProps {
   responseId: string;
