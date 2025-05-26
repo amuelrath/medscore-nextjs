@@ -2,7 +2,7 @@ import { NEW_FORM_ITEMS } from '@/components/(admin)/forms/form-builder/constant
 import { FormItem } from '@/components/(admin)/forms/form-builder/form-items';
 import { DragOverlayState } from '@/components/(admin)/forms/form-builder/types';
 
-import { NewFormItem } from '@/components/(admin)/forms/form-builder/sidebar/sidebar-form-item-list';
+import { NewFormItemOverlay } from '@/components/(admin)/forms/form-builder/sidebar/sidebar-form-item-list';
 
 interface FormBuilderOverlayProps {
   state: DragOverlayState;
@@ -15,13 +15,7 @@ export function FormBuilderOverlay({ state }: FormBuilderOverlayProps) {
   if (!active) return null;
 
   if (isExistingFormItem && activeItem) {
-    return (
-      <FormItem
-        id={activeItem}
-        index={activeIndex}
-        isClone
-      />
-    );
+    return <FormItem id={activeItem} index={activeIndex} isClone />;
   }
 
   if (isNewFormItem) {
@@ -31,7 +25,7 @@ export function FormBuilderOverlay({ state }: FormBuilderOverlayProps) {
 
     if (!newItemConfig) return null;
 
-    return <NewFormItem {...newItemConfig} isClone />;
+    return <NewFormItemOverlay Icon={newItemConfig.Icon} />;
   }
 
   return null;

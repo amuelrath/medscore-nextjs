@@ -1,9 +1,16 @@
-import { MeasuringStrategy } from '@dnd-kit/core';
-import { CheckboxIcon, HeadingIcon, InputIcon, PilcrowIcon, RadiobuttonIcon, SliderIcon } from '@radix-ui/react-icons';
 import { NewFormItemProps } from '@/components/(admin)/forms/form-builder/types';
+import { MeasuringStrategy } from '@dnd-kit/core';
+import {
+  CheckCheckIcon,
+  CircleDotIcon,
+  HeadingIcon,
+  Pilcrow,
+  SlidersHorizontalIcon,
+  TypeIcon,
+} from 'lucide-react';
 
 export const DRAG_AND_DROP = {
-  DROP_ACTIVATION_DISTANCE: 300,
+  DROP_ACTIVATION_DISTANCE: 300, // rough width of a <FormItem />
   MEASURING_STRATEGY: {
     droppable: {
       strategy: MeasuringStrategy.Always,
@@ -11,11 +18,10 @@ export const DRAG_AND_DROP = {
   },
 } as const;
 
-
 export const NEW_FORM_ITEMS: NewFormItemProps[] = [
   {
     itemType: 'WRITTEN',
-    Icon: InputIcon,
+    Icon: TypeIcon,
     label: 'Written',
   },
   {
@@ -25,25 +31,27 @@ export const NEW_FORM_ITEMS: NewFormItemProps[] = [
   },
   {
     itemType: 'PARAGRAPH',
-    Icon: PilcrowIcon,
+    Icon: Pilcrow,
     label: 'Paragraph',
   },
   {
     itemType: 'SINGLE_CHOICE',
-    Icon: RadiobuttonIcon,
+    Icon: CircleDotIcon,
     label: 'Select One',
   },
   {
     itemType: 'MULTIPLE_CHOICE',
-    Icon: CheckboxIcon,
+    Icon: CheckCheckIcon,
     label: 'Select Multiple',
   },
   {
     itemType: 'RANGE',
-    Icon: SliderIcon,
+    Icon: SlidersHorizontalIcon,
     label: 'Range',
   },
-];
+] as const;
+
+// BEWARE of hacky styles
 export const LAYOUT = {
   HEADER_HEIGHT: 40,
   TOOLBAR_HEIGHT: 70.73,

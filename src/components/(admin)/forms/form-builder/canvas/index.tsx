@@ -67,7 +67,7 @@ export function FormBuilderCanvas() {
     >
       <CanvasContent />
       {createPortal(
-        <DragOverlay transition="transform 75ms ease"  >
+        <DragOverlay  modifiers={overlayState.isExistingFormItem ? [] : [snapCenterToCursor]} >
           <FormBuilderOverlay state={overlayState} />
         </DragOverlay>,
         document.body,
