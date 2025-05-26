@@ -323,7 +323,10 @@ export const forms = pgTable('forms', {
   programId: uuid('program_id')
     .references((): AnyPgColumn => programs.id)
     .notNull(),
-  creatorId: uuid('creator_id').references((): AnyPgColumn => users.id),
+  creatorId: uuid('creator_id').references(() => users.id),
+  folderId: uuid('folder_id').references(() => formFolders.id, {
+    onDelete: 'set null',
+  }), // Allow forms without folders
 });
 export type Form = typeof forms.$inferSelect;
 export type NewForm = typeof forms.$inferInsert;
@@ -338,6 +341,10 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   }),
   formItems: many(formItems),
   assessments: many(assessments),
+  formFolder: one(formFolders, {
+    fields: [forms.folderId],
+    references: [formFolders.id],
+  }),
 }));
 
 // todo nightmare refactor to normalize this
@@ -552,6 +559,25 @@ export const assessmentRelations = relations(assessments, ({ one, many }) => ({
   responses: many(responses),
   creator: one(users, {
     fields: [assessments.creatorId],
+    references: [users.id],
+  }),
+}));
+
+export const formFolders = pgTable('form_folders', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  creatorId: uuid('creator_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull().default('My Folder'),
+});
+export type FormFolder = typeof formFolders.$inferSelect;
+export type NewFormFolder = typeof formFolders.$inferInsert;
+export const formFolderRelations = relations(formFolders, ({ one, many }) => ({
+  forms: many(forms),
+  creator: one(users, {
+    fields: [formFolders.creatorId],
     references: [users.id],
   }),
 }));
