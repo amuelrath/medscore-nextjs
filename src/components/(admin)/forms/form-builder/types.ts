@@ -1,6 +1,6 @@
 import { Active } from '@dnd-kit/core';
-import { IconProps } from '@radix-ui/react-icons/dist/types';
-import * as React from 'react';
+import { LucideProps } from 'lucide-react';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { z } from 'zod';
 
 export const ZBaseFormItemSchema = z.object({
@@ -63,9 +63,9 @@ export const ZPassingCriteriaSchema = z.array(
 export const ZRoleWeightSchema = z.array(
   z.object({
     roleId: z.string().uuid(),
-    weight: z.number()
-  })
-)
+    weight: z.number(),
+  }),
+);
 
 export const ZFormBuilderSettingsSchema = z
   .object({
@@ -222,7 +222,7 @@ export interface NewFormItemProps {
   itemType: TFormItemSchema['type'];
   label: string;
   isClone?: boolean;
-  Icon: React.ForwardRefExoticComponent<
-    IconProps & React.RefAttributes<SVGSVGElement>
+  Icon: ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
   >;
 }
