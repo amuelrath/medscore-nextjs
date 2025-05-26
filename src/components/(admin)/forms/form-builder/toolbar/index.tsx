@@ -1,4 +1,12 @@
+'use client';
+
+import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import { PassingCriteriaModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/passing-criteria-modal';
+import { RoleWeightModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/role-weight-modal';
+import { TFormBuilderSchema } from '@/components/(admin)/forms/form-builder/types';
+import { useAutosave } from '@/components/(admin)/forms/form-builder/use-autosave';
 import { Input } from '@/components/ui/input';
+import { ManageAccessModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/manage-access-modal';
 import {
   Menubar,
   MenubarContent,
@@ -11,9 +19,38 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from '@/components/ui/menubar';
-import { LockOpenIcon, SaveIcon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { saveForm } from '@/server/actions/forms/save-form';
+import { MenubarArrow } from '@radix-ui/react-menubar';
+import { ExternalLinkIcon, Loader, LockOpenIcon, SaveIcon } from 'lucide-react';
+import { useParams } from 'next/navigation';
 
 function FormBuilderMenubar() {
+  const settings = useFormBuilderStore((state) => state.settings);
+  const setSettings = useFormBuilderStore((state) => state.setSettings);
+
+  const handleAllowMultipleResponsesClick = () => {
+    setSettings({
+      ...settings,
+      allowMultipleResponses: !settings.allowMultipleResponses,
+    });
+  };
+
+  const handleAllowSaveAndQuitClick = () => {
+    setSettings({ ...settings, allowSaveAndQuit: !settings.allowSaveAndQuit });
+  };
+
+  const handleAllowResponseRevisionsClick = () => {
+    setSettings({
+      ...settings,
+      allowResponseRevisions: !settings.allowResponseRevisions,
+    });
+  };
+
+  const handleEnableScoringClick = () => {
+    setSettings({ ...settings, enableScoring: !settings.enableScoring });
+  };
+
   return (
     <Menubar>
       <MenubarMenu>
@@ -68,13 +105,109 @@ function FormBuilderMenubar() {
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
-        <MenubarTrigger>Scoring</MenubarTrigger>
+        <MenubarTrigger>Permissions</MenubarTrigger>
+        <MenubarContent>
+          <ManageAccessModal>
+            <MenubarItem
+              onSelect={(e) => {
+                e.preventDefault();
+              }}
+            >
+              Manage Edit Access
+              <MenubarShortcut>
+                <ExternalLinkIcon size={12} />
+              </MenubarShortcut>
+            </MenubarItem>
+          </ManageAccessModal>
+          <MenubarArrow />
+        </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger>Responses</MenubarTrigger>
+        <MenubarContent>
+          <MenubarArrow />
+          <MenubarItem>
+            Allow Revisions
+            <MenubarShortcut onClick={(e) => e.stopPropagation()}>
+              <Switch
+                size="xs"
+                checked={settings.allowResponseRevisions}
+                onClick={handleAllowResponseRevisionsClick}
+              />
+            </MenubarShortcut>
+          </MenubarItem>
+
+          <MenubarItem>
+            Allow Save & Quit
+            <MenubarShortcut onClick={(e) => e.stopPropagation()}>
+              <Switch
+                size="xs"
+                checked={settings.allowSaveAndQuit}
+                onClick={handleAllowSaveAndQuitClick}
+              />
+            </MenubarShortcut>
+          </MenubarItem>
+
+          <MenubarItem>
+            Allow Multiple Submissions
+            <MenubarShortcut
+              className="ml-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Switch
+                size="xs"
+                checked={settings.allowMultipleResponses}
+                onClick={handleAllowMultipleResponsesClick}
+              />
+            </MenubarShortcut>
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem>
+            Manage Time Limits
+            <MenubarShortcut>
+              <ExternalLinkIcon size={12} />
+            </MenubarShortcut>
+          </MenubarItem>
+        </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
-        <MenubarTrigger>Form</MenubarTrigger>
+        <MenubarTrigger>Scoring</MenubarTrigger>
+        <MenubarContent>
+          <MenubarArrow />
+          <MenubarItem>
+            Enable Scoring
+            <MenubarShortcut onClick={(e) => e.stopPropagation()}>
+              <Switch
+                size="xs"
+                checked={settings.enableScoring}
+                onClick={handleEnableScoringClick}
+              />
+            </MenubarShortcut>
+          </MenubarItem>
+          <MenubarSeparator />
+          <PassingCriteriaModal>
+            <MenubarItem
+              onSelect={(e) => e.preventDefault()}
+              disabled={!settings.enableScoring}
+            >
+              Manage Passing Criteria
+              <MenubarShortcut>
+                <ExternalLinkIcon size={12} />
+              </MenubarShortcut>
+            </MenubarItem>
+          </PassingCriteriaModal>
+          <RoleWeightModal>
+            <MenubarItem
+              onSelect={(e) => e.preventDefault()}
+              disabled={!settings.enableScoring}
+            >
+              Manage Role Weights
+              <MenubarShortcut>
+                <ExternalLinkIcon size={12} />
+              </MenubarShortcut>
+            </MenubarItem>
+          </RoleWeightModal>
+        </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger>Help</MenubarTrigger>
@@ -84,16 +217,39 @@ function FormBuilderMenubar() {
 }
 
 export function FormBuilderToolbar() {
+  const params = useParams();
+  const formId = params.formId.toString();
+
+  const storeId = useFormBuilderStore((state) => state.id);
+  const title = useFormBuilderStore((state) => state.title);
+  const setTitle = useFormBuilderStore((state) => state.setTitle);
+
+  const settings = useFormBuilderStore((state) => state.settings);
+  const formItems = useFormBuilderStore((state) => state.items);
+
+  const data: TFormBuilderSchema = { id: formId, title, settings, formItems };
+
+  const { isSaving } = useAutosave({
+    data,
+    saveFn: (newObj, oldObj) => saveForm({ newObj, oldObj }),
+    disabled: storeId !== formId,
+  });
+
   return (
     <div className="w-full flex space-y-0.5 justify-start flex-col p-2 border-b bg-white">
       <div className="flex flex-row items-center space-x-2">
         <Input
           className="flex w-fit border z-30 max-h-7 font-medium bg-transparent text-md"
-          defaultValue="Abdominal Pain"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
           variant="outline"
           size="sm"
         />
-        <SaveIcon className="opacity-50" size={16} />
+        {isSaving ? (
+          <Loader className="opacity-50 cursor-pointer" size={16} />
+        ) : (
+          <SaveIcon className="opacity-50 cursor-pointer" size={16} />
+        )}
         <LockOpenIcon className="opacity-50" size={16} />
       </div>
       <div className="bg-primary/5 w-full rounded">
