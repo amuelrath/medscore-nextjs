@@ -58,5 +58,6 @@ export const LAYOUT = {
   CANVAS_HEIGHT: `calc(100vh-${40}px-${70.73}px)`,
   CANVAS_CLASSES:
     'md:col-span-6 col-span-5 overflow-y-scroll relative flex-grow p-4 pb-64 px-16',
-  CANVAS_BACKGROUND_CLASSES: "bg-[radial-gradient(hsl(var(--primary)/0.2)_1px,transparent_1px)] [background-size:16px_16px]"
+  CANVAS_BACKGROUND_CLASSES:
+    'bg-[radial-gradient(hsl(var(--primary)/0.2)_1px,transparent_1px)] [background-size:16px_16px]',
 } as const;
