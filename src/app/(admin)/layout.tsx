@@ -54,7 +54,7 @@ export default async function AppLayout({
       <ReactQueryDevtools />
       <div className="flex flex-col flex-1">
         <AppHeader />
-        <main className="flex-1 rounded-tl outline bg-white outline-accent-secondary flex flex-grow overflow-hidden h-full">
+        <main className="flex-1 rounded-tl outline bg-neutral-50 outline-accent-secondary flex flex-grow overflow-hidden h-full">
           {children}
         </main>
       </div>

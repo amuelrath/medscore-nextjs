@@ -1,7 +1,7 @@
 import { cn } from '@/lib/helpers/utils';
 import Provider from '@/server/provider';
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Inter, Poppins, Roboto } from 'next/font/google';
 import { ReactNode } from 'react';
 import { Toaster } from 'sonner';
 import './globals.css';
@@ -12,6 +12,25 @@ const poppins = Poppins({
   subsets: ['latin', 'latin-ext'],
   style: ['italic', 'normal'],
   preload: false, // making this true causes the font to break.
+  variable: "--poppins"
+});
+
+const roboto = Roboto({
+  weight: ['100', '300', '400', '500', '700', '900'],
+  display: 'auto',
+  subsets: ['latin', 'latin-ext'],
+  style: ['italic', 'normal'],
+  preload: false,
+  variable: '--roboto'
+});
+
+const inter = Inter({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  display: 'auto',
+  subsets: ['latin', 'latin-ext'],
+  style: ['normal'],
+  preload: false,
+  variable: "--inter"
 });
 
 export const metadata: Metadata = {
@@ -49,7 +68,7 @@ export default function RootLayout({
       </head>
       <html lang="en">
         <Provider>
-          <body className={cn(poppins.className, 'bg-white')}>
+          <body className={cn(roboto.className)}>
             {children}
             <Toaster />
           </body>

@@ -142,6 +142,7 @@ const config = {
     require('@tailwindcss/typography'),
     require('tailwindcss-filters'),
     require('tailwindcss-font-variant-numeric'),
+    require('tailwind-scrollbar')
   ],
 } satisfies Config;
 

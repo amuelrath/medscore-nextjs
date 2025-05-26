@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { InputDialog } from '@/components/ui/input-dialog';
-import { cn } from '@/lib/helpers/utils';
 import { getAssessmentsWithRequests } from '@/server/actions/assessments/get-assessments-with-requests';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { DotsHorizontalIcon } from '@radix-ui/react-icons';
@@ -37,18 +36,16 @@ export function AssessmentRequestDropdown({
   const assessment = assessments?.find((a) => a.id === assessmentId);
 
   return (
-    <DropdownMenu modal>
+    <DropdownMenu modal >
       <DropdownMenuTrigger asChild>
         <Button
-          className={cn(
-            'text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center',
-          )}
+          className="text-center mb-3 bg-card hover:bg-primary/5 text-foreground border border-border overflow-hidden origin-center"
           size="xs"
         >
           <DotsHorizontalIcon className="opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="max-w-28 p-1 text-xs flex flex-col space-y-1">
+      <DropdownMenuContent side="left" className="max-w-28 p-1 text-xs flex flex-col">
         <DropdownItemRenameAssessmentForm
           assessmentId={assessmentId}
           currentTitle={assessment?.title || ''}
@@ -66,7 +63,7 @@ export function AssessmentRequestDropdown({
             className="flex items-center justify-between flex-row"
           >
             <span>Cancel</span>
-            <CircleSlashIcon size={16} className="opacity-50" />
+            <CircleSlashIcon size={12} className="opacity-50" />
           </DropdownMenuItem>
         </ConfirmDialog>
         <ConfirmDialog
@@ -81,7 +78,7 @@ export function AssessmentRequestDropdown({
             className="flex items-center justify-between flex-row"
           >
             <span>Delete</span>
-            <TrashIcon size={16} className="opacity-50" />
+            <TrashIcon size={12} className="opacity-50" />
           </DropdownMenuItem>
         </ConfirmDialog>
       </DropdownMenuContent>
@@ -91,9 +88,7 @@ export function AssessmentRequestDropdown({
 
 const ZRenameAssessmentFormSchema = z.object({
   assessmentId: z.string().uuid(),
-  title: z
-    .string()
-    .min(1, { message: 'Fill out the missing fields.' }),
+  title: z.string().min(1, { message: 'Fill out the missing fields.' }),
 });
 
 type TRenameAssessmentForm = z.infer<typeof ZRenameAssessmentFormSchema>;
@@ -119,7 +114,7 @@ function DropdownItemRenameAssessmentForm({
 
   const onSubmit = (data: TRenameAssessmentForm) => {
     mutateRenameAssessment(data);
-    form.setValue("title", data.title);
+    form.setValue('title', data.title);
     setOpen(false); // Close the dialog after successful submission
   };
 
@@ -128,7 +123,7 @@ function DropdownItemRenameAssessmentForm({
       title="Rename Assessment"
       form={form}
       name="title"
-      label="New Title"
+      placeholder="Title"
       submitLabel="Rename"
       onSubmit={onSubmit}
       open={open}
@@ -142,7 +137,7 @@ function DropdownItemRenameAssessmentForm({
         className="flex items-center justify-between flex-row"
       >
         <span>Rename</span>
-        <EditIcon size={16} className="opacity-50" />
+        <EditIcon size={12} className="opacity-50" />
       </DropdownMenuItem>
     </InputDialog>
   );
