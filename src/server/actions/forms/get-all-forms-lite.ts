@@ -1,5 +1,6 @@
-"use server";
-import { db } from "@/db";
+'use server';
+
+import { db } from '@/db';
 
 export async function getAllFormsLite({ userId }: { userId: string }) {
   return db.query.forms.findMany({
@@ -10,9 +11,10 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
       programId: false,
       creatorId: false,
       lastOpenedAt: true,
+      folderId: true,
       type: true,
     },
-      with: {
+    with: {
       programs: {
         columns: {
           id: true,
@@ -56,10 +58,11 @@ export async function getFormLiteById({ formId }: { formId: string }) {
     columns: {
       id: true,
       title: true,
+
       programId: false,
       creatorId: false,
       lastOpenedAt: true,
-      type: true
+      type: true,
     },
     with: {
       programs: {
