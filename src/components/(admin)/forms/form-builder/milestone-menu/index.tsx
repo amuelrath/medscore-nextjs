@@ -11,7 +11,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { COMPETENCIES } from '@/lib/constants/common';
 import { cn } from '@/lib/helpers/utils';
-import FuzzySearch from 'fuzzy-search';
 import { SearchIcon } from 'lucide-react';
 import { useState } from 'react';
 
@@ -125,18 +124,15 @@ export function MilestoneContent() {
         >
           {isSearching ? (
             data.map((s) => {
-              const searcher = new FuzzySearch(
-                s.milestones,
-                ['description', 'name'],
-                {
-                  caseSensitive: false,
-                  sort: true,
-                },
+              const exactMatches = s.milestones.filter(
+                (m) =>
+                  m.description.includes(searchValue) ||
+                  m.name.includes(searchValue),
               );
 
-              return searcher
-                .search(searchValue)
-                .map((m) => <MilestoneCard key={m.id} milestone={m} />);
+              return exactMatches.map((m) => (
+                <MilestoneCard key={m.id} milestone={m} />
+              ));
             })
           ) : (
             <Accordion type="multiple">
