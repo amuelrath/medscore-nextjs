@@ -11,7 +11,6 @@ import { FormsList } from '@/components/(admin)/forms/home/forms-list';
 import { FormsListSearchbar } from '@/components/(admin)/forms/home/forms-list-searchbar';
 import { CreateFormDialog } from '@/components/(admin)/forms/home/modals/create-form-dialog';
 import { cn } from '@/lib/helpers/utils';
-import { snapCursorToTopLeft } from '@/lib/snap-left-to-cursor';
 import { createAssessmentWithRequests } from '@/server/actions/assessments/create-assessment-with-requests';
 import {
   FormsLiteResult,
@@ -29,11 +28,12 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addHours } from 'date-fns';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { useRouter, useSearchParams } from 'next/navigation';
 
 // how far we have to drag before the overlay kicks in
 const ACTIVATION_DISTANCE = 60;
@@ -290,7 +290,7 @@ export function FormsHome() {
       <DndContext
         sensors={sensors}
         onDragEnd={handleDragEnd}
-        modifiers={[snapCursorToTopLeft]}
+        modifiers={[snapCenterToCursor]}
       >
         <div className="h-12 flex-shrink-0 items-center grid grid-cols-3 px-4 border-border bg-card">
           <div className="flex items-center select-none space-x-2">
