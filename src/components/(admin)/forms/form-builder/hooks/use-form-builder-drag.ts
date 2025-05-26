@@ -9,12 +9,18 @@ import {
   DragMoveEvent,
   DragOverEvent,
   DragStartEvent,
+  KeyboardSensor,
+  MouseSensor,
   Over,
+  TouchSensor,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useCallback, useEffect, useState } from 'react';
 
-// Utility functions moved outside component for better memory usage
+const ACTIVATION_DISTANCE = 0;
+
 const calculateCenterDistance = (active: Active, over: Over): number => {
   const activeRect = active.rect.current?.translated;
   const overRect = over.rect;
@@ -104,7 +110,7 @@ export function useFormBuilderDrag() {
         return;
       }
 
-      const isAbove = activeRect.bottom < over.rect.bottom;
+      const isAbove = activeRect.top <= over.rect.top;
       const overIndex = itemIds.findIndex((id) => id === over.id);
       const newDropIndex = isAbove ? overIndex : overIndex + 1;
 
@@ -165,7 +171,7 @@ export function useFormBuilderDrag() {
 
       const xDistance = calculateCenterDistance(active, over);
       if (isWithinDropDistance(xDistance)) {
-        addItem(activeType, itemDropIndex ?? 0);
+        addItem(activeType, itemDropIndex ?? itemIds.length); // add to end of the list as fallback
       }
 
       setItemDropIndex(null);
@@ -178,11 +184,45 @@ export function useFormBuilderDrag() {
     setItemDropIndex(null);
   }, [setActiveItemId, setItemDropIndex]);
 
+  // Configure sensors with minimum distance
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: {
+      distance: ACTIVATION_DISTANCE, // Minimum pixels to move before drag starts
+    },
+    // Bypass the constraint for items that shouldn't have it
+    bypassActivationConstraint: ({ activeNode }) => {
+      // Get the draggable ID from the active node which will tell us what we are dragging
+      const draggableId = activeNode?.id;
+
+      // Bypass constraint for new form items
+      return !draggableId.toString().startsWith('new-item-');
+    },
+  });
+
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: {
+      distance: ACTIVATION_DISTANCE,
+    },
+    // Bypass the constraint for items that shouldn't have it
+    bypassActivationConstraint: ({ activeNode }) => {
+      // Get the draggable ID from the active node
+      const draggableId = activeNode?.id;
+
+      // Bypass constraint (return true) for all items EXCEPT the specific one
+      return !draggableId.toString().startsWith('new-item-');
+    },
+  });
+
+  const keyboardSensor = useSensor(KeyboardSensor);
+
+  const sensors = useSensors(mouseSensor, touchSensor, keyboardSensor);
+
   return {
     handleDragStart,
     handleDragMove,
     handleDragOver,
     handleDragEnd,
     handleDragCancel,
+    sensors,
   };
 }

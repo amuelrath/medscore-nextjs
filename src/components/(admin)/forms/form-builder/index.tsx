@@ -17,7 +17,7 @@ import {
   ZWrittenQuestionSchema,
 } from '@/components/(admin)/forms/form-builder/types';
 import { FormResult, getFormById } from '@/server/actions/forms/get-form-by-id';
-import { closestCorners, DndContext, MeasuringStrategy } from '@dnd-kit/core';
+import { closestCorners, CollisionDetection, DndContext, MeasuringStrategy, rectIntersection } from '@dnd-kit/core';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -82,6 +82,29 @@ function apiToState({ data }: { data: FormResult }): TFormBuilderSchema {
     formItems,
   };
 }
+
+const fixCursorSnapOffset: CollisionDetection = (args) => {
+  // Bail out if keyboard activated
+  if (!args.pointerCoordinates) {
+    return rectIntersection(args);
+  }
+  const { x, y } = args.pointerCoordinates;
+  const { width, height } = args.collisionRect;
+  const updated = {
+    ...args,
+    // The collision rectangle is broken when using snapCenterToCursor. Reset
+    // the collision rectangle based on pointer location and overlay size.
+    collisionRect: {
+      width,
+      height,
+      bottom: y + height / 2,
+      left: x - width / 2,
+      right: x + width / 2,
+      top: y - height / 2,
+    },
+  };
+  return rectIntersection(updated);
+};
 
 export function FormBuilder() {
   // first we should get the form's id from search params
@@ -152,7 +175,7 @@ export function FormBuilder() {
 }
 
 function DragAndDropWrapper() {
-  const { ...dragHandlers } = useFormBuilderDrag();
+  const { sensors, ...dragHandlers } = useFormBuilderDrag();
 
   return (
     <DndContext
@@ -162,7 +185,8 @@ function DragAndDropWrapper() {
       onDragStart={dragHandlers.handleDragStart}
       onDragCancel={dragHandlers.handleDragCancel}
       measuring={measuringConfig}
-      collisionDetection={closestCorners}
+      sensors={sensors}
+      collisionDetection={fixCursorSnapOffset}
     >
       <div className="grid grid-cols-12 min-h-[calc(100vh-40px-70.73px)] max-h-[calc(100vh-40px-70.73px)]">
         <FormBuilderSidebar />

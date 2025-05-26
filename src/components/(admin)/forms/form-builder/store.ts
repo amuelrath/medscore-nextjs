@@ -330,7 +330,7 @@ export const useFormBuilderStore = create<FormBuilderState>()(
       // Add item with proper position updates
       addItem: (type, index) =>
         set((state) => {
-          const insertIndex = index ?? state.items.length;
+          const insertIndex = index ?? state.items.length; // should add to the end of the list
           const newItems = [...state.items];
 
           // Insert with temporary position

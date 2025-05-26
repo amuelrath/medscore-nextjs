@@ -7,9 +7,12 @@ import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/sto
 import { cn } from '@/lib/helpers/utils';
 import { ArrowLeftIcon } from 'lucide-react';
 
-
 export function FormBuilderSidebar() {
-  const { items, selectedItemId, setSelectedItemId } = useFormBuilderStore();
+  const items = useFormBuilderStore((state) => state.items);
+  const selectedItemId = useFormBuilderStore((state) => state.selectedItemId);
+  const setSelectedItemId = useFormBuilderStore(
+    (state) => state.setSelectedItemId,
+  );
 
   const handleDeselectItem = () => {
     setSelectedItemId(null);
@@ -22,7 +25,12 @@ export function FormBuilderSidebar() {
 
   return (
     <aside className="col-span-3 w-full bg-background flex-grow border-r">
-      <header className={cn('grid grid-cols-3 px-2 p-4', selectedItemType ? "h-14" : "h-[91.5px]")}>
+      <header
+        className={cn(
+          'grid grid-cols-3 px-2 p-4',
+          selectedItemType ? 'h-14' : 'h-[91.5px]',
+        )}
+      >
         <ArrowLeftIcon
           className={cn(
             'col-span-1 cursor-pointer',
@@ -44,10 +52,10 @@ export function FormBuilderSidebar() {
             selectedItemType ? 'opacity-60' : 'opacity-0',
           )}
         >
-    {SelectedItemIcon && <SelectedItemIcon className="size-6" />}
-  </span>
+          {SelectedItemIcon && <SelectedItemIcon className="size-6" />}
+        </span>
       </header>
-      <div className="space-y-4">
+      <div className="space-y-4 select-none">
         {selectedItemId ? <SidebarQuestionDetails /> : <SidebarFormItemList />}
       </div>
     </aside>

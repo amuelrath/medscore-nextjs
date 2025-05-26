@@ -44,34 +44,47 @@ const animateLayoutChanges = (args: any) => {
 
 export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
   // Use selector pattern to minimize re-renders
-  const item = useFormBuilderStore(state => state.items.find(i => i.id === id));
-  const activeItemId = useFormBuilderStore(state => state.activeItemId);
-  const selectedItemId = useFormBuilderStore(state => state.selectedItemId);
-  const duplicateItem = useFormBuilderStore(state => state.duplicateItem);
-  const removeItem = useFormBuilderStore(state => state.removeItem);
-  const setSelectedItemId = useFormBuilderStore(state => state.setSelectedItemId);
-  const itemDropIndex = useFormBuilderStore(state => state.itemDropIndex);
-  const itemsLength = useFormBuilderStore(state => state.items.length);
+  const item = useFormBuilderStore((state) =>
+    state.items.find((i) => i.id === id),
+  );
+  const activeItemId = useFormBuilderStore((state) => state.activeItemId);
+  const selectedItemId = useFormBuilderStore((state) => state.selectedItemId);
+  const duplicateItem = useFormBuilderStore((state) => state.duplicateItem);
+  const removeItem = useFormBuilderStore((state) => state.removeItem);
+  const setSelectedItemId = useFormBuilderStore(
+    (state) => state.setSelectedItemId,
+  );
+  const itemDropIndex = useFormBuilderStore((state) => state.itemDropIndex);
+  const itemsLength = useFormBuilderStore((state) => state.items.length);
 
   // Compute derived state
   const isActive = activeItemId === id;
   const isSelected = selectedItemId === id;
 
   // Memoize event handlers
-  const handleDelete = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    removeItem(id);
-  }, [id, removeItem]);
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      removeItem(id);
+    },
+    [id, removeItem],
+  );
 
-  const handleCopy = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    duplicateItem(id);
-  }, [id, duplicateItem]);
+  const handleCopy = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      duplicateItem(id);
+    },
+    [id, duplicateItem],
+  );
 
-  const handleSelect = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedItemId(id);
-  }, [id, setSelectedItemId]);
+  const handleSelect = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setSelectedItemId(id);
+    },
+    [id, setSelectedItemId],
+  );
 
   const {
     attributes,
@@ -88,30 +101,38 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
     animateLayoutChanges,
   });
 
-
   const isActiveTypeNewItem = active?.id.toString().startsWith('new-item');
 
   // Memoize styles
-  const style = useMemo(() => ({
-    transform: isActiveTypeNewItem
-      ? undefined
-      : CSS.Translate.toString(transform),
-    transition: `${transition}, border 200ms ease, border-color 200ms ease`,
-    border: isActive ? '1.55px solid' : '1.5px solid',
-    borderColor: isActive
-      ? 'hsl(var(--foreground) / 0.3)'
-      : 'hsl(var(--border))',
-  }), [isActiveTypeNewItem, transform, transition, isActive]);
+  const style = useMemo(
+    () => ({
+      transform: isActiveTypeNewItem
+        ? undefined
+        : CSS.Translate.toString(transform),
+      transition: `${transition}, border 200ms ease, border-color 200ms ease`,
+      border: isActive ? '1.55px solid' : '1.5px solid',
+      borderColor: isActive
+        ? 'hsl(var(--foreground) / 0.3)'
+        : 'hsl(var(--border))',
+    }),
+    [isActiveTypeNewItem, transform, transition, isActive],
+  );
 
-  const motionAnimateStyle = useMemo(() => ({
-    scale: isActive ? 1.025 : 1
-  }), [isActive]);
+  const motionAnimateStyle = useMemo(
+    () => ({
+      scale: isActive ? 1.025 : 1,
+    }),
+    [isActive],
+  );
 
-  const transitionStyle = useMemo(() => ({
-    transitionProperty: 'filter',
-    transitionDuration: '500ms',
-    transitionTimingFunction: 'ease',
-  }), []);
+  const transitionStyle = useMemo(
+    () => ({
+      transitionProperty: 'filter',
+      transitionDuration: '500ms',
+      transitionTimingFunction: 'ease',
+    }),
+    [],
+  );
 
   if (!item) return null;
 
@@ -130,14 +151,11 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
       style={transitionStyle}
     >
       {!isClone && (
-        <span
-          className={cn(
-            'h-1 mb-2 bg-accent-secondary/40 w-full rounded-full',
-            isSorting && 'transition-opacity duration-100 ease-in',
-            isActiveTypeNewItem && itemDropIndex === index
-              ? 'opacity-100'
-              : 'opacity-0',
-          )}
+        <motion.span
+          animate={{
+            height:
+              isActiveTypeNewItem && itemDropIndex === index ? '36px' : '0px',
+          }}
         />
       )}
       <div
@@ -157,7 +175,9 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
             )}
           />
         </div>
-        <div
+        <button
+          type="button"
+          aria-label="form-item"
           onMouseUp={handleSelect}
           className="space-y-2 select-none flex-grow pr-7 pl-0.5"
         >
@@ -195,12 +215,12 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
               <Content id={id} />
             </AnimatePresence>
           </CardContent>
-        </div>
+        </button>
       </div>
       {!isClone && index === itemsLength - 1 && (
         <span
           className={cn(
-            'h-1 bg-accent-secondary/40 w-full rounded-full',
+            'h-[1px] bg-accent-secondary/40 w-full rounded-full',
             isSorting && 'transition-opacity duration-100 ease-in',
             isActiveTypeNewItem && itemDropIndex === index + 1
               ? 'opacity-100'

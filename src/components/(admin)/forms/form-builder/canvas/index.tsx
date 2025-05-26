@@ -9,8 +9,10 @@ import { cn } from '@/lib/helpers/utils';
 import { DragOverlay, useDroppable } from '@dnd-kit/core';
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 
 export function FormBuilderCanvas() {
+  // for item order
   const [ids, setIds] = useState<string[]>(
     useFormBuilderStore.getState().items.map((i) => i.id),
   );
@@ -58,6 +60,7 @@ export function FormBuilderCanvas() {
     <div
       ref={setNodeRef}
       className={cn(
+        'scrollbar scrollbar-track-transparent scrollbar-thumb-neutral-300',
         LAYOUT.CANVAS_CLASSES,
         LAYOUT.CANVAS_BACKGROUND_CLASSES,
         `min-h-[${LAYOUT.CANVAS_HEIGHT}]`,
