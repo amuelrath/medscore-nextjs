@@ -1,6 +1,6 @@
 'use client';
 
-import { FormCard } from '@/components/(admin)/forms/home/form-card';
+import { FormCard } from '@/components/(admin)/forms/home/form-cards/form-card';
 import { FormsLiteResult } from '@/server/actions/forms/get-all-forms-lite';
 import { AnimatePresence } from 'framer-motion';
 

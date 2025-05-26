@@ -6,9 +6,9 @@ import {
 } from '@/components/(admin)/forms/home/assessment-manager/assessment-creator-dialog';
 import { AssessmentRequestContent } from '@/components/(admin)/forms/home/assessment-request-content';
 import { FoldersList } from '@/components/(admin)/forms/home/folders/folders-list';
-import { FormCardDragOverlay } from '@/components/(admin)/forms/home/form-card';
-import { FormsList } from '@/components/(admin)/forms/home/forms-list';
-import { FormsListSearchbar } from '@/components/(admin)/forms/home/forms-list-searchbar';
+import { FormCardDragOverlay } from '@/components/(admin)/forms/home/form-cards/form-card';
+import { FormsList } from '@/components/(admin)/forms/home/form-cards/forms-list';
+import { FormsListSearchbar } from '@/components/(admin)/forms/home/form-cards/forms-list-searchbar';
 import { CreateFormDialog } from '@/components/(admin)/forms/home/modals/create-form-dialog';
 import { cn } from '@/lib/helpers/utils';
 import { createAssessmentWithRequests } from '@/server/actions/assessments/create-assessment-with-requests';
