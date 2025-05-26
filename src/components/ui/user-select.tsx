@@ -34,6 +34,8 @@ interface UserSelectProps<T extends FieldValues>
   extends UseMultiselectField<T> {
   formId: string;
   disabledIds?: string[] | undefined;
+  disabledFn?: () => string[] | undefined,
+  placeholder?: string;
 }
 
 // todo make this compatible with groups
@@ -45,6 +47,8 @@ export function UserSelect<T extends FieldValues>({
   max = 999,
   formId,
   disabledIds,
+  disabledFn,
+  placeholder
 }: UserSelectProps<T>) {
   const { data: formResult, isLoading } = useQuery({
     queryKey: ["forms", formId],
@@ -84,13 +88,13 @@ export function UserSelect<T extends FieldValues>({
 
   return (
     <Popover>
-      <PopoverTrigger>
+      <PopoverTrigger disabled={disabled}  >
         <div role="button" className="flex max-w-44 flex-row space-x-3">
           {selectedUserIds.length === 0 && (
             <Avatar
               color="border"
-              className="shadow-sm hover:shadow-md hover:border-foreground/50 transition group"
-              content={<PlusIcon className="text-neutral-300 group-hover:text-foreground/50 transition" />}
+              className={cn('shadow-sm border-foreground/50 hover:border-foreground transition group', disabled ? "cursor-not-allowed hover:none" :"hover:shadow-md")}
+              content={<PlusIcon className="text-foreground/50 group-hover:text-foreground transition" />}
             />
           )}
           <AvatarStack
@@ -113,9 +117,9 @@ export function UserSelect<T extends FieldValues>({
           <p>Loading</p>
         ) : (
           <Command>
-            <CommandInput placeholder="Enter Respondent Name or Role" />
+            <CommandInput placeholder={placeholder ?? 'Enter Respondent Name or Role'} />
             <CommandList>
-              <CommandGroup heading="Selected Users">
+              <CommandGroup heading="Select Users">
                 {sortedUsers.map((u) => (
                   <CommandItem
                     key={u.id}
