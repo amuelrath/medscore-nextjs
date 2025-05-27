@@ -28,19 +28,12 @@ export function useWrittenQuestion({ id }: UseWrittenQuestionProps) {
   } as const;
 }
 
-interface WrittenResponseAreaProps {
-  lines?: number;
-}
-
-function WrittenResponseArea({ lines = 3 }: WrittenResponseAreaProps) {
+function WrittenResponseArea() {
   return (
-    <div className="flex flex-col">
-      {Array.from({ length: lines }).map((_, index) => (
-        <span
-          className="border-b border-primary/60 border-dashed"
-          style={{ paddingTop: index > 0 ? '1.25rem' : undefined }}
-        />
-      ))}
+    <div className="flex flex-col space-y-3">
+      <span className="border-b border-primary/60 border-dashed" />{' '}
+      <span className="border-b border-primary/60 border-dashed" />{' '}
+      <span className="border-b border-primary/60 border-dashed" />
     </div>
   );
 }
