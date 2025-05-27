@@ -144,7 +144,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
       initial={{ scale: 1 }}
       animate={motionAnimateStyle}
       className={cn(
-        'col-start-2 col-span-6 flex origin-center flex-col',
+        'col-start-2 group col-span-6 flex origin-center flex-col',
         isActive && 'z-40 drop-shadow-xl ease-in duration-300',
         isDragging && !isClone && 'opacity-0',
       )}
@@ -163,7 +163,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
         style={style}
         className="flex bg-white flex-row rounded shadow-sm mb-2"
       >
-        <div className="flex flex-col p-1 justify-center items-center">
+        <div className="flex flex-col group-hover:opacity-100 opacity-0 transition-opacity p-1 justify-center items-center">
           <GripVerticalIcon
             {...listeners}
             {...attributes}
@@ -192,7 +192,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
             </span>
             <div
               className={cn(
-                'flex text-center justify-center px-4 rounded-b space-x-4 items-center transition-colors ease-out duration-[50ms]',
+                'flex text-center justify-center group-hover:opacity-100 opacity-0 transition px-4 rounded-b space-x-4 items-center ease-out duration-[50ms]',
                 isSelected ? 'bg-primary/90' : 'bg-primary/60',
               )}
             >
