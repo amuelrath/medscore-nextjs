@@ -34,6 +34,7 @@ import { addHours } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
+import { truncate } from '@/lib/helpers/truncate';
 
 // how far we have to drag before the overlay kicks in
 const ACTIVATION_DISTANCE = 60;
@@ -302,7 +303,7 @@ export function FormsHome() {
                 />
                 <span className="text-muted-foreground text-xl">/</span>
                 <span className="text-2xl font-semibold text-foreground">
-                  {selectedFolder.title}
+                  {truncate(selectedFolder.title, 35)}
                 </span>
               </>
             ) : (
