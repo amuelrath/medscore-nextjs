@@ -1,7 +1,7 @@
 import {
   AssessmentRequestTableRow,
   ResponseTableRow,
-} from '@/components/(admin)/forms/home/response-table';
+} from '@/components/(admin)/forms/home/assessment-manager/response-table';
 import { Label } from '@/components/ui/label';
 import Loading from '@/components/ui/loading';
 import { Skeleton } from '@/components/ui/skeleton';
