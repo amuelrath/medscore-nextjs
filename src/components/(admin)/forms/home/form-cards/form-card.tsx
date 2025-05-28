@@ -1,15 +1,7 @@
 'use client';
 
-import { DeleteFormDialogTrigger } from '@/components/(admin)/forms/home/modals/delete-evaluation-dialog';
-import { RenameFormDialogTrigger } from '@/components/(admin)/forms/home/modals/rename-form-dialog';
+import { FormCardContextMenu } from '@/components/(admin)/forms/home/form-cards/form-card-context-menu';
 import { Card } from '@/components/ui/card';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuShortcut,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
 import { TFormType } from '@/db/schema';
 import { formTypeContent } from '@/lib/constants/forms';
 import { truncate } from '@/lib/helpers/truncate';
@@ -17,14 +9,9 @@ import { cn } from '@/lib/helpers/utils';
 import { DragOverlay, useDndContext, useDraggable } from '@dnd-kit/core';
 import { formatDistance } from 'date-fns';
 import { motion } from 'framer-motion';
-import {
-  ClockIcon,
-  ExternalLinkIcon,
-  TextCursorIcon,
-  TrashIcon,
-} from 'lucide-react';
+import { ClockIcon, PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { ReactNode, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 const MotionCard = motion(Card);
 
@@ -81,8 +68,7 @@ export function FormCard({
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        // Add a stable aria-describedby to prevent hydration mismatch
-        aria-describedby={`form-card-${id}`}
+        aria-describedby={`form-card-${id}`} // todo do i need this
       >
         <span className="absolute top-4 left-4" id={`form-card-${id}`} />
         <div className="absolute text-nowrap flex font-medium text-sm select-none flex-col space-y-1 w-full p-2 z-20 h-14 aspect-square backdrop-opacity-20 backdrop-filter bg-card bottom-0">
@@ -106,54 +92,6 @@ export function FormCard({
   );
 }
 
-function FormCardContextMenu({
-  id,
-  title,
-  children,
-  asChild = false,
-}: {
-  id: string;
-  title: string;
-  children: ReactNode;
-  asChild?: boolean;
-}) {
-
-  // Handler for opening in new tab
-  const handleOpenInNewTab = useCallback(() => {
-    window.open(`/forms/${id}`, '_blank');
-  }, [id]);
-
-  return (
-    <ContextMenu modal={false} >
-      <ContextMenuTrigger  asChild={asChild}>{children}</ContextMenuTrigger>
-      <ContextMenuContent >
-        <DeleteFormDialogTrigger title={title} id={id}>
-          <ContextMenuItem onSelect={(e) => e.preventDefault()}>
-            Remove
-            <ContextMenuShortcut>
-              <TrashIcon size={12} />
-            </ContextMenuShortcut>
-          </ContextMenuItem>
-        </DeleteFormDialogTrigger>
-        <RenameFormDialogTrigger formId={id} currentTitle={title}>
-          <ContextMenuItem onSelect={(e) => e.preventDefault()}>
-            Rename
-            <ContextMenuShortcut>
-              <TextCursorIcon size={12} />
-            </ContextMenuShortcut>
-          </ContextMenuItem>
-        </RenameFormDialogTrigger>
-        <ContextMenuItem onSelect={handleOpenInNewTab}>
-          Open in new tab
-          <ContextMenuShortcut>
-            <ExternalLinkIcon size={12} />
-          </ContextMenuShortcut>
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
-  );
-}
-
 export function FormCardDragOverlay() {
   const { active } = useDndContext();
 
@@ -174,7 +112,7 @@ export function FormCardDragOverlay() {
         <Icon size={12} />
         <p className="text-sm font-medium">{truncate(title, 19)}</p>
         <span className="rounded-full bg-primary text-white absolute -top-2 -right-2 size-6 p-1 flex items-center justify-center">
-          +
+          <PlusIcon size={12} />
         </span>
       </motion.div>
     </DragOverlay>
