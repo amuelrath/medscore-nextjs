@@ -27,14 +27,14 @@ const ContextMenuSubTrigger = React.forwardRef<
   <ContextMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground',
+      'flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-primary/5 focus:text-accent-foreground data-[state=open]:bg-primary/5 data-[state=open]:text-accent-foreground',
       inset && 'pl-8',
       className,
     )}
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto h-4 w-4" />
+    <ChevronRight className="ml-auto text-muted-foreground size-3" />
   </ContextMenuPrimitive.SubTrigger>
 ));
 ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName;
@@ -80,7 +80,7 @@ const ContextMenuItem = React.forwardRef<
   <ContextMenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative min-w-[10rem] flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-primary/5 focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative min-w-[10rem] flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-xs outline-none focus:bg-primary/5 focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       inset && 'pl-8',
       className,
     )}

@@ -9,15 +9,13 @@ import { FoldersList } from '@/components/(admin)/forms/home/folders/folders-lis
 import { FormCardDragOverlay } from '@/components/(admin)/forms/home/form-cards/form-card';
 import { FormsList } from '@/components/(admin)/forms/home/form-cards/forms-list';
 import { FormsListSearchbar } from '@/components/(admin)/forms/home/form-cards/forms-list-searchbar';
+import { useFoldersMutations } from '@/components/(admin)/forms/home/hooks/use-folders-mutations';
 import { CreateFormDialog } from '@/components/(admin)/forms/home/modals/create-form-dialog';
+import { truncate } from '@/lib/helpers/truncate';
 import { cn } from '@/lib/helpers/utils';
 import { createAssessmentWithRequests } from '@/server/actions/assessments/create-assessment-with-requests';
-import {
-  FormsLiteResult,
-  getAllFormsLite,
-} from '@/server/actions/forms/get-all-forms-lite';
+import { getAllFormsLite } from '@/server/actions/forms/get-all-forms-lite';
 import { getUserFolders } from '@/server/actions/forms/get-user-folders';
-import { moveFormToFolder } from '@/server/actions/forms/move-form-to-folder';
 import {
   DndContext,
   DragEndEvent,
@@ -34,7 +32,6 @@ import { addHours } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { truncate } from '@/lib/helpers/truncate';
 
 // how far we have to drag before the overlay kicks in
 const ACTIVATION_DISTANCE = 60;
@@ -73,31 +70,7 @@ function DroppableFormsBreadcrumb({
 }
 
 function useFormCardDrag() {
-  const queryClient = useQueryClient();
-
-  const { mutate: mutationAddFormToFolder } = useMutation({
-    mutationFn: moveFormToFolder,
-    onMutate: (vars) => {
-      // optimistically update the folderId to the form
-      queryClient.setQueryData(['forms'], (oldData: FormsLiteResult) =>
-        oldData?.map((f) =>
-          f.id === vars.formId ? { ...f, folderId: vars.folderId } : f,
-        ),
-      );
-    },
-    onError: () => {
-      toast.error('Something went wrong.');
-    },
-    onSuccess: async (data, vars, ctx) => {
-      // todo optimistically update folders query
-      await queryClient.invalidateQueries({ queryKey: ['folders'] });
-      toast.success(
-        data.folderTitle
-          ? `Moved "${data.title}" to ${data.folderTitle}`
-          : `Removed "${data.title}" from folder`,
-      );
-    },
-  });
+  const { mutateAddFormToFolder } = useFoldersMutations();
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -114,7 +87,7 @@ function useFormCardDrag() {
 
         // Only proceed if we have valid IDs after extraction
         if (formId && folderId) {
-          mutationAddFormToFolder({
+          mutateAddFormToFolder({
             formId,
             folderId,
           });
@@ -126,14 +99,14 @@ function useFormCardDrag() {
         const formId = activeId.replace('form-', '');
 
         if (formId) {
-          mutationAddFormToFolder({
+          mutateAddFormToFolder({
             formId,
             folderId: null, // Remove from folder by setting to null
           });
         }
       }
     },
-    [mutationAddFormToFolder],
+    [mutateAddFormToFolder],
   );
 
   // Configure sensors with minimum distance
