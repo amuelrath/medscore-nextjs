@@ -18,19 +18,19 @@ const MotionCard = motion(Card);
 export function FormCard({
   type,
   title,
-  id,
+  formId,
   lastOpenedAt,
 }: {
   type: TFormType;
   title: string;
-  id: string;
+  formId: string;
   lastOpenedAt: Date;
 }) {
   const router = useRouter();
   const Icon = formTypeContent[type];
 
   const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
-    id: `form-${id}`,
+    id: `form-${formId}`,
     data: {
       title,
       type,
@@ -42,16 +42,16 @@ export function FormCard({
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      router.push(`/forms/${id}`);
+      router.push(`/forms/${formId}`);
     },
-    [router, id],
+    [router, formId],
   );
 
   return (
-    <FormCardContextMenu id={id} title={title}>
+    <FormCardContextMenu formId={formId} title={title}>
       <MotionCard
         layout="position"
-        layoutId={id}
+        layoutId={formId}
         animate={{
           scaleX: isDragging ? 0.95 : 1,
           scaleY: isDragging ? 0.2 : 1,
@@ -68,9 +68,9 @@ export function FormCard({
         ref={setNodeRef}
         {...listeners}
         {...attributes}
-        aria-describedby={`form-card-${id}`} // todo do i need this
+        aria-describedby={`form-card-${formId}`} // todo do i need this
       >
-        <span className="absolute top-4 left-4" id={`form-card-${id}`} />
+        <span className="absolute top-4 left-4" id={`form-card-${formId}`} />
         <div className="absolute text-nowrap flex font-medium text-sm select-none flex-col space-y-1 w-full p-2 z-20 h-14 aspect-square backdrop-opacity-20 backdrop-filter bg-card bottom-0">
           <div className="space-x-1.5 items-center flex flex-row">
             <Icon size={12} className="text-foreground" />

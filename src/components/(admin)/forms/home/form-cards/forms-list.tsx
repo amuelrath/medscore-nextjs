@@ -18,7 +18,7 @@ export function FormsList({ filteredForms }: FormsListProps) {
           filteredForms.map((form) => (
             <FormCard
               key={form.id}
-              id={form.id}
+              formId={form.id}
               title={form.title}
               lastOpenedAt={form.lastOpenedAt}
               type={form.type}
