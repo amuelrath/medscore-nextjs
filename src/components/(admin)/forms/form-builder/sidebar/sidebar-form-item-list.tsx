@@ -22,7 +22,8 @@ export function NewFormItem({ itemType, label, Icon }: NewFormItemProps) {
   });
 
   return (
-    <div
+    <motion.div
+      whileHover={{ scale: 0.9 }}
       ref={setNodeRef}
       {...attributes}
       {...listeners}
@@ -33,7 +34,7 @@ export function NewFormItem({ itemType, label, Icon }: NewFormItemProps) {
     >
       <Icon className="opacity-40 origin-center size-8 mb-2" />
       <span className={cn('text-xs text-center')}>{label}</span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -50,6 +51,7 @@ export function NewFormItemOverlay({
     <motion.div
       className="relative origin-center bg-card border border-accent-secondary select-none flex items-center justify-center drop-shadow-xl"
       initial={{
+        scale: 0.9,
         borderRadius: '5%',
         width: '6rem',
         height: '6rem',
