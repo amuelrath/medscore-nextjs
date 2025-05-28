@@ -4,7 +4,7 @@ import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/sto
 import { PassingCriteriaModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/passing-criteria-modal';
 import { RoleWeightModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/role-weight-modal';
 import { TFormBuilderSchema } from '@/components/(admin)/forms/form-builder/types';
-import { useAutosave } from '@/components/(admin)/forms/form-builder/use-autosave';
+import { useAutosave } from '@/components/(admin)/forms/form-builder/hooks/use-autosave';
 import { Input } from '@/components/ui/input';
 import { ManageAccessModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/manage-access-modal';
 import {
