@@ -28,8 +28,8 @@ export function NewFormItem({ itemType, label, Icon }: NewFormItemProps) {
       {...attributes}
       {...listeners}
       className={cn(
-        'flex flex-col border origin-center ease-out transition-colors hover:border-accent-secondary/80 border-border bg-white items-center justify-center rounded-md h-24',
-        isDragging ? 'opacity-0' : 'opacity-100',
+        'flex flex-col border origin-center ease-out transition hover:border-accent-secondary/80 border-border bg-white items-center justify-center rounded-md h-24',
+        isDragging ? 'opacity-30' : 'opacity-100',
       )}
     >
       <Icon className="opacity-40 origin-center size-8 mb-2" />
