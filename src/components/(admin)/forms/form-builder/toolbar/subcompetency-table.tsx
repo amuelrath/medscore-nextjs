@@ -20,7 +20,13 @@ import { cn } from '@/lib/helpers/utils';
 import { SubcompetencyResult } from '@/server/actions/forms/get-subcompetencies';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CheckIcon } from 'lucide-react';
-import { Control, Controller, useFieldArray, useForm } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { z } from 'zod';
 
 export const ZPassingScoreFormSchema = z.object({
@@ -66,17 +72,23 @@ interface SubcompetencyAccordionProps {
 export function SubcompetencyAccordion({
   subcompetencies,
 }: SubcompetencyAccordionProps) {
-  const { settings, setSettings } = useFormBuilderStore();
+  const { settings, setSettings, items } = useFormBuilderStore();
 
-  // get the subcompetencies according to the passing criteria
-  const subcompetenciesFromCriteria = settings.passingCriteria
-    .map(p => subcompetencies.find(s => s.id === p.subcompetencyId))
-    .filter((sub): sub is SubcompetencyResult[number] => sub !== undefined);
+  // Get used milestone IDs from form items
+  const usedMilestoneIds = items
+    .filter((i) => isChoiceItem(i) || isRangeItem(i))
+    .flatMap((i) => i.milestoneIds)
+    .filter((i) => i !== undefined);
 
-  // Initialize the form
+  // Filter subcompetencies that have at least one used milestone
+  const usedSubcompetencies = subcompetencies.filter((sub) =>
+    sub.milestones.some((milestone) => usedMilestoneIds.includes(milestone.id)),
+  );
+
+  // Initialize the form with only used subcompetencies
   const { control, watch, handleSubmit } = useForm<TPassingScoreFormSchema>({
     defaultValues: createAndMergePassingCriteriaSettings(
-      subcompetenciesFromCriteria,
+      usedSubcompetencies,
       settings.passingCriteria,
     ),
     resolver: zodResolver(ZPassingScoreFormSchema),
@@ -96,17 +108,18 @@ export function SubcompetencyAccordion({
 
   return (
     <form id="passing-criteria-form" onSubmit={handleSubmit(submitForm)}>
-      <Accordion type="multiple" className="space-y-4 py-2 duration-700" >
+      <Accordion type="multiple" className="space-y-4 py-2 duration-700">
         {fields.map((field, index) => (
           <SubcompetencyAccordionItem
             key={field.id}
             index={index}
             control={control}
             subcompetency={
-              subcompetenciesFromCriteria.find(
+              usedSubcompetencies.find(
                 (sub) => sub.id === formValues[index].subcompetencyId,
               )!
             }
+            usedMilestoneIds={usedMilestoneIds}
           />
         ))}
       </Accordion>
@@ -143,16 +156,26 @@ interface SubcompetencyAccordionItemProps {
   index: number;
   control: Control<TPassingScoreFormSchema>;
   subcompetency: SubcompetencyResult[number];
+  usedMilestoneIds: string[];
 }
 
 function SubcompetencyAccordionItem({
   index,
   control,
   subcompetency,
+  usedMilestoneIds,
 }: SubcompetencyAccordionItemProps) {
-  const { fields } = useFieldArray<TPassingScoreFormSchema>({
+  // This fields array represents levelThresholds
+  const { fields: levelThresholdFields } =
+    useFieldArray<TPassingScoreFormSchema>({
+      control,
+      name: `passingCriteria.${index}.levelThresholds`,
+    });
+
+  // Watch the specific threshold value we need
+  const currentThreshold = useWatch({
     control,
-    name: `passingCriteria.${index}.levelThresholds`,
+    name: `passingCriteria.${index}.threshold`,
   });
 
   const {
@@ -178,15 +201,17 @@ function SubcompetencyAccordionItem({
             gridTemplateColumns: `repeat(${groupedMilestonesByLevel.size}, minmax(0, 1fr))`,
           }}
         >
-          {fields.map((_, levelIndex) => (
+          {levelThresholdFields.map((_, levelIndex) => (
             <SubcompetencyLevel
+              key={levelIndex}
               index={index}
               levelIndex={levelIndex}
               numberOfLevels={groupedMilestonesByLevel.size}
               control={control}
               milestones={
-                groupedMilestonesByLevel.get((levelIndex + 1).toString())! // this could be a source for error but im feeling lazy today
+                groupedMilestonesByLevel.get((levelIndex + 1).toString())!
               }
+              usedMilestoneIds={usedMilestoneIds}
             />
           ))}
         </div>
@@ -199,7 +224,7 @@ function SubcompetencyAccordionItem({
                   {competencyAbbrev} {subcompetencyLevel}
                 </b>
                 , the candidate must score{' '}
-                <b> above {`${fields[index].threshold * 100}%`}</b>. This sets
+                <b> above {`${(currentThreshold || 0) * 100}%`}</b>. This sets
                 the minimum performance requirement for this competency level.
               </InfoTooltipContent>
             </InfoTooltip>
@@ -212,8 +237,8 @@ function SubcompetencyAccordionItem({
             render={({ field }) => (
               <PassingScoreInput
                 {...field}
-                value={field.value * 100}
-                onChange={(e) => field.onChange(Number(e.target.value) / 100)}
+                value={Math.fround(field.value * 100)}
+                onChange={(e) => field.onChange(Math.fround(Number(e.target.value) / 100))}
                 className="text-white"
               />
             )}
@@ -230,6 +255,7 @@ interface SubcompetencyLevelProps {
   numberOfLevels: number;
   control: Control<TPassingScoreFormSchema>;
   milestones: Milestone[];
+  usedMilestoneIds: string[];
 }
 
 function SubcompetencyLevel({
@@ -238,12 +264,8 @@ function SubcompetencyLevel({
   levelIndex,
   milestones,
   numberOfLevels,
+  usedMilestoneIds,
 }: SubcompetencyLevelProps) {
-  const { items } = useFormBuilderStore();
-  const usedMilestoneIds = items
-    .filter((i) => isChoiceItem(i) || isRangeItem(i))
-    .flatMap((i) => i.milestoneIds);
-
   return (
     <div key={levelIndex} className="flex flex-col justify-between">
       <p
@@ -293,7 +315,7 @@ function SubcompetencyLevel({
                   <InfoTooltipContent>
                     To achieve <b>Level {levelIndex + 1}</b>, the candidate must
                     score
-                    <b> above {`${field.value * 100}%`}</b>. This sets the
+                    <b> above {`${Math.fround(field.value * 100)}%`}</b>. This sets the
                     minimum performance requirement for this proficiency level.
                   </InfoTooltipContent>
                 </InfoTooltip>
@@ -301,8 +323,8 @@ function SubcompetencyLevel({
               </div>
               <PassingScoreInput
                 ref={field.ref}
-                value={field.value * 100}
-                onChange={(e) => field.onChange(Number(e.target.value) / 100)}
+                value={Math.fround(field.value * 100)}
+                onChange={(e) => field.onChange(Math.fround(Number(e.target.value) / 100))}
               />
             </>
           )}

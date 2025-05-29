@@ -32,7 +32,7 @@ const PassingScoreInput = React.forwardRef<HTMLInputElement, PassingScoreInputPr
         ref={ref}
         value={internalValue}
         onChange={handleChange}
-        format={(val) => `>${val}%`}
+        format={(val) => `>${Math.fround(Number(val))}%`}
         size="xs"
         className={cn('w-16 border shadow-inner bg-white/15 border-white text-center rounded-md text-sm', className)}
         variant="outline"
