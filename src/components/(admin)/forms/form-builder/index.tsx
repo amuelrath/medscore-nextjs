@@ -16,6 +16,7 @@ import {
   ZRangeQuestionSchema,
   ZWrittenQuestionSchema,
 } from '@/components/(admin)/forms/form-builder/types';
+import { useUndoRedoShortcuts } from '@/hooks/use-undo-redo-shortcuts';
 import { FormResult, getFormById } from '@/server/actions/forms/get-form-by-id';
 import {
   CollisionDetection,
@@ -121,6 +122,9 @@ export function FormBuilder() {
   );
   const isInitialized = useFormBuilderStore((state) => state.isInitialized);
 
+  const { undo, redo, clear } = useFormBuilderStore.temporal.getState();
+  useUndoRedoShortcuts(undo, redo);
+
   // get the data
   const { data, isLoading, isError } = useQuery({
     queryKey: ['form', formId],
@@ -149,6 +153,8 @@ export function FormBuilder() {
         selectedItemId: null,
         isInitialized: true,
       });
+
+      clear();
       // console.log('Initial data loaded and set, isInitialized = true');
     } else {
       setIsInitialized(false);

@@ -22,9 +22,17 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { saveForm } from '@/server/actions/forms/save-form';
 import { MenubarArrow } from '@radix-ui/react-menubar';
-import { ExternalLinkIcon, Loader, LockOpenIcon, SaveIcon } from 'lucide-react';
+import {
+  ExternalLinkIcon,
+  Loader,
+  LockOpenIcon,
+  RedoIcon,
+  SaveIcon,
+  UndoIcon,
+} from 'lucide-react';
 import { useParams } from 'next/navigation';
 import React from 'react';
+import { Separator } from '@/components/ui/separator';
 
 function FormBuilderMenubar() {
   const settings = useFormBuilderStore((state) => state.settings);
@@ -230,6 +238,9 @@ export function FormBuilderToolbar() {
   const settings = useFormBuilderStore((state) => state.settings);
   const formItems = useFormBuilderStore((state) => state.items);
 
+  // Get undo/redo functions
+  const { undo, redo } = useFormBuilderStore.temporal.getState();
+
   const data: TFormBuilderSchema = { id: formId, title, settings, formItems };
 
   const { isSaving } = useAutosave({
@@ -239,7 +250,7 @@ export function FormBuilderToolbar() {
   });
 
   return (
-    <div className="w-full flex space-y-0.5 justify-start flex-col p-2 border-b bg-white">
+    <div className="w-full flex space-y-0.5 select-none justify-start flex-col p-2 border-b bg-white">
       <div className="flex flex-row items-center space-x-2">
         <Input
           className="flex w-fit border z-30 max-h-7 font-medium bg-transparent text-md"
@@ -254,6 +265,9 @@ export function FormBuilderToolbar() {
           <SaveIcon className="opacity-50 cursor-pointer" size={16} />
         )}
         <LockOpenIcon className="opacity-50" size={16} />
+        <Separator orientation="vertical" />
+        <UndoIcon  onClick={() => undo()} className="opacity-50 hover:opacity-80 transition-opacity cursor-pointer" size={16} />
+        <RedoIcon onClick={() => redo()} className="opacity-50 hover:opacity-80 transition-opacity cursor-pointer" size={16} />
       </div>
       <div className="bg-primary/5 w-full rounded">
         <MemoFormBuilderMenubar />

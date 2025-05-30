@@ -10,6 +10,7 @@ import {
   TWrittenItemSchema,
 } from '@/components/(admin)/forms/form-builder/types';
 import { v4 } from 'uuid';
+import { temporal } from 'zundo';
 import { create, StateCreator, StoreMutators } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
@@ -289,225 +290,236 @@ const updatePositions = (items: TFormItemSchema[]): TFormItemSchema[] =>
 
 export const useFormBuilderStore = create<FormBuilderState>()(
   devtools(
-    subscribeWithSelector((set) => ({
-      isInitialized: false,
-      id: null,
-      setIsInitialized: (val) => set({ isInitialized: val }),
-      title: '',
-      setTitle: (title) => set({ title }),
-      settings: DEFAULT_SETTINGS,
-      setSettings: (settings) => set({ settings }),
-      items: [],
-      activeItemId: null,
-      itemDropIndex: null,
-      selectedItemId: null,
-      setSelectedItemId: (selectedItemId) => set({ selectedItemId }),
+    temporal(
+      subscribeWithSelector((set) => ({
+        isInitialized: false,
+        id: null,
+        setIsInitialized: (val) => set({ isInitialized: val }),
+        title: '',
+        setTitle: (title) => set({ title }),
+        settings: DEFAULT_SETTINGS,
+        setSettings: (settings) => set({ settings }),
+        items: [],
+        activeItemId: null,
+        itemDropIndex: null,
+        selectedItemId: null,
+        setSelectedItemId: (selectedItemId) => set({ selectedItemId }),
 
-      // Set items from API data
-      setItems: (items) => set({ items }),
+        // Set items from API data
+        setItems: (items) => set({ items }),
 
-      // Reorder items with position updates
-      reorderItems: (ids) =>
-        set((state) => {
-          // Create a mapping of id -> item for quick lookup
-          const itemMap = state.items.reduce(
-            (acc: Record<string, TFormItemSchema>, item) => {
-              acc[item.id] = item;
-              return acc;
-            },
-            {},
-          );
+        // Reorder items with position updates
+        reorderItems: (ids) =>
+          set((state) => {
+            // Create a mapping of id -> item for quick lookup
+            const itemMap = state.items.reduce(
+              (acc: Record<string, TFormItemSchema>, item) => {
+                acc[item.id] = item;
+                return acc;
+              },
+              {},
+            );
 
-          // Create a new array of items ordered according to the ids
-          const reorderedItems = ids.map((id) => itemMap[id]);
+            // Create a new array of items ordered according to the ids
+            const reorderedItems = ids.map((id) => itemMap[id]);
 
-          // Update positions based on new order
-          return { items: updatePositions(reorderedItems) };
-        }),
+            // Update positions based on new order
+            return { items: updatePositions(reorderedItems) };
+          }),
 
-      setActiveItemId: (activeItemId) => set({ activeItemId }),
+        setActiveItemId: (activeItemId) => set({ activeItemId }),
 
-      // Add item with proper position updates
-      addItem: (type, index) =>
-        set((state) => {
-          const insertIndex = index ?? state.items.length; // should add to the end of the list
-          const newItems = [...state.items];
+        // Add item with proper position updates
+        addItem: (type, index) =>
+          set((state) => {
+            const insertIndex = index ?? state.items.length; // should add to the end of the list
+            const newItems = [...state.items];
 
-          // Insert with temporary position
-          newItems.splice(insertIndex, 0, {
-            ...DEFAULT_NEW_FORM_ITEMS[type](),
-            position: insertIndex + 1, // Initial position
-          });
-
-          // Update all positions to ensure consistency
-          return { items: updatePositions(newItems), itemDropIndex: null };
-        }),
-
-      // Duplicate item with proper position updates
-      duplicateItem: (id) =>
-        set((state) => {
-          const itemToCopy = state.items.find((i) => i.id === id);
-          const insertIndex = state.items.findIndex((i) => i.id === id) + 1;
-          if (!itemToCopy) throw new Error('Item to copy not found');
-
-          const newItems = [...state.items];
-
-          // If it has options, we need to create new ids for those as well
-          if (isChoiceItem(itemToCopy)) {
-            const newItem = {
-              ...itemToCopy,
-              id: v4(),
+            // Insert with temporary position
+            newItems.splice(insertIndex, 0, {
+              ...DEFAULT_NEW_FORM_ITEMS[type](),
               position: insertIndex + 1, // Initial position
-              options: itemToCopy.options.map((option) => ({
-                ...option,
-                id: v4(), // Create new UUID for each option
-              })),
-            };
+            });
 
-            newItems.splice(insertIndex, 0, newItem);
-          } else {
-            const newId = v4();
-            const newItem = {
-              ...itemToCopy,
-              id: newId,
-              position: insertIndex + 1, // Initial position
-            };
-            newItems.splice(insertIndex, 0, newItem);
-          }
+            // Update all positions to ensure consistency
+            return { items: updatePositions(newItems), itemDropIndex: null };
+          }),
 
-          // Update all positions to ensure consistency
-          return { items: updatePositions(newItems) };
-        }),
+        // Duplicate item with proper position updates
+        duplicateItem: (id) =>
+          set((state) => {
+            const itemToCopy = state.items.find((i) => i.id === id);
+            const insertIndex = state.items.findIndex((i) => i.id === id) + 1;
+            if (!itemToCopy) throw new Error('Item to copy not found');
 
-      // Remove item with proper position updates
-      removeItem: (id) =>
-        set((state) => {
-          const newItems = state.items.filter((i) => i.id !== id);
+            const newItems = [...state.items];
 
-          // Update positions after removal
-          const updatedItems = updatePositions(newItems);
+            // If it has options, we need to create new ids for those as well
+            if (isChoiceItem(itemToCopy)) {
+              const newItem = {
+                ...itemToCopy,
+                id: v4(),
+                position: insertIndex + 1, // Initial position
+                options: itemToCopy.options.map((option) => ({
+                  ...option,
+                  id: v4(), // Create new UUID for each option
+                })),
+              };
 
-          if (state.selectedItemId === id) {
-            return {
-              items: updatedItems,
-              selectedItemId: null,
-            };
-          }
-          return { items: updatedItems };
-        }),
-
-      setItemDropIndex: (idx) => set(() => ({ itemDropIndex: idx })),
-
-      // Update item without changing positions
-      updateItem: (id, updater) =>
-        set((state) => {
-          const index = state.items.findIndex((i) => i.id === id);
-          if (index === -1) throw new Error('Item to update not found');
-          const newItems = [...state.items];
-          newItems[index] = updater(newItems[index]);
-          return { items: newItems };
-        }),
-
-      // Rest of your functions without changes...
-      addMilestone: (itemId, milestoneId) =>
-        set((state) => {
-          const updatedItems = state.items.map((item) => {
-            if (item.id === itemId) {
-              if (isRangeItem(item) || isChoiceItem(item)) {
-                return {
-                  ...item,
-                  milestoneIds: [...(item.milestoneIds || []), milestoneId],
-                };
-              }
+              newItems.splice(insertIndex, 0, newItem);
+            } else {
+              const newId = v4();
+              const newItem = {
+                ...itemToCopy,
+                id: newId,
+                position: insertIndex + 1, // Initial position
+              };
+              newItems.splice(insertIndex, 0, newItem);
             }
-            return item;
-          });
 
-          return { items: updatedItems };
-        }),
+            // Update all positions to ensure consistency
+            return { items: updatePositions(newItems) };
+          }),
 
-      removeMilestone: (itemId, milestoneId) =>
-        set((state) => {
-          const updatedItems = state.items.map((item) => {
-            if (item.id === itemId) {
-              if (isRangeItem(item) || isChoiceItem(item)) {
-                return {
-                  ...item,
-                  milestoneIds: [
-                    ...(item.milestoneIds?.filter((m) => m !== milestoneId) ||
-                      []),
-                  ],
-                };
-              }
+        // Remove item with proper position updates
+        removeItem: (id) =>
+          set((state) => {
+            const newItems = state.items.filter((i) => i.id !== id);
+
+            // Update positions after removal
+            const updatedItems = updatePositions(newItems);
+
+            if (state.selectedItemId === id) {
+              return {
+                items: updatedItems,
+                selectedItemId: null,
+              };
             }
-            return item;
-          });
+            return { items: updatedItems };
+          }),
 
-          return { items: updatedItems };
-        }),
+        setItemDropIndex: (idx) => set(() => ({ itemDropIndex: idx })),
 
-      addOption: (itemId, option) =>
-        set((state) => {
-          const updatedItems = state.items.map((item) => {
-            if (item.id === itemId) {
-              if (isChoiceItem(item)) {
-                return {
-                  ...item,
-                  options: [
-                    ...item.options,
-                    {
-                      ...option,
-                      isNa: false,
-                      pointValue: 0,
-                      position: item.options.length + 1,
-                    },
-                  ],
-                };
-              }
-            }
-            return item;
-          });
+        // Update item without changing positions
+        updateItem: (id, updater) =>
+          set((state) => {
+            const index = state.items.findIndex((i) => i.id === id);
+            if (index === -1) throw new Error('Item to update not found');
+            const newItems = [...state.items];
+            newItems[index] = updater(newItems[index]);
+            return { items: newItems };
+          }),
 
-          return { items: updatedItems };
-        }),
-
-      removeOption: (itemId, optionId) =>
-        set((state) => {
-          const updatedItems = state.items.map((item) => {
-            if (item.id === itemId) {
-              if (isChoiceItem(item)) {
-                return {
-                  ...item,
-                  options: [...item.options.filter((o) => o.id !== optionId)],
-                };
-              }
-            }
-            return item;
-          });
-
-          return { items: updatedItems };
-        }),
-
-      updateOption: (itemId, optionId, newText, newPointValue) =>
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === itemId && isChoiceItem(item)
-              ? {
-                  ...item,
-                  options: item.options.map((opt) =>
-                    opt.id === optionId
-                      ? {
-                          ...opt,
-                          text: newText ?? opt.text,
-                          pointValue: newPointValue ?? opt.pointValue,
-                        }
-                      : opt,
-                  ),
+        // Rest of your functions without changes...
+        addMilestone: (itemId, milestoneId) =>
+          set((state) => {
+            const updatedItems = state.items.map((item) => {
+              if (item.id === itemId) {
+                if (isRangeItem(item) || isChoiceItem(item)) {
+                  return {
+                    ...item,
+                    milestoneIds: [...(item.milestoneIds || []), milestoneId],
+                  };
                 }
-              : item,
-          ),
-        })),
-    })),
+              }
+              return item;
+            });
+
+            return { items: updatedItems };
+          }),
+
+        removeMilestone: (itemId, milestoneId) =>
+          set((state) => {
+            const updatedItems = state.items.map((item) => {
+              if (item.id === itemId) {
+                if (isRangeItem(item) || isChoiceItem(item)) {
+                  return {
+                    ...item,
+                    milestoneIds: [
+                      ...(item.milestoneIds?.filter((m) => m !== milestoneId) ||
+                        []),
+                    ],
+                  };
+                }
+              }
+              return item;
+            });
+
+            return { items: updatedItems };
+          }),
+
+        addOption: (itemId, option) =>
+          set((state) => {
+            const updatedItems = state.items.map((item) => {
+              if (item.id === itemId) {
+                if (isChoiceItem(item)) {
+                  return {
+                    ...item,
+                    options: [
+                      ...item.options,
+                      {
+                        ...option,
+                        isNa: false,
+                        pointValue: 0,
+                        position: item.options.length + 1,
+                      },
+                    ],
+                  };
+                }
+              }
+              return item;
+            });
+
+            return { items: updatedItems };
+          }),
+
+        removeOption: (itemId, optionId) =>
+          set((state) => {
+            const updatedItems = state.items.map((item) => {
+              if (item.id === itemId) {
+                if (isChoiceItem(item)) {
+                  return {
+                    ...item,
+                    options: [...item.options.filter((o) => o.id !== optionId)],
+                  };
+                }
+              }
+              return item;
+            });
+
+            return { items: updatedItems };
+          }),
+
+        updateOption: (itemId, optionId, newText, newPointValue) =>
+          set((state) => ({
+            items: state.items.map((item) =>
+              item.id === itemId && isChoiceItem(item)
+                ? {
+                    ...item,
+                    options: item.options.map((opt) =>
+                      opt.id === optionId
+                        ? {
+                            ...opt,
+                            text: newText ?? opt.text,
+                            pointValue: newPointValue ?? opt.pointValue,
+                          }
+                        : opt,
+                    ),
+                  }
+                : item,
+            ),
+          })),
+      })),
+      {
+        // Only track changes to the 'items' array (questions and their options)
+        partialize: (state) => ({ items: state.items }),
+
+        // Only save to history when items actually change
+        equality: (pastState, currentState) =>
+          JSON.stringify(pastState.items) ===
+          JSON.stringify(currentState.items),
+      },
+    ),
     { name: 'FormBuilder Store', trace: true },
   ),
 );

@@ -107,6 +107,7 @@
     "vaul": "^0.9.0",
     "zod": "^3.23.4",
     "zod-validation-error": "^3.3.1",
+    "zundo": "^2.3.0",
     "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
