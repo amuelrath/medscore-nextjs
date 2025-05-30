@@ -30,3 +30,5 @@ export function FormBuilderOverlay({ state }: FormBuilderOverlayProps) {
 
   return null;
 }
+
+FormBuilderOverlay.displayName = 'FormBuilderOverlay';

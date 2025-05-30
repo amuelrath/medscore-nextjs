@@ -15,7 +15,10 @@ interface UseChoiceQuestionProps {
 }
 
 export function useChoiceQuestion({ id, type }: UseChoiceQuestionProps) {
-  const { config, updateConfig, scoringEnabled } = useFormItemConfig({ id, type });
+  const { config, updateConfig, scoringEnabled } = useFormItemConfig({
+    id,
+    type,
+  });
 
   const hasNAOption = useMemo(
     () => config.options.some((option) => option.isNa),
@@ -102,7 +105,7 @@ export function ChoiceOption({
   onRemove,
   isScored = true,
   variant,
-  scoringEnabled
+  scoringEnabled,
 }: ChoiceOptionProps) {
   const Icon = variant === 'single' ? CircleIcon : SquareIcon;
 
@@ -138,7 +141,6 @@ export function ChoiceOption({
 
   return (
     <div className="flex flex-row items-center space-x-2">
-
       <motion.div
         animate={{ width: containerWidths.main }}
         initial={{ width: '100%' }}
@@ -278,6 +280,7 @@ export function ChoiceQuestion({ id, type }: ChoiceQuestionProps) {
     </div>
   );
 }
+
 // For backwards compatibility/easier imports
 export function SingleChoiceQuestion({ id }: { id: string }) {
   return <ChoiceQuestion id={id} type="SINGLE_CHOICE" />;
@@ -286,3 +289,7 @@ export function SingleChoiceQuestion({ id }: { id: string }) {
 export function MultipleChoiceQuestion({ id }: { id: string }) {
   return <ChoiceQuestion id={id} type="MULTIPLE_CHOICE" />;
 }
+
+SingleChoiceQuestion.displayName = 'SingleChoiceQuestion';
+MultipleChoiceQuestion.displayName = 'MultipleChoiceQuestion';
+ChoiceOption.displayName = 'ChoiceOption';

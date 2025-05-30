@@ -201,3 +201,6 @@ function DragAndDropWrapper() {
     </DndContext>
   );
 }
+
+DragAndDropWrapper.displayName = 'DragAndDropWrapper';
+FormBuilder.displayName = 'FormBuilder';

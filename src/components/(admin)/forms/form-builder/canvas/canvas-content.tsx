@@ -31,3 +31,6 @@ export function CanvasContent() {
     </SortableContext>
   );
 }
+
+
+CanvasContent.displayName = 'CanvasContent'

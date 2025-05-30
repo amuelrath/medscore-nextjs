@@ -99,3 +99,5 @@ export function FormBuilderCanvas() {
     </div>
   );
 }
+
+FormBuilderCanvas.displayName = 'FormBuilderCanvas';
