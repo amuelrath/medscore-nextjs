@@ -16,7 +16,7 @@ import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CopyIcon, GripVerticalIcon, XIcon } from 'lucide-react';
-import React, { JSXElementConstructor, useCallback, useMemo } from 'react';
+import React, { JSXElementConstructor } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 // Memoized form item components map
@@ -43,7 +43,7 @@ const animateLayoutChanges = (args: any) => {
   return isSorting || wasSorting ? defaultAnimateLayoutChanges(args) : true;
 };
 
-export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
+export function FormItem({ id, index, isClone }: FormItemProps) {
   // Use selector pattern to minimize re-renders
   const item = useFormBuilderStore(
     useShallow((state) => state.items.find((i) => i.id === id)),
@@ -63,29 +63,20 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
   const isSelected = selectedItemId === id;
 
   // Memoize event handlers
-  const handleDelete = useCallback(
-    (e: React.MouseEvent | React.KeyboardEvent) => {
-      e.stopPropagation();
-      removeItem(id);
-    },
-    [id, removeItem],
-  );
+  const handleDelete = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    removeItem(id);
+  };
 
-  const handleCopy = useCallback(
-    (e: React.MouseEvent | React.KeyboardEvent) => {
-      e.stopPropagation();
-      duplicateItem(id);
-    },
-    [id, duplicateItem],
-  );
+  const handleCopy = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    duplicateItem(id);
+  };
 
-  const handleSelect = useCallback(
-    (e: React.MouseEvent | React.KeyboardEvent) => {
-      e.stopPropagation();
-      setSelectedItemId(id);
-    },
-    [id, setSelectedItemId],
-  );
+  const handleSelect = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    setSelectedItemId(id);
+  };
 
   const {
     attributes,
@@ -105,35 +96,26 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
   const isActiveTypeNewItem = active?.id.toString().startsWith('new-item');
 
   // Memoize styles
-  const style = useMemo(
-    () => ({
-      transform: isActiveTypeNewItem
-        ? undefined
-        : CSS.Translate.toString(transform),
-      transition: `${transition}, border 200ms ease, border-color 200ms ease`,
-      border: isActive ? '1.55px solid' : '1.5px solid',
-      borderColor: isActive
-        ? 'hsl(var(--foreground) / 0.3)'
-        : 'hsl(var(--border))',
-    }),
-    [isActiveTypeNewItem, transform, transition, isActive],
-  );
+  const style = {
+    transform: isActiveTypeNewItem
+      ? undefined
+      : CSS.Translate.toString(transform),
+    transition: `${transition}, border 200ms ease, border-color 200ms ease`,
+    border: isActive ? '1.55px solid' : '1.5px solid',
+    borderColor: isActive
+      ? 'hsl(var(--foreground) / 0.3)'
+      : 'hsl(var(--border))',
+  };
 
-  const motionAnimateStyle = useMemo(
-    () => ({
-      scale: isActive ? 1.025 : 1,
-    }),
-    [isActive],
-  );
+  const motionAnimateStyle = {
+    scale: isActive ? 1.025 : 1,
+  };
 
-  const transitionStyle = useMemo(
-    () => ({
-      transitionProperty: 'filter',
-      transitionDuration: '500ms',
-      transitionTimingFunction: 'ease',
-    }),
-    [],
-  );
+  const transitionStyle = {
+    transitionProperty: 'filter',
+    transitionDuration: '500ms',
+    transitionTimingFunction: 'ease',
+  };
 
   if (!item) return null;
 
@@ -203,7 +185,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
               className={cn(
                 'flex text-center justify-center transition px-4 rounded-b space-x-4 items-center ease-out duration-[50ms]',
                 isSelected ? 'bg-primary/90' : 'bg-primary/60',
-                isClone && 'opacity-100'
+                isClone && 'opacity-100',
               )}
             >
               <CopyIcon
@@ -254,4 +236,6 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
       )}
     </motion.div>
   );
-});
+}
+
+FormItem.displayName = 'FormItem';
