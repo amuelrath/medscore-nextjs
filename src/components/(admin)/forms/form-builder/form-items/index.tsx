@@ -239,7 +239,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
               <Content id={id} />
             </AnimatePresence>
           </CardContent>
-        </button>
+        </div>
       </div>
       {!isClone && index === itemsLength - 1 && (
         <span
