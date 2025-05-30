@@ -19,7 +19,6 @@ export function useFormItemConfig<T extends FormItemType>({
     (state) => state.settings.enableScoring,
   );
 
-  // Explicitly type the store item
   const item = useFormBuilderStore(
     useShallow((state) => state.items.find((i) => i.id === id)),
   ) as ConfigForType<T> | undefined;
