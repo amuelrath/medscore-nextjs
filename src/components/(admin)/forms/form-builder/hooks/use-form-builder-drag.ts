@@ -17,10 +17,11 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 const ACTIVATION_DISTANCE = 0;
 
+// Memoize these utility functions to avoid recreating them
 const calculateCenterDistance = (active: Active, over: Over): number => {
   const activeRect = active.rect.current?.translated;
   const overRect = over.rect;
@@ -38,42 +39,40 @@ const isWithinDropDistance = (distance: number): boolean =>
 
 const isNewItem = (id: string): boolean => id.startsWith('new-item');
 
-export function hasOrderChanged(
-  arr1: TFormItemSchema[],
-  arr2: TFormItemSchema[],
-): boolean {
-  if (arr1.length !== arr2.length) return true;
-  return arr1.some((item, index) => item.id !== arr2[index].id);
-}
-
 export function useFormBuilderDrag() {
-  const [itemIds, setItemIds] = useState<string[]>(
-    useFormBuilderStore.getState().items.map((i) => i.id),
-  );
+  // Use refs to avoid unnecessary re-renders
+  const itemIdsRef = useRef<string[]>([]);
+  const lastItemDropIndexRef = useRef<number | null>(null);
 
-  useEffect(
-    () =>
-      useFormBuilderStore.subscribe(
-        (state) => state.items,
-        (items, prevItems) => {
-          if (hasOrderChanged(items, prevItems)) {
-            setItemIds([...items.map((i) => i.id)]);
-          }
-        },
-      ),
-    [],
-  );
+  // Get current items directly from store - avoid maintaining separate state
+  const items = useFormBuilderStore((state) => state.items);
+  const itemDropIndex = useFormBuilderStore((state) => state.itemDropIndex);
 
   // Capture actions from store
   const reorderItems = useFormBuilderStore((state) => state.reorderItems);
-  const itemDropIndex = useFormBuilderStore((state) => state.itemDropIndex);
   const setItemDropIndex = useFormBuilderStore(
     (state) => state.setItemDropIndex,
   );
   const setActiveItemId = useFormBuilderStore((state) => state.setActiveItemId);
   const addItem = useFormBuilderStore((state) => state.addItem);
 
-  // Memoize event handlers with useCallback
+  // Memoize itemIds computation to avoid recalculating on every render
+  const itemIds = useMemo(() => {
+    const newItemIds = items.map((i) => i.id);
+    itemIdsRef.current = newItemIds;
+    return newItemIds;
+  }, [items]);
+
+  // Create a memoized lookup map for faster index finding
+  const itemIdToIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    itemIds.forEach((id, index) => {
+      map.set(id, index);
+    });
+    return map;
+  }, [itemIds]);
+
+  // Memoize event handlers with minimal dependencies
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
       const { active } = event;
@@ -89,10 +88,14 @@ export function useFormBuilderDrag() {
       const { over, active } = event;
 
       if (!over) {
-        setItemDropIndex(null);
+        if (lastItemDropIndexRef.current !== null) {
+          setItemDropIndex(null);
+          lastItemDropIndexRef.current = null;
+        }
         return;
       }
 
+      // Early exit for non-new items
       if (
         !isNewItem(active.id.toString()) ||
         over.data.current?.type !== 'item'
@@ -106,19 +109,27 @@ export function useFormBuilderDrag() {
       const xDistance = calculateCenterDistance(active, over);
 
       if (!isWithinDropDistance(xDistance)) {
-        setItemDropIndex(null);
+        if (lastItemDropIndexRef.current !== null) {
+          setItemDropIndex(null);
+          lastItemDropIndexRef.current = null;
+        }
         return;
       }
 
       const isAbove = activeRect.top <= over.rect.top;
-      const overIndex = itemIds.findIndex((id) => id === over.id);
+      const overIndex = itemIdToIndexMap.get(over.id.toString()) ?? -1;
+
+      if (overIndex === -1) return;
+
       const newDropIndex = isAbove ? overIndex : overIndex + 1;
 
-      if (itemDropIndex !== newDropIndex) {
+      // Only update if the index actually changed
+      if (lastItemDropIndexRef.current !== newDropIndex) {
         setItemDropIndex(newDropIndex);
+        lastItemDropIndexRef.current = newDropIndex;
       }
     },
-    [itemIds, itemDropIndex, setItemDropIndex],
+    [itemIdToIndexMap, setItemDropIndex],
   );
 
   const handleDragOver = useCallback(
@@ -130,17 +141,17 @@ export function useFormBuilderDrag() {
       const isDifferentItem = active.id !== over.id;
 
       if (isExistingItem && isDifferentItem) {
-        const oldIndex = itemIds.findIndex((id) => id === active.id);
-        const newIndex = itemIds.findIndex((id) => id === over.id);
+        const oldIndex = itemIdToIndexMap.get(active.id.toString()) ?? -1;
+        const newIndex = itemIdToIndexMap.get(over.id.toString()) ?? -1;
 
-        // Only reorder if indices are valid
-        if (oldIndex !== -1 && newIndex !== -1) {
-          const newOrder = arrayMove(itemIds, oldIndex, newIndex);
+        // Only reorder if indices are valid and actually different
+        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+          const newOrder = arrayMove(itemIdsRef.current, oldIndex, newIndex);
           reorderItems(newOrder);
         }
       }
     },
-    [itemIds, reorderItems],
+    [itemIdToIndexMap, reorderItems],
   );
 
   const handleDragEnd = useCallback(
@@ -153,6 +164,7 @@ export function useFormBuilderDrag() {
 
       if (!over) {
         setItemDropIndex(null);
+        lastItemDropIndexRef.current = null;
         return;
       }
 
@@ -166,6 +178,7 @@ export function useFormBuilderDrag() {
       if (itemIds.length === 0) {
         addItem(activeType, 0);
         setItemDropIndex(null);
+        lastItemDropIndexRef.current = null;
         return;
       }
 
@@ -175,13 +188,15 @@ export function useFormBuilderDrag() {
       }
 
       setItemDropIndex(null);
+      lastItemDropIndexRef.current = null;
     },
-    [itemIds, itemDropIndex, setActiveItemId, setItemDropIndex, addItem],
+    [itemIds.length, itemDropIndex, setActiveItemId, setItemDropIndex, addItem],
   );
 
   const handleDragCancel = useCallback(() => {
     setActiveItemId(null);
     setItemDropIndex(null);
+    lastItemDropIndexRef.current = null;
   }, [setActiveItemId, setItemDropIndex]);
 
   // Configure sensors with minimum distance

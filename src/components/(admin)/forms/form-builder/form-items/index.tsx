@@ -17,6 +17,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CopyIcon, GripVerticalIcon, XIcon } from 'lucide-react';
 import React, { JSXElementConstructor, useCallback, useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 // Memoized form item components map
 const formItemContent: Record<
@@ -44,8 +45,8 @@ const animateLayoutChanges = (args: any) => {
 
 export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
   // Use selector pattern to minimize re-renders
-  const item = useFormBuilderStore((state) =>
-    state.items.find((i) => i.id === id),
+  const item = useFormBuilderStore(
+    useShallow((state) => state.items.find((i) => i.id === id)),
   );
   const activeItemId = useFormBuilderStore((state) => state.activeItemId);
   const selectedItemId = useFormBuilderStore((state) => state.selectedItemId);
@@ -63,7 +64,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
 
   // Memoize event handlers
   const handleDelete = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent | React.KeyboardEvent) => {
       e.stopPropagation();
       removeItem(id);
     },
@@ -71,7 +72,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
   );
 
   const handleCopy = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent | React.KeyboardEvent) => {
       e.stopPropagation();
       duplicateItem(id);
     },
@@ -79,7 +80,7 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
   );
 
   const handleSelect = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent | React.KeyboardEvent) => {
       e.stopPropagation();
       setSelectedItemId(id);
     },
@@ -163,22 +164,30 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
         style={style}
         className="flex bg-white flex-row rounded shadow-sm mb-2"
       >
-        <div className="flex flex-col group-hover:opacity-100 opacity-0 transition-opacity p-1 justify-center items-center">
+        <div className="flex flex-col group-hover:opacity-100 focus-within:opacity-100 opacity-0 transition-opacity p-1 justify-center items-center">
           <GripVerticalIcon
             {...listeners}
             {...attributes}
             role="button"
+            tabIndex={0}
             size={20}
             className={cn(
-              'text-primary/40 cursor-move hover:text-primary/70 transition-colors',
+              'text-primary/40 cursor-move hover:text-primary/70 focus-visible:text-primary/70 transition-colors',
               isClone && 'pointer-events-none',
             )}
           />
         </div>
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           aria-label="form-item"
           onMouseUp={handleSelect}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSelect(e);
+            }
+          }}
           className="space-y-2 select-none flex-grow pr-7 pl-0.5"
         >
           <div className="w-full h-6 flex flex-row justify-between">
@@ -192,17 +201,32 @@ export const FormItem = React.memo(({ id, index, isClone }: FormItemProps) => {
             </span>
             <div
               className={cn(
-                'flex text-center justify-center group-hover:opacity-100 opacity-0 transition px-4 rounded-b space-x-4 items-center ease-out duration-[50ms]',
+                'flex text-center justify-center transition px-4 rounded-b space-x-4 items-center ease-out duration-[50ms]',
                 isSelected ? 'bg-primary/90' : 'bg-primary/60',
+                isClone && 'opacity-100'
               )}
             >
               <CopyIcon
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleCopy(e);
+                  }
+                }}
                 onClick={handleCopy}
                 role="button"
                 size={13}
                 className="text-white hover:text-accent transition-colors"
               />
               <XIcon
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleDelete(e);
+                  }
+                }}
                 onClick={handleDelete}
                 role="button"
                 size={16}

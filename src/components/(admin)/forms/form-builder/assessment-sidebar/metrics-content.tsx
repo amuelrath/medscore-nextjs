@@ -12,12 +12,16 @@ import {
 import { COMPETENCIES } from '@/lib/constants/common';
 import { SubcompetencyResult } from '@/server/actions/forms/get-subcompetencies';
 import { useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 export function MetricsContent() {
-  const items = useFormBuilderStore((state) => state.items);
+
+
+  const items = useFormBuilderStore(useShallow((state) => state.items));
   const scoringEnabled = useFormBuilderStore(
     (state) => state.settings.enableScoring,
   );
+
   const {
     data: subcompetencies,
     isLoading,

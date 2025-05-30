@@ -2,6 +2,7 @@ import {
   ConfigForType,
   FormItemType,
 } from '@/components/(admin)/forms/form-builder/types';
+import { useShallow } from 'zustand/react/shallow';
 import { useFormBuilderStore } from '../store';
 
 interface UseFormItemConfigProps<T extends FormItemType> {
@@ -14,11 +15,13 @@ export function useFormItemConfig<T extends FormItemType>({
   type,
 }: UseFormItemConfigProps<T>) {
   const updateItem = useFormBuilderStore((state) => state.updateItem);
-  const scoringEnabled = useFormBuilderStore((state) => state.settings.enableScoring)
+  const scoringEnabled = useFormBuilderStore(
+    (state) => state.settings.enableScoring,
+  );
 
   // Explicitly type the store item
-  const item = useFormBuilderStore((state) =>
-    state.items.find((i) => i.id === id),
+  const item = useFormBuilderStore(
+    useShallow((state) => state.items.find((i) => i.id === id)),
   ) as ConfigForType<T> | undefined;
 
   if (!item || item.type !== type) {

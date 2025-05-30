@@ -17,7 +17,12 @@ import {
   ZWrittenQuestionSchema,
 } from '@/components/(admin)/forms/form-builder/types';
 import { FormResult, getFormById } from '@/server/actions/forms/get-form-by-id';
-import { closestCorners, CollisionDetection, DndContext, MeasuringStrategy, rectIntersection } from '@dnd-kit/core';
+import {
+  CollisionDetection,
+  DndContext,
+  MeasuringStrategy,
+  rectIntersection,
+} from '@dnd-kit/core';
 import { useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import dynamic from 'next/dynamic';

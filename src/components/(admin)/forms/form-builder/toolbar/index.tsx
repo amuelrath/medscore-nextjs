@@ -1,12 +1,12 @@
 'use client';
 
+import { useAutosave } from '@/components/(admin)/forms/form-builder/hooks/use-autosave';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
+import { ManageAccessModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/manage-access-modal';
 import { PassingCriteriaModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/passing-criteria-modal';
 import { RoleWeightModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/role-weight-modal';
 import { TFormBuilderSchema } from '@/components/(admin)/forms/form-builder/types';
-import { useAutosave } from '@/components/(admin)/forms/form-builder/hooks/use-autosave';
 import { Input } from '@/components/ui/input';
-import { ManageAccessModal } from '@/components/(admin)/forms/form-builder/toolbar/modals/manage-access-modal';
 import {
   Menubar,
   MenubarContent,
@@ -24,6 +24,7 @@ import { saveForm } from '@/server/actions/forms/save-form';
 import { MenubarArrow } from '@radix-ui/react-menubar';
 import { ExternalLinkIcon, Loader, LockOpenIcon, SaveIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import React from 'react';
 
 function FormBuilderMenubar() {
   const settings = useFormBuilderStore((state) => state.settings);
@@ -216,6 +217,8 @@ function FormBuilderMenubar() {
   );
 }
 
+const MemoFormBuilderMenubar = React.memo(FormBuilderMenubar);
+
 export function FormBuilderToolbar() {
   const params = useParams();
   const formId = params.formId.toString();
@@ -253,7 +256,7 @@ export function FormBuilderToolbar() {
         <LockOpenIcon className="opacity-50" size={16} />
       </div>
       <div className="bg-primary/5 w-full rounded">
-        <FormBuilderMenubar />
+        <MemoFormBuilderMenubar />
       </div>
     </div>
   );
