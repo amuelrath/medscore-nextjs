@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   compress: true,
-  reactStrictMode: false
+  reactStrictMode: false,
+  experimental: {
+    reactCompiler: {
+      compilationMode: "infer"
+    }
+  }
 };
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")();

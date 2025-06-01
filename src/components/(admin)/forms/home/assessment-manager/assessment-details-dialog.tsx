@@ -200,12 +200,12 @@ export function AssessmentDetailsDialog({
             <DialogHeader>
               <DialogTitle>{assessment.title}</DialogTitle>
               <DialogDescription className="flex flex-col space-y-1">
-                <p className="flex flex-row items-center space-x-2">
+                <span className="flex flex-row items-center space-x-2">
                   <span>
                     <ClipboardList className="text-neutral-400" size={14} />
                   </span>
                   <span>{assessment.form.title}</span>
-                </p>
+                </span>
               </DialogDescription>
             </DialogHeader>
             <div className="grid grid-cols-2 mt-4 gap-4 gap-y-2">
@@ -233,7 +233,7 @@ export function AssessmentDetailsDialog({
                 </div>
                 <Separator className="mt-3" />
                 <div className="flex flex-col justify-center pt-3 items-center text-xs space-x-2">
-                  <p className="flex flex-row space-x-1">
+                  <span className="flex flex-row space-x-1">
                     <span>Assessment expires in</span>
                     <strong>
                       <CountdownTimer
@@ -241,7 +241,7 @@ export function AssessmentDetailsDialog({
                         showSeconds={false}
                       />
                     </strong>
-                  </p>
+                  </span>
                 </div>
               </div>
               <div className="col-span-1 flex flex-col space-y-4">

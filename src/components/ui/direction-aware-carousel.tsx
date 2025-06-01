@@ -151,7 +151,8 @@ export function DirectionAwareDots() {
   return (
     <div className="flex justify-center flex-row space-x-2 items-center">
       {tabs.map((_, index) => (
-        <motion.circle
+        <motion.span
+          /* eslint-disable-next-line react/no-array-index-key */
           key={index}
           className={cn(
             'rounded-full origin-center bg-primary/15 transition-all',
@@ -199,6 +200,7 @@ function DirectionAwareContent({ className }: { className?: string }) {
     }),
   };
 
+  // @ts-ignore
   return (
     <LazyMotion features={domAnimation}>
       <MotionConfig transition={{ duration: 0.4, type: 'spring', bounce: 0.1 }}>
@@ -219,6 +221,7 @@ function DirectionAwareContent({ className }: { className?: string }) {
             >
               <m.div
                 key={activeTab}
+                // @ts-ignore
                 variants={variants}
                 initial="initial"
                 animate="active"

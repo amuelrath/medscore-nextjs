@@ -92,7 +92,7 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
         <p className="text-sm font-medium text-nowrap text-left">
           {truncate(response.formTitle, 40)}
         </p>
-        <p className="text-sm text-nowrap items-center text-left text-neutral-500">
+        <div className="text-sm text-nowrap items-center text-left text-neutral-500">
           <span className="flex flex-row space-x-1 items-center">
             <ClockIcon className="text-neutral-400" size={12} />
             <CountdownTimer
@@ -100,7 +100,7 @@ export function ResponseTableRow({ ...response }: ResponseProps) {
               showSeconds={false}
             />
           </span>
-        </p>
+        </div>
       </span>
       <span className="col-span-1 pl-8 h-full flex flex-row justify-start items-center">
         <Avatar
@@ -167,12 +167,12 @@ export function AssessmentRequestTableRow({
         <p className="text-sm font-medium text-nowrap text-left">
           {truncate(request.title, 15)}
         </p>
-        <p className="text-xs text-nowrap items-center text-left mb-3 text-neutral-500">
+        <div className="text-xs text-nowrap items-center text-left mb-3 text-neutral-500">
           <span className="flex flex-row space-x-1 items-center">
             <ClipboardListIcon className="text-neutral-400" size={12} />
             <p>{truncate(request.form.title, 18)}</p>
           </span>
-        </p>
+        </div>
       </span>
 
       <span className="col-span-1 h-full pb-3 flex flex-row justify-start pl-8 items-center">

@@ -32,7 +32,7 @@ import { FieldValues } from "react-hook-form";
 
 interface UserSelectProps<T extends FieldValues>
   extends UseMultiselectField<T> {
-  formId: string;
+  formId?: string | undefined;
   disabledIds?: string[] | undefined;
   disabledFn?: () => string[] | undefined,
   placeholder?: string;

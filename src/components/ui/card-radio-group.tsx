@@ -111,7 +111,7 @@ function CardRadioItemLabel({ children }: CardRadioItemLabelProps) {
 }
 
 function CardRadioItemDescription({ children }: CardRadioItemDescriptionProps) {
-  return <p className="text-xs text-neutral-400">{children}</p>;
+  return <p className="text-xs text-left text-neutral-400">{children}</p>;
 }
 
 

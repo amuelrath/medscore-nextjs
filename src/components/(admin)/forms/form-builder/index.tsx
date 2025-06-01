@@ -115,7 +115,7 @@ const fixCursorSnapOffset: CollisionDetection = (args) => {
 export function FormBuilder() {
   // first we should get the form's id from search params
   const params = useParams();
-  const formId = params.formId.toString();
+  const formId = params.formId?.toString();
 
   const setIsInitialized = useFormBuilderStore(
     (state) => state.setIsInitialized,

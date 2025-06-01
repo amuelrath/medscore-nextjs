@@ -16,7 +16,7 @@ export function SidebarCompetencyContent({
       {subcompetencies
         .sort((a, b) => a.level - b.level)
         .map((s) => (
-          <AccordionItem value={s.id}>
+          <AccordionItem key={s.id} value={s.id}>
             <AccordionTrigger className="flex flex-row items-center space-x-6">
               <span className="size-6 text-xs flex items-center flex-row justify-center aspect-square rounded-full border text-black/90">
                 {s.level}

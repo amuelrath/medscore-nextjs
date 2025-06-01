@@ -8,9 +8,11 @@ export async function getFormById({
   formId,
   userId,
 }: {
-  formId: string;
+  formId?: string | undefined;
   userId: string;
 }) {
+  if (!formId) throw new Error("Missing FormID")
+
   return db.query.forms.findFirst({
     with: {
       assessments: true,
