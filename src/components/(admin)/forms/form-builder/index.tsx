@@ -16,6 +16,7 @@ import {
   ZRangeQuestionSchema,
   ZWrittenQuestionSchema,
 } from '@/components/(admin)/forms/form-builder/types';
+import Loading from '@/components/ui/loading';
 import { useUndoRedoShortcuts } from '@/hooks/use-undo-redo-shortcuts';
 import { FormResult, getFormById } from '@/server/actions/forms/get-form-by-id';
 import {
@@ -25,7 +26,6 @@ import {
   rectIntersection,
 } from '@dnd-kit/core';
 import { useQuery } from '@tanstack/react-query';
-import { Loader } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useEffect } from 'react';
@@ -36,7 +36,7 @@ const FormBuilderCanvas = dynamic(
     import('@/components/(admin)/forms/form-builder/canvas').then(
       (module) => module.FormBuilderCanvas,
     ),
-  { ssr: false },
+  { ssr: false, loading: (loadingProps) => <CanvasFallback /> },
 );
 
 const measuringConfig = {
@@ -174,11 +174,8 @@ export function FormBuilder() {
           <DragAndDropWrapper />
         </>
       ) : (
-        <div className="flex items-center justify-center h-full">
-          <div className="flex flex-col items-center space-y-4">
-            <Loader size={24} />
-            <p>Preparing form builder...</p>
-          </div>
+        <div className="h-full outline flex-grow flex flex-col items-center" >
+        <Loading />
         </div>
       )}
     </section>
@@ -205,6 +202,16 @@ function DragAndDropWrapper() {
         <AssessmentSidebar />
       </div>
     </DndContext>
+  );
+}
+
+function CanvasFallback() {
+  return (
+    <div
+      className={`col-span-5 calc(100vh-${40}px-${70.73}px) bg-[radial-gradient(hsl(var(--primary)/0.2)_1px,transparent_1px)] [background-size:16px_16px]`}
+    >
+      <Loading />
+    </div>
   );
 }
 
