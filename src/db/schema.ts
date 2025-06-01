@@ -1,4 +1,4 @@
-import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
+import { ZFormBuilderSettingsSchema } from '@/components/(admin)/forms/form-builder/types';
 import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
@@ -34,14 +34,17 @@ export const formItemTypeEnum = pgEnum('form_item_type', [
   'SINGLE_CHOICE',
   'HEADER',
   'WRITTEN',
+  'RANGE',
+  'PARAGRAPH',
 ]);
-export const ZFormEnum = z.enum([
-  'MULTIPLE_CHOICE',
-  'SINGLE_CHOICE',
-  'HEADER',
-  'WRITTEN',
-]);
-export type TFormItemType = z.infer<typeof ZFormEnum>;
+
+export type TFormItemType =
+  | 'MULTIPLE_CHOICE'
+  | 'SINGLE_CHOICE'
+  | 'HEADER'
+  | 'WRITTEN'
+  | 'RANGE'
+  | 'PARAGRAPH';
 
 export const formTypeEnum = pgEnum('form_type', [
   'OSCE',
@@ -189,6 +192,7 @@ export const userRelations = relations(users, ({ many }) => ({
   roles: many(rolesOnUsers),
   groups: many(groups),
   assessments: many(assessments),
+  formFolders: many(formFolders),
 }));
 
 export const usersOnPrograms = pgTable('users_on_programs', {
@@ -323,11 +327,15 @@ export const forms = pgTable('forms', {
   title: text('title').notNull().default('Untitled Evaluation'),
   lastOpenedAt: timestamp('last_opened_at').notNull().defaultNow(),
   type: formTypeEnum('type').notNull(),
-  settings: jsonb('settings').$type<z.infer<typeof ZFormSettingsSchema>>(),
+  settings:
+    jsonb('settings').$type<z.infer<typeof ZFormBuilderSettingsSchema>>(),
   programId: uuid('program_id')
-    .references((): AnyPgColumn => programs.id)
+    .references(() => programs.id)
     .notNull(),
-  creatorId: uuid('creator_id').references((): AnyPgColumn => users.id),
+  creatorId: uuid('creator_id').references(() => users.id),
+  folderId: uuid('folder_id').references(() => formFolders.id, {
+    onDelete: 'set null',
+  }), // Allow forms without folders
 });
 export type Form = typeof forms.$inferSelect;
 export type NewForm = typeof forms.$inferInsert;
@@ -342,6 +350,10 @@ export const formRelations = relations(forms, ({ one, many }) => ({
   }),
   formItems: many(formItems),
   assessments: many(assessments),
+  formFolder: one(formFolders, {
+    fields: [forms.folderId],
+    references: [formFolders.id],
+  }),
 }));
 
 // todo nightmare refactor to normalize this
@@ -359,6 +371,8 @@ export const formItems = pgTable('form_items', {
   position: integer('position').notNull(),
   isRequired: boolean('is_required').notNull().default(true),
   isScored: boolean('is_scored').notNull().default(true),
+  minValue: integer('min_value'),
+  maxValue: integer('max_value'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   // todo how to figure out updatedAt
 });
@@ -407,7 +421,7 @@ export const milestonesOnFormItems = pgTable(
       .references((): AnyPgColumn => formItems.id, { onDelete: 'cascade' }),
     milestoneId: uuid('milestone_id')
       .notNull()
-      .references((): AnyPgColumn => milestones.id),
+      .references((): AnyPgColumn => milestones.id, { onDelete: 'cascade' }),
   },
   (table) => ({
     id: primaryKey({
@@ -419,6 +433,7 @@ export const milestonesOnFormItems = pgTable(
     }),
   }),
 );
+
 export type MilestonesOnFormItem = typeof milestonesOnFormItems.$inferSelect;
 export type NewMilestoneOnFormItem = typeof milestonesOnFormItems.$inferInsert;
 export const milestonesOnFormItemRelations = relations(
@@ -554,6 +569,25 @@ export const assessmentRelations = relations(assessments, ({ one, many }) => ({
   responses: many(responses),
   creator: one(users, {
     fields: [assessments.creatorId],
+    references: [users.id],
+  }),
+}));
+
+export const formFolders = pgTable('form_folders', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  creatorId: uuid('creator_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull().default('My Folder'),
+});
+export type FormFolder = typeof formFolders.$inferSelect;
+export type NewFormFolder = typeof formFolders.$inferInsert;
+export const formFolderRelations = relations(formFolders, ({ one, many }) => ({
+  forms: many(forms),
+  creator: one(users, {
+    fields: [formFolders.creatorId],
     references: [users.id],
   }),
 }));

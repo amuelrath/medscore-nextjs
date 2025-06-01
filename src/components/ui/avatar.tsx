@@ -55,7 +55,7 @@ export function Avatar({
   );
 }
 
-interface AvatarStackProps {
+export interface AvatarStackProps {
   avatars: AvatarProps[];
   maxAvatars?: number;
 }

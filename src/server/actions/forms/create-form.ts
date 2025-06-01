@@ -1,9 +1,9 @@
-"use server";
+'use server';
 
-import { db } from "@/db";
-import { forms, TFormType } from "@/db/schema";
-import { getFormLiteById } from "@/server/actions/forms/get-all-forms-lite";
+import { db } from '@/db';
+import { forms, TFormType } from '@/db/schema';
 import { DEFAULT_FORM_SETTINGS } from '@/lib/constants/forms';
+import { getFormLiteById } from '@/server/actions/forms/get-all-forms-lite';
 
 export async function createForm({
   title,
@@ -24,6 +24,7 @@ export async function createForm({
         programId,
         settings: defaultSettings,
         type,
+
         creatorId: process.env.NEXT_PUBLIC_DEV_USER_ID!,
       })
       .returning();

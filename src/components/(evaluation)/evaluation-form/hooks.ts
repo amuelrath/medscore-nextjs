@@ -3,7 +3,7 @@ import {
   transformToSchema,
   ZEvaluationFormSchema,
 } from '@/components/(evaluation)/evaluation-form/schemas';
-import { ZFormSettingsSchema } from '@/lib/zod/form-schema';
+import { ZFormSettingsSchema } from '@/lib/helpers/zod/form-schema';
 import {
   EvaluationFormResult,
   getEvaluationForm,
@@ -146,7 +146,7 @@ export function useEvaluationForm({
     });
 
     if (hasErrors) {
-      toast.error('Please answer all required questions');
+      toast.error('Please answer all required form-items');
       return;
     }
 

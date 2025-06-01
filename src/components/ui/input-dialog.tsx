@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
@@ -12,13 +11,18 @@ import { FormErrorMessage } from '@/components/ui/form-error-message';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/helpers/utils';
-import React, { FormEvent } from 'react';
+import { EditIcon, LucideProps } from 'lucide-react';
+import React, {
+  FormEvent,
+  ForwardRefExoticComponent,
+  RefAttributes,
+} from 'react';
 import { FieldPath, FieldValues, UseFormReturn } from 'react-hook-form';
 
 interface InputDialogProps<TFieldValues extends FieldValues> {
   name: FieldPath<TFieldValues>;
   form: UseFormReturn<TFieldValues>;
-  label: string;
+  placeholder?: string;
   title: string;
   description?: string;
   children: React.ReactNode;
@@ -26,12 +30,16 @@ interface InputDialogProps<TFieldValues extends FieldValues> {
   onSubmit: (data: TFieldValues) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  asChild?: boolean;
+  Icon?: ForwardRefExoticComponent<
+    Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
+  >;
 }
 
 export function InputDialog<TFieldValues extends FieldValues>({
   name,
   form,
-  label,
+  placeholder,
   children,
   title,
   submitLabel = 'Submit',
@@ -39,6 +47,8 @@ export function InputDialog<TFieldValues extends FieldValues>({
   onSubmit,
   open,
   setOpen,
+  asChild = true,
+  Icon = EditIcon,
 }: InputDialogProps<TFieldValues>) {
   const {
     register,
@@ -58,33 +68,39 @@ export function InputDialog<TFieldValues extends FieldValues>({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogTrigger asChild={asChild}>{children}</DialogTrigger>
+      <DialogContent>
+        <DialogTitle className="pointer-events-none flex items-center space-x-2">
+          <span className="p-1.5 rounded-full bg-primary/10">
+            <Icon size={16} className="text-foreground" />
+          </span>
+        </DialogTitle>
+        <div className="space-y-1">
+          <DialogTitle>
+            <p>{title}</p>
+          </DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </div>
+        <hr />
         <form onSubmit={handleSubmission}>
-          <DialogHeader>
-            <DialogTitle>{title}</DialogTitle>
-            {description && (
-              <DialogDescription>{description}</DialogDescription>
-            )}
-          </DialogHeader>
-          <div className="py-4">
+          <div className="pb-4">
             <div className="flex flex-col space-y-2">
-              <Label htmlFor={name} variant="light" className="text-left">
-                {label}
-              </Label>
+
               <Input
                 id={name}
                 className={cn(errors[name] && 'border-destructive')}
+                placeholder={placeholder}
                 ref={register(name).ref}
                 onChange={register(name).onChange}
                 name={register(name).name}
               />
-            {errors[name] && (
-              <FormErrorMessage message={errors[name]?.message as string} />
-            )}
+              {errors[name] && (
+                <FormErrorMessage message={errors[name]?.message as string} />
+              )}
             </div>
           </div>
-          <DialogFooter>
+<hr/>
+          <DialogFooter className="mt-4" >
             <Button type="submit">{submitLabel}</Button>
           </DialogFooter>
         </form>

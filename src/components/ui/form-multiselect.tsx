@@ -14,7 +14,7 @@ import {
 } from '@/hooks/use-multiselect-field';
 import { FORM_TYPE_COLORS, formTypeContent } from '@/lib/constants/forms';
 import { cn } from '@/lib/helpers/utils';
-import { truncate } from '@/lib/truncate';
+import { truncate } from '@/lib/helpers/truncate';
 import { getAllFormsLite } from '@/server/actions/forms/get-all-forms-lite';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';

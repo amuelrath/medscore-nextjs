@@ -1,8 +1,9 @@
-"use server";
-import { db } from "@/db";
+'use server';
+
+import { db } from '@/db';
 
 export async function getSubcompetencies({ formId }: { formId: string }) {
-  return await db.transaction(async (tx) => {
+  return db.transaction(async (tx) => {
     const form = await tx.query.forms.findFirst({
       with: {
         programs: true,
@@ -15,9 +16,11 @@ export async function getSubcompetencies({ formId }: { formId: string }) {
         milestones: true,
         competencies: true,
       },
-      where: (s, { eq }) => eq(s.specialtyId, form?.programs.specialtyId || ""),
+      where: (s, { eq }) => eq(s.specialtyId, form?.programs.specialtyId || ''),
     });
   });
 }
 
-export type SubcompetencyResult = NonNullable<Awaited<ReturnType<typeof getSubcompetencies>>>
+export type SubcompetencyResult = NonNullable<
+  Awaited<ReturnType<typeof getSubcompetencies>>
+>;

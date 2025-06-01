@@ -8,10 +8,9 @@ import { WrittenQuestion } from '@/components/(evaluation)/evaluation-form/quest
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { User } from '@/db/schema';
-import { getInitials } from '@/lib/get-initials';
-import { getFullName } from '@/lib/helpers/getFullName';
+import { getInitials } from '@/lib/helpers/get-initials';
+import { getFullName } from '@/lib/helpers/get-full-name';
 import { TODO } from '@/types';
-import { DevTool } from '@hookform/devtools';
 import { ClipboardListIcon } from 'lucide-react';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 
@@ -56,7 +55,7 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
                 required={f.isRequired}
                 text={f.text}
                 control={methods.control}
-                name={`answers.${questionIndex}.selectedOptionIds` as const}
+                name={`answers.${questionIndex}.selectedOptionIds`}
               />
             );
             questionCount += 1;
@@ -67,7 +66,7 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
                 key={f.id}
                 control={methods.control}
                 required={f.isRequired}
-                name={`answers.${questionIndex}.textValue` as const}
+                name={`answers.${questionIndex}.textValue`}
                 text={f.text}
               />
             );
@@ -79,7 +78,7 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
                 key={f.id}
                 control={methods.control}
                 required
-                name={`answers.${questionIndex}.selectedOptionId` as const}
+                name={`answers.${questionIndex}.selectedOptionId`}
                 options={f.options || []}
                 text={f.text}
               />
@@ -105,7 +104,6 @@ export function WebEvaluationForm({ responseId }: { responseId: string }) {
 
   return (
     <main className="">
-      <DevTool control={methods.control} />
       <WebEvaluationFormHeader
         title={form.title}
         evaluatee={response.evaluatee}

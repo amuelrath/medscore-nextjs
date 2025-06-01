@@ -23,6 +23,9 @@ const config = {
     },
 
     extend: {
+      height: {
+        '18': '72px',
+      },
       colors: {
         'accent-secondary': 'hsl(var(--accent-secondary))',
         'accent-secondary-background':
@@ -108,8 +111,8 @@ const config = {
         shine: 'shine 8s ease-in-out infinite',
         marquee: 'marquee var(--duration) linear infinite',
         'marquee-vertical': 'marquee-vertical var(--duration) linear infinite',
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
+        'accordion-down': 'accordion-down 0.3s ease-out',
+        'accordion-up': 'accordion-up 0.3s ease-out',
       },
       fontSize: {
         '2xs': ['0.65rem', { lineHeight: '0.75rem' }],
@@ -139,6 +142,7 @@ const config = {
     require('@tailwindcss/typography'),
     require('tailwindcss-filters'),
     require('tailwindcss-font-variant-numeric'),
+    require('tailwind-scrollbar')
   ],
 } satisfies Config;
 

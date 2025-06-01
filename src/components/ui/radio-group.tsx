@@ -27,7 +27,7 @@ const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
 >(({ className = '', children, ...props }, ref) => (
-  <label className="w-full flex flex-row py-1 border-b space-x-4 items-center cursor-pointer">
+  <label className="w-full flex flex-row py-1 space-x-4 items-center cursor-pointer">
     <RadioGroupPrimitive.Item
       ref={ref}
       className={cn(
