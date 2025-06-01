@@ -1,6 +1,6 @@
 'use client'
 
-import { FormItem } from '@/components/(admin)/forms/form-builder/form-items';
+import { FormItem, FormItemWithSortable } from '@/components/(admin)/forms/form-builder/form-items';
 import { useFormBuilderStore } from '@/components/(admin)/forms/form-builder/store';
 import {
   SortableContext,
@@ -20,7 +20,7 @@ export function CanvasContent() {
   const formItems = useMemo(
     () =>
       itemIds.map((id, index) => (
-        <FormItem id={id} key={id} index={index} isClone={false} />
+        <FormItemWithSortable id={id} key={id} index={index} isClone={false} />
       )),
     [itemIds],
   );

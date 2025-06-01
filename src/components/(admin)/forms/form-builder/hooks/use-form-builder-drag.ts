@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useCallback, useMemo, useRef } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
 const ACTIVATION_DISTANCE = 0;
 
@@ -45,7 +46,7 @@ export function useFormBuilderDrag() {
   const lastItemDropIndexRef = useRef<number | null>(null);
 
   // Get current items directly from store - avoid maintaining separate state
-  const items = useFormBuilderStore((state) => state.items);
+  const items = useFormBuilderStore(useShallow((state) => state.items));
   const itemDropIndex = useFormBuilderStore((state) => state.itemDropIndex);
 
   // Capture actions from store

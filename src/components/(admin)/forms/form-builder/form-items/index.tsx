@@ -19,65 +19,20 @@ import { CopyIcon, GripVerticalIcon, XIcon } from 'lucide-react';
 import React, { JSXElementConstructor } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-// Memoized form item components map
-const formItemContent: Record<
-  TFormItemSchema['type'],
-  JSXElementConstructor<{ id: string }>
-> = {
-  WRITTEN: React.memo(WrittenQuestion),
-  HEADER: React.memo(HeaderItem),
-  PARAGRAPH: React.memo(ParagraphItem),
-  RANGE: React.memo(RangeQuestion),
-  SINGLE_CHOICE: React.memo(SingleChoiceQuestion),
-  MULTIPLE_CHOICE: React.memo(MultipleChoiceQuestion),
-};
-
-interface FormItemProps {
-  id: string;
-  index: number;
-  isClone?: boolean;
-}
-
 const animateLayoutChanges = (args: any) => {
   const { isSorting, wasSorting } = args;
   return isSorting || wasSorting ? defaultAnimateLayoutChanges(args) : true;
 };
 
-export function FormItem({ id, index, isClone }: FormItemProps) {
-  // Use selector pattern to minimize re-renders
-  const item = useFormBuilderStore(
-    useShallow((state) => state.items.find((i) => i.id === id)),
-  );
-  const activeItemId = useFormBuilderStore((state) => state.activeItemId);
-  const selectedItemId = useFormBuilderStore((state) => state.selectedItemId);
-  const duplicateItem = useFormBuilderStore((state) => state.duplicateItem);
-  const removeItem = useFormBuilderStore((state) => state.removeItem);
-  const setSelectedItemId = useFormBuilderStore(
-    (state) => state.setSelectedItemId,
-  );
-  const itemDropIndex = useFormBuilderStore((state) => state.itemDropIndex);
-  const itemsLength = useFormBuilderStore((state) => state.items.length);
-
-  // Compute derived state
-  const isActive = activeItemId === id;
-  const isSelected = selectedItemId === id;
-
-  // Memoize event handlers
-  const handleDelete = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation();
-    removeItem(id);
-  };
-
-  const handleCopy = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation();
-    duplicateItem(id);
-  };
-
-  const handleSelect = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation();
-    setSelectedItemId(id);
-  };
-
+function FormItemSortableWrapper({
+  id,
+  index,
+  isClone,
+}: {
+  id: string;
+  index: number;
+  isClone?: boolean;
+}) {
   const {
     attributes,
     listeners,
@@ -93,6 +48,12 @@ export function FormItem({ id, index, isClone }: FormItemProps) {
     animateLayoutChanges,
   });
 
+  const activeItemId = useFormBuilderStore((state) => state.activeItemId);
+  const itemDropIndex = useFormBuilderStore((state) => state.itemDropIndex);
+  const itemsLength = useFormBuilderStore((state) => state.items.length);
+
+  // Compute derived state
+  const isActive = activeItemId === id;
   const isActiveTypeNewItem = active?.id.toString().startsWith('new-item');
 
   // Memoize styles
@@ -116,11 +77,6 @@ export function FormItem({ id, index, isClone }: FormItemProps) {
     transitionDuration: '500ms',
     transitionTimingFunction: 'ease',
   };
-
-  if (!item) return null;
-
-  const position = index + 1;
-  const Content = formItemContent[item.type];
 
   return (
     <motion.div
@@ -159,69 +115,7 @@ export function FormItem({ id, index, isClone }: FormItemProps) {
             )}
           />
         </div>
-        <div
-          role="button"
-          tabIndex={0}
-          aria-label="form-item"
-          onMouseUp={handleSelect}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              handleSelect(e);
-            }
-          }}
-          className="space-y-2 select-none flex-grow pr-7 pl-0.5"
-        >
-          <div className="w-full h-6 flex flex-row justify-between">
-            <span
-              className={cn(
-                'text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]',
-                isSelected ? 'bg-primary/90' : 'bg-primary/60',
-              )}
-            >
-              {position}
-            </span>
-            <div
-              className={cn(
-                'flex text-center justify-center transition px-4 rounded-b space-x-4 items-center ease-out duration-[50ms]',
-                isSelected ? 'bg-primary/90' : 'bg-primary/60',
-                isClone && 'opacity-100',
-              )}
-            >
-              <CopyIcon
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleCopy(e);
-                  }
-                }}
-                onClick={handleCopy}
-                role="button"
-                size={13}
-                className="text-white hover:text-accent transition-colors"
-              />
-              <XIcon
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleDelete(e);
-                  }
-                }}
-                onClick={handleDelete}
-                role="button"
-                size={16}
-                className="text-white hover:text-destructive transition-colors"
-              />
-            </div>
-          </div>
-          <CardContent className="flex-grow pb-2 px-0">
-            <AnimatePresence initial={false}>
-              <Content id={id} />
-            </AnimatePresence>
-          </CardContent>
-        </div>
+        <FormItem id={id} index={index} isClone={isClone} />
       </div>
       {!isClone && index === itemsLength - 1 && (
         <span
@@ -238,4 +132,128 @@ export function FormItem({ id, index, isClone }: FormItemProps) {
   );
 }
 
+// Memoized form item components map
+const formItemContent: Record<
+  TFormItemSchema['type'],
+  JSXElementConstructor<{ id: string }>
+> = {
+  WRITTEN: React.memo(WrittenQuestion),
+  HEADER: React.memo(HeaderItem),
+  PARAGRAPH: React.memo(ParagraphItem),
+  RANGE: React.memo(RangeQuestion),
+  SINGLE_CHOICE: React.memo(SingleChoiceQuestion),
+  MULTIPLE_CHOICE: React.memo(MultipleChoiceQuestion),
+};
+
+interface FormItemProps {
+  id: string;
+  index: number;
+  isClone?: boolean;
+}
+
+export function FormItem({ id, index, isClone }: FormItemProps) {
+  // Use selector pattern to minimize re-renders
+  const item = useFormBuilderStore(
+    useShallow((state) => state.items.find((i) => i.id === id)),
+  );
+  const selectedItemId = useFormBuilderStore((state) => state.selectedItemId);
+  const duplicateItem = useFormBuilderStore((state) => state.duplicateItem);
+  const removeItem = useFormBuilderStore((state) => state.removeItem);
+  const setSelectedItemId = useFormBuilderStore(
+    (state) => state.setSelectedItemId,
+  );
+
+  const isSelected = selectedItemId === id;
+
+  const handleDelete = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    removeItem(id);
+  };
+
+  const handleCopy = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    duplicateItem(id);
+  };
+
+  const handleSelect = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    setSelectedItemId(id);
+  };
+
+  if (!item) return null;
+
+  const position = index + 1;
+  const Content = formItemContent[item.type];
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-label="form-item"
+      onMouseUp={handleSelect}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleSelect(e);
+        }
+      }}
+      className="space-y-2 select-none flex-grow pr-7 pl-0.5"
+    >
+      <div className="w-full h-6 flex flex-row justify-between">
+        <span
+          className={cn(
+            'text-white flex items-center justify-center text-sm w-8 rounded-b transition-colors ease-out duration-[50ms]',
+            isSelected ? 'bg-primary/90' : 'bg-primary/60',
+          )}
+        >
+          {position}
+        </span>
+        <div
+          className={cn(
+            'flex text-center justify-center transition px-4 rounded-b space-x-4 items-center ease-out duration-[50ms]',
+            isSelected ? 'bg-primary/90' : 'bg-primary/60',
+            isClone && 'opacity-100',
+          )}
+        >
+          <CopyIcon
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleCopy(e);
+              }
+            }}
+            onClick={handleCopy}
+            role="button"
+            size={13}
+            className="text-white hover:text-accent transition-colors"
+          />
+          <XIcon
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleDelete(e);
+              }
+            }}
+            onClick={handleDelete}
+            role="button"
+            size={16}
+            className="text-white hover:text-destructive transition-colors"
+          />
+        </div>
+      </div>
+      <CardContent className="flex-grow pb-2 px-0">
+        <AnimatePresence initial={false}>
+          <Content id={id} />
+        </AnimatePresence>
+      </CardContent>
+    </div>
+  );
+}
+
 FormItem.displayName = 'FormItem';
+FormItemSortableWrapper.displayName = 'FormItemSortableWrapper'
+
+// Export the wrapper as the main component to use
+export { FormItemSortableWrapper as FormItemWithSortable };

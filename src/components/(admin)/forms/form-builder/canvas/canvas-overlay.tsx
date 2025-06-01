@@ -1,5 +1,5 @@
 import { NEW_FORM_ITEMS } from '@/components/(admin)/forms/form-builder/constants';
-import { FormItem } from '@/components/(admin)/forms/form-builder/form-items';
+import { FormItemWithSortable } from '@/components/(admin)/forms/form-builder/form-items';
 import { DragOverlayState } from '@/components/(admin)/forms/form-builder/types';
 
 import { NewFormItemOverlay } from '@/components/(admin)/forms/form-builder/sidebar/sidebar-form-item-list';
@@ -15,7 +15,7 @@ export function FormBuilderOverlay({ state }: FormBuilderOverlayProps) {
   if (!active) return null;
 
   if (isExistingFormItem && activeItem) {
-    return <FormItem id={activeItem} index={activeIndex} isClone />;
+    return <FormItemWithSortable id={activeItem} index={activeIndex} isClone />;
   }
 
   if (isNewFormItem) {

@@ -66,26 +66,19 @@ export function FormBuilderCanvas() {
   );
 
   // Memoize className to avoid recalculation
-  const canvasClassName = useMemo(
-    () =>
-      cn(
-        'scrollbar scrollbar-track-transparent scrollbar-thumb-neutral-300',
-        LAYOUT.CANVAS_CLASSES,
-        LAYOUT.CANVAS_BACKGROUND_CLASSES,
-        `min-h-[${LAYOUT.CANVAS_HEIGHT}]`,
-        `max-h-[${LAYOUT.CANVAS_HEIGHT}]`,
-      ),
-    [],
+  const canvasClassName = cn(
+    'scrollbar scrollbar-track-transparent scrollbar-thumb-neutral-300',
+    LAYOUT.CANVAS_CLASSES,
+    LAYOUT.CANVAS_BACKGROUND_CLASSES,
+    `min-h-[${LAYOUT.CANVAS_HEIGHT}]`,
+    `max-h-[${LAYOUT.CANVAS_HEIGHT}]`,
   );
 
   // Memoize the drag overlay to prevent unnecessary re-renders
-  const dragOverlay = useMemo(
-    () => (
-      <DragOverlay modifiers={dragModifiers}>
-        <FormBuilderOverlay state={overlayState} />
-      </DragOverlay>
-    ),
-    [dragModifiers, overlayState],
+  const dragOverlay = (
+    <DragOverlay modifiers={dragModifiers}>
+      <FormBuilderOverlay state={overlayState} />
+    </DragOverlay>
   );
 
   return (
