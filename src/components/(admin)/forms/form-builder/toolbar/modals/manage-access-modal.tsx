@@ -49,7 +49,7 @@ export type TManageAccessFormSchema = z.infer<typeof ZManageAccessFormSchema>;
 
 function ManageAccessForm() {
   const params = useParams();
-  const formId = params.formId.toString();
+  const formId = params.formId?.toString();
 
   const { setSettings, settings } = useFormBuilderStore();
 
@@ -69,6 +69,8 @@ function ManageAccessForm() {
   const selection = watch('editAccess');
   const isCustom = selection === 'CUSTOM';
 
+  // @ts-ignore
+  // @ts-ignore
   return (
     <form onSubmit={handleSubmit(submitFn)} className="space-y-4">
       <Controller
@@ -101,12 +103,13 @@ function ManageAccessForm() {
               <CardRadioItemIcon>{BookUserIcon}</CardRadioItemIcon>
               <CardRadioItemLabel>People I Choose</CardRadioItemLabel>
               <motion.div
+                // @ts-ignore next-line
+                className="w-full space-y-3"
                 animate={{
                   height: isCustom ? '44.8px' : '0px',
                   opacity: isCustom ? 1 : 0,
                 }}
                 transition={{ duration: 0.1 }}
-                className="w-full space-y-3"
               >
                 {isCustom && (
                   <>

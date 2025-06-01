@@ -90,7 +90,7 @@ function SettingMilestones() {
           selectedItem.milestoneIds.map((m) => {
             const milestone = getMilestone(m);
             if (!milestone) return null;
-            return <MilestoneCard milestone={milestone}  />;
+            return <MilestoneCard key={m} milestone={milestone}  />;
           })
         ) : (
           <p className="text-md font-semibold text-center opacity-50">

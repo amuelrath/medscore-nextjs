@@ -58,7 +58,7 @@ export async function getFormLiteById({ formId }: { formId: string }) {
     columns: {
       id: true,
       title: true,
-
+      folderId: true,
       programId: false,
       creatorId: false,
       lastOpenedAt: true,

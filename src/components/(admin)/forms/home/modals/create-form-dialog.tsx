@@ -110,7 +110,7 @@ export function CreateFormDialog() {
           <div className="flex min-h-[40px] pb-2 w-full items-center overflow-hidden">
             <AnimatePresence mode="wait" initial={false}>
               {selectedType && (
-                <motion.p
+                <motion.div
                   key={selectedType}
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
@@ -126,7 +126,7 @@ export function CreateFormDialog() {
                       {formTypeDescriptions[selectedType].split(':')[1]}
                     </p>
                   </div>
-                </motion.p>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>

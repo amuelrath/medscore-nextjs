@@ -6,11 +6,12 @@ import {
 import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
 import { WebEvaluationForm } from '@/components/(evaluation)/evaluation-form';
 
-export default async function EvaluateFormPage({
-  params,
-}: {
-  params: { responseId: string };
-}) {
+export default async function EvaluateFormPage(
+  props: {
+    params: Promise<{ responseId: string }>;
+  }
+) {
+  const params = await props.params;
   const { responseId } = params;
   const queryClient = new QueryClient({
     defaultOptions: {
