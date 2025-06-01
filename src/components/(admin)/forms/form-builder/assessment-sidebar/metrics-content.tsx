@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { CompetencyRadarChart } from '@/components/(admin)/forms/form-builder/assessment-sidebar/competency-radar-chart';
 import { LevelBarChart } from '@/components/(admin)/forms/form-builder/assessment-sidebar/level-bar-chart';
@@ -15,12 +15,10 @@ import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
 export function MetricsContent() {
-
-
   const items = useFormBuilderStore(useShallow((state) => state.items));
-  const scoringEnabled = useFormBuilderStore(
-    (state) => state.settings.enableScoring,
-  );
+  const settings = useFormBuilderStore((state) => state.settings);
+
+  const scoringEnabled = settings.enableScoring;
 
   const {
     data: subcompetencies,
@@ -99,7 +97,11 @@ const getMilestoneDistributionsByPoints = ({
   subcompetencies?: SubcompetencyResult;
 }) => {
   if (!items || !subcompetencies || !scoringEnabled)
-    return { levelDistribution: {}, competencyDistribution: {}, totalPoints: 0 };
+    return {
+      levelDistribution: {},
+      competencyDistribution: {},
+      totalPoints: 0,
+    };
 
   const sortedItems = items.sort();
   const milestones = subcompetencies.flatMap((s) => s.milestones);
