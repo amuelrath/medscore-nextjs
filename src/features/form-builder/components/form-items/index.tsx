@@ -151,7 +151,6 @@ interface FormItemProps {
 }
 
 export function FormItem({ id, index, isClone }: FormItemProps) {
-  // Use selector pattern to minimize re-renders
   const item = useFormBuilderStore(
     useShallow((state) => state.items.find((i) => i.id === id)),
   );

@@ -1,5 +1,8 @@
 'use client';
 
+import { createAssessmentWithRequests } from '@/features/forms-home/actions/assessments/create-assessment-with-requests';
+import { getUserFolders } from '@/features/forms-home/actions/folders/get-user-folders';
+import { getAllFormsLite } from '@/features/forms-home/actions/forms/get-all-forms-lite';
 import {
   AssessmentCreatorDialog,
   TAssessmentEditorFormSchema,
@@ -9,13 +12,10 @@ import { FoldersList } from '@/features/forms-home/components/folders/folders-li
 import { FormCardDragOverlay } from '@/features/forms-home/components/form-cards/form-card';
 import { FormsList } from '@/features/forms-home/components/form-cards/forms-list';
 import { FormsListSearchbar } from '@/features/forms-home/components/form-cards/forms-list-searchbar';
-import { useFoldersMutations } from '@/features/forms-home/hooks/use-folders-mutations';
 import { CreateFormDialog } from '@/features/forms-home/components/modals/create-form-dialog';
+import { useFoldersMutations } from '@/features/forms-home/hooks/use-folders-mutations';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
-import { createAssessmentWithRequests } from '@/features/forms-home/actions/assessments/create-assessment-with-requests';
-import { getAllFormsLite } from '@/features/forms-home/actions/forms/get-all-forms-lite';
-import { getUserFolders } from '@/features/forms-home/actions/folders/get-user-folders';
 import {
   DndContext,
   DragEndEvent,
@@ -140,7 +140,7 @@ export function FormsHome() {
   // Get selectedFolderId from URL params
   const selectedFolderId = searchParams.get('folder');
 
-  // get form and program user data // todo fixme assessment dialog and menu might rely on this query's data
+  // get form and program user data
   const { data: forms, isLoading: formsLoading } = useQuery({
     queryKey: ['forms'],
     queryFn: () =>
@@ -305,10 +305,14 @@ export function FormsHome() {
 
         <div className="grid grid-cols-6 gap-4 gap-y-0 flex-grow px-4 pb-4 pt-2">
           <div className="flex flex-col pt-1 col-span-4 gap-4">
-            <FoldersList
-              handleSelectFolder={handleSelectFolder}
-              folders={folders}
-            />
+            {folders ? (
+              <FoldersList
+                handleSelectFolder={handleSelectFolder}
+                folders={folders}
+              />
+            ) : (
+              'NO FOLDERS'
+            )}
             <hr />
             <div className="scrollbar scrollbar-track-transparent pb-4 scrollbar-thumb-neutral-300 overflow-y-scroll min-h-[76vh] max-h-[76vh]">
               <FormsList
