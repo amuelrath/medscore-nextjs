@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/helpers/utils';
+import { cn } from '@/lib/utils';
 import {
   AnimatePresence,
   LazyMotion,

@@ -1,5 +1,5 @@
 import EasyTooltip from "@/components/ui/easy-tooltip";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import { ClassValue } from "clsx";
 import { ReactNode } from "react";

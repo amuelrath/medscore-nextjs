@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 import React from "react";
 import {
   Period,
@@ -8,7 +8,7 @@ import {
   getArrowByType,
   getDateByType,
   setDateByType,
-} from "@/lib/helpers/time-picker-utils";
+} from "@/lib/time-picker-utils";
 import { Clock } from "lucide-react";
 
 export interface TimePickerInputProps

@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 
 export function SectionHeader({
   children,

@@ -6,7 +6,7 @@ import {
   Popover,
   PopoverContent,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 import { ReactNode, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 export interface Tag {

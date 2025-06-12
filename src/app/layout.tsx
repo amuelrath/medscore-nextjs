@@ -1,5 +1,5 @@
-import { cn } from '@/lib/helpers/utils';
-import Provider from '@/server/provider';
+import { cn } from '@/lib/utils';
+import ReactQueryProvider from '@/services/react-query-provider';
 import type { Metadata } from 'next';
 import { Inter, Poppins, Roboto } from 'next/font/google';
 import { ReactNode } from 'react';
@@ -67,12 +67,12 @@ export default function RootLayout({
         <title>medscore</title>
       </head>
       <html lang="en">
-        <Provider>
+        <ReactQueryProvider>
           <body className={cn(roboto.className)}>
             {children}
             <Toaster />
           </body>
-        </Provider>
+        </ReactQueryProvider>
       </html>
     </>
   );

@@ -3,8 +3,8 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAllFormsLite } from "@/server/actions/forms/get-all-forms-lite";
-import { FormsHome } from "@/components/(admin)/forms/home";
+import { getAllFormsLite } from "@/features/forms-home/actions/forms/get-all-forms-lite";
+import { FormsHome } from '@/features/forms-home';
 
 export default async function FormsPage() {
   // prefetch forms (just the id, title, program)

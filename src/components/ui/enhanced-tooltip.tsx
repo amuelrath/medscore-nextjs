@@ -8,7 +8,7 @@ import {
   TooltipProvider,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 
 interface EnhancedTooltipProps {
   children: ReactNode;

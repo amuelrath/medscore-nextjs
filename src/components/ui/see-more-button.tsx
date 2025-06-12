@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import Lottie from "lottie-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 import ARROW from "public/icons/system-regular-161-trending-flat.json";
 import { LottieHover } from "@/components/ui/lottie-hover";
 

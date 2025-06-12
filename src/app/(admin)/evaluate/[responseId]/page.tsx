@@ -2,17 +2,13 @@ import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
-} from "@tanstack/react-query";
-import { getEvaluationForm } from "@/server/actions/evaluate/get-evaluation-form";
-import { WebEvaluationForm } from '@/components/(evaluation)/evaluation-form';
+} from '@tanstack/react-query';
 
-export default async function EvaluateFormPage(
-  props: {
-    params: Promise<{ responseId: string }>;
-  }
-) {
-  const params = await props.params;
-  const { responseId } = params;
+export default async function EvaluateFormPage(props: {
+  params: Promise<{ responseId: string }>;
+}) {
+  const { responseId } = await props.params;
+
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -21,16 +17,15 @@ export default async function EvaluateFormPage(
     },
   });
 
-  // prefetch the evaluation form
-  await queryClient.prefetchQuery({
-    queryKey: ["evaluation-form", responseId],
-    queryFn: () => getEvaluationForm({ responseId }),
-  });
-
+  // // prefetch the evaluation form
+  // await queryClient.prefetchQuery({
+  //   queryKey: ["evaluation-form", responseId],
+  //   queryFn: () => getEvaluationForm({ responseId }),
+  // });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <WebEvaluationForm responseId={responseId} />
+      <div>evaluation form component</div>
     </HydrationBoundary>
   );
 }

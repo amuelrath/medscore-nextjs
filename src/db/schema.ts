@@ -1,4 +1,3 @@
-import { ZFormBuilderSettingsSchema } from '@/components/(admin)/forms/form-builder/types';
 import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
@@ -18,6 +17,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
+import { ZFormBuilderSettingsSchema } from '@/features/form-builder/schemas/settings-schemas';
 
 export const roleEnum = pgEnum('role', ['ADMIN', 'STUDENT', 'FACULTY', 'NONE']);
 

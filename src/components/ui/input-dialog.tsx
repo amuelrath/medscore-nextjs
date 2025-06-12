@@ -10,7 +10,7 @@ import {
 import { FormErrorMessage } from '@/components/ui/form-error-message';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/helpers/utils';
+import { cn } from '@/lib/utils';
 import { EditIcon, LucideProps } from 'lucide-react';
 import React, {
   FormEvent,

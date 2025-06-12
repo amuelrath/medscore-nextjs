@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 
 interface StopwatchProps {
   className: string;
