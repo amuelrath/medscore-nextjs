@@ -91,7 +91,7 @@ export interface RangeConfig extends QuestionConfig {
 
 export interface ChoiceConfig extends QuestionConfig {
   type: 'SINGLE_CHOICE' | 'MULTIPLE_CHOICE';
-  options: TOptionSchema;
+  options: TOptionSchema[];
 }
 
 export interface WrittenConfig extends QuestionConfig {
