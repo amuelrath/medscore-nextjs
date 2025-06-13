@@ -276,8 +276,7 @@ export async function saveForm({
     // PROCESS UPDATES
     if (update && update.length > 0) {
       for (const { path, value } of update) {
-        // path.length of 2 means we are updating passingCriteria; ["settings", "passingCriteria"]
-        if (path[0] === 'settings' && path.length === 2) {
+        if (path[0] === 'settings') {
           // the settings field is just JSON so we can slap the whole thing in there
           try {
             await tx
