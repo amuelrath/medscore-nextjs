@@ -38,6 +38,8 @@ function FormBuilderMenubar() {
   const settings = useFormBuilderStore((state) => state.settings);
   const setSettings = useFormBuilderStore((state) => state.setSettings);
 
+  const { undo, redo } = useFormBuilderStore.temporal.getState();
+
   const handleAllowMultipleResponsesClick = () => {
     setSettings({
       ...settings,
@@ -90,10 +92,10 @@ function FormBuilderMenubar() {
       <MenubarMenu>
         <MenubarTrigger>Edit</MenubarTrigger>
         <MenubarContent>
-          <MenubarItem>
+          <MenubarItem onSelect={() => undo(1)}>
             Undo <MenubarShortcut>⌘Z</MenubarShortcut>
           </MenubarItem>
-          <MenubarItem>
+          <MenubarItem onSelect={() => redo(1)}>
             Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
@@ -171,12 +173,18 @@ function FormBuilderMenubar() {
             </MenubarShortcut>
           </MenubarItem>
           <MenubarSeparator />
-          <MenubarItem>
-            Manage Time Limits
-            <MenubarShortcut>
-              <ExternalLinkIcon size={12} />
-            </MenubarShortcut>
-          </MenubarItem>
+          <ManageTimeLimitsModal>
+            <MenubarItem
+              onSelect={(e) => {
+                e.preventDefault();
+              }}
+            >
+              Manage Time Limits
+              <MenubarShortcut>
+                <ExternalLinkIcon size={12} />
+              </MenubarShortcut>
+            </MenubarItem>
+          </ManageTimeLimitsModal>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>
