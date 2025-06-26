@@ -11,7 +11,7 @@ interface FormsListProps {
 export function FormsList({ filteredForms }: FormsListProps) {
   return (
     <div
-      className="flex-grow gap-4 auto-rows-[11rem] grid grid-cols-5 pr-2" /* padding to offset scrollbar  */
+      className="flex-grow gap-4 auto-rows-[11rem] grid grid-cols-7 pr-2" /* padding to offset scrollbar  */
     >
       <AnimatePresence mode="popLayout" initial={false}>
         {filteredForms && filteredForms.length > 0 ? (

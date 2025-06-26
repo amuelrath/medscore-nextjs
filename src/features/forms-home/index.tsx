@@ -9,11 +9,7 @@ import {
 import { createAssessmentWithRequests } from '@/features/forms-home/actions/assessments/create-assessment-with-requests';
 import { getUserFolders } from '@/features/forms-home/actions/folders/get-user-folders';
 import { getAllFormsLite } from '@/features/forms-home/actions/forms/get-all-forms-lite';
-import {
-  AssessmentCreatorDialog,
-  TAssessmentEditorFormSchema,
-} from '@/features/forms-home/components/assessment-manager/assessment-creator-dialog';
-import { AssessmentRequestContent } from '@/features/forms-home/components/assessment-manager/assessment-request-content';
+import { TAssessmentEditorFormSchema } from '@/features/forms-home/components/assessment-manager/assessment-creator-dialog';
 import { FoldersList } from '@/features/forms-home/components/folders/folders-list';
 import { FormCardDragOverlay } from '@/features/forms-home/components/form-cards/form-card';
 import { FormsList } from '@/features/forms-home/components/form-cards/forms-list';
@@ -34,7 +30,6 @@ import {
 } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { addHours } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -292,21 +287,10 @@ export function FormsHome() {
           <FormsListSearchbar handleFilter={handleFilter} />
           <div className="flex flex-row justify-self-end items-center space-x-4">
             <CreateFormDialog />
-            {!isLoading && forms && (
-              <AssessmentCreatorDialog
-                forms={forms}
-                defaultValues={{
-                  startsAt: new Date().toISOString(),
-                  expiresAt: addHours(new Date(), 4).toISOString(),
-                }}
-                submitFn={submitFn}
-              />
-            )}
           </div>
         </HomeLayoutHeader>
-
         <HomeLayoutContent className="grid grid-cols-6 gap-4 gap-y-0">
-          <div className="flex flex-col pt-1 col-span-4 gap-4">
+          <div className="flex flex-col pt-1 col-span-full gap-4">
             {folders ? (
               <FoldersList
                 handleSelectFolder={handleSelectFolder}
@@ -323,9 +307,6 @@ export function FormsHome() {
               />
             </div>
             <FormCardDragOverlay />
-          </div>
-          <div className="col-span-2 h-full">
-            <AssessmentRequestContent />
           </div>
         </HomeLayoutContent>
       </DndContext>
