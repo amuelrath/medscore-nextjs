@@ -1,8 +1,17 @@
+import {
+  HomeLayout,
+  HomeLayoutContent,
+  HomeLayoutHeader,
+  HomeLayoutTitle,
+} from '@/components/ui/home-layout';
 
 export default function EvaluateHomePage() {
   return (
-    <div>
-      test
-    </div>
-  )
+    <HomeLayout>
+      <HomeLayoutHeader>
+        <HomeLayoutTitle>Evaluations</HomeLayoutTitle>
+      </HomeLayoutHeader>
+      <HomeLayoutContent>content here</HomeLayoutContent>
+    </HomeLayout>
+  );
 }

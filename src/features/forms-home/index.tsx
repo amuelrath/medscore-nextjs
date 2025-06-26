@@ -1,5 +1,11 @@
 'use client';
 
+import {
+  HomeLayout,
+  HomeLayoutContent,
+  HomeLayoutHeader,
+  HomeLayoutTitle,
+} from '@/components/ui/home-layout';
 import { createAssessmentWithRequests } from '@/features/forms-home/actions/assessments/create-assessment-with-requests';
 import { getUserFolders } from '@/features/forms-home/actions/folders/get-user-folders';
 import { getAllFormsLite } from '@/features/forms-home/actions/forms/get-all-forms-lite';
@@ -260,13 +266,13 @@ export function FormsHome() {
   };
 
   return (
-    <main className="flex flex-grow flex-col">
+    <HomeLayout>
       <DndContext
         sensors={sensors}
         onDragEnd={handleDragEnd}
         modifiers={[snapCenterToCursor]}
       >
-        <div className="h-12 flex-shrink-0 items-center grid grid-cols-3 px-4 border-border bg-card">
+        <HomeLayoutHeader>
           <div className="flex items-center select-none space-x-2">
             {selectedFolder ? (
               <>
@@ -280,14 +286,10 @@ export function FormsHome() {
                 </span>
               </>
             ) : (
-              <span className="text-2xl border border-transparent font-semibold text-foreground">
-                Forms
-              </span>
+              <HomeLayoutTitle>Forms</HomeLayoutTitle>
             )}
           </div>
-
           <FormsListSearchbar handleFilter={handleFilter} />
-
           <div className="flex flex-row justify-self-end items-center space-x-4">
             <CreateFormDialog />
             {!isLoading && forms && (
@@ -301,9 +303,9 @@ export function FormsHome() {
               />
             )}
           </div>
-        </div>
+        </HomeLayoutHeader>
 
-        <div className="grid grid-cols-6 gap-4 gap-y-0 flex-grow px-4 pb-4 pt-2">
+        <HomeLayoutContent className="grid grid-cols-6 gap-4 gap-y-0">
           <div className="flex flex-col pt-1 col-span-4 gap-4">
             {folders ? (
               <FoldersList
@@ -325,8 +327,8 @@ export function FormsHome() {
           <div className="col-span-2 h-full">
             <AssessmentRequestContent />
           </div>
-        </div>
+        </HomeLayoutContent>
       </DndContext>
-    </main>
+    </HomeLayout>
   );
 }
