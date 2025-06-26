@@ -8,7 +8,7 @@ export function FormsListSearchbar({ handleFilter }: FormsListSearchbarProps) {
   return (
     <Input
       size="xs"
-      className="w-[300px]"
+      className="w-full"
       placeholder="Search my forms..."
       onChange={(e) => handleFilter(e.target.value)}
     />
