@@ -6,6 +6,26 @@
     "project": true,
     "tsconfigRootDir": "./"
   },
+  "env": {
+    "jest": true
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.*",
+        "**/_tests/**/*",
+        "**/__tests__/**/*"
+      ],
+      "rules": {
+        "import/no-extraneous-dependencies": [
+          "error",
+          {
+            "devDependencies": true
+          }
+        ]
+      }
+    }
+  ],
   "rules": {
     "no-console": "warn",
     "import/extensions": "off",
