@@ -15,7 +15,7 @@ export async function getFormById({
 
   return db.query.forms.findFirst({
     with: {
-      assessments: true,
+      assessmentsComponents: true,
       programs: {
         with: {
           roles: true,
@@ -42,7 +42,6 @@ export async function getFormById({
       formItems: {
         orderBy: (fi, { asc }) => asc(fi.position),
         with: {
-          recommendedMilestone: true,
           options: {
             orderBy: (o, { asc }) => asc(o.position)
           },

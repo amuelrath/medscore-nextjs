@@ -1,7 +1,7 @@
 'use client';
 
 import { InputDialog } from '@/components/ui/input-dialog';
-import { FormsLiteResult } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { FormsLiteResult } from '@/actions/forms/get-all-forms-lite';
 import { renameForm } from '@/features/forms-home/actions/forms/rename-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

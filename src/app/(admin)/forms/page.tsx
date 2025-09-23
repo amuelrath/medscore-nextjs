@@ -3,7 +3,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { getAllFormsLite } from "@/features/forms-home/actions/forms/get-all-forms-lite";
+import { getAllFormsLite } from "@/actions/forms/get-all-forms-lite";
 import { FormsHome } from '@/features/forms-home';
 
 export default async function FormsPage() {

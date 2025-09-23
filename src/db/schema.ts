@@ -1,3 +1,4 @@
+import { ZFormBuilderSettingsSchema } from '@/features/form-builder/schemas/settings-schemas';
 import { relations, sql } from 'drizzle-orm';
 import {
   AnyPgColumn,
@@ -17,14 +18,20 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
-import { ZFormBuilderSettingsSchema } from '@/features/form-builder/schemas/settings-schemas';
 
 export const roleEnum = pgEnum('role', ['ADMIN', 'STUDENT', 'FACULTY', 'NONE']);
+
+export const timeLimitEnum = pgEnum('time_limit', ['NONE', 'CUSTOM']);
 
 export const responseStatusEnum = pgEnum('response_status', [
   'STARTED',
   'NOT_STARTED',
   'COMPLETED',
+]);
+
+export const participationTypeEnum = pgEnum('participation_type', [
+  'PAIR',
+  'SINGLE',
 ]);
 
 export type TResponseStatus = 'STARTED' | 'NOT_STARTED' | 'COMPLETED';
@@ -57,25 +64,6 @@ export const ZFormTypeEnum = z.enum([
   'DIRECT_OBSERVATION',
 ]);
 export type TFormType = z.infer<typeof ZFormTypeEnum>;
-
-export const behaviors = pgTable('behaviors', {
-  id: uuid('id')
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  description: text('description').notNull(),
-  subcompetencyId: uuid('subcompetency_id')
-    .notNull()
-    .references(() => subcompetencies.id),
-});
-
-// TODO remove at some point
-export const Behavior = typeof behaviors.$inferSelect;
-export const behaviorRelations = relations(behaviors, ({ one }) => ({
-  subcompetency: one(subcompetencies, {
-    fields: [behaviors.subcompetencyId],
-    references: [subcompetencies.id],
-  }),
-}));
 
 export const competencies = pgTable('competencies', {
   id: uuid('id')
@@ -114,7 +102,6 @@ export const subcompetencyRelations = relations(
       references: [specialties.id],
     }),
     milestones: many(milestones),
-    behaviors: many(behaviors),
   }),
 );
 
@@ -192,6 +179,7 @@ export const userRelations = relations(users, ({ many }) => ({
   roles: many(rolesOnUsers),
   groups: many(groups),
   assessments: many(assessments),
+  requests: many(requests),
   formFolders: many(formFolders),
 }));
 
@@ -349,14 +337,13 @@ export const formRelations = relations(forms, ({ one, many }) => ({
     references: [users.id],
   }),
   formItems: many(formItems),
-  assessments: many(assessments),
+  assessmentsComponents: many(assessmentComponents),
   formFolder: one(formFolders, {
     fields: [forms.folderId],
     references: [formFolders.id],
   }),
 }));
 
-// todo nightmare refactor to normalize this
 export const formItems = pgTable('form_items', {
   id: uuid('id')
     .notNull()
@@ -385,7 +372,6 @@ export const formItemRelations = relations(formItems, ({ one, many }) => ({
   }),
   options: many(options),
   milestones: many(milestonesOnFormItems),
-  recommendedMilestone: one(recommendedMilestones),
 }));
 
 export const options = pgTable('options', {
@@ -412,12 +398,12 @@ export const optionRelations = relations(options, ({ one, many }) => ({
   answers: many(answers),
 }));
 
-// MARK:  Milestones On Questions
 export const milestonesOnFormItems = pgTable(
   'milestones_on_form_items',
   {
     formItemId: uuid('form_item_id')
       .notNull()
+      // !! this doesnt apply in the DB so it must be done manually
       .references((): AnyPgColumn => formItems.id, { onDelete: 'cascade' }),
     milestoneId: uuid('milestone_id')
       .notNull()
@@ -454,36 +440,19 @@ export const responses = pgTable('responses', {
   id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  assessmentId: uuid('assessment_id')
+  requestId: uuid('request_id')
     .notNull()
-    .references(() => assessments.id, { onDelete: 'cascade' }),
-  respondeeId: uuid('respondee_id')
-    .references(() => users.id, { onDelete: 'cascade' })
-    .notNull(),
-  status: responseStatusEnum('status').default('NOT_STARTED').notNull(), // on open, 'started'. on submit, 'completed'
-  evaluateeId: uuid('evaluatee_id')
-    .notNull()
-    .references(() => users.id, {
-      onDelete: 'cascade',
-    }),
+    .references(() => requests.id, { onDelete: 'cascade' }),
   duration: integer('duration'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 export type Response = typeof responses.$inferSelect;
 export type NewResponse = typeof responses.$inferInsert;
 export const responseRelations = relations(responses, ({ one, many }) => ({
-  respondee: one(users, {
-    fields: [responses.respondeeId],
-    references: [users.id],
-  }),
   answers: many(answers),
-  evaluatee: one(users, {
-    fields: [responses.evaluateeId],
-    references: [users.id],
-  }),
-  assessment: one(assessments, {
-    fields: [responses.assessmentId],
-    references: [assessments.id],
+  request: one(requests, {
+    fields: [responses.requestId],
+    references: [requests.id],
   }),
 }));
 
@@ -544,34 +513,100 @@ export const answerOptionRelations = relations(answerOptions, ({ one }) => ({
   }),
 }));
 
+export const requests = pgTable('requests', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  componentId: uuid('component_id')
+    .notNull()
+    .references(() => assessmentComponents.id),
+  respondeeId: uuid('respondee_id')
+    .references(() => users.id, { onDelete: 'cascade' })
+    .notNull(),
+  // nullable in the case we are using a survey
+  evaluateeId: uuid('evaluatee_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
+  status: responseStatusEnum('status').default('NOT_STARTED').notNull(), // on open, 'started'. on submit, 'completed'
+  startsAt: timestamp('starts_at').notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+export type Request = typeof requests.$inferSelect;
+export type NewRequest = typeof requests.$inferInsert;
+export const requestRelations = relations(requests, ({ one, many }) => ({
+  responses: many(responses),
+  evaluatee: one(users, {
+    fields: [requests.evaluateeId],
+    references: [users.id],
+  }),
+  respondee: one(users, {
+    fields: [requests.respondeeId],
+    references: [users.id],
+  }),
+  component: one(assessmentComponents, {
+    fields: [requests.componentId],
+    references: [assessmentComponents.id],
+  }),
+}));
+
 export const assessments = pgTable('assessments', {
   id: uuid('id')
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  formId: uuid('form_id')
-    .notNull()
-    .references(() => forms.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
-  startsAt: timestamp('starts_at').notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
   creatorId: uuid('creator_id')
     .notNull()
-    .references(() => users.id, { onDelete: 'set null' }), // to protect assessment data
+    .references(() => users.id),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 export type Assessment = typeof assessments.$inferSelect;
 export type NewAssessment = typeof assessments.$inferInsert;
 export const assessmentRelations = relations(assessments, ({ one, many }) => ({
-  form: one(forms, {
-    fields: [assessments.formId],
-    references: [forms.id],
-  }),
-  responses: many(responses),
+  requests: many(requests),
   creator: one(users, {
     fields: [assessments.creatorId],
     references: [users.id],
   }),
+  components: many(assessmentComponents),
 }));
+
+export const assessmentComponents = pgTable('assessment_components', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  // consider adding title
+  assessmentId: uuid('assessment_id')
+    .notNull()
+    .references(() => assessments.id, { onDelete: 'cascade' }),
+  formId: uuid('form_id')
+    .notNull()
+    .references(() => forms.id, { onDelete: 'cascade' }),
+  participationType: participationTypeEnum('participation_type').notNull(),
+
+  // settings
+  timeLimit: timeLimitEnum('time_limit').notNull().default('NONE'),
+  customLimit: integer('custom_limit'),
+  saveAndQuit: boolean('save_and_quit').notNull().default(false),
+  multipleResponses: boolean('multiple_responses').notNull().default(false),
+  responseRevisions: boolean('response_revisions').notNull().default(false),
+});
+export type AssessmentComponent = typeof assessmentComponents.$inferSelect;
+export type NewAssessmentComponent = typeof assessmentComponents.$inferInsert;
+export const assessmentComponentRelations = relations(
+  assessmentComponents,
+  ({ one, many }) => ({
+    requests: many(requests),
+    form: one(forms, {
+      fields: [assessmentComponents.formId],
+      references: [forms.id],
+    }),
+    assessment: one(assessments, {
+      fields: [assessmentComponents.assessmentId],
+      references: [assessments.id],
+    }),
+  }),
+);
 
 export const formFolders = pgTable('form_folders', {
   id: uuid('id')
@@ -591,33 +626,3 @@ export const formFolderRelations = relations(formFolders, ({ one, many }) => ({
     references: [users.id],
   }),
 }));
-
-export const recommendedMilestones = pgTable('recommended_milestones', {
-  id: uuid(`id`)
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  formItemId: uuid('form_item_id')
-    .notNull()
-    .references(() => formItems.id, { onDelete: 'cascade' }),
-  milestoneId: uuid('milestone_id')
-    .notNull()
-    .references(() => milestones.id),
-  justification: text('justification').notNull(),
-  score: integer('score').notNull(),
-  isPositiveClassification: boolean('is_positive_classification'),
-});
-export type RecommendedMilestone = typeof recommendedMilestones.$inferSelect;
-export type NewRecommendedMilestone = typeof recommendedMilestones.$inferInsert;
-export const recommendedMilestoneRelations = relations(
-  recommendedMilestones,
-  ({ one }) => ({
-    formItem: one(formItems, {
-      fields: [recommendedMilestones.formItemId],
-      references: [formItems.id],
-    }),
-    milestones: one(milestones, {
-      fields: [recommendedMilestones.milestoneId],
-      references: [milestones.id],
-    }),
-  }),
-);

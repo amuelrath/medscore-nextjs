@@ -14,7 +14,13 @@ export async function getAllFormsLite({ userId }: { userId: string }) {
       folderId: true,
       type: true,
     },
+
     with: {
+      formItems: {
+        columns: {
+          id: true,
+        },
+      },
       programs: {
         columns: {
           id: true,
