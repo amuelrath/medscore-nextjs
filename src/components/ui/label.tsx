@@ -11,12 +11,21 @@ const labelVariants = cva(
   {
     variants: {
       variant: {
-        default: "text-sm font-medium",
-        light: "text-neutral-500 text-2xs font-normal",
+        default: "text-neutral-500",
+        medium: "text-neutral-800",
+        light: "text-neutral-500 font-normal",
       },
+      size: {
+        default: "text-xs",
+        sm: "text-sm",
+        md: "text-md",
+        lg: "text-lg"
+      }
     },
+
     defaultVariants: {
       variant: "default",
+      size: "default"
     },
   },
 );
