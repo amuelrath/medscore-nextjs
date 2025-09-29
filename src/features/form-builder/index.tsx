@@ -161,7 +161,7 @@ export function FormBuilder() {
       setIsInitialized(false);
       // console.log('No data available, isInitialized = false');
     }
-  }, [data, isLoading, setIsInitialized]);
+  }, [data, isLoading, setIsInitialized]); // do not change dependencies! (idk the error but i know its intentional
 
   if (isLoading) return 'Loading';
   if (!data) return 'no data!!!';

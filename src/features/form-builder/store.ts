@@ -92,9 +92,6 @@ const DEFAULT_NEW_FORM_ITEMS = {
 export const DEFAULT_SETTINGS: TFormBuilderSettingsSchema = {
   editAccess: 'ME',
   editAccessUserIds: [],
-  allowMultipleResponses: true,
-  allowResponseRevisions: false,
-  allowSaveAndQuit: true,
   enableScoring: true,
   passingCriteria: [],
 };
@@ -410,7 +407,6 @@ export const useFormBuilderStore = create<FormBuilderState>()(
             return { items: newItems };
           }),
 
-        // Rest of your functions without changes...
         addMilestone: (itemId, milestoneId) =>
           set((state) => {
             const updatedItems = state.items.map((item) => {

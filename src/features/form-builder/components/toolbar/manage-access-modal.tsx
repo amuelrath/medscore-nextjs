@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { UserSelect } from '@/components/ui/user-select';
+import { ZManageAccessFormSchema } from '@/features/form-builder/schemas/settings-schemas';
 import { useFormBuilderStore } from '@/features/form-builder/store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
@@ -30,20 +31,6 @@ import { useParams } from 'next/navigation';
 import { ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
-
-const ZManageAccessFormSchema = z
-  .object({
-    editAccess: z.union([
-      z.literal('ME'),
-      z.literal('FACULTY'),
-      z.literal('CUSTOM'),
-    ]),
-    editAccessUserIds: z.array(z.string().uuid()).optional(),
-  })
-  .refine((data) => {
-    if (data.editAccess !== 'CUSTOM') return true;
-    return (data.editAccessUserIds?.length || 0) >= 1;
-  });
 
 export type TManageAccessFormSchema = z.infer<typeof ZManageAccessFormSchema>;
 
@@ -126,7 +113,9 @@ function ManageAccessForm() {
       />
       <hr className="w-full" />
       <div className="flex w-full flex-row items-center justify-end space-x-2">
-        <Button type="submit">Confirm</Button>
+        <DialogClose asChild>
+          <Button type="submit">Confirm</Button>
+        </DialogClose>
         <DialogClose asChild>
           <Button variant="outline">Cancel</Button>
         </DialogClose>

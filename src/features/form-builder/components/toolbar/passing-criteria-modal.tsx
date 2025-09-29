@@ -1,10 +1,9 @@
 'use client';
 
-import { useFormBuilderMilestones } from '@/features/form-builder/hooks/use-form-builder-milestones';
-import { SubcompetencyAccordion } from '@/features/form-builder/components/toolbar/subcompetency-table';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -12,6 +11,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import Loading from '@/components/ui/loading';
+import { SubcompetencyAccordion } from '@/features/form-builder/components/toolbar/subcompetency-table';
+import { useFormBuilderMilestones } from '@/features/form-builder/hooks/use-form-builder-milestones';
 import { BookCheckIcon } from 'lucide-react';
 import { ReactNode } from 'react';
 
@@ -61,9 +62,11 @@ export function PassingCriteriaModal({ children }: PassingCriteriaModalProps) {
           <Button variant="outline" type="button">
             Cancel
           </Button>
-          <Button type="submit" form="passing-criteria-form">
-            Save Changes
-          </Button>
+          <DialogClose asChild>
+            <Button type="submit" form="passing-criteria-form">
+              Save Changes
+            </Button>
+          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>

@@ -18,11 +18,9 @@ import { Switch } from '@/components/ui/switch';
 import { saveForm } from '@/features/form-builder/actions/forms/save-form';
 import { ManageAccessModal } from '@/features/form-builder/components/toolbar/manage-access-modal';
 import { PassingCriteriaModal } from '@/features/form-builder/components/toolbar/passing-criteria-modal';
-import { RoleWeightModal } from '@/features/form-builder/components/toolbar/role-weight-modal';
 import { useAutosave } from '@/features/form-builder/hooks/use-autosave';
 import { useFormBuilderStore } from '@/features/form-builder/store';
 import { TFormBuilderSchema } from '@/features/form-builder/types';
-import { MenubarArrow } from '@radix-ui/react-menubar';
 import {
   ExternalLinkIcon,
   Loader,
@@ -39,24 +37,6 @@ function FormBuilderMenubar() {
   const setSettings = useFormBuilderStore((state) => state.setSettings);
 
   const { undo, redo } = useFormBuilderStore.temporal.getState();
-
-  const handleAllowMultipleResponsesClick = () => {
-    setSettings({
-      ...settings,
-      allowMultipleResponses: !settings.allowMultipleResponses,
-    });
-  };
-
-  const handleAllowSaveAndQuitClick = () => {
-    setSettings({ ...settings, allowSaveAndQuit: !settings.allowSaveAndQuit });
-  };
-
-  const handleAllowResponseRevisionsClick = () => {
-    setSettings({
-      ...settings,
-      allowResponseRevisions: !settings.allowResponseRevisions,
-    });
-  };
 
   const handleEnableScoringClick = () => {
     setSettings({ ...settings, enableScoring: !settings.enableScoring });
@@ -130,67 +110,12 @@ function FormBuilderMenubar() {
               </MenubarShortcut>
             </MenubarItem>
           </ManageAccessModal>
-          <MenubarArrow />
         </MenubarContent>
       </MenubarMenu>
-      <MenubarMenu>
-        <MenubarTrigger>Responses</MenubarTrigger>
-        <MenubarContent>
-          <MenubarArrow />
-          <MenubarItem>
-            Allow Revisions
-            <MenubarShortcut onClick={(e) => e.stopPropagation()}>
-              <Switch
-                size="xs"
-                checked={settings.allowResponseRevisions}
-                onClick={handleAllowResponseRevisionsClick}
-              />
-            </MenubarShortcut>
-          </MenubarItem>
 
-          <MenubarItem>
-            Allow Save & Quit
-            <MenubarShortcut onClick={(e) => e.stopPropagation()}>
-              <Switch
-                size="xs"
-                checked={settings.allowSaveAndQuit}
-                onClick={handleAllowSaveAndQuitClick}
-              />
-            </MenubarShortcut>
-          </MenubarItem>
-
-          <MenubarItem>
-            Allow Multiple Submissions
-            <MenubarShortcut
-              className="ml-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Switch
-                size="xs"
-                checked={settings.allowMultipleResponses}
-                onClick={handleAllowMultipleResponsesClick}
-              />
-            </MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <ManageTimeLimitsModal>
-            <MenubarItem
-              onSelect={(e) => {
-                e.preventDefault();
-              }}
-            >
-              Manage Time Limits
-              <MenubarShortcut>
-                <ExternalLinkIcon size={12} />
-              </MenubarShortcut>
-            </MenubarItem>
-          </ManageTimeLimitsModal>
-        </MenubarContent>
-      </MenubarMenu>
       <MenubarMenu>
         <MenubarTrigger>Scoring</MenubarTrigger>
         <MenubarContent>
-          <MenubarArrow />
           <MenubarItem>
             Enable Scoring
             <MenubarShortcut onClick={(e) => e.stopPropagation()}>
@@ -213,17 +138,6 @@ function FormBuilderMenubar() {
               </MenubarShortcut>
             </MenubarItem>
           </PassingCriteriaModal>
-          <RoleWeightModal>
-            <MenubarItem
-              onSelect={(e) => e.preventDefault()}
-              disabled={!settings.enableScoring}
-            >
-              Manage Role Weights
-              <MenubarShortcut>
-                <ExternalLinkIcon size={12} />
-              </MenubarShortcut>
-            </MenubarItem>
-          </RoleWeightModal>
         </MenubarContent>
       </MenubarMenu>
       <MenubarMenu>

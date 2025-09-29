@@ -11,7 +11,8 @@ import { useDraggable } from '@dnd-kit/core';
 import { motion } from 'framer-motion';
 import { LucideProps, PlusIcon } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes, useState } from 'react';
-import { NEW_FORM_ITEMS } from '@/features/form-builder/data/new-form-items-data';
+
+import { NEW_FORM_ITEMS } from '@/features/form-builder/data/default-settings-data';
 
 export function NewFormItem({ itemType, label, Icon }: NewFormItemProps) {
   const { setNodeRef, isDragging, attributes, listeners } = useDraggable({

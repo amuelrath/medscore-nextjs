@@ -3,9 +3,9 @@
 import { useFormBuilderStore } from '@/features/form-builder/store';
 import { cn } from '@/lib/utils';
 import { ArrowLeftIcon } from 'lucide-react';
-import { NEW_FORM_ITEMS } from '@/features/form-builder/data/new-form-items-data';
 import { SidebarQuestionDetails } from '@/features/form-builder/components/components-sidebar/sidebar-question-details';
 import { SidebarFormItemList } from '@/features/form-builder/components/components-sidebar/sidebar-form-item-list';
+import { NEW_FORM_ITEMS } from '@/features/form-builder/data/default-settings-data';
 
 export function FormBuilderSidebar() {
   const items = useFormBuilderStore((state) => state.items);

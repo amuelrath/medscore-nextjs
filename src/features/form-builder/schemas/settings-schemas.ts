@@ -12,12 +12,21 @@ export const ZPassingCriteriaSchema = z.array(
     ),
   }),
 );
-export const ZRoleWeightSchema = z.array(
-  z.object({
-    roleId: z.string().uuid(),
-    weight: z.number(),
-  }),
-);
+
+export const ZManageAccessFormSchema = z
+  .object({
+    editAccess: z.union([
+      z.literal('ME'),
+      z.literal('FACULTY'),
+      z.literal('CUSTOM'),
+    ]),
+    editAccessUserIds: z.array(z.string().uuid()).optional(),
+  })
+  .refine((data) => {
+    if (data.editAccess !== 'CUSTOM') return true;
+    return (data.editAccessUserIds?.length || 0) >= 1;
+  });
+
 export const ZFormBuilderSettingsSchema = z
   .object({
     editAccess: z.union([
@@ -26,9 +35,6 @@ export const ZFormBuilderSettingsSchema = z
       z.literal('CUSTOM'),
     ]),
     editAccessUserIds: z.array(z.string().uuid()).optional(),
-    allowMultipleResponses: z.boolean(),
-    allowResponseRevisions: z.boolean(),
-    allowSaveAndQuit: z.boolean(),
     enableScoring: z.boolean(),
     passingCriteria: ZPassingCriteriaSchema,
   })

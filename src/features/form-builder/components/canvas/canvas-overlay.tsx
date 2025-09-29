@@ -1,7 +1,7 @@
 import { DragOverlayState } from '@/features/form-builder/types';
 
 import { NewFormItemOverlay } from '@/features/form-builder/components/components-sidebar/sidebar-form-item-list';
-import { NEW_FORM_ITEMS } from '@/features/form-builder/data/new-form-items-data';
+import { NEW_FORM_ITEMS } from '@/features/form-builder/data/default-settings-data';
 import { FormItemWithSortable } from '../form-items';
 
 interface FormBuilderOverlayProps {
