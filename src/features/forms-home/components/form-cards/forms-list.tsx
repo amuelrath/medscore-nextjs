@@ -1,7 +1,7 @@
 'use client';
 
 import { FormCard } from '@/features/forms-home/components/form-cards/form-card';
-import { FormsLiteResult } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { FormsLiteResult } from '@/actions/forms/get-all-forms-lite';
 import { AnimatePresence } from 'framer-motion';
 
 interface FormsListProps {

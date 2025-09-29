@@ -1,35 +1,23 @@
 'use server';
 
-import { TAssessmentEditorFormSchema } from '@/features/forms-home/components/assessment-manager/assessment-creator-dialog';
 import { db } from '@/db';
 import { assessments, responses } from '@/db/schema';
 import { formatDate } from 'date-fns';
 import { v4 } from 'uuid';
+import { type TAssessmentCreatorFormSchema } from '../../../assessment-wizard/components/assessment-details-form/assessment-details-form';
 
 // todo get logged in user id to use as assessmentRequest.creatorId
 export async function createAssessmentWithRequests({
   formId,
-  formType,
   title,
   participants,
   startsAt,
   expiresAt,
-}: TAssessmentEditorFormSchema) {
+}: TAssessmentCreatorFormSchema) {
   if (formId.length > 1)
     throw new Error(
       'Error: Multiple formIds given when creating an assessment.',
     );
-
-  // make sure the correct participants data is available
-  switch (formType) {
-    case 'EVALUATION':
-    case 'OSCE':
-      if ((participants?.length || 0) < 0)
-        throw new Error('Incorrect data received for type EVALUATION or OSCE');
-      break;
-    default:
-      throw new Error('Form type not supported.');
-  }
 
   const now = formatDate(new Date(), 'MM/dd/yyyy');
 
@@ -62,7 +50,7 @@ const transformPairData = ({
   participants,
   assessmentId,
 }: {
-  participants: TAssessmentEditorFormSchema['participants'];
+  participants: TAssessmentCreatorFormSchema['participants'];
   assessmentId: string;
 }) => {
   if (!participants) return [];

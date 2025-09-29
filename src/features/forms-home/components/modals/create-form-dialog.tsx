@@ -14,7 +14,7 @@ import {
 import { LottieHover } from '@/components/ui/lottie-hover';
 import { cn } from '@/lib/utils';
 import { createForm } from '@/features/forms-home/actions/forms/create-form';
-import { FormsLiteResult } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { FormsLiteResult } from '@/actions/forms/get-all-forms-lite';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';

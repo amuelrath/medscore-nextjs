@@ -1,4 +1,4 @@
-import { FormsLiteResult } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { FormsLiteResult } from '@/actions/forms/get-all-forms-lite';
 import { moveFormToFolder } from '@/features/forms-home/actions/folders/move-form-to-folder';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';

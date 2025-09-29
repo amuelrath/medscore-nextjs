@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import { forms, TFormType } from '@/db/schema';
-import { getFormLiteById } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { getFormLiteById } from '@/actions/forms/get-all-forms-lite';
 import { DEFAULT_FORM_SETTINGS } from '@/features/form-builder/data/default-settings-data';
 
 export async function createForm({

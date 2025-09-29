@@ -3,7 +3,7 @@ import {
   HomeLayoutContent,
   HomeLayoutHeader,
   HomeLayoutTitle,
-} from '@/components/ui/home-layout';
+} from '@/components/home-layout';
 
 export default function ProgramsHomePage() {
   return (

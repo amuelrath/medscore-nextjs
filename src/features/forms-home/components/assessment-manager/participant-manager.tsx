@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { UserSelect } from '@/components/ui/user-select';
 import { deleteResponseByAssessmentEvaluatorEvaluatee } from '@/features/forms-home/actions/responses/delete-response-by-assessment-evaluator-evaluatee';
 import { type TAssessmentEditorFormSchema } from '@/features/forms-home/components/assessment-manager/assessment-creator-dialog';
-import { ZPairSchema } from '@/features/forms-home/schemas/assessment-request-schemas';
+import { ZPairSchema } from '@/features/forms-home/schemas/assessment-schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { PlusCircleIcon, XIcon } from 'lucide-react';
@@ -95,7 +95,7 @@ function ParticipantInput({
           }
           formId={selectedFormId?.[0]}
           name={`participants.${index}.evaluateeIds`}
-          disabledIds={participant?.evaluatorId || []}
+          disabledIds={[participant?.evaluatorId] || []}
         />
       </div>
       <div className="col-span-2">
@@ -168,7 +168,7 @@ export function ParticipantManager(props: ParticipantManagerProps) {
     if (!disabled) {
       const newParticipant = ZPairSchema.parse({
         evaluateeIds: [],
-        evaluatorId: [],
+        evaluatorId: '',
         status: 'NOT_STARTED',
       });
       append(newParticipant);
@@ -189,20 +189,22 @@ export function ParticipantManager(props: ParticipantManagerProps) {
   };
 
   return (
-    <div className="flex flex-col flex-grow w-full relative select-none border-b">
-      <div className="grid max-h-6 text-sm border-b pb-1 sticky -top-[0.02px] bg-white flex-grow z-20 text-neutral-500 grid-cols-7">
+    <div className="flex flex-col flex-grow w-full relative select-none">
+      <div className="grid max-h-5 text-xs items-start pb-1 border-b sticky -top-[0.02px] bg-white flex-grow z-20 text-neutral-500 grid-cols-7">
         <div className="col-span-2">
-          <Label variant="light">Evaluator</Label>
+          <Label variant="light" className="self-start align-top">
+            Evaluator
+          </Label>
         </div>
         <div className="col-span-2">
-          <Label variant="light">
+          <Label variant="light" className="self-start align-top">
             {type === 'CREATE' ? 'Evaluatee(s)' : 'Evaluatee'}
           </Label>
         </div>
         <div className="col-span-2">
           {type === 'EDIT' && <Label variant="light">Status</Label>}
         </div>
-        <div className="col-span-1 flex flex-row justify-end">
+        <div className="col-span-1 self-start align-top flex flex-row justify-end">
           <motion.div whileTap={{ scale: 0.9 }} whileHover={{ scale: 0.98 }}>
             <PlusCircleIcon
               size={16}

@@ -2,13 +2,13 @@
 
 import {
   HomeLayout,
-  HomeLayoutContent,
+  HomeLayoutContent, HomeLayoutContentCard,
   HomeLayoutHeader,
   HomeLayoutTitle,
-} from '@/components/ui/home-layout';
+} from '@/components/home-layout';
 import { createAssessmentWithRequests } from '@/features/forms-home/actions/assessments/create-assessment-with-requests';
 import { getUserFolders } from '@/features/forms-home/actions/folders/get-user-folders';
-import { getAllFormsLite } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { getAllFormsLite } from '@/actions/forms/get-all-forms-lite';
 import { TAssessmentEditorFormSchema } from '@/features/forms-home/components/assessment-manager/assessment-creator-dialog';
 import { FoldersList } from '@/features/forms-home/components/folders/folders-list';
 import { FormCardDragOverlay } from '@/features/forms-home/components/form-cards/form-card';
@@ -289,7 +289,8 @@ export function FormsHome() {
             <CreateFormDialog />
           </div>
         </HomeLayoutHeader>
-        <HomeLayoutContent className="grid grid-cols-6 gap-4 gap-y-0">
+        <HomeLayoutContent >
+          <HomeLayoutContentCard className="grid grid-cols-6 gap-4 gap-y-0" >
           <div className="flex flex-col pt-1 col-span-full gap-4">
             {folders ? (
               <FoldersList
@@ -300,7 +301,7 @@ export function FormsHome() {
               'NO FOLDERS'
             )}
             <hr />
-            <div className="scrollbar scrollbar-track-transparent pb-4 scrollbar-thumb-neutral-300 overflow-y-scroll min-h-[76vh] max-h-[76vh]">
+            <div className="scrollbar scrollbar-track-transparent pb-4 scrollbar-thumb-neutral-300 overflow-y-scroll min-h-[71.5vh] max-h-[71.5vh]">
               <FormsList
                 key={selectedFolderId} // todo prevent reordering animation on folder switch
                 filteredForms={filteredForms}
@@ -308,6 +309,8 @@ export function FormsHome() {
             </div>
             <FormCardDragOverlay />
           </div>
+          </HomeLayoutContentCard>
+
         </HomeLayoutContent>
       </DndContext>
     </HomeLayout>

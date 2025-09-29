@@ -4,9 +4,9 @@ const nextConfig = {
   reactStrictMode: false,
   experimental: {
     reactCompiler: {
-      compilationMode: "infer"
-    }
-  }
+      compilationMode: 'infer',
+    },
+  },
 };
 
 const withBundleAnalyzer = require("@next/bundle-analyzer")();

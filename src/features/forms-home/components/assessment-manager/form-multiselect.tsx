@@ -7,20 +7,18 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { SearchInput } from '@/components/ui/search-input';
-import { TFormType } from '@/db/schema';
+import { getAllFormsLite } from '@/actions/forms/get-all-forms-lite';
 import {
   UseMultiselectField,
   useMultiselectField,
 } from '@/hooks/use-multiselect-field';
-import { cn } from '@/lib/utils';
 import { truncate } from '@/lib/truncate';
-import { getAllFormsLite } from '@/features/forms-home/actions/forms/get-all-forms-lite';
+import { cn } from '@/lib/utils';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2Icon, PlusCircleIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { FieldValues } from 'react-hook-form';
-import { FORM_TYPE_COLORS, FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 
 export function FormMultiselect<T extends FieldValues>({
   name,
@@ -89,9 +87,6 @@ export function FormMultiselect<T extends FieldValues>({
               <CompactFormCard
                 displayOnly
                 title={forms.find((f) => f.id === selectedIds[0])?.title || ''}
-                type={
-                  forms.find((f) => f.id === selectedIds[0])?.type || 'OSCE'
-                }
               />
             </div>
           )}
@@ -101,7 +96,7 @@ export function FormMultiselect<T extends FieldValues>({
         align="start"
         side="left"
         className={cn(
-          'flex flex-col w-[375px] overflow-hidden h-[350px] max-h-[80vh]',
+          'flex flex-col w-[350px] overflow-hidden h-[350px] max-h-[80vh]',
         )}
       >
         <div
@@ -119,7 +114,6 @@ export function FormMultiselect<T extends FieldValues>({
                 <CompactFormCard
                   key={f.id}
                   title={f.title}
-                  type={f.type}
                   select={() => select(f.id)}
                   deselect={() => deselect(f.id)}
                   isSelected={selectedIds.includes(f.id)}
@@ -137,7 +131,6 @@ export function FormMultiselect<T extends FieldValues>({
 
 interface CompactFormCardProps {
   title: string;
-  type: TFormType;
   isSelected?: boolean;
   select?: () => void;
   deselect?: () => void;
@@ -150,7 +143,6 @@ const MotionCard = motion(Card);
 
 function CompactFormCard({
   title,
-  type,
   isSelected,
   select,
   deselect,
@@ -158,8 +150,6 @@ function CompactFormCard({
   isMaxReached,
   displayOnly = false,
 }: CompactFormCardProps) {
-  const Icon = FORM_TYPE_ICONS[type];
-
   const handleClick = () => {
     if (displayOnly) return;
     if (isSelected) {
@@ -181,19 +171,11 @@ function CompactFormCard({
       className={cn(
         'relative h-[90px] pt-0.5 overflow-clip',
         !displayOnly && 'cursor-pointer',
-        FORM_TYPE_COLORS[type].border,
         disabled && isSelected && 'opacity-50 cursor-not-allowed',
+        'bg-accent-secondary/30',
         !isSelected && isMaxReached && 'opacity-50',
       )}
     >
-      <span
-        className={cn(
-          'translate-x-4 blur-sm -translate-y-4 shadow-lg pointer-events-none',
-          FORM_TYPE_COLORS[type].text,
-        )}
-      >
-        <Icon size={80} />
-      </span>
       <span className="absolute flex origin-center font-medium select-none flex-row items-center justify-between w-full p-2 text-xs z-20 h-2/5 backdrop-opacity-20 backdrop-filter bg-card bottom-0">
         <p>{truncate(title, 21)}</p>
         <AnimatePresence>
