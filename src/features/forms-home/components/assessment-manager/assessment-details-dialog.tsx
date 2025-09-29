@@ -26,7 +26,7 @@ import {
 import { updateAssessment } from '@/features/forms-home/actions/assessments/update-assessment';
 import { TAssessmentEditorFormSchema } from '@/features/forms-home/components/assessment-manager/assessment-creator-dialog';
 import { ParticipantManager } from '@/features/forms-home/components/assessment-manager/participant-manager';
-import { ZRequestResponseFormSchema } from '@/features/forms-home/schemas/assessment-request-schemas';
+import { ZAssessmentSchema } from '@/features/forms-home/schemas/assessment-schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isEqual } from 'lodash';
@@ -160,7 +160,7 @@ export function AssessmentDetailsDialog({
 
   const methods = useForm<TAssessmentEditorFormSchema>({
     defaultValues,
-    resolver: zodResolver(ZRequestResponseFormSchema),
+    resolver: zodResolver(ZAssessmentSchema),
   });
 
   const queryClient = useQueryClient();
@@ -274,6 +274,7 @@ export function AssessmentDetailsDialog({
                 <ParticipantManager assessmentId={assessmentId} type="EDIT" />
               </div>
             </div>
+            <hr/>
             <div className="flex mt-4 text-xs flex-row items-center space-x-2 justify-end">
               <Button
                 size="sm"

@@ -1,5 +1,16 @@
 import { TFormType } from '@/db/schema';
-import { TFormBuilderSettingsSchema } from '@/features/form-builder/types';
+import {
+  NewFormItemProps,
+  TFormBuilderSettingsSchema,
+} from '@/features/form-builder/types';
+import {
+  CheckCheckIcon,
+  CircleDotIcon,
+  HeadingIcon,
+  Pilcrow,
+  SlidersHorizontalIcon,
+  TypeIcon,
+} from 'lucide-react';
 
 export const DEFAULT_FORM_SETTINGS: Record<
   TFormType,
@@ -7,26 +18,17 @@ export const DEFAULT_FORM_SETTINGS: Record<
 > = {
   OSCE: {
     editAccess: 'ME',
-    allowResponseRevisions: false,
     passingCriteria: [],
-    allowMultipleResponses: false,
-    allowSaveAndQuit: false,
     enableScoring: false,
   },
   DIRECT_OBSERVATION: {
     editAccess: 'ME',
-    allowResponseRevisions: false,
     passingCriteria: [],
-    allowMultipleResponses: false,
-    allowSaveAndQuit: false,
     enableScoring: false,
   },
   EVALUATION: {
     editAccess: 'ME',
-    allowResponseRevisions: false,
     passingCriteria: [],
-    allowMultipleResponses: false,
-    allowSaveAndQuit: false,
     enableScoring: false,
   },
 };
@@ -35,3 +37,35 @@ export const DEFAULT_FORM_NAME = {
   EVALUATION: 'Untitled Evaluation',
   DIRECT_OBSERVATION: 'Untitled Direct Observation',
 };
+export const NEW_FORM_ITEMS: NewFormItemProps[] = [
+  {
+    itemType: 'WRITTEN',
+    Icon: TypeIcon,
+    label: 'Written',
+  },
+  {
+    itemType: 'HEADER',
+    Icon: HeadingIcon,
+    label: 'Heading',
+  },
+  {
+    itemType: 'PARAGRAPH',
+    Icon: Pilcrow,
+    label: 'Paragraph',
+  },
+  {
+    itemType: 'SINGLE_CHOICE',
+    Icon: CircleDotIcon,
+    label: 'Select One',
+  },
+  {
+    itemType: 'MULTIPLE_CHOICE',
+    Icon: CheckCheckIcon,
+    label: 'Select Multiple',
+  },
+  {
+    itemType: 'RANGE',
+    Icon: SlidersHorizontalIcon,
+    label: 'Range',
+  },
+] as const;

@@ -6,15 +6,15 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { FormMultiselect } from '@/features/forms-home/components/assessment-manager/form-multiselect';
 import { ParticipantManager } from '@/features/forms-home/components/assessment-manager/participant-manager';
-import { ZRequestResponseFormSchema } from '@/features/forms-home/schemas/assessment-request-schemas';
+import { ZAssessmentSchema } from '@/features/forms-home/schemas/assessment-schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SendHorizonalIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -27,9 +27,7 @@ import {
 } from 'react-hook-form';
 import { z } from 'zod';
 
-export type TAssessmentEditorFormSchema = z.infer<
-  typeof ZRequestResponseFormSchema
->;
+export type TAssessmentEditorFormSchema = z.infer<typeof ZAssessmentSchema>;
 
 type AssessmentEditorDialogProps = {
   disabledFields?: FieldPath<TAssessmentEditorFormSchema>[];
@@ -70,7 +68,7 @@ export function AssessmentCreatorDialog({
   };
 
   const methods = useForm<TAssessmentEditorFormSchema>({
-    resolver: zodResolver(ZRequestResponseFormSchema),
+    resolver: zodResolver(ZAssessmentSchema),
     defaultValues: formattedDefaultValues,
   });
 
@@ -105,34 +103,6 @@ export function AssessmentCreatorDialog({
   const isFieldDisabled = (name: FieldPath<TAssessmentEditorFormSchema>) =>
     disabledFields.includes(name);
 
-  const renderParticipantsInput = () => {
-    if (!selectedFormId) {
-      return null;
-    }
-
-    if (selectedFormId.length === 0) {
-      return null;
-    }
-
-    const selectedForm = forms.find(
-      (f) =>
-        f.id === (Array.isArray(selectedFormId) && selectedFormId[0]) ||
-        undefined,
-    );
-
-    if (!selectedForm) {
-      return <div>Selected form not found</div>;
-    }
-
-    return (
-      <ParticipantManager
-        type="CREATE"
-        disabled={isFieldDisabled('participants')}
-        disabledSpecificPairFields={disabledSpecificPairFields}
-      />
-    );
-  };
-
   return (
     <Dialog onOpenChange={(open) => setDialogOpen(open)} open={dialogOpen}>
       <DialogTrigger asChild>
@@ -149,21 +119,25 @@ export function AssessmentCreatorDialog({
         noCloseButton
         onOpenAutoFocus={(event) => event.preventDefault()}
         onCloseAutoFocus={(event) => event.preventDefault()}
-        className="flex h-[550px] max-w-[500px] flex-col"
+        className="flex h-[600px] max-w-[800px] flex-col"
       >
-        <DialogHeader>
-          <DialogTitle className="pointer-events-none flex items-center space-x-2">
-            <SendHorizonalIcon size={14} />
+        <DialogTitle className="pointer-events-none flex items-center space-x-2">
+          <span className="p-1.5 rounded-full bg-primary/10">
+            <SendHorizonalIcon size={16} className="text-foreground" />
+          </span>
+        </DialogTitle>
+        <div className="space-y-1">
+          <DialogTitle>
             <p>New Assessment</p>
           </DialogTitle>
-        </DialogHeader>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        </div>
+        <hr />
         <FormProvider {...methods}>
           <form
             onSubmit={methods.handleSubmit(onSubmit)}
-            className="flex-grow flex flex-col space-y-4"
+            className="flex-grow flex flex-col justify-between"
           >
-            <div className="grid grid-cols-2 gap-4 w-full">
+            <div className="grid grid-cols-3 gap-4 w-full">
               <div className="col-span-1 flex flex-col mr-6 bg-primary/5 rounded-sm justify-center items-center">
                 <FormMultiselect
                   control={methods.control}
@@ -207,26 +181,49 @@ export function AssessmentCreatorDialog({
                   />
                 </div>
               </div>
+              <div className="space-y-2 col-span-2 flex flex-col">
+                <Label
+                  className="text-neutral-500  text-2xs font-normal"
+                  htmlFor="title"
+                >
+                  Assessment Title
+                </Label>
+                <Input
+                  size="sm"
+                  placeholder="Untitled Assessment"
+                  disabled={isFieldDisabled('title')}
+                  name={methods.register('title').name}
+                  onChange={methods.register('title').onChange}
+                  ref={methods.register('title').ref}
+                />
+              </div>
+              <div className="flex flex-grow col-span-2 h-[13rem]">
+                <ParticipantManager
+                  type="CREATE"
+                  disabled={
+                    isFieldDisabled('participants') || !selectedFormId[0]
+                  }
+                  disabledSpecificPairFields={disabledSpecificPairFields}
+                />
+              </div>
+              <div className="flex flex-col space-y-4 text-xs col-span-1 row-start-1 col-start-3 row-span-3">
+                <div className="flex justify-between items-center">
+                  <Label className="text-xs font-normal">Allow Multiple Submissions</Label>
+                  <Switch size="sm" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <Label className="text-xs font-normal">Allow Save & Quit</Label>
+                  <Switch size="sm" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <Label className="text-xs font-normal">Allow Revisions</Label>
+                  <Switch size="sm" />
+                </div>
+              <hr/>
+              </div>
             </div>
-            <div className="space-y-2 flex flex-col">
-              <Label
-                className="text-neutral-500 text-2xs font-normal"
-                htmlFor="title"
-              >
-                Assessment Title
-              </Label>
-              <Input
-                size="sm"
-                placeholder="Untitled Assessment"
-                disabled={isFieldDisabled('title')}
-                name={methods.register('title').name}
-                onChange={methods.register('title').onChange}
-                ref={methods.register('title').ref}
-              />
-            </div>
-            <div className="flex h-52">{renderParticipantsInput()}</div>
             <hr />
-            <div className="flex select-none flex-row justify-end items-baseline space-x-2">
+            <div className="flex select-none  flex-row justify-end items-baseline space-x-2">
               <Button disabled={methods.formState.isSubmitting} type="submit">
                 Send
               </Button>
