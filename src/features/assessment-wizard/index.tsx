@@ -9,8 +9,6 @@ import {
 } from '@/components/home-layout';
 import { ProgressSteps } from '@/components/progress-steps';
 import { Button } from '@/components/ui/button';
-import { ZAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
-import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
 import { useMultistepFormContext } from '@/hooks/use-multistep-form-context';
 
 const steps = ['Details', 'Participants', 'Review & Deploy'];
@@ -18,17 +16,6 @@ const steps = ['Details', 'Participants', 'Review & Deploy'];
 export function AssessmentWizard() {
   const { previous, step, currentStepIndex, isFirstStep, isLastStep } =
     useMultistepFormContext();
-
-  const components = useAssessmentWizardStore((s) => s.components);
-
-  const submit = () => {
-    const result = ZAssessmentDetailsStepSchema.safeParse({ components });
-
-    // Success - use result.data
-    const validatedData = result.data;
-    // Process validated data here
-    console.log(validatedData);
-  };
 
   return (
     <HomeLayout>
@@ -49,7 +36,7 @@ export function AssessmentWizard() {
             >
               Back
             </Button>
-            <Button className="w-24" onClick={submit}>
+            <Button className="w-24" type="submit" form="current-step">
               {isLastStep ? 'Submit' : 'Continue'}
             </Button>
           </div>

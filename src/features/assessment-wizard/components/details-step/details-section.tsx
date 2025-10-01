@@ -40,9 +40,9 @@ export function ComponentDetailsSection() {
         <div>
           <Label>Title</Label>
           <Input
-            defaultValue={component.title}
+            value={component.title}
             onChange={(e) => {
-              updateComponent(component.id, { title: e.target.value  })
+              updateComponent(component.id, { title: e.target.value })
             }}
             size="sm"
             placeholder="Station"
@@ -51,7 +51,7 @@ export function ComponentDetailsSection() {
         <div>
           <Label>Starts at</Label>
           <Input
-            defaultValue={component.startsAt}
+            value={component.startsAt}
             size="sm"
             type="datetime-local"
           />
@@ -59,7 +59,7 @@ export function ComponentDetailsSection() {
         <div>
           <Label>Expires at</Label>
           <Input
-            defaultValue={component.expiresAt}
+            value={component.expiresAt}
             size="sm"
             type="datetime-local"
           />

@@ -5,22 +5,30 @@ import { AssessmentControl } from '@/features/assessment-wizard/components/detai
 import { ComponentDetailsSection } from '@/features/assessment-wizard/components/details-step/details-section';
 import { ComponentSettingsSection } from '@/features/assessment-wizard/components/details-step/settings-section';
 import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
+import { FormEvent } from 'react';
+import { ZAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
 
 export function AssessmentDetailsForm() {
-  const selectedComponentId = useAssessmentWizardStore(
-    (s) => s.selectedComponentId,
-  );
   const components = useAssessmentWizardStore((s) => s.components);
+  const setErrors = useAssessmentWizardStore((s) => s.setErrors)
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const result = ZAssessmentDetailsStepSchema.safeParse({ components });
+    setErrors(result.error)
+    console.log(result);
+  };
 
   return (
-    <form className="flex-grow grid gap-4 grid-cols-7 h-full">
+    <form
+      id="current-step"
+      onSubmit={handleSubmit}
+      className="flex-grow grid gap-4 grid-cols-7 h-full"
+    >
       <div className="col-span-3">
         <AssessmentControl />
       </div>
-      <div
-        key={selectedComponentId}
-        className="space-y-4 border-l pl-4 col-span-4"
-      >
+      <div className="space-y-4 border-l pl-4 col-span-4">
         {components.length > 0 ? (
           <>
             <ComponentDetailsSection />

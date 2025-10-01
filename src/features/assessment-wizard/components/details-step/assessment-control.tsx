@@ -38,6 +38,8 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
 
   const removeComponent = useAssessmentWizardStore((s) => s.removeComponent);
 
+  const errors = useAssessmentWizardStore((s) => s.errors);
+
   const {
     data: forms,
     isLoading,
@@ -68,6 +70,7 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
       className={cn(
         'w-full h-12 text-sm p-2 flex flex-row items-center border border-transparent hover:border-accent-secondary justify-between group rounded-sm select-none',
         isSelected ? 'bg-primary/5' : 'bg-transparent hover:bg-transparent ',
+        errors[`components.${index}.title`] && 'outline outline-destructive',
       )}
     >
       <div
@@ -92,7 +95,10 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
       <XIcon
         size={16}
         className="text-black"
-        onClick={() => removeComponent(component.id)}
+        onClick={(e) => {
+          e.stopPropagation(); // stop selecting after we delete
+          removeComponent(component.id);
+        }}
       />
     </MotionButton>
   );
