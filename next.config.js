@@ -4,12 +4,12 @@ const nextConfig = {
   reactStrictMode: false,
   experimental: {
     reactCompiler: {
-      compilationMode: 'infer',
-    },
+      compilationMode: "annotation"
+    }
   },
 };
 
-const withBundleAnalyzer = require("@next/bundle-analyzer")();
+const withBundleAnalyzer = require('@next/bundle-analyzer')();
 
 module.exports =
-  process.env.ANALYZE === "true" ? withBundleAnalyzer(nextConfig) : nextConfig;
+  process.env.ANALYZE === 'true' ? withBundleAnalyzer(nextConfig) : nextConfig;
