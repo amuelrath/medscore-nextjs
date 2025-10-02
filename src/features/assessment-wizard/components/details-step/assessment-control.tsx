@@ -13,17 +13,18 @@ import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schem
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
+import { addHours, addMinutes, format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { BoxesIcon, BoxIcon, XIcon } from 'lucide-react';
+import { SyntheticEvent } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { v4 } from 'uuid';
-import { MouseEventHandler, SyntheticEvent, useEffect } from 'react';
 
 const MotionButton = motion.create(Button);
 
 interface AssessmentCardProps {
   index: number;
-  setSelectedIndex: (idx: number| undefined) => void;
+  setSelectedIndex: (idx: number | undefined) => void;
   selectedIndex: number | undefined;
 }
 
@@ -42,18 +43,16 @@ function AssessmentCard({
       getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
-  const { control, formState: { errors } } = useFormContext<TAssessmentDetailsStepSchema>();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<TAssessmentDetailsStepSchema>();
   const { fields, remove } = useFieldArray<TAssessmentDetailsStepSchema>({
     control,
     name: 'components',
   });
 
-  const component = useWatch({
-    control,
-    name: `components.${index}`,
-  });
-
-  const handleRemove = (e:  SyntheticEvent) => {
+  const handleRemove = (e: SyntheticEvent) => {
     e.stopPropagation();
 
     // Determine the new selectedIndex after removal
@@ -72,11 +71,13 @@ function AssessmentCard({
     }
 
     remove(index);
-  }
+  };
 
-  if (!component) {
-    return null;
-  }
+  const component = useWatch({
+    control,
+    name: `components.${index}`,
+  });
+  if (!component) return null;
 
   const form = forms?.find((f) => f.id === component.formId);
   const formTitle = form?.title || 'Form not found';
@@ -94,7 +95,7 @@ function AssessmentCard({
       className={cn(
         'w-full h-12 text-sm p-2 flex flex-row items-center border border-transparent hover:border-accent-secondary justify-between group rounded-sm select-none',
         isSelected ? 'bg-primary/5' : 'bg-transparent hover:bg-transparent ',
-        errors.components?.[index] && "outline outline-destructive"
+        errors.components?.[index] && 'outline outline-destructive',
       )}
     >
       <div
@@ -116,37 +117,35 @@ function AssessmentCard({
         </div>
       </div>
 
-      <XIcon
-        size={16}
-        className="text-black"
-        onClick={handleRemove}
-      />
+      <XIcon size={16} className="text-black" onClick={handleRemove} />
     </MotionButton>
   );
 }
 
 interface AssessmentControlProps {
-  selectedIndex: number| undefined;
-  setSelectedIndex: (idx: number| undefined) => void;
+  selectedIndex: number | undefined;
+  setSelectedIndex: (idx: number | undefined) => void;
 }
 
 export function AssessmentControl({
   selectedIndex,
   setSelectedIndex,
 }: AssessmentControlProps) {
-  const { control, formState: { errors } } = useFormContext<TAssessmentDetailsStepSchema>();
+  const { control } = useFormContext<TAssessmentDetailsStepSchema>();
   const { fields, append } = useFieldArray({
     control,
     name: 'components',
   });
 
   const handleAddComponent = (formId: string) => {
+    const now = Date.now();
+
     append({
       id: v4(),
       title: '',
       formId,
-      expiresAt: '',
-      startsAt: '',
+      startsAt: format(addMinutes(now, -2), "yyyy-MM-dd'T'HH:mm"),
+      expiresAt: format(addHours(now, 2), "yyyy-MM-dd'T'HH:mm"),
       multipleResponses: false,
       saveAndQuit: false,
       revisions: false,

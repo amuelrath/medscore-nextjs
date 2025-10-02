@@ -8,18 +8,26 @@ import {
   TAssessmentDetailsStepSchema,
   ZAssessmentDetailsStepSchema,
 } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
+import { useMultistepFormContext } from '@/hooks/use-multistep-form-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 export function AssessmentDetailsForm() {
-  const [selectedIndex, setSelectedIndex] = useState<number | undefined>();
+  const { next } = useMultistepFormContext();
+  const initialComponents = useAssessmentWizardStore.getState().components
+  const setComponents = useAssessmentWizardStore((s) => s.setComponents);
+  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(0);
+
   const methods = useForm<TAssessmentDetailsStepSchema>({
     defaultValues: {
-      components: [],
+      components: initialComponents ||  [],
     },
     resolver: zodResolver(ZAssessmentDetailsStepSchema),
     shouldUnregister: false,
+    shouldFocusError: false,
+    reValidateMode: 'onChange',
   });
 
   const components = useWatch({
@@ -28,7 +36,8 @@ export function AssessmentDetailsForm() {
   });
 
   const submit = (data: TAssessmentDetailsStepSchema) => {
-    console.log(data);
+    setComponents(data.components);
+    next();
   };
 
   return (
