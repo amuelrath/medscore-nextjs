@@ -13,7 +13,6 @@ import {
 import Loading from '@/components/ui/loading';
 import { SearchInput } from '@/components/ui/search-input';
 import { TFormType } from '@/db/schema';
-import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
 import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
@@ -148,9 +147,11 @@ function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
   );
 }
 
-export function FormSelectDialogTrigger() {
-  const addComponent = useAssessmentWizardStore((s) => s.addComponent);
-
+export function FormSelectDialogTrigger({
+  handleAddComponent,
+}: {
+  handleAddComponent: (formId: string) => void;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -181,7 +182,7 @@ export function FormSelectDialogTrigger() {
             Select the form you would like to add to this assessment.
           </DialogDescription>
         </div>
-        <FormSelectForm handleAddComponent={addComponent} />
+        <FormSelectForm handleAddComponent={handleAddComponent} />
       </DialogContent>
     </Dialog>
   );

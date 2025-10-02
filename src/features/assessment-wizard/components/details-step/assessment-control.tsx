@@ -9,37 +9,29 @@ import {
 } from '@/components/form-section-header';
 import { Button } from '@/components/ui/button';
 import { FormSelectDialogTrigger } from '@/features/assessment-wizard/components/details-step/form-select-dialog';
-import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
+import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { BoxesIcon, BoxIcon, XIcon } from 'lucide-react';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { v4 } from 'uuid';
+import { MouseEventHandler, SyntheticEvent, useEffect } from 'react';
 
 const MotionButton = motion.create(Button);
 
 interface AssessmentCardProps {
   index: number;
-  componentId: string;
+  setSelectedIndex: (idx: number| undefined) => void;
+  selectedIndex: number | undefined;
 }
 
-function AssessmentCard({ index, componentId }: AssessmentCardProps) {
-  const selectedComponentId = useAssessmentWizardStore(
-    (s) => s.selectedComponentId,
-  );
-
-  const setSelectedComponentId = useAssessmentWizardStore(
-    (s) => s.setSelectedComponentId,
-  );
-
-  const component = useAssessmentWizardStore((s) =>
-    s.components.find((c) => c.id === componentId),
-  );
-
-  const removeComponent = useAssessmentWizardStore((s) => s.removeComponent);
-
-  const errors = useAssessmentWizardStore((s) => s.errors);
-
+function AssessmentCard({
+  index,
+  setSelectedIndex,
+  selectedIndex,
+}: AssessmentCardProps) {
   const {
     data: forms,
     isLoading,
@@ -50,6 +42,38 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
       getAllFormsLite({ userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
+  const { control, formState: { errors } } = useFormContext<TAssessmentDetailsStepSchema>();
+  const { fields, remove } = useFieldArray<TAssessmentDetailsStepSchema>({
+    control,
+    name: 'components',
+  });
+
+  const component = useWatch({
+    control,
+    name: `components.${index}`,
+  });
+
+  const handleRemove = (e:  SyntheticEvent) => {
+    e.stopPropagation();
+
+    // Determine the new selectedIndex after removal
+    if (index === selectedIndex) {
+      // If deleting the selected item
+      if (fields.length > 1) {
+        // If there are other items, select the previous one (or 0 if deleting the first)
+        setSelectedIndex(index > 0 ? index - 1 : 0);
+      } else {
+        // If this is the last item, deselect
+        setSelectedIndex(undefined);
+      }
+    } else if (selectedIndex !== undefined && selectedIndex > index) {
+      // Adjust selectedIndex if we're removing an item before it
+      setSelectedIndex(selectedIndex - 1);
+    }
+
+    remove(index);
+  }
+
   if (!component) {
     return null;
   }
@@ -57,11 +81,11 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
   const form = forms?.find((f) => f.id === component.formId);
   const formTitle = form?.title || 'Form not found';
   const formQuestionCount = form?.formItems.length || 0;
-  const isSelected = selectedComponentId === component?.id;
+  const isSelected = index === selectedIndex;
 
   return (
     <MotionButton
-      onClick={() => setSelectedComponentId(componentId)}
+      onClick={() => setSelectedIndex(index)}
       type="button"
       layout="position"
       initial={{ opacity: 0, y: -10 }}
@@ -70,7 +94,7 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
       className={cn(
         'w-full h-12 text-sm p-2 flex flex-row items-center border border-transparent hover:border-accent-secondary justify-between group rounded-sm select-none',
         isSelected ? 'bg-primary/5' : 'bg-transparent hover:bg-transparent ',
-        errors[`components.${index}.title`] && 'outline outline-destructive',
+        errors.components?.[index] && "outline outline-destructive"
       )}
     >
       <div
@@ -95,17 +119,41 @@ function AssessmentCard({ index, componentId }: AssessmentCardProps) {
       <XIcon
         size={16}
         className="text-black"
-        onClick={(e) => {
-          e.stopPropagation(); // stop selecting after we delete
-          removeComponent(component.id);
-        }}
+        onClick={handleRemove}
       />
     </MotionButton>
   );
 }
 
-export function AssessmentControl() {
-  const components = useAssessmentWizardStore((s) => s.components);
+interface AssessmentControlProps {
+  selectedIndex: number| undefined;
+  setSelectedIndex: (idx: number| undefined) => void;
+}
+
+export function AssessmentControl({
+  selectedIndex,
+  setSelectedIndex,
+}: AssessmentControlProps) {
+  const { control, formState: { errors } } = useFormContext<TAssessmentDetailsStepSchema>();
+  const { fields, append } = useFieldArray({
+    control,
+    name: 'components',
+  });
+
+  const handleAddComponent = (formId: string) => {
+    append({
+      id: v4(),
+      title: '',
+      formId,
+      expiresAt: '',
+      startsAt: '',
+      multipleResponses: false,
+      saveAndQuit: false,
+      revisions: false,
+    });
+
+    setSelectedIndex(fields.length);
+  };
 
   return (
     <div className="space-y-1">
@@ -113,12 +161,17 @@ export function AssessmentControl() {
         <FormSectionHeaderContent className="relative">
           <FormSectionHeaderIcon Icon={BoxesIcon} />
           <FormSectionHeaderTitle>Forms</FormSectionHeaderTitle>
-          <FormSelectDialogTrigger />
+          <FormSelectDialogTrigger handleAddComponent={handleAddComponent} />
         </FormSectionHeaderContent>
       </FormSectionHeader>
       <ul className="flex flex-col space-y-2">
-        {components.map((c, index) => (
-          <AssessmentCard key={c.id} index={index} componentId={c.id} />
+        {fields.map((c, index) => (
+          <AssessmentCard
+            key={c.id}
+            index={index}
+            selectedIndex={selectedIndex}
+            setSelectedIndex={setSelectedIndex}
+          />
         ))}
       </ul>
     </div>

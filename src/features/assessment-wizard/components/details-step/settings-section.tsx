@@ -8,27 +8,28 @@ import {
 } from '@/components/form-section-header';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { TAssessmentComponentSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
-import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
+import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
 import { SettingsIcon } from 'lucide-react';
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
-export function ComponentSettingsSection() {
-  const selectedComponentId = useAssessmentWizardStore(
-    (s) => s.selectedComponentId,
-  );
+interface ComponentSettingsSectionProps {
+  selectedIndex: number | undefined;
+}
 
-  const component = useAssessmentWizardStore((s) =>
-    s.components.find((c) => c.id === (selectedComponentId || '')),
-  );
+export function ComponentSettingsSection({
+  selectedIndex,
+}: ComponentSettingsSectionProps) {
+  const { control } = useFormContext<TAssessmentDetailsStepSchema>();
+  const { fields } = useFieldArray<TAssessmentDetailsStepSchema>({
+    control,
+    name: 'components',
+  });
 
-  const updateComponent = useAssessmentWizardStore((s) => s.updateComponent);
-
-  if (!component) {
-    return null;
-  }
+  const component = fields[selectedIndex as number];
+  if (!component) return null;
 
   return (
-    <div key={component.id} className="space-y-1 w-full">
+    <div className="space-y-1 w-full">
       <FormSectionHeader>
         <FormSectionHeaderContent>
           <FormSectionHeaderIcon Icon={SettingsIcon} />
@@ -44,34 +45,38 @@ export function ComponentSettingsSection() {
                 <Label className="text-sm text-neutral-700">
                   Multiple Responses
                 </Label>
-
-                <Switch
-                  defaultChecked={component.multipleResponses}
-                  onCheckedChange={(checked) =>
-                    updateComponent(component.id, {
-                      multipleResponses: checked,
-                    })
-                  }
-                  size="md"
+                <Controller
+                  control={control}
+                  name={`components.${selectedIndex as number}.multipleResponses`}
+                  render={({ field }) => (
+                    <Switch
+                      defaultChecked={component.multipleResponses}
+                      onCheckedChange={(checked) => field.onChange(checked)}
+                      size="md"
+                    />
+                  )}
                 />
               </div>
-              <p className="text-sm font-light">Submit multiple times.</p>
+              <p className="text-sm text-neutral-500">Submit multiple times.</p>
             </div>
             <div className="flex flex-col">
               <div className="flex flex-row items-center justify-between">
                 <Label className="text-sm" variant="medium">
                   Revisions
                 </Label>
-
-                <Switch
-                  defaultChecked={component.revisions}
-                  onCheckedChange={(checked) =>
-                    updateComponent(component.id, { revisions: checked })
-                  }
-                  size="md"
+                <Controller
+                  control={control}
+                  name={`components.${selectedIndex as number}.revisions`}
+                  render={({ field }) => (
+                    <Switch
+                      defaultChecked={component.revisions}
+                      onCheckedChange={(checked) => field.onChange(checked)}
+                      size="md"
+                    />
+                  )}
                 />
               </div>
-              <p className="text-sm font-light">Edit after submission.</p>
+              <p className="text-sm text-neutral-500">Edit after submission.</p>
             </div>
             <div className="flex flex-col">
               <div className="flex flex-row items-center justify-between">
@@ -79,15 +84,19 @@ export function ComponentSettingsSection() {
                   Save & Quit
                 </Label>
 
-                <Switch
-                  defaultChecked={component.saveAndQuit}
-                  onCheckedChange={(checked) =>
-                    updateComponent(component.id, { saveAndQuit: checked })
-                  }
-                  size="md"
+                <Controller
+                  control={control}
+                  name={`components.${selectedIndex as number}.saveAndQuit`}
+                  render={({ field }) => (
+                    <Switch
+                      defaultChecked={component.saveAndQuit}
+                      onCheckedChange={(checked) => field.onChange(checked)}
+                      size="md"
+                    />
+                  )}
                 />
               </div>
-              <p className="text-sm font-light">Complete later.</p>
+              <p className="text-sm text-neutral-500">Complete later.</p>
             </div>
           </div>
         </div>

@@ -39,8 +39,8 @@ export const ZAssessmentComponentSchema = z.object({
   saveAndQuit: z.boolean(),
   multipleResponses: z.boolean(),
   revisions: z.boolean(),
-  startsAt: z.string(),
-  expiresAt: z.string(),
+  startsAt: z.string().min(1, "Enter a starting time."),
+  expiresAt: z.string().min(1, "Enter an ending time."),
 });
 export type TAssessmentComponentSchema = z.infer<
   typeof ZAssessmentComponentSchema

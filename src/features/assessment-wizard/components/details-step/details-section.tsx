@@ -8,25 +8,30 @@ import {
 } from '@/components/form-section-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TAssessmentComponentSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
-import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
+import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
 import { CalendarIcon } from 'lucide-react';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 
+interface ComponentDetailsSectionProps {
+  selectedIndex: number | undefined;
+}
 
-export function ComponentDetailsSection() {
-  const selectedComponentId = useAssessmentWizardStore(
-    (s) => s.selectedComponentId,
-  );
+export function ComponentDetailsSection({
+  selectedIndex,
+}: ComponentDetailsSectionProps) {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext<TAssessmentDetailsStepSchema>();
 
-  const component = useAssessmentWizardStore((s) =>
-    s.components.find((c) => c.id === (selectedComponentId || '')),
-  );
+  const { fields } = useFieldArray<TAssessmentDetailsStepSchema>({
+    control,
+    name: 'components',
+  });
 
-  const updateComponent = useAssessmentWizardStore((s) => s.updateComponent)
-
-  if (!component) {
-    return null
-  }
+  const component = fields[selectedIndex as number];
+  if (!component) return null;
 
   return (
     <div className="space-y-1">
@@ -38,28 +43,55 @@ export function ComponentDetailsSection() {
       </FormSectionHeader>
       <div className="space-y-2">
         <div>
-          <Label>Title</Label>
+          <Label className="flex flex-row justify-between">
+            Title{' '}
+            {errors.components?.[selectedIndex as number]?.title && (
+              <span className="text-destructive justify-end">
+                {errors.components?.[selectedIndex as number]?.title?.message}
+              </span>
+            )}
+          </Label>
           <Input
-            value={component.title}
-            onChange={(e) => {
-              updateComponent(component.id, { title: e.target.value })
-            }}
+            {...register(`components.${selectedIndex as number}.title`)}
+            defaultValue={component.title}
             size="sm"
-            placeholder="Station"
+            placeholder={`Station ${(selectedIndex as number) + 1}`}
           />
         </div>
         <div>
-          <Label>Starts at</Label>
+          <Label className="flex flex-row justify-between">
+            Starts at{' '}
+            {errors.components?.[selectedIndex as number]?.startsAt && (
+              <span className="text-destructive justify-end">
+                {
+                  errors.components?.[selectedIndex as number]?.startsAt
+                    ?.message
+                }
+              </span>
+            )}
+          </Label>
           <Input
-            value={component.startsAt}
+            {...register(`components.${selectedIndex as number}.startsAt`)}
+            defaultValue={component.startsAt}
             size="sm"
             type="datetime-local"
           />
         </div>
         <div>
-          <Label>Expires at</Label>
+          <Label className="flex flex-row justify-between">
+            Expires at{' '}
+            {errors.components?.[selectedIndex as number]?.expiresAt && (
+              <span className="text-destructive justify-end">
+                {
+                  errors.components?.[selectedIndex as number]?.expiresAt
+                    ?.message
+                }
+              </span>
+            )}
+          </Label>
           <Input
-            value={component.expiresAt}
+            {...register(`components.${selectedIndex as number}.expiresAt`)}
+            defaultValue={component.expiresAt}
             size="sm"
             type="datetime-local"
           />

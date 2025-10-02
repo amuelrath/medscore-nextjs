@@ -2,7 +2,7 @@ import { TAssessmentComponentSchema } from '@/features/assessment-wizard/schemas
 
 export type WizardType = 'SINGLE' | 'GROUPED';
 export type WizardStep = 'DETAILS' | 'PARTICIPANTS_AND_SETTINGS' | 'REVIEW';
-export type Selection = {
+export type ComponentSelection = {
   index: number | undefined;
   selection: TAssessmentComponentSchema | undefined;
 };
