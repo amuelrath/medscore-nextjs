@@ -4,19 +4,28 @@ import * as LabelPrimitive from "@radix-ui/react-label";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 
 const labelVariants = cva(
   "leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
   {
     variants: {
       variant: {
-        default: "text-sm font-medium",
-        light: "text-neutral-500 text-2xs font-normal",
+        default: "text-neutral-500",
+        medium: "text-neutral-800",
+        light: "text-neutral-500 font-normal",
       },
+      size: {
+        default: "text-xs",
+        sm: "text-sm",
+        md: "text-md",
+        lg: "text-lg"
+      }
     },
+
     defaultVariants: {
       variant: "default",
+      size: "default"
     },
   },
 );
@@ -28,7 +37,7 @@ const Label = React.forwardRef<
 >(({ className, variant, ...props  }, ref) => (
   <LabelPrimitive.Root
     ref={ref}
-    className={cn(labelVariants({ variant }), className)}
+    className={cn(labelVariants({ variant }), 'select-none',  className)}
     {...props}
   />
 ));

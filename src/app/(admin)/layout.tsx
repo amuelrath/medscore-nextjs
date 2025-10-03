@@ -2,7 +2,7 @@ import { AppHeader } from '@/components/ui/app-header';
 import { RouteNavigation } from '@/components/ui/route-navigation';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import {
-  ClipboardPlusIcon,
+  ClipboardPlusIcon, FileChartColumnIcon,
   FileStackIcon,
   GaugeIcon,
   GraduationCapIcon,
@@ -18,16 +18,22 @@ const tabs = [
     href: '/dashboard',
   },
   {
-    id: 'Evaluate',
-    label: 'Evaluate',
-    icon: <ClipboardPlusIcon size={20} />,
-    href: '/evaluate',
-  },
-  {
     id: 'forms',
     label: 'Forms',
     icon: <FileStackIcon size={20} />,
     href: '/forms',
+  },
+  {
+    id: 'assessments',
+    label: 'Assessments',
+    icon: <FileChartColumnIcon size={20} />,
+    href: '/assessments',
+  },
+  {
+    id: 'Evaluate',
+    label: 'Evaluate',
+    icon: <ClipboardPlusIcon size={20} />,
+    href: '/evaluate',
   },
   {
     id: 'reports',

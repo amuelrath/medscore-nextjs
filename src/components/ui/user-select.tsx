@@ -1,40 +1,41 @@
-"use client";
+'use client';
 
-import { Avatar, AvatarColor, AvatarStack } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { getFormById } from '@/actions/forms/get-form-by-id';
+import { Avatar, AvatarColor, AvatarStack } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { User } from "@/db/schema";
+} from '@/components/ui/popover';
+import { User } from '@/db/schema';
 import {
   UseMultiselectField,
   useMultiselectField,
-} from "@/hooks/use-multiselect-field";
-import { capitalizeFirstLetter } from "@/lib/helpers/capitalize-first-letter";
-import { getInitials } from "@/lib/helpers/get-initials";
-import { getFullName } from "@/lib/helpers/get-full-name";
-import { cn } from "@/lib/helpers/utils";
-import { truncate } from "@/lib/helpers/truncate";
-import { getFormById } from "@/server/actions/forms/get-form-by-id";
-import { useQuery } from "@tanstack/react-query";
-import { MinusIcon, PlusIcon } from "lucide-react";
-import { useMemo } from "react";
-import { FieldValues } from "react-hook-form";
+} from '@/hooks/use-multiselect-field';
+import { capitalizeFirstLetter } from '@/lib/capitalize-first-letter';
+import { getFullName } from '@/lib/get-full-name';
+import { getInitials } from '@/lib/get-initials';
+import { truncate } from '@/lib/truncate';
+import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { MinusIcon, PlusIcon } from 'lucide-react';
+import { useMemo } from 'react';
+import { FieldValues } from 'react-hook-form';
+import Loading from '@/components/ui/loading';
 
 interface UserSelectProps<T extends FieldValues>
   extends UseMultiselectField<T> {
   formId?: string | undefined;
   disabledIds?: string[] | undefined;
-  disabledFn?: () => string[] | undefined,
+  disabledFn?: () => string[] | undefined;
   placeholder?: string;
 }
 
@@ -48,15 +49,21 @@ export function UserSelect<T extends FieldValues>({
   formId,
   disabledIds,
   disabledFn,
-  placeholder
+  placeholder,
 }: UserSelectProps<T>) {
   const { data: formResult, isLoading } = useQuery({
-    queryKey: ["forms", formId],
+    queryKey: ['forms', formId],
     queryFn: () =>
       getFormById({ formId, userId: process.env.NEXT_PUBLIC_DEV_USER_ID! }),
   });
 
-  const users = useMemo(() => formResult?.programs.users.map((u) => u.user).filter(u => !disabledIds?.includes(u.id)) || [], [disabledIds, formResult?.programs.users]);
+  const users = useMemo(
+    () =>
+      formResult?.programs.users
+        .map((u) => u.user)
+        .filter((u) => !disabledIds?.includes(u.id)) || [],
+    [disabledIds, formResult?.programs.users],
+  );
 
   const {
     selectedIds: selectedUserIds,
@@ -64,37 +71,44 @@ export function UserSelect<T extends FieldValues>({
     deselect,
   } = useMultiselectField<T>({ name, control, disabled, max, defaultValue });
 
-  const sortedUsers = useMemo(() => 
-     [
-      ...users.filter((user) => selectedUserIds.includes(user.id)),
-      ...users.filter((user) => !selectedUserIds.includes(user.id)),
-    ].filter(user => !disabledIds?.includes(user.id)) // Filter out disabled users
-  , [users, selectedUserIds, disabledIds]);
+  const sortedUsers = useMemo(
+    () =>
+      [
+        ...users.filter((user) => selectedUserIds.includes(user.id)),
+        ...users.filter((user) => !selectedUserIds.includes(user.id)),
+      ].filter((user) => !disabledIds?.includes(user.id)), // Filter out disabled users
+    [users, selectedUserIds, disabledIds],
+  );
 
   const isMaxReached = selectedUserIds.length >= max;
 
   // todo integrate this w programRoles
   const getUserAvatarColor = (role: string): AvatarColor => {
     switch (role) {
-      case "STUDENT":
-        return "accent";
-      case "ADMIN":
-      case "FACULTY":
-        return "primary";
+      case 'STUDENT':
+        return 'accent';
+      case 'ADMIN':
+      case 'FACULTY':
+        return 'primary';
       default:
-        return "border";
+        return 'border';
     }
   };
 
   return (
     <Popover>
-      <PopoverTrigger disabled={disabled}  >
+      <PopoverTrigger disabled={disabled}>
         <div role="button" className="flex max-w-44 flex-row space-x-3">
           {selectedUserIds.length === 0 && (
             <Avatar
               color="border"
-              className={cn('shadow-sm border-foreground/50 hover:border-foreground transition group', disabled ? "cursor-not-allowed hover:none" :"hover:shadow-md")}
-              content={<PlusIcon className="text-foreground/50 group-hover:text-foreground transition" />}
+              className={cn(
+                'shadow-sm border-foreground/50 hover:border-foreground transition group',
+                disabled ? 'cursor-not-allowed hover:none' : 'hover:shadow-md',
+              )}
+              content={
+                <PlusIcon className="text-foreground/50 group-hover:text-foreground transition" />
+              }
             />
           )}
           <AvatarStack
@@ -107,17 +121,19 @@ export function UserSelect<T extends FieldValues>({
                     tooltip: getFullName(user),
                     color: getUserAvatarColor(user.role),
                   }
-                : { content: "?" };
+                : { content: '?' };
             })}
           />
         </div>
       </PopoverTrigger>
       <PopoverContent side="left" align="start" className="w-[300px]">
         {isLoading ? (
-          <p>Loading</p>
+          <Loading size="xs" />
         ) : (
           <Command>
-            <CommandInput placeholder={placeholder ?? 'Enter Respondent Name or Role'} />
+            <CommandInput
+              placeholder={placeholder ?? 'Enter Respondent Name or Role'}
+            />
             <CommandList>
               <CommandGroup heading="Select Users">
                 {sortedUsers.map((u) => (
@@ -134,7 +150,10 @@ export function UserSelect<T extends FieldValues>({
                       selected={selectedUserIds.includes(u.id)}
                       onSelect={select}
                       onDeselect={deselect}
-                      disabled={isMaxReached && !selectedUserIds.includes(u.id) || disabledIds?.includes(u.id)}
+                      disabled={
+                        (isMaxReached && !selectedUserIds.includes(u.id)) ||
+                        disabledIds?.includes(u.id)
+                      }
                     />
                   </CommandItem>
                 ))}
@@ -148,7 +167,7 @@ export function UserSelect<T extends FieldValues>({
 }
 
 type UserCardProps = {
-  user: Pick<User, "id" | "firstName" | "lastName" | "role">;
+  user: Pick<User, 'id' | 'firstName' | 'lastName' | 'role'>;
   selected: boolean;
   onSelect: (userId: string) => void;
   onDeselect: (userId: string) => void;
@@ -164,21 +183,21 @@ function UserCard({
 }: UserCardProps) {
   const getUserAvatarColor = (role: string): AvatarColor => {
     switch (role) {
-      case "STUDENT":
-        return "accent";
-      case "ADMIN":
-      case "FACULTY":
-        return "primary";
+      case 'STUDENT':
+        return 'accent';
+      case 'ADMIN':
+      case 'FACULTY':
+        return 'primary';
       default:
-        return "border";
+        return 'border';
     }
   };
 
   return (
     <div
       className={cn(
-        "flex flex-row justify-between items-center w-full",
-        disabled && "opacity-50",
+        'flex flex-row justify-between items-center w-full',
+        disabled && 'opacity-50',
       )}
     >
       <div className="flex flex-row space-x-2">

@@ -10,7 +10,7 @@ const customJestConfig = {
     "^@/components/(.*)$": "<rootDir>/components/$1",
     "^@/pages/(.*)$": "<rootDir>/pages/$1",
   },
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-environment-jsdom",
 };
 
 export default createJestConfig(customJestConfig);

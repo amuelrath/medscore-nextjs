@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/helpers/utils';
+import { cn } from '@/lib/utils';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { LucideIcon } from 'lucide-react';
 import * as React from 'react';

@@ -1,5 +1,5 @@
 import { Input, InputProps } from '@/components/ui/input';
-import { cn } from '@/lib/helpers/utils';
+import { cn } from '@/lib/utils';
 import { SearchIcon } from 'lucide-react';
 import * as React from 'react';
 

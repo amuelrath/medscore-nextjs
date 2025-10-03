@@ -2,7 +2,7 @@ import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
-import { cn } from '@/lib/helpers/utils';
+import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-white hover:bg-primary/90',
         'accent-secondary':
-          'bg-accent-secondary text-teal-950 hover:bg-accent-secondary/90',
+          'bg-accent-secondary text-teal-950 hover:bg-accent-secondary/90 text-bold',
         'accent-secondary-background':
           'bg-accent-secondary-background text-teal-950 hover:bg-accent-secondary-background/80',
         foreground: 'bg-foreground text-white hover:bg-foreground/90',
@@ -29,7 +29,7 @@ const buttonVariants = cva(
         notepad: 'bg-notepad text-black hover:bg-notepad/90',
         link: 'text-foreground underline-offset-4 hover:underline',
         emerald: 'bg-emerald-500 text-primary hover:bg-emerald/90',
-        hide: 'bg-none border-none',
+        hide: '',
         lavender: 'bg-lavender hover:bg-lavender/80',
         expandIcon: 'group relative text-white bg-primary hover:bg-primary/90',
         ringHover:
@@ -46,7 +46,7 @@ const buttonVariants = cva(
           'relative after:absolute after:bg-primary after:bottom-2 after:h-[1px] after:w-2/3 after:origin-bottom-right after:scale-x-0 hover:after:origin-bottom-left hover:after:scale-x-100 after:transition-transform after:ease-in-out after:duration-300',
       },
       size: {
-        default: 'h-10 px-4 py-2',
+        default: 'h-9 px-4 py-2 text-md',
         xs: 'h-[26px] px-2 text-xs',
         sm: 'h-7 px-3',
         lg: 'h-11 px-8',

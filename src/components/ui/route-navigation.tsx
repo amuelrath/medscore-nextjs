@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/helpers/utils';
+import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactElement, ReactNode, useEffect, useState } from 'react';
 

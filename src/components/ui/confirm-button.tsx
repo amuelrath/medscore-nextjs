@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, FC } from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
-import { cn } from "@/lib/helpers/utils";
+import { cn } from "@/lib/utils";
 
 interface TwoStageConfirmButtonProps extends ButtonProps {
   onConfirm: () => void;

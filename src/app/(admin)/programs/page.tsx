@@ -1,11 +1,17 @@
-import { ProgramsHome } from "@/components/(admin)/programs/home";
-import { ProgramsToolbar } from "@/components/(admin)/programs/common/programs-toolbar";
+import {
+  HomeLayout,
+  HomeLayoutContent,
+  HomeLayoutHeader,
+  HomeLayoutTitle,
+} from '@/components/home-layout';
 
-export default function ProgramsPage() {
+export default function ProgramsHomePage() {
   return (
-    <main className="flex h-full w-full flex-col">
-        <ProgramsToolbar />
-        <ProgramsHome />
-    </main>
+    <HomeLayout>
+      <HomeLayoutHeader>
+        <HomeLayoutTitle>My Program</HomeLayoutTitle>
+      </HomeLayoutHeader>
+      <HomeLayoutContent>content here</HomeLayoutContent>
+    </HomeLayout>
   );
 }

@@ -13,7 +13,7 @@ export default function SubmissionSuccessPage() {
         <p>Would you like to submit another response?</p>
         <div className="mt-4 flex flex-row items-center justify-center space-x-2">
           <Button>New Response</Button>
-          <Link href={"/evaluate"}>
+          <Link href="/evaluate">
             <Button variant="link">Return home</Button>
           </Link>
         </div>

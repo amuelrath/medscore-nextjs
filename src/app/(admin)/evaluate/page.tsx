@@ -1,8 +1,5 @@
+import { EvaluationsHome } from '@/features/evaluations-home';
 
 export default function EvaluateHomePage() {
-  return (
-    <div>
-      test
-    </div>
-  )
+  return <EvaluationsHome />;
 }

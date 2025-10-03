@@ -1,0 +1,109 @@
+'use server';
+
+import { db } from '@/db';
+
+export async function getAllFormsLite({ userId }: { userId: string }) {
+  return db.query.forms.findMany({
+    where: (f, { eq }) => eq(f.creatorId, userId),
+    columns: {
+      id: true,
+      title: true,
+      programId: false,
+      creatorId: false,
+      lastOpenedAt: true,
+      folderId: true,
+      type: true,
+    },
+
+    with: {
+      formItems: {
+        columns: {
+          id: true,
+        },
+      },
+      programs: {
+        columns: {
+          id: true,
+          name: true,
+          specialtyId: true,
+          description: false,
+        },
+        with: {
+          users: {
+            columns: {
+              userId: false,
+              programId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  role: true,
+                  password: false,
+                  email: false,
+                  lastName: true,
+                  firstName: true,
+                },
+                // todo somehow get only the users whose role is "STUDENT"
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export type FormsLiteResult = NonNullable<
+  Awaited<ReturnType<typeof getAllFormsLite>>
+>;
+
+export async function getFormLiteById({ formId }: { formId: string }) {
+  return db.query.forms.findFirst({
+    where: (f, { eq }) => eq(f.id, formId),
+    columns: {
+      id: true,
+      title: true,
+      folderId: true,
+      programId: false,
+      creatorId: false,
+      lastOpenedAt: true,
+      type: true,
+    },
+    with: {
+      programs: {
+        columns: {
+          id: true,
+          name: true,
+          specialtyId: true,
+          description: false,
+        },
+        with: {
+          users: {
+            columns: {
+              userId: false,
+              programId: false,
+            },
+            with: {
+              user: {
+                columns: {
+                  id: true,
+                  role: true,
+                  password: false,
+                  email: false,
+                  lastName: true,
+                  firstName: true,
+                },
+                // todo somehow get only the users whose role is "STUDENT"
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+export type FormLiteResult = NonNullable<
+  Awaited<ReturnType<typeof getFormLiteById>>
+>;
