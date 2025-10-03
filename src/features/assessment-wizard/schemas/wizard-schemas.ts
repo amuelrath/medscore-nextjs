@@ -33,14 +33,14 @@ export type TParticipantsSchema = z.infer<typeof ZParticipantsSchema>;
 export const ZAssessmentComponentSchema = z.object({
   id: z.string().uuid(),
   formId: z.string().uuid(),
-  title: z.string().min(1, { message: "Component title required." }),
+  title: z.string().min(1, { message: 'Component title required.' }),
 
   // settings
   saveAndQuit: z.boolean(),
   multipleResponses: z.boolean(),
   revisions: z.boolean(),
-  startsAt: z.string().min(1, "Enter a starting time."),
-  expiresAt: z.string().min(1, "Enter an ending time."),
+  startsAt: z.string().min(1, 'Enter a starting time.'),
+  expiresAt: z.string().min(1, 'Enter an ending time.'),
 });
 export type TAssessmentComponentSchema = z.infer<
   typeof ZAssessmentComponentSchema
@@ -48,7 +48,9 @@ export type TAssessmentComponentSchema = z.infer<
 
 export const ZAssessmentSchema = z.object({
   // details step
-  components: z.array(ZAssessmentComponentSchema).min(1, { message: "At least one component required." }),
+  components: z
+    .array(ZAssessmentComponentSchema)
+    .min(1, { message: 'At least one component required.' }),
 
   // participants step
   participants: ZParticipantsSchema,
@@ -63,4 +65,12 @@ export const ZAssessmentDetailsStepSchema = ZAssessmentSchema.pick({
 });
 export type TAssessmentDetailsStepSchema = z.infer<
   typeof ZAssessmentDetailsStepSchema
+>;
+
+export const ZAssessmentParticipantsStepSchema = ZAssessmentSchema.pick({
+  participants: true,
+});
+
+export type TAssessmentParticipantsStepSchema = z.infer<
+  typeof ZAssessmentParticipantsStepSchema
 >;
