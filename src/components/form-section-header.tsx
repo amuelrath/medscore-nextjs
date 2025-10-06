@@ -1,3 +1,4 @@
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
 import { ReactNode } from 'react';
@@ -32,7 +33,12 @@ export function FormSectionHeaderContent({
   className?: string;
 }) {
   return (
-    <span className={cn('flex flex-row flex-grow items-center space-x-2', className)}>
+    <span
+      className={cn(
+        'flex flex-row flex-grow items-center space-x-2',
+        className,
+      )}
+    >
       {children}
     </span>
   );
@@ -52,3 +58,24 @@ export function FormSectionHeaderTitle({
   return <p className={className}>{children}</p>;
 }
 
+export function FormSectionHeaderButton({
+  children,
+  className,
+  Icon,
+}: {
+  children: ReactNode;
+  className?: string;
+  Icon: LucideIcon;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="xs"
+      className={cn('absolute top-0 space-x-2 right-0 w-36', className)}
+    >
+      <Icon size={12} />
+      <span>{children}</span>
+    </Button>
+  );
+}
