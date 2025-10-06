@@ -65,7 +65,7 @@ export function AssessmentWizard() {
           </div>
         </div>
         <div className="p-12 space-y-2 basis-[30%]">
-          {/* step info */}
+          {/* step tips */}
           <p className="text-2xl font-medium text-muted-foreground text-wrap">
             {tips[currentStepIndex].label}
           </p>
