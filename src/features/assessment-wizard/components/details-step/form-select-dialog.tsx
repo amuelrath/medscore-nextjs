@@ -1,6 +1,7 @@
 'use client';
 
 import { getAllFormsLite } from '@/actions/forms/get-all-forms-lite';
+import { FormSectionHeaderButton } from '@/components/form-section-header';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,7 +18,7 @@ import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { SendHorizonalIcon } from 'lucide-react';
+import { PlusIcon, SendHorizonalIcon } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 interface FormCardProps {
@@ -155,15 +156,9 @@ export function FormSelectDialogTrigger({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          className="absolute top-0 space-x-2 right-0 w-36"
-        >
-          <SendHorizonalIcon size={12} />
-          <span>Add Component</span>
-        </Button>
+        <FormSectionHeaderButton Icon={PlusIcon}>
+          Add Component
+        </FormSectionHeaderButton>
       </DialogTrigger>
       <DialogContent
         onCloseAutoFocus={(e) => e.preventDefault()}
