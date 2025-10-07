@@ -8,7 +8,7 @@ export function HomeLayout({ children, className }: { children: ReactNode; class
 
 export function HomeLayoutHeader({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("h-12 flex-shrink-0 items-center grid grid-cols-3 px-6 border-border", className)}>
+    <div className={cn("h-12 flex-shrink-0 items-center grid grid-cols-3 px-6 border-border select-none", className)}>
       {children}
     </div>
   );

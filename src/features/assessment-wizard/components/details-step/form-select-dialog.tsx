@@ -156,7 +156,7 @@ export function FormSelectDialogTrigger({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <FormSectionHeaderButton Icon={PlusIcon}>
+        <FormSectionHeaderButton LIcon={PlusIcon}>
           Add Component
         </FormSectionHeaderButton>
       </DialogTrigger>

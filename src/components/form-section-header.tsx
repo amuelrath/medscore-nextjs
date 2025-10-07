@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
-import { ReactNode } from 'react';
+import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react';
 
 export function FormSectionHeader({
   children,
@@ -58,24 +58,23 @@ export function FormSectionHeaderTitle({
   return <p className={className}>{children}</p>;
 }
 
-export function FormSectionHeaderButton({
-  children,
-  className,
-  Icon,
-}: {
-  children: ReactNode;
-  className?: string;
-  Icon: LucideIcon;
-}) {
-  return (
+export const FormSectionHeaderButton = forwardRef<
+  HTMLButtonElement,
+  ComponentPropsWithoutRef<typeof Button> & {
+    LIcon: LucideIcon;
+  }
+>(({ children, className, LIcon, ...props }, ref) => (
     <Button
+      ref={ref}
       type="button"
       variant="outline"
       size="xs"
       className={cn('absolute top-0 space-x-2 right-0 w-36', className)}
+      {...props}
     >
-      <Icon size={12} />
+      <LIcon size={12} />
       <span>{children}</span>
     </Button>
-  );
-}
+  ));
+
+FormSectionHeaderButton.displayName = 'FormSectionHeaderButton';
