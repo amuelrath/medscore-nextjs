@@ -127,13 +127,13 @@ export function UserSelect<T extends FieldValues>({
           />
         </div>
       </PopoverTrigger>
-      <PopoverContent side="left" align="start" className="w-[300px]">
+      <PopoverContent align="start" className="w-[300px]">
         {isLoading ? (
           <Loading size="xs" />
         ) : (
           <Command>
             <CommandInput
-              placeholder={placeholder ?? 'Enter Respondent Name or Role'}
+              placeholder={placeholder ?? 'Enter Respondent Name or Role...'}
             />
             <CommandList>
               <CommandGroup heading="Select Users">
