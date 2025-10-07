@@ -101,9 +101,10 @@ export function UserSelect<T extends FieldValues>({
         <div role="button" className="flex max-w-44 flex-row space-x-3">
           {selectedUserIds.length === 0 && (
             <Avatar
+              size="lg"
               color="border"
               className={cn(
-                'shadow-sm border-foreground/50 hover:border-foreground transition group',
+                'shadow-sm scale-90 border-foreground/50 hover:border-foreground transition group',
                 disabled ? 'cursor-not-allowed hover:none' : 'hover:shadow-md',
               )}
               content={

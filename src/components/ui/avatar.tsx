@@ -68,6 +68,7 @@ export function AvatarStack({ avatars, maxAvatars = 3 }: AvatarStackProps) {
     <div className="relative flex flex-row items-center select-none -space-x-2.5">
       {visibleAvatars.map((avatar) => (
         <Avatar
+          size="lg"
           key={`avatar-${avatar.tooltip}`}
           {...avatar}
           className={cn(
@@ -78,6 +79,7 @@ export function AvatarStack({ avatars, maxAvatars = 3 }: AvatarStackProps) {
       ))}
       {remainingCount > 0 && (
         <Avatar
+          size="lg"
           content={`+${remainingCount}`}
           color="border"
           className="translate-x-2.5 border-0 shadow-sm z-40 hover:shadow-xl"
