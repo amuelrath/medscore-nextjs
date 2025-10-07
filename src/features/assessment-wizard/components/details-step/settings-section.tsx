@@ -38,7 +38,7 @@ export function ComponentSettingsSection({
       </FormSectionHeader>
       <div>
         <div>
-          <div className="space-y-2">
+          <div className="space-y-2 select-none">
             <div className="flex flex-col">
               <Label>Response Options</Label>
               <div className="flex flex-row items-center justify-between">

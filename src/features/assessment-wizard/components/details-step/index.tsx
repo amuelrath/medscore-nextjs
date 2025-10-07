@@ -60,7 +60,7 @@ export function AssessmentDetailsForm() {
               <ComponentSettingsSection selectedIndex={selectedIndex} />
             </>
           ) : (
-            <div className="flex h-full flex-col space-y-4 items-center justify-center">
+            <div className="flex h-full flex-col space-y-4 items-center justify-center select-none">
               <NoDataIllustration />
               <div className="text-center">
                 <p className="font-medium">No Components</p>

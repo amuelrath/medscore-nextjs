@@ -51,7 +51,7 @@ export function AssessmentWizard() {
             <div className="flex-grow">{step}</div>
           </HomeLayoutContentCard>
           {/* forward and back buttons */}
-          <div className="pt-4 self-end space-x-4">
+          <div className="pt-4 self-end space-x-4 select-none">
             <Button
               disabled={isFirstStep}
               variant="secondary"
@@ -64,7 +64,7 @@ export function AssessmentWizard() {
             </Button>
           </div>
         </div>
-        <div className="p-12 space-y-2 basis-[30%]">
+        <div className="p-12 space-y-2 basis-[30%] select-none">
           {/* step tips */}
           <p className="text-2xl font-medium text-muted-foreground text-wrap">
             {tips[currentStepIndex].label}

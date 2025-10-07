@@ -16,7 +16,7 @@ interface StepProps {
 
 function Step({ index, label, completed, active }: StepProps) {
   return (
-    <div className={cn('flex flex-row items-center space-x-2')}>
+    <div className={cn('flex flex-row items-center space-x-2 select-none')}>
       <span
         className={cn(
           'rounded-full border border-accent-secondary/50 size-6 transition flex justify-center items-center',
