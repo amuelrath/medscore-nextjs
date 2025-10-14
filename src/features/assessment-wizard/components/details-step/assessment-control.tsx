@@ -52,8 +52,10 @@ function AssessmentCard({
     name: 'components',
   });
 
-  const handleRemove = (e: SyntheticEvent) => {
-    e.stopPropagation();
+  const handleRemove = (e?: SyntheticEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
 
     // Determine the new selectedIndex after removal
     if (index === selectedIndex) {
@@ -87,6 +89,13 @@ function AssessmentCard({
   return (
     <MotionButton
       onClick={() => setSelectedIndex(index)}
+      onAnimationComplete={(definition) => {
+        // Only run on exit animation
+        if (definition === 'exit' && index === fields.length - 1) {
+          // Call remove again after animation finishes
+          handleRemove();
+        }
+      }}
       type="button"
       layout="position"
       initial={{ opacity: 0, y: -10 }}
