@@ -10,12 +10,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { FormSelectDialogTrigger } from '@/features/assessment-wizard/components/details-step/form-select-dialog';
 import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import { addHours, addMinutes, format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { BoxesIcon, BoxIcon, XIcon } from 'lucide-react';
+import { BoxesIcon, XIcon } from 'lucide-react';
 import { SyntheticEvent } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { v4 } from 'uuid';
@@ -82,6 +83,7 @@ function AssessmentCard({
   if (!component) return null;
 
   const form = forms?.find((f) => f.id === component.formId);
+  const Icon = form ? FORM_TYPE_ICONS[form.type] : null;
   const formTitle = form?.title || 'Form not found';
   const formQuestionCount = form?.formItems.length || 0;
   const isSelected = index === selectedIndex;
@@ -114,7 +116,7 @@ function AssessmentCard({
         )}
       >
         <span className="flex items-center space-x-1">
-          <BoxIcon size={12} />
+          {Icon && <Icon size={12} />}
           <span>
             {truncate(component.title || '', 30) || 'Untitled Component'}
           </span>
@@ -168,7 +170,7 @@ export function AssessmentControl({
       <FormSectionHeader>
         <FormSectionHeaderContent className="relative">
           <FormSectionHeaderIcon Icon={BoxesIcon} />
-          <FormSectionHeaderTitle>Forms</FormSectionHeaderTitle>
+          <FormSectionHeaderTitle>Components</FormSectionHeaderTitle>
           <FormSelectDialogTrigger handleAddComponent={handleAddComponent} />
         </FormSectionHeaderContent>
       </FormSectionHeader>

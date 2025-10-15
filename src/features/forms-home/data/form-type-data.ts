@@ -1,7 +1,7 @@
-import { ClipboardPenIcon, ClipboardPlusIcon, EyeIcon } from 'lucide-react';
+import { BoxIcon, ClipboardPenIcon, ClipboardPlusIcon, EyeIcon, type LucideIcon } from 'lucide-react';
 
-export const FORM_TYPE_ICONS = {
-  STATION: ClipboardPlusIcon,
+export const FORM_TYPE_ICONS: Record<string,  LucideIcon> = {
+  STATION: BoxIcon,
   SURVEY: EyeIcon,
   EVALUATION: ClipboardPenIcon,
 };
