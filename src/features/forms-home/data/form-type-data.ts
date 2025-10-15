@@ -1,8 +1,8 @@
 import { ClipboardPenIcon, ClipboardPlusIcon, EyeIcon } from 'lucide-react';
 
 export const FORM_TYPE_ICONS = {
-  OSCE: ClipboardPlusIcon,
-  DIRECT_OBSERVATION: EyeIcon,
+  STATION: ClipboardPlusIcon,
+  SURVEY: EyeIcon,
   EVALUATION: ClipboardPenIcon,
 };
 export const FORM_TYPE_COLORS = {

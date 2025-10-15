@@ -54,14 +54,14 @@ export type TFormItemType =
   | 'PARAGRAPH';
 
 export const formTypeEnum = pgEnum('form_type', [
-  'OSCE',
+  'STATION',
   'EVALUATION',
-  'DIRECT_OBSERVATION',
+  'SURVEY',
 ]);
 export const ZFormTypeEnum = z.enum([
-  'OSCE',
+  'STATION',
   'EVALUATION',
-  'DIRECT_OBSERVATION',
+  'SURVEY',
 ]);
 export type TFormType = z.infer<typeof ZFormTypeEnum>;
 

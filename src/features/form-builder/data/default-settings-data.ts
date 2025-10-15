@@ -16,12 +16,12 @@ export const DEFAULT_FORM_SETTINGS: Record<
   TFormType,
   TFormBuilderSettingsSchema
 > = {
-  OSCE: {
+  STATION: {
     editAccess: 'ME',
     passingCriteria: [],
-    enableScoring: false,
+    enableScoring: true,
   },
-  DIRECT_OBSERVATION: {
+  SURVEY: {
     editAccess: 'ME',
     passingCriteria: [],
     enableScoring: false,
@@ -33,9 +33,9 @@ export const DEFAULT_FORM_SETTINGS: Record<
   },
 };
 export const DEFAULT_FORM_NAME = {
-  OSCE: 'Untitled OSCE',
+  STATION: 'Untitled Station',
   EVALUATION: 'Untitled Evaluation',
-  DIRECT_OBSERVATION: 'Untitled Direct Observation',
+  SURVEY: 'Untitled Survey',
 };
 export const NEW_FORM_ITEMS: NewFormItemProps[] = [
   {

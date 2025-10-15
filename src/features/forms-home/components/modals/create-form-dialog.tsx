@@ -1,5 +1,6 @@
 'use client';
 
+import { FormsLiteResult } from '@/actions/forms/get-all-forms-lite';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -12,9 +13,10 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { LottieHover } from '@/components/ui/lottie-hover';
-import { cn } from '@/lib/utils';
+import { DEFAULT_FORM_NAME } from '@/features/form-builder/data/default-settings-data';
 import { createForm } from '@/features/forms-home/actions/forms/create-form';
-import { FormsLiteResult } from '@/actions/forms/get-all-forms-lite';
+import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
+import { cn } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -22,18 +24,16 @@ import ADD from 'public/icons/add-card-teal.json';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { DEFAULT_FORM_NAME } from '@/features/form-builder/data/default-settings-data';
-import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 
-type FormType = 'OSCE' | 'EVALUATION' | 'DIRECT_OBSERVATION';
-const formTypes: FormType[] = ['OSCE', 'EVALUATION', 'DIRECT_OBSERVATION'];
+type FormType = 'STATION' | 'EVALUATION' | 'SURVEY';
+const formTypes: FormType[] = ['STATION', 'EVALUATION', 'SURVEY'];
 
 const formTypeDescriptions = {
-  OSCE: 'OSCE: Structured clinical examination for assessing practical skills and competencies.',
+  STATION:
+    'Station: Structured clinical examination for assessing practical skills and competencies.',
   EVALUATION:
     'Evaluation: Create focused performance reviews tailored to your program.',
-  DIRECT_OBSERVATION:
-    'Direct Observation: Real-time assessment of performance in a clinical setting.',
+  SURVEY: 'Survey: Collect opinions and insights from individuals.',
 };
 
 export function CreateFormDialog() {
@@ -146,14 +146,14 @@ export function CreateFormDialog() {
 
 const ZCreateFormSchema = z.object({
   title: z.string(),
-  type: z.enum(['OSCE', 'DIRECT_OBSERVATION', 'EVALUATION']),
+  type: z.enum(['STATION', 'SURVEY', 'EVALUATION']),
   programId: z.string(),
 });
 
 const useCreateFormDialog = () => {
   const router = useRouter();
   const [hovering, setHovering] = useState<boolean>(false);
-  const [selectedType, setSelectedType] = useState<FormType>('OSCE');
+  const [selectedType, setSelectedType] = useState<FormType>('STATION');
 
   const createFormParams = {
     title: DEFAULT_FORM_NAME[selectedType],
@@ -171,7 +171,7 @@ const useCreateFormDialog = () => {
         ['forms'],
         (oldData: FormsLiteResult): FormsLiteResult => [
           ...oldData,
-          newFormData,
+          { ...newFormData, formItems: [] }, // no form items will exist
         ],
       );
 
