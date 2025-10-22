@@ -8,18 +8,19 @@ import {
   FormSectionHeaderTitle,
 } from '@/components/form-section-header';
 import { Button } from '@/components/ui/button';
-import { FormSelectDialogTrigger } from '@/features/assessment-wizard/components/details-step/form-select-dialog';
-import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { TFormType } from '@/db/schema';
+import { TAssessmentComponentsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
 import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { addHours, addMinutes, format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { BoxesIcon, XIcon } from 'lucide-react';
+import { ComponentIcon, XIcon } from 'lucide-react';
 import { SyntheticEvent } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { v4 } from 'uuid';
+import { FormSelectDialogTrigger } from '@/features/assessment-wizard/components/components-step/form-select-dialog';
 
 const MotionButton = motion.create(Button);
 
@@ -47,8 +48,8 @@ function AssessmentCard({
   const {
     control,
     formState: { errors },
-  } = useFormContext<TAssessmentDetailsStepSchema>();
-  const { fields, remove } = useFieldArray<TAssessmentDetailsStepSchema>({
+  } = useFormContext<TAssessmentComponentsStepSchema>();
+  const { fields, remove } = useFieldArray<TAssessmentComponentsStepSchema>({
     control,
     name: 'components',
   });
@@ -142,7 +143,7 @@ export function AssessmentControl({
   selectedIndex,
   setSelectedIndex,
 }: AssessmentControlProps) {
-  const { control } = useFormContext<TAssessmentDetailsStepSchema>();
+  const { control } = useFormContext<TAssessmentComponentsStepSchema>();
   const { fields, append } = useFieldArray({
     control,
     name: 'components',

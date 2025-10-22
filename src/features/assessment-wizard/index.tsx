@@ -19,6 +19,10 @@ interface Tip {
 const tips: Tip[] = [
   {
     label: "Details",
+    text: "Configure baseline details of your new assessment."
+  },
+  {
+    label: "Details",
     text: "Add forms to your assessment and configure titles, durations, and settings for each."
   },
   {

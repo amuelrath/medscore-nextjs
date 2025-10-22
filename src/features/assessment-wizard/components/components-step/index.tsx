@@ -1,18 +1,18 @@
 'use client';
 
 import { NoDataIllustration } from '@/components/illustrations/no-data-illustration';
-import { AssessmentControl } from '@/features/assessment-wizard/components/details-step/assessment-control';
-import { ComponentDetailsSection } from '@/features/assessment-wizard/components/details-step/details-section';
-import { ComponentSettingsSection } from '@/features/assessment-wizard/components/details-step/settings-section';
 import {
-  TAssessmentDetailsStepSchema,
-  ZAssessmentDetailsStepSchema,
+  TAssessmentComponentsStepSchema,
+  ZAssessmentComponentsStepSchema,
 } from '@/features/assessment-wizard/schemas/wizard-schemas';
 import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
 import { useMultistepFormContext } from '@/hooks/use-multistep-form-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { AssessmentControl } from '@/features/assessment-wizard/components/components-step/assessment-control';
+import { ComponentDetailsSection } from '@/features/assessment-wizard/components/components-step/details-section';
+import { ComponentSettingsSection } from '@/features/assessment-wizard/components/components-step/settings-section';
 
 export function AssessmentDetailsForm() {
   const { next } = useMultistepFormContext();
@@ -20,7 +20,7 @@ export function AssessmentDetailsForm() {
   const setComponents = useAssessmentWizardStore((s) => s.setComponents);
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>(0);
 
-  const methods = useForm<TAssessmentDetailsStepSchema>({
+  const methods = useForm<TAssessmentComponentsStepSchema>({
     defaultValues: {
       components: initialComponents ||  [],
     },
@@ -35,7 +35,7 @@ export function AssessmentDetailsForm() {
     name: 'components',
   });
 
-  const submit = (data: TAssessmentDetailsStepSchema) => {
+  const submit = (data: TAssessmentComponentsStepSchema) => {
     setComponents(data.components);
     next();
   };

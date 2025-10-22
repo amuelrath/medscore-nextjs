@@ -60,11 +60,11 @@ export const ZAssessmentSchema = z.object({
 });
 export type TAssessmentSchema = z.infer<typeof ZAssessmentSchema>;
 
-export const ZAssessmentDetailsStepSchema = ZAssessmentSchema.pick({
+export const ZAssessmentComponentsStepSchema = ZAssessmentSchema.pick({
   components: true,
 });
-export type TAssessmentDetailsStepSchema = z.infer<
-  typeof ZAssessmentDetailsStepSchema
+export type TAssessmentComponentsStepSchema = z.infer<
+  typeof ZAssessmentComponentsStepSchema
 >;
 
 export const ZAssessmentParticipantsStepSchema = ZAssessmentSchema.pick({

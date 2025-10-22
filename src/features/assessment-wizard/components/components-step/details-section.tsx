@@ -8,7 +8,7 @@ import {
 } from '@/components/form-section-header';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { TAssessmentComponentsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
 import { CalendarIcon } from 'lucide-react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -23,9 +23,9 @@ export function ComponentDetailsSection({
     register,
     control,
     formState: { errors },
-  } = useFormContext<TAssessmentDetailsStepSchema>();
+  } = useFormContext<TAssessmentComponentsStepSchema>();
 
-  const { fields } = useFieldArray<TAssessmentDetailsStepSchema>({
+  const { fields } = useFieldArray<TAssessmentComponentsStepSchema>({
     control,
     name: 'components',
   });
