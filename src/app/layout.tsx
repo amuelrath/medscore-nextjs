@@ -68,7 +68,7 @@ export default function RootLayout({
       </head>
       <html lang="en">
         <ReactQueryProvider>
-          <body className={cn(roboto.className)}>
+          <body className={cn(roboto.className, "overflow-hidden")}>
             {children}
             <Toaster />
           </body>
