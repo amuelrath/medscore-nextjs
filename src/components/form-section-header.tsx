@@ -55,7 +55,7 @@ export function FormSectionHeaderTitle({
   children: ReactNode;
   className?: string;
 }) {
-  return <p className={className}>{children}</p>;
+  return <h2 className={className}>{children}</h2>;
 }
 
 export const FormSectionHeaderButton = forwardRef<
@@ -67,8 +67,8 @@ export const FormSectionHeaderButton = forwardRef<
     <Button
       ref={ref}
       type="button"
-      variant="outline"
-      size="xs"
+      variant={props.variant || 'outline'}
+      size={props.size || "xs"}
       className={cn('absolute top-0 space-x-2 right-0 w-36', className)}
       {...props}
     >
