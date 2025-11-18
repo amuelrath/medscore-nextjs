@@ -22,15 +22,13 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
   position = "top",
   delay=300,
   asChild=true
-}) => {
-  return (
+}) => (
     <TooltipProvider>
       <Tooltip delayDuration={delay} >
         <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
-        <TooltipContent  className="text-xs text-left ml-9 max-w-64" side={position}>{tooltipContent}</TooltipContent>
+        <TooltipContent  className="text-xs text-neutral-500 text-left ml-9 max-w-64" side={position}>{tooltipContent}</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
-};
 
 export default CustomTooltip;
