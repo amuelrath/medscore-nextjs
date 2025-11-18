@@ -1,30 +1,14 @@
-import { BoxIcon, ClipboardPenIcon, ClipboardPlusIcon, EyeIcon, type LucideIcon } from 'lucide-react';
+import { BoxIcon, ClipboardPenIcon, EyeIcon, type LucideIcon } from 'lucide-react';
+import type { TFormType } from '@/db/schema';
 
-export const FORM_TYPE_ICONS: Record<string,  LucideIcon> = {
+export const FORM_TYPE_ICONS: Record<TFormType,  LucideIcon> = {
   STATION: BoxIcon,
   SURVEY: EyeIcon,
   EVALUATION: ClipboardPenIcon,
 };
-export const FORM_TYPE_COLORS = {
-  OSCE: {
-    text: 'text-accent-secondary/90',
-    ring: 'ring-accent-secondary',
-    bg: 'border-accent-secondary/40',
-    border: 'bg-accent-secondary/20',
-    color: 'hsl(var(--accent-secondary))',
-  },
-  EVALUATION: {
-    text: 'text-accent/90',
-    ring: 'ring-accent',
-    bg: 'border-accent/40',
-    border: 'bg-accent/20',
-    color: 'hsl(var(--accent))',
-  },
-  DIRECT_OBSERVATION: {
-    text: 'text-primary/90',
-    ring: 'ring-primary',
-    bg: 'border-primary/40',
-    border: 'bg-primary/20',
-    color: 'hsl(var(--primary))',
-  },
-};
+
+export const FORM_TYPE_ASSIGNMENT_DESCRIPTIONS: Record<TFormType,  string> = {
+  STATION: "A request will be sent to each evaluator for each evaluatee.",
+  SURVEY: "A request will be sent to each respondent.",
+  EVALUATION: "A request will be sent to each evaluator for each evaluatee.",
+}
