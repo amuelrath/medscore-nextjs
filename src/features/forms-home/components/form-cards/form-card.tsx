@@ -37,7 +37,7 @@ export function FormCard({
     },
   });
 
-  // Separate the click handler to prevent event bubbling issues
+  // prevent event bubbling issues
   const handleCardClick = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
