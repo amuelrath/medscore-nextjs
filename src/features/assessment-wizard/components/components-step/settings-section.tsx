@@ -33,14 +33,13 @@ export function ComponentSettingsSection({
       <FormSectionHeader>
         <FormSectionHeaderContent>
           <FormSectionHeaderIcon Icon={SettingsIcon} />
-          <FormSectionHeaderTitle>Settings</FormSectionHeaderTitle>
+          <FormSectionHeaderTitle>Response Settings</FormSectionHeaderTitle>
         </FormSectionHeaderContent>
       </FormSectionHeader>
       <div>
         <div>
           <div className="space-y-2 select-none">
             <div className="flex flex-col">
-              <Label>Response Options</Label>
               <div className="flex flex-row items-center justify-between">
                 <Label className="text-sm text-neutral-700">
                   Multiple Responses

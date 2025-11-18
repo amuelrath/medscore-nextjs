@@ -1,6 +1,11 @@
 'use client';
 
 import { NoDataIllustration } from '@/components/illustrations/no-data-illustration';
+import { AssessmentControl } from '@/features/assessment-wizard/components/components-step/assessment-control';
+import { ComponentAssignmentsSection } from '@/features/assessment-wizard/components/components-step/assignments-section';
+import { ComponentDetailsSection } from '@/features/assessment-wizard/components/components-step/details-section';
+import { ComponentResponseWindowSection } from '@/features/assessment-wizard/components/components-step/response-window-section';
+import { ComponentSettingsSection } from '@/features/assessment-wizard/components/components-step/settings-section';
 import {
   TAssessmentComponentsStepSchema,
   ZAssessmentComponentsStepSchema,
@@ -10,21 +15,18 @@ import { useMultistepFormContext } from '@/hooks/use-multistep-form-context';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
-import { AssessmentControl } from '@/features/assessment-wizard/components/components-step/assessment-control';
-import { ComponentDetailsSection } from '@/features/assessment-wizard/components/components-step/details-section';
-import { ComponentSettingsSection } from '@/features/assessment-wizard/components/components-step/settings-section';
 
-export function AssessmentDetailsForm() {
+export function AssessmentComponentsForm() {
   const { next } = useMultistepFormContext();
-  const initialComponents = useAssessmentWizardStore.getState().components
+  const initialComponents = useAssessmentWizardStore.getState().components;
   const setComponents = useAssessmentWizardStore((s) => s.setComponents);
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>(0);
 
   const methods = useForm<TAssessmentComponentsStepSchema>({
     defaultValues: {
-      components: initialComponents ||  [],
+      components: initialComponents || [],
     },
-    resolver: zodResolver(ZAssessmentDetailsStepSchema),
+    resolver: zodResolver(ZAssessmentComponentsStepSchema),
     shouldUnregister: false,
     shouldFocusError: false,
     reValidateMode: 'onChange',
@@ -53,10 +55,15 @@ export function AssessmentDetailsForm() {
             setSelectedIndex={setSelectedIndex}
           />
         </div>
-        <div key={selectedIndex} className="space-y-4 border-l pl-4 col-span-4">
+        <div
+          key={selectedIndex}
+          className="space-y-4 border-l pl-4 col-span-4 pb-4"
+        >
           {components.length > 0 ? (
             <>
               <ComponentDetailsSection selectedIndex={selectedIndex} />
+              <ComponentAssignmentsSection selectedIndex={selectedIndex} />
+              <ComponentResponseWindowSection selectedIndex={selectedIndex} />
               <ComponentSettingsSection selectedIndex={selectedIndex} />
             </>
           ) : (
