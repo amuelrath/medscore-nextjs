@@ -8,7 +8,7 @@ import {
 } from '@/components/form-section-header';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { TAssessmentComponentsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
 import { SettingsIcon } from 'lucide-react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 
@@ -19,8 +19,8 @@ interface ComponentSettingsSectionProps {
 export function ComponentSettingsSection({
   selectedIndex,
 }: ComponentSettingsSectionProps) {
-  const { control } = useFormContext<TAssessmentDetailsStepSchema>();
-  const { fields } = useFieldArray<TAssessmentDetailsStepSchema>({
+  const { control } = useFormContext<TAssessmentComponentsStepSchema>();
+  const { fields } = useFieldArray<TAssessmentComponentsStepSchema>({
     control,
     name: 'components',
   });
@@ -33,14 +33,13 @@ export function ComponentSettingsSection({
       <FormSectionHeader>
         <FormSectionHeaderContent>
           <FormSectionHeaderIcon Icon={SettingsIcon} />
-          <FormSectionHeaderTitle>Settings</FormSectionHeaderTitle>
+          <FormSectionHeaderTitle>Response Settings</FormSectionHeaderTitle>
         </FormSectionHeaderContent>
       </FormSectionHeader>
       <div>
         <div>
-          <div className="space-y-2">
+          <div className="space-y-2 select-none">
             <div className="flex flex-col">
-              <Label>Response Options</Label>
               <div className="flex flex-row items-center justify-between">
                 <Label className="text-sm text-neutral-700">
                   Multiple Responses

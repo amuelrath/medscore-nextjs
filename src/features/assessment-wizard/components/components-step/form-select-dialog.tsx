@@ -1,6 +1,7 @@
 'use client';
 
 import { getAllFormsLite } from '@/actions/forms/get-all-forms-lite';
+import { FormSectionHeaderButton } from '@/components/form-section-header';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,7 +18,7 @@ import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { SendHorizonalIcon } from 'lucide-react';
+import { PlusIcon, SendHorizonalIcon } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 
 interface FormCardProps {
@@ -71,21 +72,13 @@ function FormCard({
 
 interface FormSelectFormProps {
   value?: string;
-  handleAddComponent: (formId: string) => void;
+  handleAddComponent: (formId: string, type: TFormType, formTitle: string) => void;
 }
 
 function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
   // initialize state
   const [val, setVal] = useState<string>(value || '');
   const [searchValue, setSearchValue] = useState<string | null>(null);
-
-  const select = useCallback((id: string) => {
-    setVal(id);
-  }, []);
-
-  const handleSubmit = () => {
-    handleAddComponent(val);
-  };
 
   // get forms
   const {
@@ -104,6 +97,22 @@ function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
       [],
     [forms, searchValue],
   );
+
+  const select = useCallback((id: string) => {
+    setVal(id);
+  }, []);
+
+  const handleSubmit = () => {
+    // get the form's type too
+    const form = forms?.find((f) => f.id === val) // fixme
+
+    if (!form) return;
+
+    const type = form.type
+    const formTitle = form.title
+
+    handleAddComponent(val, type, formTitle);
+  };
 
   return (
     <>
@@ -150,20 +159,14 @@ function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
 export function FormSelectDialogTrigger({
   handleAddComponent,
 }: {
-  handleAddComponent: (formId: string) => void;
+  handleAddComponent: (formId: string, type: TFormType, formTitle: string) => void;
 }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          className="absolute top-0 space-x-2 right-0 w-36"
-        >
-          <SendHorizonalIcon size={12} />
-          <span>Add Component</span>
-        </Button>
+        <FormSectionHeaderButton LIcon={PlusIcon}>
+          Add Component
+        </FormSectionHeaderButton>
       </DialogTrigger>
       <DialogContent
         onCloseAutoFocus={(e) => e.preventDefault()}

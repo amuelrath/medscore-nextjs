@@ -1,35 +1,36 @@
-import EasyTooltip from "@/components/ui/easy-tooltip";
-import { cn } from "@/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
-import { ClassValue } from "clsx";
-import { ReactNode } from "react";
+import EasyTooltip from '@/components/ui/easy-tooltip';
+import { cn } from '@/lib/utils';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { ClassValue } from 'clsx';
+import { ReactNode } from 'react';
 
 const avatarVariants = cva(
-  "rounded-full border-2 p-2 select-none border-white transition-all duration-400 flex items-center text-center flex-col justify-center",
+  'rounded-full border-2 p-2 select-none border-white transition-all duration-400 flex items-center text-center flex-col justify-center',
   {
     variants: {
       size: {
-        sm: "size-8 text-xs",
-        md: "size-[36px] text-sm",
-        lg: "size-10",
+        xs: 'size-6 text-2xs',
+        sm: 'size-8 text-xs',
+        md: 'size-[36px] text-sm',
+        lg: 'size-10',
       },
       color: {
-        accent: "bg-teal-600 text-white",
-        border: "bg-white border-border border-[0.5px]",
-        primary: "bg-primary text-white",
-        yellow: "bg-yellow-100 text-yellow-800",
+        accent: 'bg-teal-600 text-white',
+        border: 'bg-white border-border border-[0.5px]',
+        primary: 'bg-primary text-white',
+        yellow: 'bg-yellow-100 text-yellow-800',
       },
     },
     defaultVariants: {
-      size: "sm",
-      color: "accent",
+      size: 'sm',
+      color: 'accent',
     },
   },
 );
 
-export type AvatarColor = VariantProps<typeof avatarVariants>["color"];
+export type AvatarColor = VariantProps<typeof avatarVariants>['color'];
 
-interface AvatarProps extends VariantProps<typeof avatarVariants> {
+export interface AvatarProps extends VariantProps<typeof avatarVariants> {
   content: ReactNode;
   tooltip?: ReactNode;
   className?: ClassValue;
@@ -58,9 +59,14 @@ export function Avatar({
 export interface AvatarStackProps {
   avatars: AvatarProps[];
   maxAvatars?: number;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-export function AvatarStack({ avatars, maxAvatars = 3 }: AvatarStackProps) {
+export function AvatarStack({
+  size,
+  avatars,
+  maxAvatars = 3,
+}: AvatarStackProps) {
   const visibleAvatars = avatars.slice(0, maxAvatars);
   const remainingCount = avatars.length - maxAvatars;
 
@@ -68,16 +74,18 @@ export function AvatarStack({ avatars, maxAvatars = 3 }: AvatarStackProps) {
     <div className="relative flex flex-row items-center select-none -space-x-2.5">
       {visibleAvatars.map((avatar) => (
         <Avatar
-          key={`avatar-${avatar.tooltip}`}
+          size={size || 'lg'}
+          key={`avatar-${avatar.content}`}
           {...avatar}
           className={cn(
             avatar.className,
-            "shadow-sm hover:scale-125 hover:z-30 hover:shadow-xl",
+            'shadow-sm hover:scale-125 hover:z-30 hover:shadow-xl',
           )}
         />
       ))}
       {remainingCount > 0 && (
         <Avatar
+          size={size || 'lg'}
           content={`+${remainingCount}`}
           color="border"
           className="translate-x-2.5 border-0 shadow-sm z-40 hover:shadow-xl"

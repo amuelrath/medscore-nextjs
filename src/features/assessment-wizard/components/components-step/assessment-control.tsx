@@ -8,14 +8,17 @@ import {
   FormSectionHeaderTitle,
 } from '@/components/form-section-header';
 import { Button } from '@/components/ui/button';
-import { FormSelectDialogTrigger } from '@/features/assessment-wizard/components/details-step/form-select-dialog';
-import { TAssessmentDetailsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { TFormType } from '@/db/schema';
+import { FormSelectDialogTrigger } from '@/features/assessment-wizard/components/components-step/form-select-dialog';
+import { TAssessmentComponentsStepSchema } from '@/features/assessment-wizard/schemas/wizard-schemas';
+import { useAssessmentWizardStore } from '@/features/assessment-wizard/store';
+import { FORM_TYPE_ICONS } from '@/features/forms-home/data/form-type-data';
+import { capitalizeFirstLetter } from '@/lib/capitalize-first-letter';
 import { truncate } from '@/lib/truncate';
 import { cn } from '@/lib/utils';
 import { useQuery } from '@tanstack/react-query';
-import { addHours, addMinutes, format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { BoxesIcon, BoxIcon, XIcon } from 'lucide-react';
+import { ComponentIcon, XIcon } from 'lucide-react';
 import { SyntheticEvent } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { v4 } from 'uuid';
@@ -46,14 +49,16 @@ function AssessmentCard({
   const {
     control,
     formState: { errors },
-  } = useFormContext<TAssessmentDetailsStepSchema>();
-  const { fields, remove } = useFieldArray<TAssessmentDetailsStepSchema>({
+  } = useFormContext<TAssessmentComponentsStepSchema>();
+  const { fields, remove } = useFieldArray<TAssessmentComponentsStepSchema>({
     control,
     name: 'components',
   });
 
-  const handleRemove = (e: SyntheticEvent) => {
-    e.stopPropagation();
+  const handleRemove = (e?: SyntheticEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
 
     // Determine the new selectedIndex after removal
     if (index === selectedIndex) {
@@ -80,6 +85,7 @@ function AssessmentCard({
   if (!component) return null;
 
   const form = forms?.find((f) => f.id === component.formId);
+  const Icon = form ? FORM_TYPE_ICONS[form.type] : null;
   const formTitle = form?.title || 'Form not found';
   const formQuestionCount = form?.formItems.length || 0;
   const isSelected = index === selectedIndex;
@@ -87,6 +93,13 @@ function AssessmentCard({
   return (
     <MotionButton
       onClick={() => setSelectedIndex(index)}
+      onAnimationComplete={(definition) => {
+        // Only run on exit animation
+        if (definition === 'exit' && index === fields.length - 1) {
+          // Call remove again after animation finishes
+          handleRemove();
+        }
+      }}
       type="button"
       layout="position"
       initial={{ opacity: 0, y: -10 }}
@@ -105,9 +118,10 @@ function AssessmentCard({
         )}
       >
         <span className="flex items-center space-x-1">
-          <BoxIcon size={12} />
-          <span>
-            {truncate(component.title || '', 30) || 'Untitled Component'}
+          {Icon && <Icon size={12} />}
+          <span className="">
+            {/* non-breaking space */}
+            {truncate(component.title || '', 30) || '\u00A0'}{' '}
           </span>
         </span>
         <div className="flex space-x-1 text-xs text-neutral-500">
@@ -131,24 +145,33 @@ export function AssessmentControl({
   selectedIndex,
   setSelectedIndex,
 }: AssessmentControlProps) {
-  const { control } = useFormContext<TAssessmentDetailsStepSchema>();
+  const details = useAssessmentWizardStore((s) => s.details);
+  const { control } = useFormContext<TAssessmentComponentsStepSchema>();
   const { fields, append } = useFieldArray({
     control,
     name: 'components',
   });
 
-  const handleAddComponent = (formId: string) => {
-    const now = Date.now();
+  const handleAddComponent = (
+    formId: string,
+    type: TFormType,
+    formTitle: string,
+  ) => {
+    const otherComponentsOfSameType = fields.filter((f) => f.type === type);
 
     append({
       id: v4(),
-      title: '',
+      title: `${capitalizeFirstLetter(type)} ${(otherComponentsOfSameType.length || 0) + 1}`,
       formId,
-      startsAt: format(addMinutes(now, -2), "yyyy-MM-dd'T'HH:mm"),
-      expiresAt: format(addHours(now, 2), "yyyy-MM-dd'T'HH:mm"),
+      type,
+      formTitle,
+      startsAt: details.startsAt,
+      expiresAt: details.expiresAt,
       multipleResponses: false,
       saveAndQuit: false,
       revisions: false,
+      evaluateeIds: [],
+      respondeeIds: [],
     });
 
     setSelectedIndex(fields.length);
@@ -158,8 +181,8 @@ export function AssessmentControl({
     <div className="space-y-1">
       <FormSectionHeader>
         <FormSectionHeaderContent className="relative">
-          <FormSectionHeaderIcon Icon={BoxesIcon} />
-          <FormSectionHeaderTitle>Forms</FormSectionHeaderTitle>
+          <FormSectionHeaderIcon Icon={ComponentIcon} />
+          <FormSectionHeaderTitle>Components</FormSectionHeaderTitle>
           <FormSelectDialogTrigger handleAddComponent={handleAddComponent} />
         </FormSectionHeaderContent>
       </FormSectionHeader>

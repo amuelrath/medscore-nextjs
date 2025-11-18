@@ -1,6 +1,7 @@
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
-import { ReactNode } from 'react';
+import { ComponentPropsWithoutRef, forwardRef, ReactNode } from 'react';
 
 export function FormSectionHeader({
   children,
@@ -32,7 +33,12 @@ export function FormSectionHeaderContent({
   className?: string;
 }) {
   return (
-    <span className={cn('flex flex-row flex-grow items-center space-x-2', className)}>
+    <span
+      className={cn(
+        'flex flex-row flex-grow items-center space-x-2',
+        className,
+      )}
+    >
       {children}
     </span>
   );
@@ -49,6 +55,26 @@ export function FormSectionHeaderTitle({
   children: ReactNode;
   className?: string;
 }) {
-  return <p className={className}>{children}</p>;
+  return <h2 className={className}>{children}</h2>;
 }
 
+export const FormSectionHeaderButton = forwardRef<
+  HTMLButtonElement,
+  ComponentPropsWithoutRef<typeof Button> & {
+    LIcon: LucideIcon;
+  }
+>(({ children, className, LIcon, ...props }, ref) => (
+    <Button
+      ref={ref}
+      type="button"
+      variant={props.variant || 'outline'}
+      size={props.size || "xs"}
+      className={cn('absolute top-0 space-x-2 right-0 w-36', className)}
+      {...props}
+    >
+      <LIcon size={12} />
+      <span>{children}</span>
+    </Button>
+  ));
+
+FormSectionHeaderButton.displayName = 'FormSectionHeaderButton';

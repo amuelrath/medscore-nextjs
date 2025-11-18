@@ -20,6 +20,7 @@ import {
 import { z } from 'zod';
 
 export const roleEnum = pgEnum('role', ['ADMIN', 'STUDENT', 'FACULTY', 'NONE']);
+export type TRoleEnum = "ADMIN" | "STUDENT" | "FACULTY" | "NONE"
 
 export const timeLimitEnum = pgEnum('time_limit', ['NONE', 'CUSTOM']);
 
@@ -54,14 +55,14 @@ export type TFormItemType =
   | 'PARAGRAPH';
 
 export const formTypeEnum = pgEnum('form_type', [
-  'OSCE',
+  'STATION',
   'EVALUATION',
-  'DIRECT_OBSERVATION',
+  'SURVEY',
 ]);
 export const ZFormTypeEnum = z.enum([
-  'OSCE',
+  'STATION',
   'EVALUATION',
-  'DIRECT_OBSERVATION',
+  'SURVEY',
 ]);
 export type TFormType = z.infer<typeof ZFormTypeEnum>;
 
@@ -582,11 +583,8 @@ export const assessmentComponents = pgTable('assessment_components', {
   formId: uuid('form_id')
     .notNull()
     .references(() => forms.id, { onDelete: 'cascade' }),
-  participationType: participationTypeEnum('participation_type').notNull(),
 
   // settings
-  timeLimit: timeLimitEnum('time_limit').notNull().default('NONE'),
-  customLimit: integer('custom_limit'),
   saveAndQuit: boolean('save_and_quit').notNull().default(false),
   multipleResponses: boolean('multiple_responses').notNull().default(false),
   responseRevisions: boolean('response_revisions').notNull().default(false),

@@ -37,6 +37,7 @@ interface UserSelectProps<T extends FieldValues>
   disabledIds?: string[] | undefined;
   disabledFn?: () => string[] | undefined;
   placeholder?: string;
+  size?: "sm" | "md" | "lg"
 }
 
 // todo make this compatible with groups
@@ -50,6 +51,7 @@ export function UserSelect<T extends FieldValues>({
   disabledIds,
   disabledFn,
   placeholder,
+  size,
 }: UserSelectProps<T>) {
   const { data: formResult, isLoading } = useQuery({
     queryKey: ['forms', formId],
@@ -101,9 +103,10 @@ export function UserSelect<T extends FieldValues>({
         <div role="button" className="flex max-w-44 flex-row space-x-3">
           {selectedUserIds.length === 0 && (
             <Avatar
+              size={size}
               color="border"
               className={cn(
-                'shadow-sm border-foreground/50 hover:border-foreground transition group',
+                'shadow-sm scale-90 border-foreground/50 hover:border-foreground transition group',
                 disabled ? 'cursor-not-allowed hover:none' : 'hover:shadow-md',
               )}
               content={
@@ -112,6 +115,7 @@ export function UserSelect<T extends FieldValues>({
             />
           )}
           <AvatarStack
+            size={size}
             maxAvatars={4}
             avatars={selectedUserIds.map((id) => {
               const user = users.find((u) => u.id === id);
@@ -126,13 +130,13 @@ export function UserSelect<T extends FieldValues>({
           />
         </div>
       </PopoverTrigger>
-      <PopoverContent side="left" align="start" className="w-[300px]">
+      <PopoverContent align="start" className="w-[300px]">
         {isLoading ? (
           <Loading size="xs" />
         ) : (
           <Command>
             <CommandInput
-              placeholder={placeholder ?? 'Enter Respondent Name or Role'}
+              placeholder={placeholder ?? 'Enter Respondent Name or Role...'}
             />
             <CommandList>
               <CommandGroup heading="Select Users">
