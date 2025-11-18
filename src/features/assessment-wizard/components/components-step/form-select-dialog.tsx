@@ -72,21 +72,13 @@ function FormCard({
 
 interface FormSelectFormProps {
   value?: string;
-  handleAddComponent: (formId: string) => void;
+  handleAddComponent: (formId: string, type: TFormType, formTitle: string) => void;
 }
 
 function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
   // initialize state
   const [val, setVal] = useState<string>(value || '');
   const [searchValue, setSearchValue] = useState<string | null>(null);
-
-  const select = useCallback((id: string) => {
-    setVal(id);
-  }, []);
-
-  const handleSubmit = () => {
-    handleAddComponent(val);
-  };
 
   // get forms
   const {
@@ -105,6 +97,22 @@ function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
       [],
     [forms, searchValue],
   );
+
+  const select = useCallback((id: string) => {
+    setVal(id);
+  }, []);
+
+  const handleSubmit = () => {
+    // get the form's type too
+    const form = forms?.find((f) => f.id === val) // fixme
+
+    if (!form) return;
+
+    const type = form.type
+    const formTitle = form.title
+
+    handleAddComponent(val, type, formTitle);
+  };
 
   return (
     <>
@@ -151,7 +159,7 @@ function FormSelectForm({ value, handleAddComponent }: FormSelectFormProps) {
 export function FormSelectDialogTrigger({
   handleAddComponent,
 }: {
-  handleAddComponent: (formId: string) => void;
+  handleAddComponent: (formId: string, type: TFormType, formTitle: string) => void;
 }) {
   return (
     <Dialog>
