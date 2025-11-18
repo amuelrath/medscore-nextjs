@@ -37,6 +37,7 @@ interface UserSelectProps<T extends FieldValues>
   disabledIds?: string[] | undefined;
   disabledFn?: () => string[] | undefined;
   placeholder?: string;
+  size?: "sm" | "md" | "lg"
 }
 
 // todo make this compatible with groups
@@ -50,6 +51,7 @@ export function UserSelect<T extends FieldValues>({
   disabledIds,
   disabledFn,
   placeholder,
+  size,
 }: UserSelectProps<T>) {
   const { data: formResult, isLoading } = useQuery({
     queryKey: ['forms', formId],
@@ -101,7 +103,7 @@ export function UserSelect<T extends FieldValues>({
         <div role="button" className="flex max-w-44 flex-row space-x-3">
           {selectedUserIds.length === 0 && (
             <Avatar
-              size="lg"
+              size={size}
               color="border"
               className={cn(
                 'shadow-sm scale-90 border-foreground/50 hover:border-foreground transition group',
@@ -113,6 +115,7 @@ export function UserSelect<T extends FieldValues>({
             />
           )}
           <AvatarStack
+            size={size}
             maxAvatars={4}
             avatars={selectedUserIds.map((id) => {
               const user = users.find((u) => u.id === id);
