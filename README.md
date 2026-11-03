@@ -2,7 +2,7 @@
 
 > Educational intelligence and automation purpose-built for Graduate Medical Education.
 
-**Status: In Development**
+**Status: In Development. (WIP Prototype)**
 
 ## Tech Stack
 
